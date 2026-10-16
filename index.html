@@ -1,0 +1,584 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><title>Gaggia Gaggiuino Toolkit</title>
+<style>
+.site-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;font:500 14px/1.35 "Barlow",system-ui,sans-serif;background:var(--surface,#F9FAFA);color:var(--ink,#16191C);border-bottom:1px solid var(--line,#CBD0D5);transition:transform .22s ease,box-shadow .22s ease}
+/* it slides away while you read down the page and comes back as soon as you scroll up a little (NAV_JS) */
+.site-nav.nav-hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+.site-nav.nav-float{box-shadow:0 6px 18px rgba(0,0,0,.16)}
+@media (prefers-reduced-motion:reduce){.site-nav{transition:none}}
+.site-nav .in{max-width:1300px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.site-nav a{color:var(--ink,#16191C);text-decoration:none;padding:4px 0;white-space:nowrap}
+.site-nav a:hover,.site-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+.site-nav .brand{font-weight:700;letter-spacing:.01em;padding:8px 0}
+.site-nav .brand small{font-weight:500;color:var(--muted,#59616A);margin-left:6px;font-size:12px}
+.site-nav .nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;flex:1 1 auto;min-width:0}
+.site-nav .grp{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 12px}
+.site-nav .gl{font:600 10.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A)}
+.site-nav button{font:inherit;color:inherit}
+.nav-toggle{display:none;appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer;margin-left:auto}
+.nav-toggle[aria-expanded="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.mchip{appearance:none;border:1px solid var(--accent,#D98400);background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);border-radius:999px;padding:6px 12px;min-height:36px;cursor:pointer;font-weight:600;white-space:nowrap}
+.mchip b{color:var(--ink,#16191C);font-weight:600;margin-left:4px}
+/* desktop: brand and Your Gaggia on the first row, every page on the second */
+@media (min-width:1061px){
+  .site-nav .nav-links{order:3;flex-basis:100%}
+  .mchip{margin-left:auto}
+}
+/* tablets and phones: brand, Your Gaggia and the Pages button on one row; the page list opens below */
+@media (max-width:1060px){
+  .site-nav .brand{order:1}
+  .mchip{order:2;margin-left:auto;min-height:40px}
+  .nav-toggle{display:inline-block;order:3;margin-left:0;min-height:40px}
+  .site-nav .nav-links{display:none;order:5;flex-basis:100%;flex-direction:column;align-items:flex-start;gap:6px;padding:6px 0 6px}
+  .site-nav .nav-links.open{display:flex;position:absolute;left:0;right:0;top:100%;background:var(--surface,#F9FAFA);border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);box-shadow:0 12px 24px rgba(0,0,0,.18);padding:4px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+  .site-nav .grp{gap:0 18px}
+  .site-nav .nav-links a{display:inline-flex;align-items:center;min-height:40px}
+}
+@media (max-width:480px){
+  .site-nav .in{gap:6px 10px}
+  .site-nav .brand small{display:none}
+  .mchip:not(.set) #mchip-l{display:none}
+  .mchip.set .mchip-k{display:none}
+  .mchip.set b{margin-left:0}
+  .mchip-x{display:none}
+}
+/* the page list (phones) and the Your Gaggia panel open over the page, so nothing below them jumps */
+.mpanel{position:absolute;left:0;right:0;top:100%;border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);box-shadow:0 12px 24px rgba(0,0,0,.18);max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+.mpanel .in{display:grid;gap:12px;padding-block:14px 16px}
+/* behind an open page list or panel: dims the page, and a tap on it closes them instead of following whatever link was under it */
+.nav-scrim{position:fixed;inset:0;z-index:49;background:rgba(10,14,18,.3);-webkit-tap-highlight-color:transparent}
+.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.mk{font:600 11px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);min-width:7ch}
+.mseg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line,#CBD0D5);border-radius:999px;overflow:hidden}
+.mseg button{appearance:none;border:0;border-right:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);padding:7px 13px;cursor:pointer;font-weight:600;min-height:36px}
+.mseg button:last-child{border-right:0}
+.mseg button[aria-pressed="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0)}
+.mseg button[disabled]{opacity:.4;cursor:default}
+.mh{font-size:13px;color:var(--muted,#59616A)}
+#m-summary{margin:0;font-size:14px;color:var(--muted,#59616A);max-width:80ch}
+.mact{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.mact a{color:var(--accent-ink,#965300);text-decoration:underline}
+.mact button{appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer}
+.mact button#m-done{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono,ui-monospace,monospace);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);vertical-align:2px;margin-left:6px;white-space:nowrap}
+.site-foot{font:400 13.5px/1.5 "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);border-top:1px solid var(--line,#CBD0D5);background:var(--bg,#ECEEF0)}
+.site-foot .in{max-width:1300px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));display:grid;gap:6px}
+.site-foot a{color:var(--accent-ink,#965300)}
+.site-foot p{margin:0;max-width:95ch}
+/* every page ends with the full page list, so the next page is one tap away at the bottom too */
+.foot-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;min-width:0;padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--line,#CBD0D5)}
+@media (min-width:640px){.foot-nav{grid-template-columns:repeat(4,minmax(0,180px))}}
+.foot-nav .fn-home{grid-column:1/-1;justify-self:start;font-weight:700;color:var(--ink,#16191C);text-decoration:none;padding:4px 0}
+.foot-nav .fn-g{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0}
+.foot-nav .gl{font:600 11.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);margin-bottom:2px}
+.foot-nav .fn-g a{color:var(--ink,#16191C);text-decoration:none;padding:3px 0}
+.foot-nav a:hover,.foot-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+@media (pointer:coarse){.foot-nav .fn-g a,.foot-nav .fn-home{padding:8px 0}}
+@media print{.site-nav,.site-foot,.swipe-hint,.nav-scrim{display:none!important}}
+/* phones: inputs fill their boxes, small text buttons get a bigger tap area, wide drawings say they scroll */
+.read input,.money input,.unitbox input{align-self:stretch}
+@media (pointer:coarse){
+  .linkbtn{min-height:40px}
+  summary{min-height:40px}
+  .mact a,.foot .links a{display:inline-block;padding:10px 0}
+  input.mm{min-height:36px}
+  input[type=range]{height:32px}
+}
+@media (max-width:600px){
+  .plate{font-size:12px}
+  .vtag{font-size:11px}
+}
+.swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
+.swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
+</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html" aria-current="page">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
+   Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
+   condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
+   show; with no voltage, both voltages' notes show and the wording stays generic. Nothing is filled in for them.
+   Condition keys:
+     model:GC,GCP,EVO,E24   the machine (GC = original Classic; GCP, EVO, E24 = the Classic Pro family)
+     fam:GC | fam:GCP       Classic or Classic Pro family (Pro, Eco, Evo, E24)
+     volts:120 | volts:230
+     eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
+     opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
+     ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
+                            so it gets custom wiring even when stock wiring is picked
+   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording. */
+(function(){
+  var KEY='gaggia-machine-v1',MODELS=['GC','GCP','EVO','E24'];
+  var NAMES={GC:'Classic',GCP:'Classic Pro',EVO:'Classic Evo',E24:'Classic E24'};
+  var SHORT={GC:'Classic',GCP:'Pro',EVO:'Evo',E24:'E24'};
+  /* the Evo and E24 carry "Pro" only in North America: Classic Evo Pro and Classic Pro E24 at 120 V */
+  function shortName(m,v){return v===120?{EVO:'Evo Pro',E24:'Pro E24'}[m]||SHORT[m]:SHORT[m]}
+  function longName(m,v){return v===120?{EVO:'Classic Evo Pro',E24:'Classic Pro E24'}[m]||NAMES[m]:NAMES[m]}
+  var TEXT={
+    gfci:{'120':'GFCI','230':'RCD','':'GFCI (RCD outside North America)'},
+    outlet:{'120':'GFCI-protected outlet','230':'socket with RCD protection','':'GFCI- or RCD-protected outlet'},
+    volts:{'120':'120 V','230':'230 V','':'your mains voltage'}
+  };
+  function pro(m){return m==='GCP'||m==='EVO'||m==='E24'}
+  function clean(s){
+    if(!s||typeof s!=='object')return null;
+    var model=MODELS.indexOf(s.model)>=0?s.model:null;
+    var v=Number(s.volts),volts=v===230?230:v===120?120:null;
+    /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
+    var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
+    var path=s.path==='SI'||s.path==='CW'?s.path:null;
+    if(!model&&!volts&&!path)return null;
+    return {model:model,volts:volts,eco:eco,path:path};
+  }
+  function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
+  var prof=read();
+  /* Eco board: true, false, or null when it isn't known yet */
+  function ecoOf(p){
+    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
+    if(p.volts===120)return false;
+    if(p.volts!==230)return null;
+    return p.eco;
+  }
+  /* the wiring the pages actually use (see wpath above); null until an install path is picked */
+  function wpathOf(p){
+    if(!p||!p.path)return null;
+    if(p.path==='CW'||p.model==='GC')return p.path;
+    /* stock wiring on a Pro-family machine, or on an unknown model: it holds at 120 V, becomes custom wiring at 230 V, and is open until the voltage (and model) are known */
+    if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
+    return p.volts===120?'SI':null;
+  }
+  function conds(when){
+    return String(when||'').split(';').map(function(c){
+      c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
+    }).filter(function(c){return c.k});
+  }
+  /* true unless the profile rules the element out; unknown fields never rule anything out */
+  function matches(when){
+    if(!when||!prof)return true;
+    return conds(when).every(function(c){
+      if(c.k==='model')return !prof.model||c.vals.indexOf(prof.model)>=0;
+      if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
+      if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
+      if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
+      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
+      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
+      if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
+      return true;
+    });
+  }
+  /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
+  function decided(when){
+    if(!prof)return false;
+    return conds(when).every(function(c){
+      if(c.k==='model'||c.k==='fam')return !!prof.model;
+      if(c.k==='volts')return !!prof.volts;
+      if(c.k==='eco')return ecoOf(prof)!==null;
+      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='path')return !!prof.path;
+      if(c.k==='wpath')return wpathOf(prof)!==null;
+      return true;
+    });
+  }
+  function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
+  function label(p){
+    p=p||prof;if(!p)return 'Set it';
+    var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
+    if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    return a.join(', ');
+  }
+  function missing(p){
+    p=p||prof;if(!p)return [];var m=[];
+    if(!p.model)m.push('model');
+    if(!p.volts)m.push('mains voltage');
+    if(!p.path)m.push('install path');
+    return m;
+  }
+  function ecoOpen(p){return !!(p&&p.model&&pro(p.model)&&p.volts===230&&p.eco===null)}
+  function andList(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
+  function summary(p){
+    p=p||prof;
+    if(!p)return 'Pick your model, voltage and install path. Until you do, every page shows all the model notes, each tagged with the machines it applies to.';
+    var m=missing(p),e=ecoOf(p),w=wpathOf(p);
+    var what=(p.model?longName(p.model,p.volts):'Gaggia')+(p.volts?' ('+p.volts+' V'+(e?', Eco board':'')+')':'');
+    var how=w==='CW'||p.path==='CW'?' with custom wiring':p.path==='SI'?' with stock wiring integration':'';
+    var nodraw=p.path==='SI'&&w==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine.':'';
+    var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
+    var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
+    var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+  }
+  function apply(root){
+    root=root||document;
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
+    var l=document.getElementById('mchip-l');
+    if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
+      var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      l.textContent=!prof?'Set it':main.length?main.join(', '):x;
+      if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
+    var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
+    syncPanel();
+  }
+  function set(p){
+    prof=p?clean(p):null;
+    try{if(prof)localStorage.setItem(KEY,JSON.stringify(prof));else localStorage.removeItem(KEY)}catch(e){}
+    apply();
+    try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
+  }
+  /* start from what's saved, never from guesses */
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  /* ---- nav panel ---- */
+  function syncPanel(){
+    var pan=document.getElementById('mpanel');if(!pan)return;
+    var p=prof||{},e=ecoOf(p);
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mmodel]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mmodel')===p.model))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
+    var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
+    var s=document.getElementById('m-summary');if(s)s.textContent=summary();
+  }
+  function wire(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    var nt=document.getElementById('nav-toggle'),nl=document.getElementById('nav-links');
+    /* the page list and the Your Gaggia panel open over the page, one at a time; a tap outside or Escape closes them */
+    var scrim=document.getElementById('nav-scrim');
+    function sync(){if(scrim)scrim.hidden=!((nl&&nl.classList.contains('open'))||(pan&&!pan.hidden))}
+    function closeMenu(){if(nt&&nl&&nl.classList.contains('open')){nt.setAttribute('aria-expanded','false');nl.classList.remove('open');sync();return true}}
+    function closePanel(){if(chip&&pan&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();return true}}
+    if(scrim)scrim.addEventListener('click',function(){closeMenu();closePanel()});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&closeMenu())nt.focus()});
+    if(chip&&pan){
+      chip.addEventListener('click',function(){var open=pan.hidden;pan.hidden=!open;chip.setAttribute('aria-expanded',String(open));if(open)closeMenu();sync()});
+      pan.addEventListener('click',function(e){
+        var b=e.target.closest('button');if(!b||b.disabled)return;
+        var p=current();
+        if(b.hasAttribute('data-mmodel'))p.model=b.getAttribute('data-mmodel');
+        else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
+        else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
+        else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.id==='m-clear'){set(null);return}
+        else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
+        else return;
+        set(p);
+      });
+      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync()}});
+    }
+    if(nt&&nl)nt.addEventListener('click',function(){var open=nt.getAttribute('aria-expanded')!=='true';nt.setAttribute('aria-expanded',String(open));nl.classList.toggle('open',open);if(open)closePanel();sync()});
+    /* buttons on a page that set one field: data-setmachine="model:GCP" or "path:CW" */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-setmachine]'),function(b){
+      b.addEventListener('click',function(){
+        var p=current();
+        String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
+          var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+        });
+        set(p);
+      });
+    });
+    var inViewer=typeof window.claude!=='undefined';
+    var pb=document.querySelectorAll('[data-print]');
+    if(!inViewer)Array.prototype.forEach.call(pb,function(b){b.hidden=false;b.addEventListener('click',function(){window.print()})});
+    apply();
+    hints();window.addEventListener('resize',hints);
+  }
+  /* "swipe sideways" under drawings and tables that are wider than the screen */
+  function hints(){
+    Array.prototype.forEach.call(document.querySelectorAll('.scroll,.tablewrap,.table-wrap'),function(el){
+      var over=el.scrollWidth>el.clientWidth+8,h=el.nextElementSibling&&el.nextElementSibling.classList.contains('swipe-hint')?el.nextElementSibling:null;
+      if(over&&!h){h=document.createElement('p');h.className='swipe-hint';h.textContent=el.querySelector('svg')?'Swipe sideways to see the whole drawing':'Swipe sideways to see every column';el.parentNode.insertBefore(h,el.nextSibling)}
+      else if(!over&&h)h.remove();
+    });
+  }
+  window.GaggiaMachine={get:function(){return prof},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Shared tokens and components for the site-only pages (home, which Gaggia, wiring, cut list, troubleshooting, Learn). */
+:root{
+  --bg:#ECEEF0; --surface:#F9FAFA; --surface-2:#E2E5E8; --ink:#16191C; --muted:#59616A; --line:#CBD0D5;
+  --accent:#D98400; --accent-ink:#965300; --accent-soft:#F4E1C0; --on-accent:#1A1206;
+  --good:#2D7A4C; --good-soft:#DCEFE3; --bad:#B13A2F; --bad-soft:#F6DEDB; --blue:#2F6F98; --blue-soft:#DCE9F2;
+  --w-l:#B03A2E; --w-h:#C77800; --w-n:#2F5FB3; --w-e:#2D7A4C; --w-lv:#7046B8; --w-lvg:#59616A; --w-s:#1F7F86;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+    --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+    --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A; --blue:#6AAED6; --blue-soft:#16293A;
+    --w-l:#F0735F; --w-h:#F2A33A; --w-n:#79A6F2; --w-e:#63C08A; --w-lv:#B595F2; --w-lvg:#9BA2AA; --w-s:#5CC3C9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+  --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+  --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A; --blue:#6AAED6; --blue-soft:#16293A;
+  --w-l:#F0735F; --w-h:#F2A33A; --w-n:#79A6F2; --w-e:#63C08A; --w-lv:#B595F2; --w-lvg:#9BA2AA; --w-s:#5CC3C9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:30px 64px}
+.top{display:grid;gap:14px;margin-bottom:24px}
+.plate{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 12px;justify-self:start;max-width:100%;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;font:500 11.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.plate .rivet{width:6px;height:6px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 1px var(--muted);opacity:.7}
+.plate b{color:var(--ink);font-weight:600}
+/* rivets pinned to the plate's ends so a wrapped plate never leaves one on a line of its own */
+.plate{position:relative;padding:7px 26px}.plate .rivet{position:absolute;top:calc(50% - 3px);left:10px}.plate .rivet:last-child{left:auto;right:10px}
+h1{font:700 clamp(38px,6.6vw,60px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h2{font:600 24px/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;margin:0;text-wrap:balance}
+h3{margin:0;font-size:18px;font-weight:600;line-height:1.3}
+.lede{margin:0;color:var(--muted);max-width:66ch;font-size:17.5px}
+.warn{border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:12px 16px;display:grid;gap:4px;max-width:880px}
+.warn strong{font:600 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bad)}
+.warn p{margin:0;font-size:15.5px}
+section.block{margin-top:38px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:14px}
+.sec-h .sum{font:500 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+/* on phones a long heading takes its own line and the note drops below it, instead of the heading squeezing into a column */
+@media (max-width:520px){.sec-h{flex-wrap:wrap;row-gap:2px}.sec-h .sum{white-space:normal}}
+.k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fine{margin:0;font-size:14.5px;color:var(--muted);max-width:90ch}
+.chip{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font:600 14px var(--f-body);cursor:pointer;min-height:38px;display:inline-flex;align-items:center;gap:7px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip .n{font:500 12px var(--f-mono);color:var(--muted)}
+.chip[aria-pressed="true"] .n{color:var(--bg);opacity:.75}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px;font:600 15px var(--f-body);cursor:pointer;min-height:44px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.print-only{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#fff;--surface:#fff;--surface-2:#eee;--ink:#000;--muted:#333;--line:#999;--accent:#000;--accent-ink:#000;--accent-soft:#fff;color-scheme:light}
+  body{background:#fff;color:#000;font-size:10.5pt}
+  .wrap{max-width:none;padding:0}
+  .print-only{display:block}
+  .no-print,[data-print]{display:none!important}
+}
+
+/* Home: the toolkit on the site's usual light plate look. Tools grouped by phase, led by a dark featured card into the
+   scroll story (conversion.html), then an inline "Your Gaggia" picker, what changes between models, getting help, known gaps, sources. */
+.toolkit{scroll-margin-top:0}
+.toolkit .big{font:700 clamp(38px,6.6vw,60px)/.95 var(--f-display);letter-spacing:.01em;text-transform:uppercase;margin:0;text-wrap:balance}
+.phase{display:grid;grid-template-columns:170px minmax(0,1fr);gap:10px 24px;padding:18px 0;border-bottom:1px solid var(--line)}
+.phase:last-child{border-bottom:0;padding-bottom:0}
+.phase:first-of-type{padding-top:4px}
+.phase .ph{font:600 21px/1.1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;padding-top:10px}
+.phase .ph small{display:block;font:400 14px/1.4 var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted);margin-top:5px}
+.tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tool{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 12px;align-content:start;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px 15px;text-decoration:none;color:inherit}
+.tool:hover{border-color:var(--accent)}
+.tool .n{grid-row:1 / 3;font:700 30px/.9 var(--f-display);color:var(--accent);font-variant-numeric:tabular-nums;min-width:1.1em}
+.tool h3{font:600 21px/1.1 var(--f-display);letter-spacing:.03em;text-transform:uppercase;align-self:end}
+.tool p{margin:0;color:var(--muted);font-size:15px}
+.tool.ref{grid-template-columns:minmax(0,1fr)}
+/* the featured card borrows the story's dark stage so it reads as the way in */
+.tool.feat{grid-column:1 / -1;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:0;gap:0;overflow:hidden;background:#0E1012;border-color:#2A2E33;color:#ECEEF0}
+.tool.feat:hover{border-color:#F2A33A}
+.tool.feat .fimg{grid-column:2;grid-row:1;position:relative;display:block;min-height:250px;overflow:hidden}
+.tool.feat .fimg img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.tool.feat .ft{grid-column:1;grid-row:1;display:grid;gap:8px;align-content:center;padding:20px 22px}
+.tool.feat h3{color:#ECEEF0}
+.tool.feat p{color:#A9B0B7}
+.tool.feat .go{justify-self:start;margin-top:4px;padding:8px 14px;border-radius:999px;background:#F2A33A;color:#0E1012;font:600 14px var(--f-body)}
+@media (max-width:760px){.tool.feat{grid-template-columns:minmax(0,1fr)}.tool.feat .fimg{grid-column:1;grid-row:1;min-height:0;height:0;padding-top:62.5%}.tool.feat .ft{grid-column:1;grid-row:2}}
+@media (max-width:760px){.phase{grid-template-columns:minmax(0,1fr)}.phase .ph{padding-top:0}.tools{grid-template-columns:minmax(0,1fr)}}
+.ypick{display:grid;gap:10px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.ypick .mact{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font-size:15px}
+#y-lede{margin:14px 0 10px;max-width:72ch}
+.ynotes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px}
+.ynotes li{font-size:15.5px;padding-left:14px;border-left:3px solid var(--accent)}
+.ynotes li b{font-weight:600}
+@media (max-width:760px){.ynotes{grid-template-columns:minmax(0,1fr)}}
+.diff{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px}
+@media (max-width:700px){.diff{grid-template-columns:minmax(0,1fr)}}
+.d{display:grid;gap:3px;align-content:start}
+.d .k{color:var(--accent-ink)}
+.d p{margin:0;font-size:15.5px}
+.d p small{color:var(--muted)}
+.settings{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;max-width:620px}
+.settings table{font-size:15.5px}
+.settings th{padding:10px 14px}
+.settings td{padding:8px 14px}
+.settings tr:last-child td{border-bottom:0}
+.settings td.v{font:600 15px var(--f-mono)}
+ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
+</style>
+
+<div class="wrap toolkit" id="toolkit">
+  <header class="top">
+    <div class="plate" aria-label="Scope">
+      <span class="rivet" aria-hidden="true"></span>
+      <span><b>Gaggia Classic family</b></span><span>Classic, Pro, Eco, Evo Pro, E24</span><span>Gaggiuino Gen 3, PCB v4</span><span>unofficial</span>
+      <span class="rivet" aria-hidden="true"></span>
+    </div>
+    <h1 class="big">The Gaggia Gaggiuino toolkit</h1>
+    <p class="lede">Gaggiuino was built for the Gaggia Classic, and its official guide covers the install step by step. These pages sit beside the guide: they keep your place in it, show which steps and mods your model needs, and add the planning, checking and troubleshooting tools around it, in the order a build uses them.</p>
+    <div class="warn" role="note">
+      <strong>Read this first</strong>
+      <p>Everything here is unofficial community material, not reviewed by the Gaggiuino project. The <a href="https://gaggiuino.github.io/">official guide</a> is the instructions: every step on these pages links to the part of it that covers the step, and if the two ever disagree, follow the guide. Mains can kill you: cord out for every step until the power-on checks pass.</p>
+    </div>
+  </header>
+
+  <section class="block" aria-labelledby="h-tools">
+    <div class="sec-h"><h2 id="h-tools">The tools, in build order</h2><span class="sum">everything saves in your browser</span></div>
+    <div class="phase">
+      <h3 class="ph">Learn<small>Read any time, no tools needed</small></h3>
+      <div class="tools">
+        <a class="tool feat" href="conversion.html"><span class="fimg"><img src="img/conversion.webp" width="660" height="577" alt="The finished machine: a Gaggia Classic Pro with the Gaggiuino screen on top, a shot in the cup and its pressure and flow graph beside it."></span><div class="ft"><h3>The conversion, start to finish</h3><p>Scroll through the whole build as an animation, from a stock Gaggia to a profiled shot. Each step links to the page that covers it.</p><span class="go">Watch the conversion</span></div></a>
+        <a class="tool ref" href="how-gaggia-works.html"><h3>How the Gaggia works</h3><p>An x-ray of the stock machine you can run through heat, brew, hot water and steam, every part explained, and a live circuit you can switch.</p></a>
+        <a class="tool ref" href="how-gaggiuino-works.html"><h3>How Gaggiuino works</h3><p>What the PCB, sensors and SSR take over, how they hold the temperature and drive the pump, and the optional scales and tank sensor.</p></a>
+        <a class="tool ref" href="glossary.html"><h3>Glossary</h3><p>138 acronyms and shop words used across the site, each with a plain definition and links to where it comes up.</p></a>
+      </div>
+    </div>
+    <div class="phase">
+      <h3 class="ph">Plan and buy<small>Before anything arrives</small></h3>
+      <div class="tools">
+        <a class="tool" href="budget.html"><span class="n">1</span><h3>Build budget</h3><p>New or used machine, kit or parts, Bluetooth or hardware scales, the tank sensor and your model's extras, with the total. Enter real quotes as you get them.</p></a>
+        <a class="tool" href="used-checklist.html"><span class="n">2</span><h3>Used Gaggia checklist</h3><p>What to look at and ask about at a seller's house, saved per listing, with a price gauge and what the build adds on top.</p></a>
+        <a class="tool" href="which-gaggia.html"><span class="n">3</span><h3>Which Gaggia is mine</h3><p>Tell the Classic, Pro, Eco, Evo Pro and E24 apart from the label and the front, with what each changes for the build. Set yours once and every page follows.</p></a>
+        <a class="tool" href="parts-tracker.html"><span class="n">4</span><h3>Parts tracker</h3><p>Every line of the parts list for your model and install path, with links, status, price paid and box contents.</p></a>
+      </div>
+    </div>
+    <div class="phase">
+      <h3 class="ph">Install<small>At the bench, cord out</small></h3>
+      <div class="tools">
+        <a class="tool" href="runbook.html"><span class="n">5</span><h3>Install runbook</h3><p>Eight phases of tickable steps, from the bench test to calibration, each linked to its section of the official guide, with a stop before first power-on. Prints as one checklist.</p></a>
+        <a class="tool" href="wiring.html"><span class="n">6</span><h3>Wiring</h3><p>Every wire for your path: the seven stock-integration wires, or each run of a custom harness, with its ends, connectors and length, beside a link to the official schematic.</p></a>
+        <a class="tool" href="cut-list.html"><span class="n">7</span><h3>Cut list</h3><p>Wire to buy by gauge and color, the connectors to crimp, and every run to cut, with your own extra length. Tick runs off as you cut.</p></a>
+        <a class="tool" href="wire-labels.html"><span class="n">8</span><h3>Wire labels</h3><p>Printable flag labels for each wire end and for the stock connectors, using the official guide's names, as a PDF for Letter or A4.</p></a>
+        <a class="tool" href="power-on-checks.html"><span class="n">9</span><h3>Power-on checks</h3><p>About 63 unplugged checks for your schematic. Enter the meter reading and each one marks itself pass or fail; the page says when you're ready to plug in. Prints with blanks for readings.</p></a>
+      </div>
+    </div>
+    <div class="phase">
+      <h3 class="ph">After<small>When it's brewing</small></h3>
+      <div class="tools">
+        <a class="tool" href="troubleshooting.html"><span class="n">10</span><h3>Troubleshooting</h3><p>Symptom first: power, the screen, heat, pressure, switches, firmware and extras, each with likely causes and the checks that tell them apart.</p></a>
+        <a class="tool ref" href="model-notes.html"><h3>Model notes</h3><p>What each Gaggia changes for the build, in one place, with the reasoning and the official sources.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-yours">
+    <div class="sec-h"><h2 id="h-yours">Your Gaggia</h2><span class="sum" id="y-sum">not set</span></div>
+    <div class="ypick" id="ypick">
+      <div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model">
+        <button type="button" data-ymodel="GC" aria-pressed="false">Classic</button><button type="button" data-ymodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-ymodel="EVO" aria-pressed="false">Evo</button><button type="button" data-ymodel="E24" aria-pressed="false">E24</button>
+      </div></div>
+      <div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage">
+        <button type="button" data-yvolt="120" aria-pressed="false">120 V</button><button type="button" data-yvolt="230" aria-pressed="false">230 V</button>
+      </div></div>
+      <div class="mrow" id="y-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board">
+        <button type="button" data-yeco="yes" aria-pressed="false">Eco board</button><button type="button" data-yeco="no" aria-pressed="false">No Eco board</button>
+      </div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have one: it turns the machine off after 20 idle minutes, and its power switch springs back.</span></div>
+      <div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path">
+        <button type="button" data-ypath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-ypath="CW" aria-pressed="false">Custom wiring</button>
+      </div></div>
+      <div class="mact"><a href="which-gaggia.html">Not sure? Identify your Gaggia</a><button type="button" class="btn" id="y-clear" hidden>Clear</button></div>
+    </div>
+    <p class="fine" id="y-lede">Pick your model, voltage and install path. The runbook, checks, wiring and troubleshooting pages then show only what applies to your machine. Until you do, every note shows, tagged with the machines it's for.</p>
+    <ul class="ynotes">
+      <li data-when="model:GC;volts:230"><b>2015 to 2018 Classic: not compatible.</b> The 230 V Classic from those years (SIN035U, RI9403) has no 3-way valve. Check the label before buying parts. <span class="vtag">230 V Classic</span></li>
+      <li data-when="ground"><b>Ungrounded cord.</b> Most US Classics were sold with a two-prong cord and an ungrounded case. The machine-specific guide adds a grounded inlet and ground wires. <span class="vtag">120 V Classic</span></li>
+      <li data-when="eco:yes"><b>Eco board.</b> The power switch needs a small mod so it stays on, and the official guide recommends custom wiring over stock integration. <span class="vtag">Eco board</span></li>
+      <li data-when="opv9"><b>9 bar OPV.</b> Raise it to 10 to 12 bar with a 12 bar spring or M3 washers, so it stays shut below your highest shot pressure. <span class="vtag">US Evo Pro, E24</span></li>
+      <li data-when="model:EVO,E24"><b>Combined switch connectors.</b> On most of these, each switch's connectors are gathered in one combined block. Take each connector out, insulate it on its own and label it, above all for stock wiring. <span class="vtag">Evo, E24</span></li>
+      <li data-when="fam:GC"><b>Classic plumbing.</b> PTFE tube with push-to-connect fittings for the pressure T. The Classic's metal OPV sits at the group inlet. <span class="vtag">Classic</span></li>
+      <li data-when="fam:GCP"><b>Pro plumbing.</b> Braided silicone hose, so the pressure T is a barbed fitting with hose clamps. <span class="vtag">Pro family</span></li>
+      <li data-when="path:SI;fam:GCP;volts:230"><b>No 230 V Pro stock-integration drawing.</b> The official stock-integration schematics cover the 120 V Pro family and both Classics. For a 230 V Pro, follow the custom wiring guide. <span class="vtag">230 V Pro family</span></li>
+      <li data-when="wpath:SI"><b>Stock wiring.</b> Seven short integration wires, and the stock harness stays. Label every stock connector before you move it. <span class="vtag">Stock wiring</span></li>
+      <li data-when="wpath:CW"><b>Custom wiring.</b> A new 18 AWG harness from the official schematic for your model and voltage. The cut list and labels pages give every run. <span class="vtag">Custom wiring</span></li>
+      <li data-when="volts:230"><b>230 V.</b> Protection is an RCD, and the checks expect a 230 V element. <span class="vtag">230 V</span></li>
+      <li data-when="volts:120"><b>120 V.</b> First power-on goes through a GFCI-protected outlet, and the checks expect a 120 V element. <span class="vtag">120 V</span></li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-diff">
+    <div class="sec-h"><h2 id="h-diff">What changes between models</h2><span class="sum">from the official compatibility table and machine-specific guide</span></div>
+    <div class="diff">
+      <div class="d"><span class="k">Two families</span><p>The official guide splits the machines in two: the Gaggia Classic (GC), and the Gaggia Classic Pro (GCP), which takes in the Pro, Eco, Evo Pro and E24. Plumbing, switch layout and schematics follow the family.</p></div>
+      <div class="d"><span class="k">One to avoid</span><p>The 230 V Classic sold from 2015 to 2018 (SIN035U, RI9403) has no 3-way valve, and the official docs list it as not compatible. Every other model in their compatibility table is; the Classic UP and GT aren't in it.</p></div>
+      <div class="d"><span class="k">Eco board</span><p>230 V Pro-family machines with the Eco board switch themselves off after 20 idle minutes, and their power switch springs back. Remove a spring so the switch stays on, and use custom wiring: the guide recommends against stock integration on these.</p></div>
+      <div class="d"><span class="k">9 bar OPV</span><p>US Evo Pro and E24 machines ship with a 9 bar OPV. Gaggiuino needs it at 10 to 12 bar, because an OPV starts to open below its rating and the controller can't tell when. A 12 bar spring, or 3 or 4 M3 washers behind the 9 bar one.</p></div>
+      <div class="d"><span class="k">Connector block</span><p>Most Evo Pro and E24 machines gather the switch connectors in one shield. Each connector comes out, gets its own silicone tape or heat shrink and a label, so none is left bare when it's disconnected.</p></div>
+      <div class="d"><span class="k">Grounding</span><p>Most US Classics have a two-prong cord and an ungrounded case. The guide fits a C14 three-pin inlet, a grounded cord and ground wires to the boiler and the cup warmer.</p></div>
+      <div class="d"><span class="k">Pressure sensor</span><p>A T-fitting in the line from pump to boiler (PTFE tube and push-to-connect fittings on a Classic, braided hose and clamps on a Pro), or the pressure tap block, which fits every model.</p></div>
+      <div class="d"><span class="k">Settings and hot water</span><p>Leave Settings, Boiler on the defaults: the Gen 3 manual recommends them for the Classic and the whole Pro family. Brew and steam on together start hot water mode, as on the stock machine.</p></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-help">
+    <div class="sec-h"><h2 id="h-help">Getting help</h2></div>
+    <ul class="plain">
+      <li>The official build process asks for one help thread per person and machine on the Gaggiuino Discord: #install-help-gc for a Classic, #install-help-gcp for the Pro, Eco, Evo Pro and E24. Title it [username][machine][control system] plus a short title, and rename it as your questions change.</li>
+      <li>Search first: most questions have been asked. Photos of how everything is connected answer most of the rest before they're asked.</li>
+      <li>When it works, the build process asks you to record your first start and first shot and post them in #first-start and #first-shot.</li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-open">
+    <div class="sec-h"><h2 id="h-open">Known gaps</h2></div>
+    <ul class="plain">
+      <li>There's no official stock-integration schematic for 230 V Pro-family machines, so this site points them to custom wiring, as the guide does for Eco boards.</li>
+      <li>Gen 3's source isn't published. The Learn pages describe the heating and pump control from the public Gen 2 firmware, which uses the same settings.</li>
+      <li>Prices and stock change weekly. The budget and parts tracker carry the date each price was checked.</li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-src">
+    <div class="sec-h"><h2 id="h-src">Sources and credits</h2></div>
+    <ul class="plain">
+      <li><a href="https://gaggiuino.github.io/">Official Gaggiuino docs</a>: the compatibility table, BOM, PCB guide, stock wiring integration, custom wiring, machine-specific guide, screen and flashing guides, and the Gen 3 manual. Every step here is summarized from them and links back.</li>
+      <li>banoz, <a href="https://github.com/banoz/CoffeeHat">CoffeeHat</a>: the PCB hardware. The <a href="https://github.com/Zer0-bit/gaggiuino">Gaggiuino firmware</a> for how the Gen 2 code heats and drives the pump.</li>
+      <li><a href="model-notes.html">Model notes</a> collects what each model changes, with sources.</li>
+      <li>The sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia Gaggiuino toolkit</a>, for the Rancilio Silvia.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function(){
+  var M=window.GaggiaMachine,box=document.getElementById('ypick');if(!M||!box)return;
+  function $(id){return document.getElementById(id)}
+  function each(sel,fn){Array.prototype.forEach.call(box.querySelectorAll(sel),fn)}
+  function sync(){
+    var p=M.get();
+    each('[data-ymodel]',function(b){b.setAttribute('aria-pressed',String(!!p&&b.getAttribute('data-ymodel')===p.model))});
+    each('[data-yvolt]',function(b){b.setAttribute('aria-pressed',String(!!p&&Number(b.getAttribute('data-yvolt'))===p.volts))});
+    each('[data-yeco]',function(b){b.setAttribute('aria-pressed',String(!!p&&p.eco!==null&&(b.getAttribute('data-yeco')==='yes')===p.eco))});
+    each('[data-ypath]',function(b){b.setAttribute('aria-pressed',String(!!p&&b.getAttribute('data-ypath')===p.path))});
+    $('y-eco-row').hidden=!(p&&(p.model==='GCP'||p.model==='EVO'||p.model==='E24')&&p.volts===230);$('y-clear').hidden=!p;
+    $('y-sum').textContent=p?M.label(p):'not set';
+    $('y-lede').textContent=p?M.summary(p):'Pick your model, voltage and install path. The runbook, checks, wiring and troubleshooting pages then show only what applies to your machine. Until you do, every note shows, tagged with the machines it\'s for.';
+  }
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b||b.disabled)return;
+    var p=M.current();
+    if(b.hasAttribute('data-ymodel'))p.model=b.getAttribute('data-ymodel');
+    else if(b.hasAttribute('data-yvolt'))p.volts=Number(b.getAttribute('data-yvolt'));
+    else if(b.hasAttribute('data-yeco'))p.eco=b.getAttribute('data-yeco')==='yes';
+    else if(b.hasAttribute('data-ypath'))p.path=b.getAttribute('data-ypath');
+    else if(b.id==='y-clear'){M.set(null);return}
+    else return;
+    M.set(p);
+  });
+  window.addEventListener('gaggia-machine',sync);
+  sync();
+})();
+</script>
+<footer class="site-foot"><div class="in"><nav class="foot-nav" aria-label="All pages"><a class="fn-home" href="index.html" aria-current="page">Gaggia × Gaggiuino home</a><div class="fn-g"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></div><div class="fn-g"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></div><div class="fn-g"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></div><div class="fn-g"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></div></nav><p><strong>Mains voltage.</strong> This conversion puts your hands near 120/230 V wiring. Work only with the cord out, check everything with a meter before first power-on, and stop if anything here disagrees with the official Gaggiuino docs or your own reading of the machine. Nothing on this site has been reviewed by the Gaggiuino project. You are responsible for your own build.</p><p>Unofficial community material for the Gaggia Classic family. The install itself is the official guide at <a href="https://gaggiuino.github.io/">gaggiuino.github.io</a>; these pages organize it, link to each step and add tools around it. Content is <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>, like the sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia site</a>. · <a href="https://github.com/Jabawabawaba/Gaggia-Gaggiuino">Source and issues on GitHub</a></p></div></footer></body></html>

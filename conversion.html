@@ -1,0 +1,1054 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><title>Gaggia, Meet Gaggiuino</title>
+<style>
+.site-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;font:500 14px/1.35 "Barlow",system-ui,sans-serif;background:var(--surface,#F9FAFA);color:var(--ink,#16191C);border-bottom:1px solid var(--line,#CBD0D5);transition:transform .22s ease,box-shadow .22s ease}
+/* it slides away while you read down the page and comes back as soon as you scroll up a little (NAV_JS) */
+.site-nav.nav-hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+.site-nav.nav-float{box-shadow:0 6px 18px rgba(0,0,0,.16)}
+@media (prefers-reduced-motion:reduce){.site-nav{transition:none}}
+.site-nav .in{max-width:1300px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.site-nav a{color:var(--ink,#16191C);text-decoration:none;padding:4px 0;white-space:nowrap}
+.site-nav a:hover,.site-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+.site-nav .brand{font-weight:700;letter-spacing:.01em;padding:8px 0}
+.site-nav .brand small{font-weight:500;color:var(--muted,#59616A);margin-left:6px;font-size:12px}
+.site-nav .nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;flex:1 1 auto;min-width:0}
+.site-nav .grp{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 12px}
+.site-nav .gl{font:600 10.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A)}
+.site-nav button{font:inherit;color:inherit}
+.nav-toggle{display:none;appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer;margin-left:auto}
+.nav-toggle[aria-expanded="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.mchip{appearance:none;border:1px solid var(--accent,#D98400);background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);border-radius:999px;padding:6px 12px;min-height:36px;cursor:pointer;font-weight:600;white-space:nowrap}
+.mchip b{color:var(--ink,#16191C);font-weight:600;margin-left:4px}
+/* desktop: brand and Your Gaggia on the first row, every page on the second */
+@media (min-width:1061px){
+  .site-nav .nav-links{order:3;flex-basis:100%}
+  .mchip{margin-left:auto}
+}
+/* tablets and phones: brand, Your Gaggia and the Pages button on one row; the page list opens below */
+@media (max-width:1060px){
+  .site-nav .brand{order:1}
+  .mchip{order:2;margin-left:auto;min-height:40px}
+  .nav-toggle{display:inline-block;order:3;margin-left:0;min-height:40px}
+  .site-nav .nav-links{display:none;order:5;flex-basis:100%;flex-direction:column;align-items:flex-start;gap:6px;padding:6px 0 6px}
+  .site-nav .nav-links.open{display:flex;position:absolute;left:0;right:0;top:100%;background:var(--surface,#F9FAFA);border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);box-shadow:0 12px 24px rgba(0,0,0,.18);padding:4px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+  .site-nav .grp{gap:0 18px}
+  .site-nav .nav-links a{display:inline-flex;align-items:center;min-height:40px}
+}
+@media (max-width:480px){
+  .site-nav .in{gap:6px 10px}
+  .site-nav .brand small{display:none}
+  .mchip:not(.set) #mchip-l{display:none}
+  .mchip.set .mchip-k{display:none}
+  .mchip.set b{margin-left:0}
+  .mchip-x{display:none}
+}
+/* the page list (phones) and the Your Gaggia panel open over the page, so nothing below them jumps */
+.mpanel{position:absolute;left:0;right:0;top:100%;border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);box-shadow:0 12px 24px rgba(0,0,0,.18);max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+.mpanel .in{display:grid;gap:12px;padding-block:14px 16px}
+/* behind an open page list or panel: dims the page, and a tap on it closes them instead of following whatever link was under it */
+.nav-scrim{position:fixed;inset:0;z-index:49;background:rgba(10,14,18,.3);-webkit-tap-highlight-color:transparent}
+.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.mk{font:600 11px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);min-width:7ch}
+.mseg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line,#CBD0D5);border-radius:999px;overflow:hidden}
+.mseg button{appearance:none;border:0;border-right:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);padding:7px 13px;cursor:pointer;font-weight:600;min-height:36px}
+.mseg button:last-child{border-right:0}
+.mseg button[aria-pressed="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0)}
+.mseg button[disabled]{opacity:.4;cursor:default}
+.mh{font-size:13px;color:var(--muted,#59616A)}
+#m-summary{margin:0;font-size:14px;color:var(--muted,#59616A);max-width:80ch}
+.mact{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.mact a{color:var(--accent-ink,#965300);text-decoration:underline}
+.mact button{appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer}
+.mact button#m-done{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono,ui-monospace,monospace);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);vertical-align:2px;margin-left:6px;white-space:nowrap}
+.site-foot{font:400 13.5px/1.5 "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);border-top:1px solid var(--line,#CBD0D5);background:var(--bg,#ECEEF0)}
+.site-foot .in{max-width:1300px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));display:grid;gap:6px}
+.site-foot a{color:var(--accent-ink,#965300)}
+.site-foot p{margin:0;max-width:95ch}
+/* every page ends with the full page list, so the next page is one tap away at the bottom too */
+.foot-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;min-width:0;padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--line,#CBD0D5)}
+@media (min-width:640px){.foot-nav{grid-template-columns:repeat(4,minmax(0,180px))}}
+.foot-nav .fn-home{grid-column:1/-1;justify-self:start;font-weight:700;color:var(--ink,#16191C);text-decoration:none;padding:4px 0}
+.foot-nav .fn-g{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0}
+.foot-nav .gl{font:600 11.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);margin-bottom:2px}
+.foot-nav .fn-g a{color:var(--ink,#16191C);text-decoration:none;padding:3px 0}
+.foot-nav a:hover,.foot-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+@media (pointer:coarse){.foot-nav .fn-g a,.foot-nav .fn-home{padding:8px 0}}
+@media print{.site-nav,.site-foot,.swipe-hint,.nav-scrim{display:none!important}}
+/* phones: inputs fill their boxes, small text buttons get a bigger tap area, wide drawings say they scroll */
+.read input,.money input,.unitbox input{align-self:stretch}
+@media (pointer:coarse){
+  .linkbtn{min-height:40px}
+  summary{min-height:40px}
+  .mact a,.foot .links a{display:inline-block;padding:10px 0}
+  input.mm{min-height:36px}
+  input[type=range]{height:32px}
+}
+@media (max-width:600px){
+  .plate{font-size:12px}
+  .vtag{font-size:11px}
+}
+.swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
+.swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
+</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html" aria-current="page">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
+   Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
+   condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
+   show; with no voltage, both voltages' notes show and the wording stays generic. Nothing is filled in for them.
+   Condition keys:
+     model:GC,GCP,EVO,E24   the machine (GC = original Classic; GCP, EVO, E24 = the Classic Pro family)
+     fam:GC | fam:GCP       Classic or Classic Pro family (Pro, Eco, Evo, E24)
+     volts:120 | volts:230
+     eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
+     opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
+     ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
+                            so it gets custom wiring even when stock wiring is picked
+   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording. */
+(function(){
+  var KEY='gaggia-machine-v1',MODELS=['GC','GCP','EVO','E24'];
+  var NAMES={GC:'Classic',GCP:'Classic Pro',EVO:'Classic Evo',E24:'Classic E24'};
+  var SHORT={GC:'Classic',GCP:'Pro',EVO:'Evo',E24:'E24'};
+  /* the Evo and E24 carry "Pro" only in North America: Classic Evo Pro and Classic Pro E24 at 120 V */
+  function shortName(m,v){return v===120?{EVO:'Evo Pro',E24:'Pro E24'}[m]||SHORT[m]:SHORT[m]}
+  function longName(m,v){return v===120?{EVO:'Classic Evo Pro',E24:'Classic Pro E24'}[m]||NAMES[m]:NAMES[m]}
+  var TEXT={
+    gfci:{'120':'GFCI','230':'RCD','':'GFCI (RCD outside North America)'},
+    outlet:{'120':'GFCI-protected outlet','230':'socket with RCD protection','':'GFCI- or RCD-protected outlet'},
+    volts:{'120':'120 V','230':'230 V','':'your mains voltage'}
+  };
+  function pro(m){return m==='GCP'||m==='EVO'||m==='E24'}
+  function clean(s){
+    if(!s||typeof s!=='object')return null;
+    var model=MODELS.indexOf(s.model)>=0?s.model:null;
+    var v=Number(s.volts),volts=v===230?230:v===120?120:null;
+    /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
+    var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
+    var path=s.path==='SI'||s.path==='CW'?s.path:null;
+    if(!model&&!volts&&!path)return null;
+    return {model:model,volts:volts,eco:eco,path:path};
+  }
+  function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
+  var prof=read();
+  /* Eco board: true, false, or null when it isn't known yet */
+  function ecoOf(p){
+    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
+    if(p.volts===120)return false;
+    if(p.volts!==230)return null;
+    return p.eco;
+  }
+  /* the wiring the pages actually use (see wpath above); null until an install path is picked */
+  function wpathOf(p){
+    if(!p||!p.path)return null;
+    if(p.path==='CW'||p.model==='GC')return p.path;
+    /* stock wiring on a Pro-family machine, or on an unknown model: it holds at 120 V, becomes custom wiring at 230 V, and is open until the voltage (and model) are known */
+    if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
+    return p.volts===120?'SI':null;
+  }
+  function conds(when){
+    return String(when||'').split(';').map(function(c){
+      c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
+    }).filter(function(c){return c.k});
+  }
+  /* true unless the profile rules the element out; unknown fields never rule anything out */
+  function matches(when){
+    if(!when||!prof)return true;
+    return conds(when).every(function(c){
+      if(c.k==='model')return !prof.model||c.vals.indexOf(prof.model)>=0;
+      if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
+      if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
+      if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
+      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
+      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
+      if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
+      return true;
+    });
+  }
+  /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
+  function decided(when){
+    if(!prof)return false;
+    return conds(when).every(function(c){
+      if(c.k==='model'||c.k==='fam')return !!prof.model;
+      if(c.k==='volts')return !!prof.volts;
+      if(c.k==='eco')return ecoOf(prof)!==null;
+      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='path')return !!prof.path;
+      if(c.k==='wpath')return wpathOf(prof)!==null;
+      return true;
+    });
+  }
+  function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
+  function label(p){
+    p=p||prof;if(!p)return 'Set it';
+    var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
+    if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    return a.join(', ');
+  }
+  function missing(p){
+    p=p||prof;if(!p)return [];var m=[];
+    if(!p.model)m.push('model');
+    if(!p.volts)m.push('mains voltage');
+    if(!p.path)m.push('install path');
+    return m;
+  }
+  function ecoOpen(p){return !!(p&&p.model&&pro(p.model)&&p.volts===230&&p.eco===null)}
+  function andList(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
+  function summary(p){
+    p=p||prof;
+    if(!p)return 'Pick your model, voltage and install path. Until you do, every page shows all the model notes, each tagged with the machines it applies to.';
+    var m=missing(p),e=ecoOf(p),w=wpathOf(p);
+    var what=(p.model?longName(p.model,p.volts):'Gaggia')+(p.volts?' ('+p.volts+' V'+(e?', Eco board':'')+')':'');
+    var how=w==='CW'||p.path==='CW'?' with custom wiring':p.path==='SI'?' with stock wiring integration':'';
+    var nodraw=p.path==='SI'&&w==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine.':'';
+    var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
+    var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
+    var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+  }
+  function apply(root){
+    root=root||document;
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
+    var l=document.getElementById('mchip-l');
+    if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
+      var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      l.textContent=!prof?'Set it':main.length?main.join(', '):x;
+      if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
+    var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
+    syncPanel();
+  }
+  function set(p){
+    prof=p?clean(p):null;
+    try{if(prof)localStorage.setItem(KEY,JSON.stringify(prof));else localStorage.removeItem(KEY)}catch(e){}
+    apply();
+    try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
+  }
+  /* start from what's saved, never from guesses */
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  /* ---- nav panel ---- */
+  function syncPanel(){
+    var pan=document.getElementById('mpanel');if(!pan)return;
+    var p=prof||{},e=ecoOf(p);
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mmodel]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mmodel')===p.model))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
+    var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
+    var s=document.getElementById('m-summary');if(s)s.textContent=summary();
+  }
+  function wire(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    var nt=document.getElementById('nav-toggle'),nl=document.getElementById('nav-links');
+    /* the page list and the Your Gaggia panel open over the page, one at a time; a tap outside or Escape closes them */
+    var scrim=document.getElementById('nav-scrim');
+    function sync(){if(scrim)scrim.hidden=!((nl&&nl.classList.contains('open'))||(pan&&!pan.hidden))}
+    function closeMenu(){if(nt&&nl&&nl.classList.contains('open')){nt.setAttribute('aria-expanded','false');nl.classList.remove('open');sync();return true}}
+    function closePanel(){if(chip&&pan&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();return true}}
+    if(scrim)scrim.addEventListener('click',function(){closeMenu();closePanel()});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&closeMenu())nt.focus()});
+    if(chip&&pan){
+      chip.addEventListener('click',function(){var open=pan.hidden;pan.hidden=!open;chip.setAttribute('aria-expanded',String(open));if(open)closeMenu();sync()});
+      pan.addEventListener('click',function(e){
+        var b=e.target.closest('button');if(!b||b.disabled)return;
+        var p=current();
+        if(b.hasAttribute('data-mmodel'))p.model=b.getAttribute('data-mmodel');
+        else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
+        else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
+        else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.id==='m-clear'){set(null);return}
+        else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
+        else return;
+        set(p);
+      });
+      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync()}});
+    }
+    if(nt&&nl)nt.addEventListener('click',function(){var open=nt.getAttribute('aria-expanded')!=='true';nt.setAttribute('aria-expanded',String(open));nl.classList.toggle('open',open);if(open)closePanel();sync()});
+    /* buttons on a page that set one field: data-setmachine="model:GCP" or "path:CW" */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-setmachine]'),function(b){
+      b.addEventListener('click',function(){
+        var p=current();
+        String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
+          var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+        });
+        set(p);
+      });
+    });
+    var inViewer=typeof window.claude!=='undefined';
+    var pb=document.querySelectorAll('[data-print]');
+    if(!inViewer)Array.prototype.forEach.call(pb,function(b){b.hidden=false;b.addEventListener('click',function(){window.print()})});
+    apply();
+    hints();window.addEventListener('resize',hints);
+  }
+  /* "swipe sideways" under drawings and tables that are wider than the screen */
+  function hints(){
+    Array.prototype.forEach.call(document.querySelectorAll('.scroll,.tablewrap,.table-wrap'),function(el){
+      var over=el.scrollWidth>el.clientWidth+8,h=el.nextElementSibling&&el.nextElementSibling.classList.contains('swipe-hint')?el.nextElementSibling:null;
+      if(over&&!h){h=document.createElement('p');h.className='swipe-hint';h.textContent=el.querySelector('svg')?'Swipe sideways to see the whole drawing':'Swipe sideways to see every column';el.parentNode.insertBefore(h,el.nextSibling)}
+      else if(!over&&h)h.remove();
+    });
+  }
+  window.GaggiaMachine={get:function(){return prof},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Shared tokens and components for the site-only pages (home, which Gaggia, wiring, cut list, troubleshooting, Learn). */
+:root{
+  --bg:#ECEEF0; --surface:#F9FAFA; --surface-2:#E2E5E8; --ink:#16191C; --muted:#59616A; --line:#CBD0D5;
+  --accent:#D98400; --accent-ink:#965300; --accent-soft:#F4E1C0; --on-accent:#1A1206;
+  --good:#2D7A4C; --good-soft:#DCEFE3; --bad:#B13A2F; --bad-soft:#F6DEDB; --blue:#2F6F98; --blue-soft:#DCE9F2;
+  --w-l:#B03A2E; --w-h:#C77800; --w-n:#2F5FB3; --w-e:#2D7A4C; --w-lv:#7046B8; --w-lvg:#59616A; --w-s:#1F7F86;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+    --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+    --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A; --blue:#6AAED6; --blue-soft:#16293A;
+    --w-l:#F0735F; --w-h:#F2A33A; --w-n:#79A6F2; --w-e:#63C08A; --w-lv:#B595F2; --w-lvg:#9BA2AA; --w-s:#5CC3C9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+  --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+  --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A; --blue:#6AAED6; --blue-soft:#16293A;
+  --w-l:#F0735F; --w-h:#F2A33A; --w-n:#79A6F2; --w-e:#63C08A; --w-lv:#B595F2; --w-lvg:#9BA2AA; --w-s:#5CC3C9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:30px 64px}
+.top{display:grid;gap:14px;margin-bottom:24px}
+.plate{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 12px;justify-self:start;max-width:100%;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;font:500 11.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.plate .rivet{width:6px;height:6px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 1px var(--muted);opacity:.7}
+.plate b{color:var(--ink);font-weight:600}
+/* rivets pinned to the plate's ends so a wrapped plate never leaves one on a line of its own */
+.plate{position:relative;padding:7px 26px}.plate .rivet{position:absolute;top:calc(50% - 3px);left:10px}.plate .rivet:last-child{left:auto;right:10px}
+h1{font:700 clamp(38px,6.6vw,60px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h2{font:600 24px/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;margin:0;text-wrap:balance}
+h3{margin:0;font-size:18px;font-weight:600;line-height:1.3}
+.lede{margin:0;color:var(--muted);max-width:66ch;font-size:17.5px}
+.warn{border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:12px 16px;display:grid;gap:4px;max-width:880px}
+.warn strong{font:600 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bad)}
+.warn p{margin:0;font-size:15.5px}
+section.block{margin-top:38px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:14px}
+.sec-h .sum{font:500 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+/* on phones a long heading takes its own line and the note drops below it, instead of the heading squeezing into a column */
+@media (max-width:520px){.sec-h{flex-wrap:wrap;row-gap:2px}.sec-h .sum{white-space:normal}}
+.k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fine{margin:0;font-size:14.5px;color:var(--muted);max-width:90ch}
+.chip{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font:600 14px var(--f-body);cursor:pointer;min-height:38px;display:inline-flex;align-items:center;gap:7px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip .n{font:500 12px var(--f-mono);color:var(--muted)}
+.chip[aria-pressed="true"] .n{color:var(--bg);opacity:.75}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px;font:600 15px var(--f-body);cursor:pointer;min-height:44px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.print-only{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#fff;--surface:#fff;--surface-2:#eee;--ink:#000;--muted:#333;--line:#999;--accent:#000;--accent-ink:#000;--accent-soft:#fff;color-scheme:light}
+  body{background:#fff;color:#000;font-size:10.5pt}
+  .wrap{max-width:none;padding:0}
+  .print-only{display:block}
+  .no-print,[data-print]{display:none!important}
+}
+
+/* The conversion: the scroll story on its own page. Everything it needs lives in story.tpl.html. */
+</style>
+
+<style>
+/* Scroll story: a sticky stage (one dark workshop look in both themes) with the machine on it, and chapter cards
+   that scroll over it. The machine is the only bold element; the cards stay quiet. */
+.story{--st-bg:#0E1012;--st-ink:#ECEEF0;--st-muted:#A9B0B7;--st-line:rgba(255,255,255,.10);--st-card:rgba(16,18,21,.78);--st-amber:#F2A33A;--st-amber-ink:#F7C27A;
+  position:relative;background:var(--st-bg);color:var(--st-ink);isolation:isolate}
+.st-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;z-index:0}
+.st-stage svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.st-chapters{position:relative;z-index:1;margin-top:-100vh;margin-top:-100svh}
+.ch{min-height:calc(var(--len,150)*1vh);min-height:calc(var(--len,150)*1svh);display:flex;align-items:center;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:12vh;max-width:1300px;margin:0 auto}
+.ch.hero{min-height:100vh;min-height:100svh;padding-block:10vh 14vh}
+.ch.last{min-height:100vh;min-height:100svh}
+.card{width:min(410px,42vw);background:var(--st-card);border:1px solid var(--st-line);border-radius:16px;padding:22px 24px 22px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;gap:10px}
+.card.hc{width:min(470px,46vw);background:transparent;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0}
+.st-num{font:700 64px/.8 var(--f-display);color:transparent;-webkit-text-stroke:1.2px var(--st-amber);letter-spacing:.01em;justify-self:start;
+  background:linear-gradient(to top,rgba(242,163,58,.82) calc(var(--fill,0)*106% - 6%),rgba(242,163,58,0) calc(var(--fill,0)*106%));-webkit-background-clip:text;background-clip:text}
+.card h2{font:700 40px/.95 var(--f-display);letter-spacing:.01em;text-transform:uppercase;margin:0;color:var(--st-ink);text-wrap:balance}
+.hc h1{font:700 clamp(46px,min(8.2vw,12.5vh),104px)/.86 var(--f-display);letter-spacing:.005em;text-transform:uppercase;margin:0;color:var(--st-ink);text-wrap:balance}
+.hc h1 span{display:block;color:var(--st-amber)}
+.card p{margin:0;font-size:17px;line-height:1.55;color:var(--st-muted)}
+.card.hc p{font-size:19px;color:#C9CED3;max-width:34ch}
+.st-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.st-links a{display:inline-flex;align-items:center;min-height:36px;padding:6px 13px;border-radius:999px;border:1px solid rgba(242,163,58,.45);color:var(--st-amber-ink);text-decoration:none;font:600 14px var(--f-body);background:rgba(242,163,58,.08)}
+.st-links a:hover{background:rgba(242,163,58,.18)}
+.st-links a.solid{background:var(--st-amber);color:#1A1206;border-color:var(--st-amber)}
+.cue{display:flex;align-items:center;gap:10px;font:500 13px var(--f-mono);color:var(--st-muted);margin-top:18px}
+.cue i{width:18px;height:28px;border:1.5px solid var(--st-muted);border-radius:10px;position:relative}
+.cue i::after{content:"";position:absolute;left:50%;top:6px;width:3px;height:6px;margin-left:-1.5px;border-radius:2px;background:var(--st-amber);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%{transform:translateY(0);opacity:1}70%{transform:translateY(9px);opacity:0}100%{opacity:0}}
+.st-progress{position:absolute;left:0;top:0;height:3px;width:100%;transform-origin:0 0;transform:scaleX(0);background:var(--st-amber);z-index:2}
+/* drawing */
+.story .pl{font:600 15px var(--f-display);letter-spacing:.06em;text-transform:uppercase;fill:#ECEEF0}
+.story .pt{font:500 12.5px var(--f-body);fill:#A9B0B7}
+.story .pc{font:500 11px var(--f-mono);fill:#7E868D}
+.story .pnum{font:700 54px var(--f-display);fill:#F2A33A}
+.story .pbig{font:700 30px var(--f-display);fill:#ECEEF0}
+.story .lcd{font:600 26px var(--f-mono);fill:#9EF0B4}
+.story .scr{font:500 11px var(--f-mono);fill:#9FB3C2}
+.story .scr-big{font:600 30px var(--f-mono);fill:#ECEEF0}
+.story .frame{fill:rgba(255,255,255,.035);stroke:rgba(255,255,255,.12)}
+.story .gl{stroke:rgba(255,255,255,.06);stroke-width:1}
+.story .tgt{stroke:#F2A33A;stroke-width:1;stroke-dasharray:4 4;opacity:.8}
+.wisp{animation:wisp 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%;opacity:0}
+.wisp.w2{animation-delay:1.2s}.wisp.w3{animation-delay:2.4s}
+@keyframes wisp{0%{opacity:0;transform:translateY(8px) scale(.9,.8)}30%{opacity:1}100%{opacity:0;transform:translateY(-30px) scale(1.15,1.1)}}
+.flow{stroke-dasharray:10 7;animation:flow .5s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-17}}
+.spark{filter:url(#f-glow)}
+/* narrow (portrait-ish, under 1000 px): drawing on top, each card parks at the bottom while its chapter plays.
+   The script sets .narrow so the CSS and the scroll maths always agree. */
+.story.narrow .st-stage svg{height:62%}
+.story.narrow .ch{align-items:flex-end;padding-block:0 3vh}
+.story.narrow .ch.hero{padding-block:0 3vh}
+.story.narrow .card{width:100%;background:rgba(14,16,19,.92);position:sticky;bottom:3vh;bottom:3svh}
+.story.narrow .card.hc{border:1px solid var(--st-line);padding:18px 20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.story.narrow .hc h1{font-size:clamp(40px,11vw,64px)}
+.story.narrow .card.hc p{font-size:16.5px}
+.story.narrow .card h2{font-size:30px}
+.story.narrow .st-num{font-size:40px}
+.story.narrow .card p{font-size:16px}
+.story.narrow .cue{display:none}
+/* short phones: tighter cards so more of the drawing shows */
+@media (max-height:760px){
+  .story.narrow .card{padding:14px 16px;gap:7px}
+  .story.narrow .card h2{font-size:26px}
+  .story.narrow .card p{font-size:15px;line-height:1.45}
+  .story.narrow .st-num{font-size:30px}
+  .story.narrow .st-links{gap:6px}
+  .story.narrow .st-links a{min-height:34px;padding:4px 11px;font-size:13.5px}
+  .story.narrow .hc h1{font-size:clamp(34px,10vw,52px)}
+  .story.narrow .card.hc p{font-size:15px}
+}
+/* wide screens: the chapter cards sit in one spot beside the machine and fade from one to the next, so they never move
+   while you read. The script moves them into the dock and picks the card for the chapter that's playing. */
+.st-dock{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;max-width:1300px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.story.docked .st-dock{display:grid;align-items:center;justify-items:start}
+.story.docked .st-chapters{pointer-events:none}
+.st-dock .card{grid-area:1/1;max-height:calc(100% - 32px);overflow:auto;opacity:0;transition:opacity .22s ease}
+.st-dock .card.on{opacity:1;pointer-events:auto;transition:opacity .45s ease .2s}
+.st-dock .card>*{transition:opacity .35s ease,transform .6s cubic-bezier(.2,.7,.2,1)}
+.st-dock .card:not(.on)>*{opacity:0;transform:translateY(6px);transition:opacity .15s ease,transform 0s linear .25s}
+.st-dock .card.on>:nth-child(1){transition-delay:.18s}.st-dock .card.on>:nth-child(2){transition-delay:.25s}.st-dock .card.on>:nth-child(3){transition-delay:.32s}.st-dock .card.on>:nth-child(4){transition-delay:.39s}.st-dock .card.on>:nth-child(5){transition-delay:.46s}
+@media (prefers-reduced-motion:reduce){.st-dock .card,.st-dock .card.on,.st-dock .card>*{transition:none!important}.st-dock .card>*{transform:none!important}}
+/* phones and small tablets see the drawing smaller, so its labels get bigger */
+.story.narrow .pl{font-size:19px}
+.story.narrow .pt{font-size:15px}
+.story.narrow .pc{font-size:13px}
+@media (prefers-reduced-motion:reduce){.wisp,.flow,.cue i::after{animation:none}.wisp{opacity:.5}}
+@media print{.story{display:none}}
+</style>
+
+<section class="story" id="story" aria-label="The conversion, step by step">
+  <div class="st-stage">
+    <div class="st-progress" id="st-prog"></div>
+    <svg id="st-svg" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="st-svg-t" xmlns="http://www.w3.org/2000/svg">
+      <title id="st-svg-t">Illustration of a Gaggia Classic Pro being converted to Gaggiuino, changing as you scroll</title>
+      <defs>
+        <radialGradient id="g-spot" cx="62%" cy="44%" r="70%"><stop offset="0" stop-color="#272C32"/><stop offset=".5" stop-color="#171A1E"/><stop offset="1" stop-color="#0C0E10"/></radialGradient>
+        <linearGradient id="g-floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B1E22"/><stop offset="1" stop-color="#0C0E10"/></linearGradient>
+        <radialGradient id="g-shadow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+        <linearGradient id="g-steel" x1="0" x2="1"><stop offset="0" stop-color="#5F676E"/><stop offset=".14" stop-color="#B9C0C6"/><stop offset=".38" stop-color="#EEF1F3"/><stop offset=".6" stop-color="#C3C9CE"/><stop offset=".86" stop-color="#8C949B"/><stop offset="1" stop-color="#5A6168"/></linearGradient>
+        <linearGradient id="g-steel-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F1F3F5"/><stop offset="1" stop-color="#A3AAB1"/></linearGradient>
+        <linearGradient id="g-panel" x1="0" x2="1"><stop offset="0" stop-color="#A2AAB1"/><stop offset=".45" stop-color="#E8ECEE"/><stop offset=".7" stop-color="#D3D8DC"/><stop offset="1" stop-color="#99A1A8"/></linearGradient>
+        <linearGradient id="g-bay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121417"/><stop offset="1" stop-color="#2A2F35"/></linearGradient>
+        <linearGradient id="g-chrome" x1="0" x2="1"><stop offset="0" stop-color="#6F777E"/><stop offset=".32" stop-color="#F6F8F9"/><stop offset=".58" stop-color="#ACB3B9"/><stop offset="1" stop-color="#626A71"/></linearGradient>
+        <linearGradient id="g-brass" x1="0" x2="1"><stop offset="0" stop-color="#7E5F25"/><stop offset=".38" stop-color="#E4C47E"/><stop offset=".66" stop-color="#B98F45"/><stop offset="1" stop-color="#735624"/></linearGradient>
+        <linearGradient id="g-alu" x1="0" x2="1"><stop offset="0" stop-color="#7C838A"/><stop offset=".36" stop-color="#D3D8DC"/><stop offset=".64" stop-color="#AAB0B6"/><stop offset="1" stop-color="#737A81"/></linearGradient>
+        <radialGradient id="g-heat" cx="50%" cy="78%" r="70%"><stop offset="0" stop-color="#FFB347" stop-opacity=".95"/><stop offset=".55" stop-color="#F27A1A" stop-opacity=".55"/><stop offset="1" stop-color="#F27A1A" stop-opacity="0"/></radialGradient>
+        <radialGradient id="g-vent" cx="50%" cy="100%" r="60%"><stop offset="0" stop-color="#F2A33A" stop-opacity=".55"/><stop offset="1" stop-color="#F2A33A" stop-opacity="0"/></radialGradient>
+        <linearGradient id="g-coffee" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D79A57"/><stop offset=".12" stop-color="#A9672F"/><stop offset=".22" stop-color="#4A2A15"/><stop offset="1" stop-color="#22130A"/></linearGradient>
+        <linearGradient id="g-disp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B1117"/><stop offset="1" stop-color="#05080B"/></linearGradient>
+        <pattern id="p-dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#5CC3C9" fill-opacity=".35"/></pattern>
+        <filter id="f-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="f-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
+        <clipPath id="c-glass"><path d="M673,512 L727,512 L722,570 L678,570 Z"/></clipPath>
+        <linearGradient id="g-sheen" x1="0" x2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".42"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+        <clipPath id="c-shell"><rect x="540" y="150" width="320" height="492" rx="10"/><rect x="534" y="131" width="332" height="23" rx="4"/></clipPath>
+        <clipPath id="c-g1"><rect x="932" y="198" width="226" height="146"/></clipPath>
+      </defs>
+
+      <rect width="1200" height="760" fill="url(#g-spot)"/>
+      <rect id="grid" x="500" y="20" width="700" height="640" fill="url(#p-dots)" style="opacity:0"/>
+      <rect x="0" y="650" width="1200" height="110" fill="url(#g-floor)"/>
+      <line x1="0" y1="650" x2="1200" y2="650" stroke="rgba(255,255,255,.06)"/>
+      <ellipse cx="700" cy="652" rx="210" ry="13" fill="url(#g-shadow)"/>
+
+      <!-- wall outlet and cord -->
+      <g id="outlet">
+        <rect x="1094" y="590" width="62" height="98" rx="9" fill="#DADFE3" stroke="#8E969D"/>
+        <rect x="1106" y="602" width="38" height="30" rx="5" fill="#C7CDD2"/>
+        <rect x="1115" y="610" width="4" height="10" rx="1" fill="#2B2F34"/><rect x="1131" y="610" width="4" height="10" rx="1" fill="#2B2F34"/><circle cx="1125" cy="626" r="2.6" fill="#2B2F34"/>
+        <rect x="1112" y="637" width="11" height="8" rx="2" fill="#2B2F34"/><rect x="1127" y="637" width="11" height="8" rx="2" fill="#D8433A"/>
+        <rect x="1106" y="650" width="38" height="30" rx="5" fill="#C7CDD2"/>
+        <rect x="1115" y="658" width="4" height="10" rx="1" fill="#2B2F34"/><rect x="1131" y="658" width="4" height="10" rx="1" fill="#2B2F34"/><circle cx="1125" cy="674" r="2.6" fill="#2B2F34"/>
+      </g>
+      <path id="cord" d="M856,628 C900,700 1010,700 1125,628" fill="none" stroke="#24282C" stroke-width="5" stroke-linecap="round"/>
+      <g id="plug"><rect x="-13" y="-11" width="26" height="22" rx="5" fill="#2F3439" stroke="#16181B"/><rect x="-9" y="-7" width="18" height="3" rx="1" fill="#454B51"/></g>
+
+      <!-- interior (x-ray): a Classic Pro from the front, simplified -->
+      <g id="inside" style="opacity:0">
+        <!-- the tank at the back, filled through the funnel under the cup warmer -->
+        <rect x="610" y="198" width="204" height="128" rx="8" fill="#4FA3D9" fill-opacity=".10" stroke="#6FB6E3" stroke-opacity=".45"/>
+        <rect x="613" y="228" width="198" height="95" rx="6" fill="#4FA3D9" fill-opacity=".16"/>
+        <text x="782" y="216" class="pc" style="fill:#6FB6E3">tank</text>
+        <!-- water: tank to the pump, pump through the OPV to the group's inlet, OPV back to the tank; the 3-way valve drains to the tray -->
+        <path d="M618,322 C590,350 562,420 589,476" fill="none" stroke="#D9E6EE" stroke-opacity=".5" stroke-width="4"/>
+        <path d="M600,343 C606,334 614,330 620,323" fill="none" stroke="#D9E6EE" stroke-opacity=".45" stroke-width="3"/>
+        <path d="M586,342 C584,316 626,316 640,342" fill="none" stroke="#C9776A" stroke-opacity=".75" stroke-width="5"/>
+        <path d="M772,376 C764,430 758,520 770,578" fill="none" stroke="#202327" stroke-width="5"/>
+        <rect x="632" y="341" width="20" height="11" rx="2" fill="url(#g-brass)"/>
+        <!-- steam: from the top of the boiler to the valve on the right, its knob through the side panel, the wand out of the side -->
+        <path d="M740,268 C746,248 774,242 798,244" fill="none" stroke="#C9CFD4" stroke-opacity=".8" stroke-width="4"/>
+        <path d="M814,254 C816,274 836,292 858,294" fill="none" stroke="#C9CFD4" stroke-opacity=".8" stroke-width="4"/>
+        <rect x="832" y="238" width="28" height="12" fill="#8C949B"/>
+        <rect x="798" y="234" width="34" height="20" rx="4" fill="#AEB5BC" stroke="#5E656C"/>
+        <!-- the boiler on the group, its elements cast into the base -->
+        <g id="boiler">
+          <rect x="652" y="264" width="96" height="68" rx="12" fill="url(#g-alu)" stroke="#4E555C" stroke-width="1.5"/>
+          <rect id="boilerHeat" x="652" y="264" width="96" height="68" rx="12" fill="url(#g-heat)" style="opacity:0"/>
+          <path id="element" d="M662,320 l6,-7 l8,10 l8,-10 l8,10 l8,-10 l8,10 l8,-10 l8,10 l8,-10 l6,7" fill="none" stroke="#5B4A2A" stroke-width="2.4" stroke-linejoin="round"/>
+          <text x="700" y="298" class="pc" text-anchor="middle" style="fill:#262A2F">boiler</text>
+        </g>
+        <!-- brew thermostat in the left side, steam thermostat and thermal fuse on top -->
+        <g id="tst-brew"><rect x="636" y="288" width="16" height="20" rx="3" fill="#C9CFD4" stroke="#5E656C"/><rect x="630" y="291" width="7" height="4" rx="1" fill="#E8C76A"/><rect x="630" y="301" width="7" height="4" rx="1" fill="#E8C76A"/></g>
+        <g id="tst-steam"><rect x="716" y="250" width="20" height="14" rx="3" fill="#C9CFD4" stroke="#5E656C"/><rect x="719" y="244" width="4" height="7" rx="1" fill="#E8C76A"/><rect x="729" y="244" width="4" height="7" rx="1" fill="#E8C76A"/></g>
+        <g id="tfuse"><path d="M660,259.5 H704" stroke="#AEB5BC" stroke-width="1.6"/><rect x="668" y="256" width="28" height="7" rx="3.5" fill="#E7EAED" stroke="#8E969D"/></g>
+        <!-- the pump, upright at the back, with the black OPV on top -->
+        <g id="pump">
+          <rect x="576" y="358" width="26" height="106" rx="10" fill="#3D4349" stroke="#202327"/>
+          <rect x="573" y="392" width="32" height="36" rx="4" fill="#2A2E33" stroke="#16181B"/>
+          <rect x="572" y="341" width="34" height="19" rx="4" fill="#16181B" stroke="#0B0C0E"/>
+          <rect x="585" y="463" width="8" height="12" rx="2" fill="#5E656C"/>
+          <text x="589" y="493" class="pc" text-anchor="middle">pump</text>
+        </g>
+        <!-- the 3-way valve, behind the group -->
+        <g id="sol"><rect x="758" y="338" width="30" height="12" rx="3" fill="#22262A"/><rect x="762" y="350" width="22" height="26" rx="3" fill="#3A3F45"/><text x="806" y="350" class="pc">valve</text></g>
+        <!-- the factory harness: with stock wiring integration it stays -->
+        <g id="stock" fill="none" stroke="#9AA1A8" stroke-width="2.4" stroke-linecap="round">
+          <path d="M638,198 C640,230 650,254 660,259"/>
+          <path d="M696,198 C660,250 594,320 589,392"/>
+          <path d="M706,198 C762,250 794,300 776,338"/>
+          <path d="M762,198 C760,224 744,238 733,244"/>
+          <path d="M630,293 C604,276 680,230 721,244"/>
+          <path d="M630,303 C606,320 610,370 605,410"/>
+        </g>
+        <!-- labels on every stock wire before anything moves -->
+        <g id="tags" style="opacity:0" fill="#F4F1E8" stroke="#5E656C" stroke-width=".8">
+          <rect x="639" y="226" width="14" height="8" rx="1.5"/><rect x="618" y="296" width="14" height="8" rx="1.5"/><rect x="757" y="262" width="14" height="8" rx="1.5"/>
+          <rect x="746" y="222" width="14" height="8" rx="1.5"/><rect x="660" y="241" width="14" height="8" rx="1.5"/><rect x="603" y="354" width="14" height="8" rx="1.5"/>
+        </g>
+        <!-- stock wiring integration, 120 V Classic Pro: the new runs -->
+        <g id="harness" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path class="hw" data-c="1" d="M630,293 C618,293 618,303 630,303" stroke="#F2A33A" stroke-width="3.2"/>
+          <path class="hw" data-c="1" d="M721,246 C700,222 640,212 609,219" stroke="#F2A33A" stroke-width="3.2"/>
+          <path class="hw" data-c="1" d="M731,246 C716,198 620,190 589,219" stroke="#F2A33A" stroke-width="3.2"/>
+          <path class="hw" data-c="0" d="M706,198 C760,214 816,300 786,428" stroke="#F0735F" stroke-width="3.2"/>
+          <path class="hw" data-c="0" d="M786,446 C720,452 640,426 606,410" stroke="#F0735F" stroke-width="3.2"/>
+          <path class="hw" data-c="0" d="M786,454 C730,476 650,444 606,402" stroke="#F0735F" stroke-width="3.2"/>
+          <path class="hw" data-c="2" d="M786,436 C730,440 650,432 606,420" stroke="#79A6F2" stroke-width="3.2"/>
+          <path class="hw" data-c="3" d="M800,420 C796,330 722,240 694,198" stroke="#B595F2" stroke-width="1.8"/>
+          <path class="hw" data-c="3" d="M806,420 C804,330 732,240 704,198" stroke="#B595F2" stroke-width="1.8"/>
+          <path class="hw" data-c="3" d="M704,198 C716,214 748,214 758,198" stroke="#B595F2" stroke-width="1.8"/>
+          <path class="hw" data-c="3" d="M812,420 C818,330 790,240 766,198" stroke="#B595F2" stroke-width="1.8"/>
+          <path class="hw" data-c="4" d="M822,420 C770,372 650,290 609,256" stroke="#5CC3C9" stroke-width="1.8"/>
+          <path class="hw" data-c="4" d="M828,420 C770,360 630,276 589,256" stroke="#5CC3C9" stroke-width="1.8"/>
+          <path class="hw" data-c="4" d="M626,320 C650,352 770,336 836,428" stroke="#5CC3C9" stroke-width="1.8"/>
+          <path class="hw" data-c="4" d="M634,398 C680,444 742,470 786,462" stroke="#5CC3C9" stroke-width="1.8"/>
+          <path class="hw" data-c="4" d="M838,430 C882,330 872,170 770,126" stroke="#5CC3C9" stroke-width="1.8"/>
+        </g>
+        <circle id="spark" class="spark" cx="0" cy="0" r="4" fill="#FFF6E0" style="opacity:0"/>
+      </g>
+
+      <!-- new parts, drawn where they end up -->
+      <g id="parts">
+        <g id="pcb"><rect x="780" y="420" width="60" height="46" rx="5" fill="#2B2F34" stroke="#121417"/><rect x="785" y="425" width="50" height="34" rx="3" fill="#1F6A3A" stroke="#0E3A1E"/><rect x="790" y="430" width="14" height="14" rx="2" fill="#16181B"/><rect x="809" y="430" width="21" height="8" rx="2" fill="#2E3238"/><g fill="#E8C76A"><rect x="790" y="450" width="3" height="5"/><rect x="796" y="450" width="3" height="5"/><rect x="802" y="450" width="3" height="5"/><rect x="812" y="450" width="3" height="5"/><rect x="818" y="450" width="3" height="5"/></g><circle id="pcbLed" cx="829" cy="452" r="2.4" fill="#5A1F1A"/></g>
+        <g id="ssr"><rect x="580" y="212" width="38" height="50" rx="3" fill="#2B2F34" stroke="#121417"/><rect x="584" y="230" width="30" height="12" rx="1" fill="#E7EAED"/><circle cx="589" cy="219" r="3" fill="#B9C0C6"/><circle cx="609" cy="219" r="3" fill="#B9C0C6"/><circle cx="589" cy="255" r="3" fill="#B9C0C6"/><circle cx="609" cy="255" r="3" fill="#B9C0C6"/><circle id="ssrLed" cx="599" cy="248" r="2" fill="#3A1A10"/></g>
+        <g id="tc"><path d="M632,298 C622,298 619,312 626,320" fill="none" stroke="#D9DDE1" stroke-width="2"/><polygon points="634,292 645,292 648,298 645,304 634,304 631,298" fill="#C9CFD4" stroke="#5E656C"/><rect x="647" y="296" width="8" height="4" fill="#AEB5BC"/></g>
+        <g id="xdcr"><polygon points="626,355 642,355 646,361 642,367 626,367 622,361" fill="#C9CFD4" stroke="#5E656C"/><rect x="627" y="367" width="14" height="24" rx="3" fill="#AEB5BC"/><rect x="629" y="391" width="10" height="6" rx="1" fill="#2B2F34"/></g>
+      </g>
+
+      <!-- the machine's shell -->
+      <g id="shell">
+        <rect x="540" y="150" width="320" height="492" rx="10" fill="url(#g-steel)"/>
+        <line x1="549" y1="160" x2="549" y2="632" stroke="rgba(255,255,255,.35)"/>
+        <!-- the switch strip along the top front edge: power, coffee and steam -->
+        <rect x="602" y="158" width="196" height="38" rx="7" fill="#15171A"/>
+        <rect x="612" y="164" width="52" height="27" rx="4" fill="#22262B"/><rect x="614" y="166" width="48" height="11" rx="3" fill="#30353B"/>
+        <rect x="674" y="164" width="52" height="27" rx="4" fill="#22262B"/><rect x="676" y="166" width="48" height="11" rx="3" fill="#30353B"/>
+        <rect x="736" y="164" width="52" height="27" rx="4" fill="#22262B"/><rect x="738" y="166" width="48" height="11" rx="3" fill="#30353B"/>
+        <g fill="none" stroke="#B9C0C6" stroke-width="1.4" stroke-linecap="round">
+          <path d="M634.6,179.8 a4.6,4.6 0 1 0 6.8,0"/><path d="M638,177 v5.5"/>
+          <path d="M695,179 h9 v3 a4.5,4.5 0 0 1 -9,0 z M704,180 h1.6 a1.5,1.5 0 0 1 0,3 h-1.6"/>
+          <path d="M757,188 c0,-3 2.6,-3 2.6,-5.6 c0,-2 -1.8,-2.6 -1.8,-3.8 M762.6,188 c0,-3 2.6,-3 2.6,-5.6 c0,-2 -1.8,-2.6 -1.8,-3.8 M768.2,188 c0,-3 2.6,-3 2.6,-5.6 c0,-2 -1.8,-2.6 -1.8,-3.8"/>
+        </g>
+        <!-- three red lamps below them: power, brew ready, steam ready -->
+        <rect id="led-pwr" x="633" y="206" width="10" height="9" rx="1.5" fill="#4A1C18"/>
+        <rect id="led-brew" x="695" y="206" width="10" height="9" rx="1.5" fill="#4A1C18"/>
+        <rect id="led-steam" x="757" y="206" width="10" height="9" rx="1.5" fill="#4A1C18"/>
+        <rect x="674" y="266" width="52" height="10" rx="5" fill="url(#g-chrome)" opacity=".8"/>
+        <rect x="566" y="334" width="268" height="262" rx="10" fill="url(#g-bay)"/>
+        <rect x="566" y="334" width="268" height="12" rx="6" fill="#000" opacity=".3"/>
+        <rect x="572" y="578" width="256" height="24" rx="5" fill="url(#g-steel-v)"/>
+        <g stroke="#7E868D" stroke-width="2"><line x1="592" y1="584" x2="592" y2="596"/><line x1="612" y1="584" x2="612" y2="596"/><line x1="632" y1="584" x2="632" y2="596"/><line x1="652" y1="584" x2="652" y2="596"/><line x1="672" y1="584" x2="672" y2="596"/><line x1="692" y1="584" x2="692" y2="596"/><line x1="712" y1="584" x2="712" y2="596"/><line x1="732" y1="584" x2="732" y2="596"/><line x1="752" y1="584" x2="752" y2="596"/><line x1="772" y1="584" x2="772" y2="596"/><line x1="792" y1="584" x2="792" y2="596"/><line x1="812" y1="584" x2="812" y2="596"/></g>
+        <line x1="540" y1="604" x2="860" y2="604" stroke="rgba(0,0,0,.25)"/>
+        <rect x="556" y="642" width="40" height="8" rx="2" fill="#16181B"/><rect x="804" y="642" width="40" height="8" rx="2" fill="#16181B"/>
+        <path d="M650,334 L750,334 L742,364 L658,364 Z" fill="url(#g-chrome)"/>
+        <rect x="656" y="364" width="88" height="6" fill="#3A3F45"/>
+        <g id="pf"><rect x="654" y="370" width="92" height="16" rx="4" fill="url(#g-chrome)"/><path d="M744,372 L842,392 L840,405 L742,389 Z" fill="#16181B"/><path d="M748,375 L836,393" stroke="#3A3F45" stroke-width="2"/><rect x="684" y="386" width="8" height="12" rx="1.5" fill="url(#g-chrome)"/><rect x="708" y="386" width="8" height="12" rx="1.5" fill="url(#g-chrome)"/></g>
+        <!-- the steam knob, through the right side panel -->
+        <g id="knob"><rect x="858" y="222" width="22" height="32" rx="5" fill="#1B1D20" stroke="#0B0C0E"/><rect x="878" y="225" width="6" height="26" rx="2.5" fill="#2E3237"/><g stroke="#3A3F45" stroke-width="1.3"><line x1="861" y1="230" x2="877" y2="230"/><line x1="861" y1="238" x2="877" y2="238"/><line x1="861" y1="246" x2="877" y2="246"/></g></g>
+        <!-- the steam wand, out of the right side on a ball joint -->
+        <path d="M858,294 C882,296 894,308 896,330 L900,498" fill="none" stroke="#596067" stroke-width="9" stroke-linecap="round"/>
+        <path d="M858,294 C882,296 894,308 896,330 L900,498" fill="none" stroke="#DDE2E6" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="864" cy="294" r="8" fill="#1B1D20"/>
+        <rect x="896" y="496" width="8" height="12" rx="2" fill="#9AA2A9"/>
+      </g>
+      <g id="lid"><rect x="560" y="131" width="280" height="10" rx="3" fill="#1E2125"/><rect x="534" y="138" width="332" height="16" rx="4" fill="url(#g-steel-v)" stroke="rgba(0,0,0,.25)"/><line x1="548" y1="140" x2="852" y2="140" stroke="#FFFFFF" stroke-opacity=".7"/></g>
+      <rect id="vent" x="560" y="40" width="280" height="98" fill="url(#g-vent)" style="opacity:0"/>
+      <g id="outline" fill="none" stroke="#9DD7DA" stroke-opacity=".55" stroke-width="1.2" style="opacity:0">
+        <rect x="540" y="150" width="320" height="492" rx="10"/><rect x="602" y="158" width="196" height="38" rx="7"/><rect x="566" y="334" width="268" height="262" rx="10"/>
+      </g>
+
+      <g clip-path="url(#c-shell)"><rect id="sheen" x="0" y="110" width="120" height="580" fill="url(#g-sheen)" style="opacity:0"/></g>
+      <rect id="trayglow" x="584" y="600" width="232" height="4" rx="2" fill="#F2A33A" filter="url(#f-glow)" style="opacity:0"/>
+
+      <!-- water, coffee, glass, steam -->
+      <path id="water" d="M700,372 V548" fill="none" stroke="#8CC8EE" stroke-width="5" stroke-linecap="round" class="flow" style="opacity:0"/>
+      <g id="jug" style="opacity:0"><rect id="jugw" x="671" y="574" width="58" height="0" fill="#8CC8EE" fill-opacity=".5"/><path d="M664,526 L736,526 L731,576 L669,576 Z" fill="#FFFFFF" fill-opacity=".06" stroke="#E6EBEF" stroke-opacity=".6" stroke-width="1.5"/></g>
+      <g id="streams" fill="none" stroke="#5A351C" stroke-width="3" stroke-linecap="round" style="opacity:0"><path class="flow" d="M688,398 V566"/><path class="flow" d="M712,398 V566"/></g>
+      <g id="glass">
+        <g clip-path="url(#c-glass)"><rect id="coffee" x="660" y="518" width="80" height="80" fill="url(#g-coffee)"/></g>
+        <path d="M673,512 L727,512 L722,570 L678,570 Z" fill="#FFFFFF" fill-opacity=".08" stroke="#E6EBEF" stroke-opacity=".65" stroke-width="1.5"/>
+        <path d="M677,516 L680,566" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="2"/>
+      </g>
+      <g id="steam" fill="none" stroke="#FFFFFF" stroke-linecap="round" filter="url(#f-soft)">
+        <path class="wisp" d="M692,504 c-8,-12 8,-20 0,-34 c-6,-10 6,-18 0,-28" stroke-opacity=".28" stroke-width="5"/>
+        <path class="wisp w2" d="M704,506 c8,-12 -8,-22 0,-36 c6,-10 -6,-18 0,-26" stroke-opacity=".24" stroke-width="5"/>
+        <path class="wisp w3" d="M714,504 c-6,-10 6,-18 0,-30 c-6,-10 6,-16 0,-24" stroke-opacity=".2" stroke-width="4"/>
+      </g>
+
+      <!-- screen on its mount -->
+      <g id="screen">
+        <path d="M692,134 L700,122 L708,134 Z" fill="#2A2E33"/>
+        <rect x="612" y="38" width="176" height="88" rx="10" fill="#1A1D21" stroke="#3A3F45"/>
+        <rect x="620" y="45" width="160" height="74" rx="4" fill="url(#g-disp)"/>
+        <g id="scr-boot" style="opacity:0"><text x="700" y="86" class="scr" text-anchor="middle">Initialization in progress</text></g>
+        <g id="scr-fill" style="opacity:0"><text x="700" y="78" class="scr" text-anchor="middle">Flushing</text><rect x="650" y="88" width="100" height="5" rx="2.5" fill="#1E2A33"/><rect id="scr-fillbar" x="650" y="88" width="0" height="5" rx="2.5" fill="#6FB6E3"/></g>
+        <g id="scr-temp" style="opacity:0"><text id="scr-tval" x="700" y="94" class="scr-big" text-anchor="middle">22°</text><text x="700" y="111" class="scr" text-anchor="middle">target 93°</text></g>
+        <g id="scr-opv" style="opacity:0"><text x="700" y="64" class="scr" text-anchor="middle">[UT] Test OPV</text><text id="scr-opvv" x="700" y="96" class="scr-big" text-anchor="middle" style="font-size:26px">0.0 bar</text><text x="700" y="112" class="scr" text-anchor="middle">peak</text></g>
+        <g id="scr-shot" style="opacity:0"><path id="scr-pp" d="" fill="none" stroke="#F2A33A" stroke-width="2"/><text id="scr-time" x="628" y="58" class="scr">0 s</text><text id="scr-bar" x="772" y="58" class="scr" text-anchor="end">0.0 bar</text></g>
+        <g id="scr-ready" style="opacity:0"><text x="700" y="88" class="scr-big" text-anchor="middle">93°</text><text id="scr-line" x="700" y="108" class="scr" text-anchor="middle">Ready</text></g>
+      </g>
+      <g id="spools" style="opacity:0"><circle cx="1088" cy="412" r="20" fill="#2B2F34"/><circle cx="1088" cy="412" r="15" fill="none" stroke="#F0735F" stroke-width="7"/><circle cx="1134" cy="412" r="20" fill="#2B2F34"/><circle cx="1134" cy="412" r="15" fill="none" stroke="#79A6F2" stroke-width="7"/></g>
+
+      <!-- instrument panel, one scene per chapter -->
+      <g id="p-temp1" style="opacity:0">
+        <text x="930" y="184" class="pl">Stock thermostat</text>
+        <rect x="930" y="196" width="230" height="150" rx="8" class="frame"/>
+        <line x1="936" x2="1154" y1="232" y2="232" class="gl"/><line x1="936" x2="1154" y1="272" y2="272" class="gl"/><line x1="936" x2="1154" y1="312" y2="312" class="gl"/>
+        <line x1="936" x2="1154" y1="288" y2="288" class="tgt"/>
+        <text x="1152" y="283" class="pc" text-anchor="end" style="fill:#F2A33A">target</text>
+        <g clip-path="url(#c-g1)"><path id="saw" d="" fill="none" stroke="#F0735F" stroke-width="2.4" stroke-linejoin="round"/></g>
+        <text x="930" y="366" class="pc">heater fully on, then fully off</text>
+      </g>
+      <g id="p-kit" style="opacity:0">
+        <text x="1045" y="140" class="pl" text-anchor="middle">The parts</text>
+        <text x="980" y="246" class="pt" text-anchor="middle">PCB v4</text>
+        <text x="1110" y="246" class="pt" text-anchor="middle">4.3 in screen</text>
+        <text x="980" y="356" class="pt" text-anchor="middle">SSR</text>
+        <text x="1110" y="356" class="pt" text-anchor="middle">M4 thermocouple</text>
+        <text x="980" y="466" class="pt" text-anchor="middle">Pressure sensor</text>
+        <text x="1110" y="466" class="pt" text-anchor="middle">Silicone wire</text>
+        <text x="1045" y="520" class="pbig" text-anchor="middle">$280–375</text>
+        <text x="1045" y="540" class="pc" text-anchor="middle">core parts, Oct 2026, before shipping</text>
+      </g>
+      <g id="p-out" style="opacity:0"><text x="1060" y="486" class="pl" text-anchor="middle">Coming out</text><rect x="990" y="498" width="140" height="46" rx="8" class="frame"/><text x="1060" y="564" class="pc" text-anchor="middle">brew thermostat</text></g>
+      <g id="p-runs" style="opacity:0">
+        <text x="930" y="184" class="pl">The new wires</text>
+        <text id="runs-n" x="930" y="250" class="pnum">0</text><text x="1000" y="250" class="pt">of 13 runs</text>
+        <g id="legend" font-family="Barlow, sans-serif">
+          <g class="lg" data-c="0"><rect x="932" y="282" width="22" height="4" rx="2" fill="#F0735F"/><text x="964" y="288" class="pt">Line</text></g>
+          <g class="lg" data-c="1"><rect x="932" y="306" width="22" height="4" rx="2" fill="#F2A33A"/><text x="964" y="312" class="pt">Heater, through the SSR</text></g>
+          <g class="lg" data-c="2"><rect x="932" y="330" width="22" height="4" rx="2" fill="#79A6F2"/><text x="964" y="336" class="pt">Neutral</text></g>
+          <g class="lg" data-c="3"><rect x="932" y="354" width="22" height="3" rx="1.5" fill="#B595F2"/><text x="964" y="360" class="pt">Switch signals to the PCB</text></g>
+          <g class="lg" data-c="4"><rect x="932" y="378" width="22" height="3" rx="1.5" fill="#5CC3C9"/><text x="964" y="384" class="pt">SSR control and sensors</text></g>
+        </g>
+        <text x="932" y="418" class="pc">stock wiring integration,</text>
+        <text x="932" y="434" class="pc">120 V Classic Pro</text>
+      </g>
+      <g id="p-meter" style="opacity:0">
+        <rect x="950" y="170" width="150" height="248" rx="16" fill="#E2B93B" stroke="#8C6D12" stroke-width="2"/>
+        <rect x="960" y="184" width="130" height="54" rx="6" fill="#16221A"/>
+        <text id="m-read" x="1082" y="221" class="lcd" text-anchor="end" style="font-size:23px">0.3 Ω</text>
+        <circle cx="1025" cy="314" r="44" fill="#24282C"/><circle cx="1025" cy="314" r="31" fill="#3A3F45"/>
+        <line id="m-dial" x1="1025" y1="314" x2="1025" y2="288" stroke="#ECEEF0" stroke-width="4" stroke-linecap="round"/>
+        <text x="1025" y="263" class="pc" text-anchor="middle" style="fill:#3A2E0A">Ω</text><text x="968" y="318" class="pc" text-anchor="middle" style="fill:#3A2E0A">V</text><text x="1083" y="318" class="pc" text-anchor="middle" style="fill:#3A2E0A">A</text>
+        <circle cx="990" cy="396" r="8" fill="#111315"/><circle cx="1060" cy="396" r="8" fill="#111315" stroke="#D8433A" stroke-width="2.5"/>
+        <g id="cgrid"></g>
+        <circle id="gate-lamp" cx="952" cy="546" r="8" fill="#3A3F45"/>
+        <text id="gate-t" x="968" y="551" class="pt">63 checks to go</text>
+      </g>
+      <g id="probes" style="opacity:0" fill="none" stroke-linecap="round">
+        <path id="probeB" d="" stroke="#1B1D20" stroke-width="3.5"/><path id="probeR" d="" stroke="#D8433A" stroke-width="3.5"/>
+        <circle id="tipB" r="4.5" fill="#ECEEF0" class="spark"/><circle id="tipR" r="4.5" fill="#FFD0C8" class="spark"/>
+      </g>
+      <g id="p-temp2" style="opacity:0">
+        <text x="930" y="184" class="pl">With Gaggiuino</text>
+        <rect x="930" y="196" width="230" height="150" rx="8" class="frame"/>
+        <line x1="936" x2="1154" y1="232" y2="232" class="gl"/><line x1="936" x2="1154" y1="272" y2="272" class="gl"/><line x1="936" x2="1154" y1="312" y2="312" class="gl"/>
+        <line x1="936" x2="1154" y1="222" y2="222" class="tgt"/>
+        <text x="1152" y="216" class="pc" text-anchor="end" style="fill:#F2A33A">target 93°</text>
+        <path id="pid" d="" fill="none" stroke="#63C08A" stroke-width="2.6" stroke-linejoin="round"/>
+        <text x="930" y="366" class="pc">heats, then holds flat</text>
+      </g>
+      <g id="p-shot" style="opacity:0">
+        <text x="930" y="164" class="pl">A profiled shot</text>
+        <rect x="930" y="176" width="230" height="170" rx="8" class="frame"/>
+        <line x1="936" x2="1154" y1="209" y2="209" class="gl"/><line x1="936" x2="1154" y1="254" y2="254" class="gl"/><line x1="936" x2="1154" y1="299" y2="299" class="gl"/>
+        <text x="1152" y="204" class="pc" text-anchor="end">9 bar</text>
+        <path id="sh-flow" d="" fill="none" stroke="#79A6F2" stroke-width="2" stroke-linejoin="round"/>
+        <path id="sh-p" d="" fill="none" stroke="#F2A33A" stroke-width="2.8" stroke-linejoin="round"/>
+        <text x="930" y="372" class="pc"><tspan style="fill:#F2A33A">pressure</tspan>  <tspan style="fill:#79A6F2">flow</tspan>  (illustrative)</text>
+        <text x="930" y="420" class="pc">time</text><text id="sh-time" x="930" y="452" class="pbig">0 s</text>
+        <text x="1050" y="420" class="pc">in the cup</text><text id="sh-yield" x="1050" y="452" class="pbig">0 g</text>
+      </g>
+      <g id="p-extras" style="opacity:0">
+        <text x="930" y="184" class="pl">Add when you like</text>
+        <g><rect x="932" y="212" width="120" height="12" rx="6" fill="#1E2A33"/><rect x="932" y="212" width="94" height="12" rx="6" fill="#6FB6E3"/><text x="1062" y="222" class="pt" style="fill:#ECEEF0">Tank 78%</text><text x="932" y="246" class="pc">a ToFnLED reads the level</text><text x="932" y="262" class="pc">and lights the tank</text></g>
+        <g><text x="932" y="318" class="pbig">36.0 g</text><text x="1040" y="308" class="pt" style="fill:#ECEEF0">Scales</text><text x="1040" y="324" class="pc">under the drip tray</text></g>
+        <g><text x="932" y="368" class="pt" style="fill:#ECEEF0">Or a Bluetooth scale</text><text x="932" y="386" class="pc">nothing to install</text></g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="st-chapters">
+    <article class="ch hero" data-ch="0">
+      <div class="card hc">
+        <h1>Gaggia, <span>meet Gaggiuino</span></h1>
+        <p>Watch a stock Gaggia Classic Pro turn into a Gaggiuino machine with a steady temperature, pressure profiling and a live shot graph. Each step links to the page that walks you through it.</p>
+        <div class="st-links"><a class="solid" href="index.html">Go to the tools</a><a href="which-gaggia.html">Which Gaggia is mine</a></div>
+        <div class="cue" aria-hidden="true"><i></i>Scroll</div>
+      </div>
+    </article>
+    <article class="ch" data-ch="1" style="--len:150"><div class="card"><span class="st-num" aria-hidden="true">01</span><h2>The stock Gaggia</h2><p>A small aluminum boiler, a vibratory pump and a thermostat that switches the heater fully on and fully off. The temperature swings above and below the target, which is why owners learned to time their shots by the brew lamp.</p><div class="st-links"><a href="how-gaggia-works.html">How the Gaggia works</a></div></div></article>
+    <article class="ch" data-ch="2" style="--len:150"><div class="card"><span class="st-num" aria-hidden="true">02</span><h2>Plan and buy</h2><p>An approved supplier's kit has the PCB, screen, sensors and SSR, but no mains wiring. Add 18 AWG silicone wire and crimps, printed housings and a multimeter.</p><div class="st-links"><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="parts-tracker.html">Parts tracker</a></div></div></article>
+    <article class="ch" data-ch="3" style="--len:180"><div class="card"><span class="st-num" aria-hidden="true">03</span><h2>Open it up</h2><p>Cord out of the wall. Take out two screws, lift off the cup warmer and unplug its earth wires. Photograph and label every stock wire, then take the brew thermostat out of the side of the boiler.</p><div class="st-links"><a href="runbook.html">Runbook</a><a href="model-notes.html">Model notes</a></div></div></article>
+    <article class="ch" data-ch="4" style="--len:160"><div class="card"><span class="st-num" aria-hidden="true">04</span><h2>Fit the hardware</h2><p>The thermocouple screws into the brew thermostat's hole. The SSR goes on the back wall, the PCB in its housing on the right, the pressure sensor on a tap block or a T in the pump line, and the screen on its mount.</p><div class="st-links"><a href="runbook.html">Runbook, phase 3</a></div></div></article>
+    <article class="ch" data-ch="5" style="--len:180"><div class="card"><span class="st-num" aria-hidden="true">05</span><h2>Wire it</h2><p>Stock wiring integration keeps the factory harness and adds seven mains wires and six low-voltage ones: the SSR takes over the heater and the switches signal the PCB. Custom wiring, the route for 230 V Pro-family machines, replaces it.</p><div class="st-links"><a href="wiring.html">Wiring reference</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a></div></div></article>
+    <article class="ch" data-ch="6" style="--len:160"><div class="card"><span class="st-num" aria-hidden="true">06</span><h2>Check it, unplugged</h2><p>About 63 checks with the cord out, picked for your schematic: earth reaches the metal, nothing shorts, the elements read what the rating plate predicts and every switch input is clean. It only says ready when all of them pass.</p><div class="st-links"><a href="power-on-checks.html">Power-on checks</a></div></div></article>
+    <article class="ch" data-ch="7" style="--len:220"><div class="card"><span class="st-num" aria-hidden="true">07</span><h2>First power-on</h2><p>Covers on, plugged into a protected outlet. Flush with the portafilter out until water runs from the group, so the boiler fills before it heats. Then, with a blank basket, [UT] Test OPV should peak at 10.5 to 13 bar.</p><div class="st-links"><a href="runbook.html">Runbook, phase 5</a><a href="troubleshooting.html">Troubleshooting</a></div></div></article>
+    <article class="ch" data-ch="8" style="--len:190"><div class="card"><span class="st-num" aria-hidden="true">08</span><h2>Pull a profiled shot</h2><p>Calibrate the pump, then let a profile run: a gentle preinfusion, a ramp to nine bar, and a taper as the puck gives way. The graph draws as the glass fills.</p><div class="st-links"><a href="runbook.html">Runbook, phase 6</a><a href="how-gaggiuino-works.html#pump">How the pump is driven</a></div></div></article>
+    <article class="ch" data-ch="9" style="--len:140"><div class="card"><span class="st-num" aria-hidden="true">09</span><h2>Make it yours</h2><p>Add a tank sensor, scales under the drip tray or a Bluetooth scale whenever you want them. Each one is independent of the core install.</p><div class="st-links"><a href="how-gaggiuino-works.html#mods">Scales and tank sensor</a></div></div></article>
+    <article class="ch last" data-ch="10"><div class="card"><h2>Your turn</h2><p>Everything above has a page: planning, buying, the install, the checks, and fixing what goes wrong. Set your Gaggia at the top of any page and they show only what applies to your machine.</p><div class="st-links"><a class="solid" href="index.html">See all the tools</a><a href="runbook.html">Start the runbook</a></div></div></article>
+  </div>
+</section>
+
+<script>
+(function(){
+  var story=document.getElementById('story');if(!story)return;
+  var svg=document.getElementById('st-svg'),stage=story.querySelector('.st-stage');
+  var chs=Array.prototype.slice.call(story.querySelectorAll('.ch'));
+  var RM=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function $(id){return document.getElementById(id)}
+  function cl(x){return x<0?0:x>1?1:x}
+  function seg(t,a,b){return cl((t-a)/(b-a))}
+  function ease(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+  function E(t,a,b){return ease(seg(t,a,b))}
+  function lerp(a,b,x){return a+(b-a)*x}
+  function op(el,v){if(el)el.style.opacity=String(Math.round(cl(v)*1000)/1000)}
+  function tf(el,s){if(el)el.setAttribute('transform',s)}
+  var NS='http://www.w3.org/2000/svg',NCHK=63;
+
+  /* ---------- static prep ---------- */
+  var hw=Array.prototype.slice.call(svg.querySelectorAll('.hw'));
+  hw.forEach(function(p){var L=p.getTotalLength();p._L=L;p.style.strokeDasharray=L+' '+L;p.style.strokeDashoffset=String(L)});
+  var lg=Array.prototype.slice.call(svg.querySelectorAll('.lg'));
+  var cg=$('cgrid'),cells=[];
+  for(var i=0;i<NCHK;i++){var r=document.createElementNS(NS,'rect');r.setAttribute('x',944+(i%11)*14);r.setAttribute('y',436+Math.floor(i/11)*14);r.setAttribute('width',10);r.setAttribute('height',10);r.setAttribute('rx',2);r.setAttribute('fill','#3A3F45');cg.appendChild(r);cells.push(r)}
+  /* Gaggiuino warm-up curve, 20..110 °C mapped onto y 344..194 */
+  function yT(T){return 344-(T-20)*(150/90)}
+  var pidPts=[];for(var k=0;k<=60;k++){var x=k/60,T=93-71*Math.exp(-x/0.16)+3.2*Math.exp(-Math.pow((x-0.42)/0.09,2));pidPts.push((936+x*218).toFixed(1)+','+yT(T).toFixed(1))}
+  var pid=$('pid');pid.setAttribute('d','M'+pidPts.join(' L'));var pidL=pid.getTotalLength();pid.style.strokeDasharray=pidL+' '+pidL;
+  /* shot profile, 0..30 s across x 936..1154; pressure 0..10 bar on y 344..194 */
+  function xs(s){return 936+s*(218/30)}function yp(b){return 344-b*15}
+  function P(s){if(s<1)return 2.5*s;if(s<7)return 2.5;if(s<11)return 2.5+6.5*(s-7)/4;if(s<18)return 9;if(s<28)return 9-3*(s-18)/10;return 6}
+  function F(s){if(s<2)return 2.2*s/2;if(s<4)return 2.2-1.8*(s-2)/2;if(s<7)return .4;if(s<11)return .4+1.1*(s-7)/4;if(s<28)return 1.5+.8*(s-11)/17;return 2.3}
+  var pp=[],fp=[],mp=[];for(var s2=0;s2<=28;s2+=.5){pp.push(xs(s2).toFixed(1)+','+yp(P(s2)).toFixed(1));fp.push(xs(s2).toFixed(1)+','+(344-F(s2)*30).toFixed(1));mp.push((628+s2*(144/28)).toFixed(1)+','+(112-P(s2)*4.6).toFixed(1))}
+  var shP=$('sh-p'),shF=$('sh-flow'),scrP=$('scr-pp');
+  shP.setAttribute('d','M'+pp.join(' L'));shF.setAttribute('d','M'+fp.join(' L'));scrP.setAttribute('d','M'+mp.join(' L'));
+  [shP,shF,scrP].forEach(function(p){var L=p.getTotalLength();p._L=L;p.style.strokeDasharray=L+' '+L});
+  /* kit parts: installed center, kit center, kit scale */
+  function center(el){var b=el.getBBox();return [b.x+b.width/2,b.y+b.height/2]}
+  var PARTS=[['pcb',980,198,1.35,2.10,4.05],['screen',1110,190,.62,2.18,4.45],['ssr',980,300,1.25,2.26,4.12],['tc',1110,294,1.9,2.34,4.00],['xdcr',980,410,1.45,2.42,4.26]].map(function(a,i){var el=$(a[0]);return {el:el,c:center(el),kx:a[1],ky:a[2],s:a[3],a:a[4],ia:a[5],ph:i*1.25}});
+  var tstB=$('tst-brew'),tstBc=center(tstB);
+  /* multimeter probe points: [black tip, red tip, reading] */
+  var PROBE=[[[848,612],[700,300],'0.3 Ω'],[[848,612],[700,196],'OL'],[[656,322],[744,322],'10.7 Ω'],[[806,420],[696,196],'0.2 Ω']];
+  var plug=$('plug'),cord=$('cord');
+  function plugAt(x){var px=lerp(1040,1125,x),py=lerp(704,622,x),rot=lerp(64,0,x);tf(plug,'translate('+px+' '+py+') rotate('+rot+')');cord.setAttribute('d','M856,628 C900,700 '+lerp(990,1010,x)+',700 '+px+','+(py+(x>.5?6:0)))}
+
+  /* ---------- layout ---------- */
+  var narrow=false,docked=false,cur=-1;
+  var cards=chs.map(function(c){return c.querySelector('.card')});
+  var dock=document.createElement('div');dock.className='st-dock';stage.appendChild(dock);
+  /* wide and tall enough: the cards live in the dock over the stage; otherwise each one stays in its chapter */
+  function placeCards(){
+    cards.forEach(function(c,i){if(!c)return;var home=docked?dock:chs[i];if(c.parentNode!==home)home.appendChild(c);if(!docked)c.classList.remove('on')});
+    cur=-1;
+  }
+  function layout(){
+    var w=stage.clientWidth,h=stage.clientHeight;narrow=w<1000&&h>=w*0.75;docked=!narrow&&h>=560;
+    story.classList.toggle('narrow',narrow);story.classList.toggle('docked',docked);
+    placeCards();
+    /* the drawing gets whatever height the tallest chapter card leaves free */
+    if(narrow){var vh=window.innerHeight||h,maxC=0;cards.forEach(function(k,i){if(i>0&&k)maxC=Math.max(maxC,k.offsetHeight)});svg.style.height=Math.round(Math.max(vh*0.4,Math.min(vh*0.62,vh*0.95-maxC-10)))+'px'}
+    else svg.style.height='';
+    if(narrow){svg.setAttribute('viewBox','500 24 700 712');svg.setAttribute('preserveAspectRatio','xMidYMin meet')}
+    else{svg.setAttribute('viewBox','0 0 1200 760');svg.setAttribute('preserveAspectRatio','xMidYMid meet')}
+  }
+
+  /* ---------- scroll position to story time ---------- */
+  function storyT(){
+    var vh=window.innerHeight||800,anchor=vh*(narrow?0.75:0.6),t=0;
+    for(var i=0;i<chs.length;i++){var r=chs[i].getBoundingClientRect();if(r.top<=anchor)t=i+cl((anchor-r.top)/Math.max(1,r.height))}
+    return Math.min(t,chs.length-0.001);
+  }
+
+  /* ---------- wide screens: one card at a time, swapped as the story moves into the next chapter ---------- */
+  function dockCards(t){
+    if(!docked)return;
+    var i=Math.max(0,Math.min(cards.length-1,Math.floor(t)));
+    /* a little give at each chapter boundary, so stopping right on one doesn't flicker between two cards */
+    if(cur<0||Math.abs(i-cur)>1||Math.abs(t-Math.max(i,cur))>0.03)cur=i;
+    cards.forEach(function(c,k){if(c)c.classList.toggle('on',k===cur)});
+  }
+  /* keyboard: tabbing to a link in another chapter's card scrolls the story to that chapter */
+  dock.addEventListener('focusin',function(e){
+    var c=e.target.closest&&e.target.closest('.card'),k=cards.indexOf(c);if(k<0||k===cur)return;
+    var r=chs[k].getBoundingClientRect(),vh=window.innerHeight||800;
+    window.scrollTo(0,(window.pageYOffset||0)+r.top-vh*0.6+r.height*0.35);
+  });
+
+  /* ---------- narrow screens: a card fades as it rises off its parking spot at the bottom ---------- */
+  function fadeCards(){
+    var vh=window.innerHeight||800;
+    cards.forEach(function(c){
+      if(!c)return;
+      if(!narrow){c.style.opacity='';return}
+      var r=c.getBoundingClientRect(),park=vh*0.97-r.height;
+      c.style.opacity=String(Math.round(cl(1-(park-r.top)/(0.22*vh))*1000)/1000);
+    });
+  }
+
+  /* ---------- the timeline ---------- */
+  var T=0,now=0;
+  function render(t){
+    if(RM)t=Math.floor(t)+0.97;
+    T=t;
+    $('st-prog').style.transform='scaleX('+cl(t/10)+')';
+    /* x-ray amount: open in chapter 3, closed again for power-on in chapter 7 */
+    var xr=E(t,3.05,3.5)*(1-E(t,7.0,7.3));
+    op($('shell'),1-0.84*xr);op($('inside'),xr);op($('outline'),xr);op($('grid'),xr*0.55);
+    var lift=E(t,3.0,3.35)*(1-E(t,7.0,7.25));
+    tf($('lid'),'translate(0 '+(-78*lift)+') rotate('+(-7*lift)+' 700 144)');op($('lid'),1-E(t,3.12,3.4)*(1-E(t,6.98,7.12)));
+    var shn=seg(t,7.1,7.42);tf($('sheen'),'translate('+lerp(380,900,ease(shn))+' 0) rotate(16 60 400)');op($('sheen'),(shn>0&&shn<1&&!RM)?Math.sin(shn*Math.PI):0);
+    /* stock wiring and the brew thermostat come out */
+    op($('tags'),E(t,3.42,3.62)*(1-E(t,4.86,5.0)));
+    op($('stock'),1-0.62*E(t,4.9,5.06));
+    var mv=E(t,3.6,3.95);
+    tf(tstB,'translate('+lerp(tstBc[0],1060,mv)+' '+lerp(tstBc[1],521,mv)+') scale('+lerp(1,1.6,mv)+') translate('+(-tstBc[0])+' '+(-tstBc[1])+')');
+    op(tstB,1-E(t,3.92,4.05));
+    op($('p-out'),E(t,3.6,3.8)*(1-E(t,4.0,4.15)));
+    /* kit parts arrive in chapter 2 and move into place in chapter 4 */
+    PARTS.forEach(function(p){
+      var ap=E(t,p.a,p.a+0.25),ins=E(t,p.ia,p.ia+0.32);
+      /* on display in the kit they float a little, each on its own beat */
+      var bob=RM?0:ap*(1-ins)*Math.sin(nowS*1.7+p.ph)*3.2;
+      var x=lerp(p.kx+140*(1-ap),p.c[0],ins),y=lerp(p.ky,p.c[1],ins)+bob,sc=lerp(p.s,1,ins),rot=0;
+      if(p.el.id==='tc'&&ins>0&&ins<1)rot=ins*720;
+      tf(p.el,'translate('+x+' '+y+') scale('+sc+')'+(rot?' rotate('+rot+')':'')+' translate('+(-p.c[0])+' '+(-p.c[1])+')');
+      op(p.el,ap);
+    });
+    var kitOn=E(t,2.25,2.5)*(1-E(t,3.3,3.5));
+    op($('p-kit'),kitOn);op($('spools'),E(t,2.45,2.65)*(1-E(t,4.5,4.8)));
+    /* chapter 1: stock temperature graph */
+    op($('p-temp1'),E(t,1.0,1.22)*(1-E(t,1.92,2.12)));
+    /* chapter 5: the harness draws itself */
+    var a0=5.02,span=0.83,n=hw.length,w=0.13,step=(span-w)/(n-1),drawing=null,doneC=[0,0,0,0,0,0],totC=[0,0,0,0,0,0];
+    hw.forEach(function(p,i){
+      var x=E(t,a0+i*step,a0+i*step+w);p.style.strokeDashoffset=String(p._L*(1-x));
+      var c=+p.getAttribute('data-c');totC[c]++;if(x>=0.999)doneC[c]++;
+      if(x>0.001&&x<0.999)drawing={p:p,x:x};
+    });
+    var sp=$('spark');
+    if(drawing&&!RM){var pt=drawing.p.getPointAtLength(drawing.p._L*drawing.x);sp.setAttribute('cx',pt.x);sp.setAttribute('cy',pt.y);op(sp,xr)}else op(sp,0);
+    op($('p-runs'),E(t,5.0,5.14)*(1-E(t,5.95,6.08)));
+    $('runs-n').textContent=String(Math.round(13*seg(t,5.02,5.85)));
+    lg.forEach(function(g){var c=+g.getAttribute('data-c');op(g,doneC[c]===totC[c]?1:(doneC[c]>0||t>a0?0.45:0.25))});
+    /* chapter 6: the multimeter */
+    var mIn=E(t,6.0,6.14)*(1-E(t,6.94,7.06));
+    op($('p-meter'),mIn);tf($('p-meter'),'translate('+(70*(1-E(t,6.0,6.14)))+' 0)');
+    var pr=seg(t,6.1,6.86),si=Math.min(3,Math.floor(pr*4)),loc=cl(pr*4-si),nx=Math.min(3,si+1);
+    var mvx=ease(seg(loc,0.75,1)),A=PROBE[si],B=PROBE[nx];
+    var bx=lerp(A[0][0],B[0][0],mvx),by=lerp(A[0][1],B[0][1],mvx),rx=lerp(A[1][0],B[1][0],mvx),ry=lerp(A[1][1],B[1][1],mvx);
+    $('tipB').setAttribute('cx',bx);$('tipB').setAttribute('cy',by);$('tipR').setAttribute('cx',rx);$('tipR').setAttribute('cy',ry);
+    $('probeB').setAttribute('d','M990,396 C960,520 '+(bx+60)+','+(by+120)+' '+bx+','+by);
+    $('probeR').setAttribute('d','M1060,396 C1080,520 '+(rx+90)+','+(ry+160)+' '+rx+','+ry);
+    op($('probes'),E(t,6.08,6.18)*(1-E(t,6.9,7.0)));
+    var settled=(loc>0.12&&loc<0.75)||pr>=1;
+    $('m-read').textContent=settled?(A[2]+' ✓'):'----';
+    var nCells=Math.round(NCHK*seg(t,6.1,6.86));
+    cells.forEach(function(c,i){c.setAttribute('fill',i<nCells?'#63C08A':'#3A3F45')});
+    var ready=t>=6.86;
+    $('gate-lamp').setAttribute('fill',ready?'#63E08A':'#3A3F45');$('gate-lamp').setAttribute('filter',ready?'url(#f-glow)':'');
+    $('gate-t').textContent=ready?'Ready for power-on':(NCHK-nCells)+' checks to go';
+    /* cord: plugged in for the stock machine, out for the work, back in for power-on */
+    var plugged=1-E(t,3.0,3.15)+E(t,7.0,7.12);plugAt(cl(plugged));
+    /* LEDs */
+    var on=plugged>0.98&&(t<3||t>7.08);
+    lamp('led-pwr',on);
+    /* screen */
+    op($('scr-boot'),E(t,7.12,7.17)*(1-E(t,7.27,7.31)));
+    op($('scr-fill'),E(t,7.29,7.33)*(1-E(t,7.44,7.48)));$('scr-fillbar').setAttribute('width',100*seg(t,7.3,7.44));
+    /* the official first start: portafilter out, Flush until water runs from the group, so the boiler is full before it heats */
+    op($('water'),E(t,7.3,7.34)*(1-E(t,7.48,7.52)));
+    op($('jug'),E(t,7.16,7.22)*(1-E(t,7.52,7.6)));
+    var jf=seg(t,7.3,7.46);$('jugw').setAttribute('y',String(574-26*jf));$('jugw').setAttribute('height',String(26*jf));
+    var tv=lerp(22,93,ease(seg(t,7.48,7.84)));$('scr-tval').textContent=Math.round(tv)+'°';
+    op($('scr-temp'),E(t,7.46,7.5)*(1-E(t,7.84,7.88)));
+    /* then [UT] Test OPV with a blank basket: the pressure peaks where the OPV opens */
+    op($('scr-opv'),E(t,7.86,7.9)*(1-E(t,8.04,8.08)));
+    $('scr-opvv').textContent=(11.6*ease(seg(t,7.9,8.0))).toFixed(1)+' bar';
+    var shot=seg(t,8.18,8.86);
+    op($('scr-shot'),E(t,8.08,8.14)*(1-E(t,8.92,9.0)));
+    scrP.style.strokeDashoffset=String(scrP._L*(1-shot));
+    $('scr-time').textContent=Math.round(28*shot)+' s';$('scr-bar').textContent=P(28*shot).toFixed(1)+' bar';
+    op($('scr-ready'),E(t,8.96,9.04));
+    $('scr-line').textContent=t>=9.1?'36.0 g · tank 78%':'Ready';
+    /* chapter 7 graph */
+    op($('p-temp2'),E(t,7.14,7.28)*(1-E(t,7.96,8.1)));
+    pid.style.strokeDashoffset=String(pidL*(1-E(t,7.48,7.86)));
+    /* portafilter out for the flush, back for the shot */
+    op($('pf'),1-(E(t,7.0,7.1)-E(t,7.86,7.96)));
+    /* glass: full for the stock machine, away during the work, empty then filling for the shot */
+    var gl=(1-E(t,2.95,3.08))+E(t,7.9,8.02);op($('glass'),gl);
+    var level=t<5?1:E(t,8.22,8.88);
+    $('coffee').setAttribute('y',String(572-level*54));
+    op($('streams'),E(t,8.18,8.23)*(1-E(t,8.86,8.92)));
+    op($('steam'),(1-E(t,2.75,2.95))*(t<5?1:0)+E(t,8.7,8.95));
+    /* chapter 8 graph */
+    op($('p-shot'),E(t,8.02,8.14)*(1-E(t,8.95,9.08)));
+    shP.style.strokeDashoffset=String(shP._L*(1-shot));shF.style.strokeDashoffset=String(shF._L*(1-shot));
+    $('sh-time').textContent=Math.round(28*shot)+' s';
+    $('sh-yield').textContent=Math.round(36*ease(seg(shot,0.3,1)))+' g';
+    /* chapter 9: switch lights and extras */
+    op($('trayglow'),0.7*E(t,9.05,9.2)*(1-E(t,9.97,10.1)));
+    op($('p-extras'),E(t,9.0,9.14)*(1-E(t,9.97,10.1)));
+    /* heat: vent glow while the boiler comes up to temperature */
+    var heating=E(t,7.48,7.56)*(1-0.6*E(t,7.84,7.92));op($('vent'),heating*(t<7.0?0:1));
+    op($('boilerHeat'),0);
+  }
+
+  /* ---------- ambient life: the stock thermostat trace and LED, flickering heat ---------- */
+  var PERIOD=6.0;
+  function stockT(sec){var ph=((sec%PERIOD)+PERIOD)%PERIOD/PERIOD;if(ph<0.34){var u=ph/0.34;return 86+20*(1-Math.pow(1-u,1.6))}var v=(ph-0.34)/0.66;return 106-20*(1-Math.exp(-3.2*v))/(1-Math.exp(-3.2))}
+  function stockHeating(sec){var ph=((sec%PERIOD)+PERIOD)%PERIOD/PERIOD;return ph<0.34}
+  function yS(Tc){return 344-(Tc-80)*(150/35)}
+  function drawSaw(sec){var pts=[],span=PERIOD*2.4;for(var q=0;q<=72;q++){var tt=sec-span+span*q/72;pts.push((936+218*q/72).toFixed(1)+','+yS(stockT(tt)).toFixed(1))}$('saw').setAttribute('d','M'+pts.join(' L'))}
+  function lamp(id,lit){var el=$(id);el.setAttribute('fill',lit?'#FF4B3A':'#4A1C18');el.setAttribute('filter',lit?'url(#f-glow)':'')}
+  function ambient(ms){
+    var sec=ms/1000,onH=false;
+    if(T>=7.48&&T<7.86){onH=true}
+    else if(T>=7.86){onH=((sec%1.4)/1.4)<0.25}
+    /* stock: the brew lamp sits across the brew thermostat, so it lights while the thermostat is open: ready */
+    lamp('led-brew',T<3&&!stockHeating(sec));
+    /* converted: the steam lamp sits across the SSR, so it lights whenever the heater is off */
+    lamp('led-steam',T>7.08&&!onH);
+    $('ssrLed').setAttribute('fill',onH&&T>=7?'#FF6A4E':'#3A1A10');
+    $('pcbLed').setAttribute('fill',T>=7.1?'#FF5A4E':'#5A1F1A');
+    if(T>0.8&&T<2.2)drawSaw(sec);
+  }
+
+  /* ---------- chapter numbers fill like a cup while their chapter plays ---------- */
+  var nums=cards.map(function(c){return c&&c.querySelector('.st-num')});
+  function fillNums(t){nums.forEach(function(n,i){if(n)n.style.setProperty('--fill',cl(t-i).toFixed(3))})}
+
+  /* ---------- dust in the light: drifts up slowly, and stirs while the story is moving ---------- */
+  var MOTES=[],mg=document.createElementNS(NS,'g');mg.setAttribute('aria-hidden','true');
+  for(var m=0;m<18;m++){var mc=document.createElementNS(NS,'circle');mc.setAttribute('r',(0.7+((m*37)%10)/10*1.7).toFixed(2));mc.setAttribute('fill','#FFE7C2');mc.setAttribute('opacity','0');mg.appendChild(mc);
+    MOTES.push({el:mc,x:430+((m*97)%560),sp:0.35+((m*53)%10)/10*0.5,ph:((m*29)%17)/17,op:0.12+((m*41)%10)/10*0.22})}
+  svg.insertBefore(mg,$('outlet'));if(RM)mg.style.display='none';
+  var rise=0;
+  function motes(dt){
+    rise+=dt*(1+Math.min(3,Math.abs(vel)*2.2));
+    for(var i=0;i<MOTES.length;i++){var o=MOTES[i],f=(rise*o.sp*0.06+o.ph)%1;
+      o.el.setAttribute('cx',(o.x+12*Math.sin(rise*0.35+o.ph*6.28)).toFixed(1));o.el.setAttribute('cy',(640-600*f).toFixed(1));o.el.setAttribute('opacity',(o.op*Math.sin(Math.PI*f)).toFixed(3))}
+  }
+
+  /* ---------- loop ----------
+     The drawing doesn't jump to the scroll position. Story time follows it like a damped spring, easing in and out,
+     so every nudge of the wheel or trackpad plays out as a glide. A long jump (the scrollbar, a link) skips most of
+     the way at once and glides the last stretch. */
+  var SMOOTH=0.45,MAXV=2.6,shown=null,vel=0,lastMs=0,lastY=-1,nowS=0;
+  function damp(cur,to,dt){
+    var om=2/SMOOTH,x=om*dt,ex=1/(1+x+0.48*x*x+0.235*x*x*x),ch=cur-to,mx=MAXV*SMOOTH;
+    ch=Math.max(-mx,Math.min(mx,ch));var tg=cur-ch,tmp=(vel+om*ch)*dt;
+    vel=(vel-om*tmp)*ex;var out=tg+(ch+tmp)*ex;
+    if((to-cur>0)===(out>to)){out=to;vel=0}
+    return out;
+  }
+  var visible=true,pending=false,lastT=-1;
+  function draw(t){lastT=t;render(t);dockCards(t);fillNums(t)}
+  function frame(ms){
+    pending=false;ms=ms||performance.now();nowS=ms/1000;
+    var dt=lastMs?Math.min(0.1,(ms-lastMs)/1000):1/60;lastMs=ms;
+    var target=storyT();
+    if(shown===null||RM){shown=target;vel=0}
+    else{
+      if(Math.abs(target-shown)>2.5)shown=target-(target>shown?1.2:-1.2);
+      shown=damp(shown,target,dt);
+      if(Math.abs(target-shown)<2e-4&&Math.abs(vel)<2e-3){shown=target;vel=0}
+    }
+    var y=window.pageYOffset||0;if(y!==lastY){lastY=y;fadeCards()}
+    /* the kit parts keep floating while they're on display, so draw every frame then too */
+    if(Math.abs(shown-lastT)>1e-5||(shown>2.05&&shown<4.8))draw(shown);
+    ambient(ms);if(!RM)motes(dt);
+    if(visible&&!RM){pending=true;requestAnimationFrame(frame)}
+  }
+  function kick(){if(!pending){pending=true;requestAnimationFrame(frame)}}
+  function all(){var t=storyT();shown=t;vel=0;draw(t);fadeCards();if(RM)ambient(performance.now())}
+  layout();all();ambient(0);drawSaw(0);
+  window.addEventListener('scroll',function(){if(RM)all();else kick()},{passive:true});
+  window.addEventListener('resize',function(){layout();lastT=-1;all()});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){layout();lastT=-1;all()});
+  if('IntersectionObserver' in window){new IntersectionObserver(function(es){visible=es[0].isIntersecting;if(visible&&!RM){lastMs=0;kick()}}).observe(story)}
+  if(!RM)kick();
+})();
+</script>
+
+<footer class="site-foot"><div class="in"><nav class="foot-nav" aria-label="All pages"><a class="fn-home" href="index.html">Gaggia × Gaggiuino home</a><div class="fn-g"><span class="gl">Learn</span><a href="conversion.html" aria-current="page">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></div><div class="fn-g"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></div><div class="fn-g"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></div><div class="fn-g"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></div></nav><p><strong>Mains voltage.</strong> This conversion puts your hands near 120/230 V wiring. Work only with the cord out, check everything with a meter before first power-on, and stop if anything here disagrees with the official Gaggiuino docs or your own reading of the machine. Nothing on this site has been reviewed by the Gaggiuino project. You are responsible for your own build.</p><p>Unofficial community material for the Gaggia Classic family. The install itself is the official guide at <a href="https://gaggiuino.github.io/">gaggiuino.github.io</a>; these pages organize it, link to each step and add tools around it. Content is <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>, like the sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia site</a>. · <a href="https://github.com/Jabawabawaba/Gaggia-Gaggiuino">Source and issues on GitHub</a></p></div></footer></body></html>

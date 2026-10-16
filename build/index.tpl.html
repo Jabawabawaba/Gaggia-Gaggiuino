@@ -1,0 +1,216 @@
+<title>Gaggia Gaggiuino Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+%%BASECSS%%
+/* Home: the toolkit on the site's usual light plate look. Tools grouped by phase, led by a dark featured card into the
+   scroll story (conversion.html), then an inline "Your Gaggia" picker, what changes between models, getting help, known gaps, sources. */
+.toolkit{scroll-margin-top:0}
+.toolkit .big{font:700 clamp(38px,6.6vw,60px)/.95 var(--f-display);letter-spacing:.01em;text-transform:uppercase;margin:0;text-wrap:balance}
+.phase{display:grid;grid-template-columns:170px minmax(0,1fr);gap:10px 24px;padding:18px 0;border-bottom:1px solid var(--line)}
+.phase:last-child{border-bottom:0;padding-bottom:0}
+.phase:first-of-type{padding-top:4px}
+.phase .ph{font:600 21px/1.1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;padding-top:10px}
+.phase .ph small{display:block;font:400 14px/1.4 var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted);margin-top:5px}
+.tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tool{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 12px;align-content:start;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px 15px;text-decoration:none;color:inherit}
+.tool:hover{border-color:var(--accent)}
+.tool .n{grid-row:1 / 3;font:700 30px/.9 var(--f-display);color:var(--accent);font-variant-numeric:tabular-nums;min-width:1.1em}
+.tool h3{font:600 21px/1.1 var(--f-display);letter-spacing:.03em;text-transform:uppercase;align-self:end}
+.tool p{margin:0;color:var(--muted);font-size:15px}
+.tool.ref{grid-template-columns:minmax(0,1fr)}
+/* the featured card borrows the story's dark stage so it reads as the way in */
+.tool.feat{grid-column:1 / -1;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:0;gap:0;overflow:hidden;background:#0E1012;border-color:#2A2E33;color:#ECEEF0}
+.tool.feat:hover{border-color:#F2A33A}
+.tool.feat .fimg{grid-column:2;grid-row:1;position:relative;display:block;min-height:250px;overflow:hidden}
+.tool.feat .fimg img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.tool.feat .ft{grid-column:1;grid-row:1;display:grid;gap:8px;align-content:center;padding:20px 22px}
+.tool.feat h3{color:#ECEEF0}
+.tool.feat p{color:#A9B0B7}
+.tool.feat .go{justify-self:start;margin-top:4px;padding:8px 14px;border-radius:999px;background:#F2A33A;color:#0E1012;font:600 14px var(--f-body)}
+@media (max-width:760px){.tool.feat{grid-template-columns:minmax(0,1fr)}.tool.feat .fimg{grid-column:1;grid-row:1;min-height:0;height:0;padding-top:62.5%}.tool.feat .ft{grid-column:1;grid-row:2}}
+@media (max-width:760px){.phase{grid-template-columns:minmax(0,1fr)}.phase .ph{padding-top:0}.tools{grid-template-columns:minmax(0,1fr)}}
+.ypick{display:grid;gap:10px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.ypick .mact{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font-size:15px}
+#y-lede{margin:14px 0 10px;max-width:72ch}
+.ynotes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px}
+.ynotes li{font-size:15.5px;padding-left:14px;border-left:3px solid var(--accent)}
+.ynotes li b{font-weight:600}
+@media (max-width:760px){.ynotes{grid-template-columns:minmax(0,1fr)}}
+.diff{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px}
+@media (max-width:700px){.diff{grid-template-columns:minmax(0,1fr)}}
+.d{display:grid;gap:3px;align-content:start}
+.d .k{color:var(--accent-ink)}
+.d p{margin:0;font-size:15.5px}
+.d p small{color:var(--muted)}
+.settings{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;max-width:620px}
+.settings table{font-size:15.5px}
+.settings th{padding:10px 14px}
+.settings td{padding:8px 14px}
+.settings tr:last-child td{border-bottom:0}
+.settings td.v{font:600 15px var(--f-mono)}
+ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
+</style>
+
+<div class="wrap toolkit" id="toolkit">
+  <header class="top">
+    <div class="plate" aria-label="Scope">
+      <span class="rivet" aria-hidden="true"></span>
+      <span><b>Gaggia Classic family</b></span><span>Classic, Pro, Eco, Evo Pro, E24</span><span>Gaggiuino Gen 3, PCB v4</span><span>unofficial</span>
+      <span class="rivet" aria-hidden="true"></span>
+    </div>
+    <h1 class="big">The Gaggia Gaggiuino toolkit</h1>
+    <p class="lede">Gaggiuino was built for the Gaggia Classic, and its official guide covers the install step by step. These pages sit beside the guide: they keep your place in it, show which steps and mods your model needs, and add the planning, checking and troubleshooting tools around it, in the order a build uses them.</p>
+    <div class="warn" role="note">
+      <strong>Read this first</strong>
+      <p>Everything here is unofficial community material, not reviewed by the Gaggiuino project. The <a href="https://gaggiuino.github.io/">official guide</a> is the instructions: every step on these pages links to the part of it that covers the step, and if the two ever disagree, follow the guide. Mains can kill you: cord out for every step until the power-on checks pass.</p>
+    </div>
+  </header>
+
+  <section class="block" aria-labelledby="h-tools">
+    <div class="sec-h"><h2 id="h-tools">The tools, in build order</h2><span class="sum">everything saves in your browser</span></div>
+    <div class="phase">
+      <h3 class="ph">Learn<small>Read any time, no tools needed</small></h3>
+      <div class="tools">
+        <a class="tool feat" href="conversion.html"><span class="fimg"><img src="img/conversion.webp" width="660" height="577" alt="The finished machine: a Gaggia Classic Pro with the Gaggiuino screen on top, a shot in the cup and its pressure and flow graph beside it."></span><div class="ft"><h3>The conversion, start to finish</h3><p>Scroll through the whole build as an animation, from a stock Gaggia to a profiled shot. Each step links to the page that covers it.</p><span class="go">Watch the conversion</span></div></a>
+        <a class="tool ref" href="how-gaggia-works.html"><h3>How the Gaggia works</h3><p>An x-ray of the stock machine you can run through heat, brew, hot water and steam, every part explained, and a live circuit you can switch.</p></a>
+        <a class="tool ref" href="how-gaggiuino-works.html"><h3>How Gaggiuino works</h3><p>What the PCB, sensors and SSR take over, how they hold the temperature and drive the pump, and the optional scales and tank sensor.</p></a>
+        <a class="tool ref" href="glossary.html"><h3>Glossary</h3><p>%%GL_N%% acronyms and shop words used across the site, each with a plain definition and links to where it comes up.</p></a>
+      </div>
+    </div>
+    <div class="phase">
+      <h3 class="ph">Plan and buy<small>Before anything arrives</small></h3>
+      <div class="tools">
+        <a class="tool" href="budget.html"><span class="n">1</span><h3>Build budget</h3><p>New or used machine, kit or parts, Bluetooth or hardware scales, the tank sensor and your model's extras, with the total. Enter real quotes as you get them.</p></a>
+        <a class="tool" href="used-checklist.html"><span class="n">2</span><h3>Used Gaggia checklist</h3><p>What to look at and ask about at a seller's house, saved per listing, with a price gauge and what the build adds on top.</p></a>
+        <a class="tool" href="which-gaggia.html"><span class="n">3</span><h3>Which Gaggia is mine</h3><p>Tell the Classic, Pro, Eco, Evo Pro and E24 apart from the label and the front, with what each changes for the build. Set yours once and every page follows.</p></a>
+        <a class="tool" href="parts-tracker.html"><span class="n">4</span><h3>Parts tracker</h3><p>Every line of the parts list for your model and install path, with links, status, price paid and box contents.</p></a>
+      </div>
+    </div>
+    <div class="phase">
+      <h3 class="ph">Install<small>At the bench, cord out</small></h3>
+      <div class="tools">
+        <a class="tool" href="runbook.html"><span class="n">5</span><h3>Install runbook</h3><p>Eight phases of tickable steps, from the bench test to calibration, each linked to its section of the official guide, with a stop before first power-on. Prints as one checklist.</p></a>
+        <a class="tool" href="wiring.html"><span class="n">6</span><h3>Wiring</h3><p>Every wire for your path: the seven stock-integration wires, or each run of a custom harness, with its ends, connectors and length, beside a link to the official schematic.</p></a>
+        <a class="tool" href="cut-list.html"><span class="n">7</span><h3>Cut list</h3><p>Wire to buy by gauge and color, the connectors to crimp, and every run to cut, with your own extra length. Tick runs off as you cut.</p></a>
+        <a class="tool" href="wire-labels.html"><span class="n">8</span><h3>Wire labels</h3><p>Printable flag labels for each wire end and for the stock connectors, using the official guide's names, as a PDF for Letter or A4.</p></a>
+        <a class="tool" href="power-on-checks.html"><span class="n">9</span><h3>Power-on checks</h3><p>About %%NCHECKS%% unplugged checks for your schematic. Enter the meter reading and each one marks itself pass or fail; the page says when you're ready to plug in. Prints with blanks for readings.</p></a>
+      </div>
+    </div>
+    <div class="phase">
+      <h3 class="ph">After<small>When it's brewing</small></h3>
+      <div class="tools">
+        <a class="tool" href="troubleshooting.html"><span class="n">10</span><h3>Troubleshooting</h3><p>Symptom first: power, the screen, heat, pressure, switches, firmware and extras, each with likely causes and the checks that tell them apart.</p></a>
+        <a class="tool ref" href="model-notes.html"><h3>Model notes</h3><p>What each Gaggia changes for the build, in one place, with the reasoning and the official sources.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-yours">
+    <div class="sec-h"><h2 id="h-yours">Your Gaggia</h2><span class="sum" id="y-sum">not set</span></div>
+    <div class="ypick" id="ypick">
+      <div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model">
+        <button type="button" data-ymodel="GC" aria-pressed="false">Classic</button><button type="button" data-ymodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-ymodel="EVO" aria-pressed="false">Evo</button><button type="button" data-ymodel="E24" aria-pressed="false">E24</button>
+      </div></div>
+      <div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage">
+        <button type="button" data-yvolt="120" aria-pressed="false">120 V</button><button type="button" data-yvolt="230" aria-pressed="false">230 V</button>
+      </div></div>
+      <div class="mrow" id="y-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board">
+        <button type="button" data-yeco="yes" aria-pressed="false">Eco board</button><button type="button" data-yeco="no" aria-pressed="false">No Eco board</button>
+      </div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have one: it turns the machine off after 20 idle minutes, and its power switch springs back.</span></div>
+      <div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path">
+        <button type="button" data-ypath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-ypath="CW" aria-pressed="false">Custom wiring</button>
+      </div></div>
+      <div class="mact"><a href="which-gaggia.html">Not sure? Identify your Gaggia</a><button type="button" class="btn" id="y-clear" hidden>Clear</button></div>
+    </div>
+    <p class="fine" id="y-lede">Pick your model, voltage and install path. The runbook, checks, wiring and troubleshooting pages then show only what applies to your machine. Until you do, every note shows, tagged with the machines it's for.</p>
+    <ul class="ynotes">
+      <li data-when="model:GC;volts:230"><b>2015 to 2018 Classic: not compatible.</b> The 230 V Classic from those years (SIN035U, RI9403) has no 3-way valve. Check the label before buying parts. <span class="vtag">230 V Classic</span></li>
+      <li data-when="ground"><b>Ungrounded cord.</b> Most US Classics were sold with a two-prong cord and an ungrounded case. The machine-specific guide adds a grounded inlet and ground wires. <span class="vtag">120 V Classic</span></li>
+      <li data-when="eco:yes"><b>Eco board.</b> The power switch needs a small mod so it stays on, and the official guide recommends custom wiring over stock integration. <span class="vtag">Eco board</span></li>
+      <li data-when="opv9"><b>9 bar OPV.</b> Raise it to 10 to 12 bar with a 12 bar spring or M3 washers, so it stays shut below your highest shot pressure. <span class="vtag">US Evo Pro, E24</span></li>
+      <li data-when="model:EVO,E24"><b>Combined switch connectors.</b> On most of these, each switch's connectors are gathered in one combined block. Take each connector out, insulate it on its own and label it, above all for stock wiring. <span class="vtag">Evo, E24</span></li>
+      <li data-when="fam:GC"><b>Classic plumbing.</b> PTFE tube with push-to-connect fittings for the pressure T. The Classic's metal OPV sits at the group inlet. <span class="vtag">Classic</span></li>
+      <li data-when="fam:GCP"><b>Pro plumbing.</b> Braided silicone hose, so the pressure T is a barbed fitting with hose clamps. <span class="vtag">Pro family</span></li>
+      <li data-when="path:SI;fam:GCP;volts:230"><b>No 230 V Pro stock-integration drawing.</b> The official stock-integration schematics cover the 120 V Pro family and both Classics. For a 230 V Pro, follow the custom wiring guide. <span class="vtag">230 V Pro family</span></li>
+      <li data-when="wpath:SI"><b>Stock wiring.</b> Seven short integration wires, and the stock harness stays. Label every stock connector before you move it. <span class="vtag">Stock wiring</span></li>
+      <li data-when="wpath:CW"><b>Custom wiring.</b> A new 18 AWG harness from the official schematic for your model and voltage. The cut list and labels pages give every run. <span class="vtag">Custom wiring</span></li>
+      <li data-when="volts:230"><b>230 V.</b> Protection is an RCD, and the checks expect a 230 V element. <span class="vtag">230 V</span></li>
+      <li data-when="volts:120"><b>120 V.</b> First power-on goes through a GFCI-protected outlet, and the checks expect a 120 V element. <span class="vtag">120 V</span></li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-diff">
+    <div class="sec-h"><h2 id="h-diff">What changes between models</h2><span class="sum">from the official compatibility table and machine-specific guide</span></div>
+    <div class="diff">
+      <div class="d"><span class="k">Two families</span><p>The official guide splits the machines in two: the Gaggia Classic (GC), and the Gaggia Classic Pro (GCP), which takes in the Pro, Eco, Evo Pro and E24. Plumbing, switch layout and schematics follow the family.</p></div>
+      <div class="d"><span class="k">One to avoid</span><p>The 230 V Classic sold from 2015 to 2018 (SIN035U, RI9403) has no 3-way valve, and the official docs list it as not compatible. Every other model in their compatibility table is; the Classic UP and GT aren't in it.</p></div>
+      <div class="d"><span class="k">Eco board</span><p>230 V Pro-family machines with the Eco board switch themselves off after 20 idle minutes, and their power switch springs back. Remove a spring so the switch stays on, and use custom wiring: the guide recommends against stock integration on these.</p></div>
+      <div class="d"><span class="k">9 bar OPV</span><p>US Evo Pro and E24 machines ship with a 9 bar OPV. Gaggiuino needs it at 10 to 12 bar, because an OPV starts to open below its rating and the controller can't tell when. A 12 bar spring, or 3 or 4 M3 washers behind the 9 bar one.</p></div>
+      <div class="d"><span class="k">Connector block</span><p>Most Evo Pro and E24 machines gather the switch connectors in one shield. Each connector comes out, gets its own silicone tape or heat shrink and a label, so none is left bare when it's disconnected.</p></div>
+      <div class="d"><span class="k">Grounding</span><p>Most US Classics have a two-prong cord and an ungrounded case. The guide fits a C14 three-pin inlet, a grounded cord and ground wires to the boiler and the cup warmer.</p></div>
+      <div class="d"><span class="k">Pressure sensor</span><p>A T-fitting in the line from pump to boiler (PTFE tube and push-to-connect fittings on a Classic, braided hose and clamps on a Pro), or the pressure tap block, which fits every model.</p></div>
+      <div class="d"><span class="k">Settings and hot water</span><p>Leave Settings, Boiler on the defaults: the Gen 3 manual recommends them for the Classic and the whole Pro family. Brew and steam on together start hot water mode, as on the stock machine.</p></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-help">
+    <div class="sec-h"><h2 id="h-help">Getting help</h2></div>
+    <ul class="plain">
+      <li>The official build process asks for one help thread per person and machine on the Gaggiuino Discord: #install-help-gc for a Classic, #install-help-gcp for the Pro, Eco, Evo Pro and E24. Title it [username][machine][control system] plus a short title, and rename it as your questions change.</li>
+      <li>Search first: most questions have been asked. Photos of how everything is connected answer most of the rest before they're asked.</li>
+      <li>When it works, the build process asks you to record your first start and first shot and post them in #first-start and #first-shot.</li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-open">
+    <div class="sec-h"><h2 id="h-open">Known gaps</h2></div>
+    <ul class="plain">
+      <li>There's no official stock-integration schematic for 230 V Pro-family machines, so this site points them to custom wiring, as the guide does for Eco boards.</li>
+      <li>Gen 3's source isn't published. The Learn pages describe the heating and pump control from the public Gen 2 firmware, which uses the same settings.</li>
+      <li>Prices and stock change weekly. The budget and parts tracker carry the date each price was checked.</li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-src">
+    <div class="sec-h"><h2 id="h-src">Sources and credits</h2></div>
+    <ul class="plain">
+      <li><a href="https://gaggiuino.github.io/">Official Gaggiuino docs</a>: the compatibility table, BOM, PCB guide, stock wiring integration, custom wiring, machine-specific guide, screen and flashing guides, and the Gen 3 manual. Every step here is summarized from them and links back.</li>
+      <li>banoz, <a href="https://github.com/banoz/CoffeeHat">CoffeeHat</a>: the PCB hardware. The <a href="https://github.com/Zer0-bit/gaggiuino">Gaggiuino firmware</a> for how the Gen 2 code heats and drives the pump.</li>
+      <li><a href="model-notes.html">Model notes</a> collects what each model changes, with sources.</li>
+      <li>The sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia Gaggiuino toolkit</a>, for the Rancilio Silvia.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function(){
+  var M=window.GaggiaMachine,box=document.getElementById('ypick');if(!M||!box)return;
+  function $(id){return document.getElementById(id)}
+  function each(sel,fn){Array.prototype.forEach.call(box.querySelectorAll(sel),fn)}
+  function sync(){
+    var p=M.get();
+    each('[data-ymodel]',function(b){b.setAttribute('aria-pressed',String(!!p&&b.getAttribute('data-ymodel')===p.model))});
+    each('[data-yvolt]',function(b){b.setAttribute('aria-pressed',String(!!p&&Number(b.getAttribute('data-yvolt'))===p.volts))});
+    each('[data-yeco]',function(b){b.setAttribute('aria-pressed',String(!!p&&p.eco!==null&&(b.getAttribute('data-yeco')==='yes')===p.eco))});
+    each('[data-ypath]',function(b){b.setAttribute('aria-pressed',String(!!p&&b.getAttribute('data-ypath')===p.path))});
+    $('y-eco-row').hidden=!(p&&(p.model==='GCP'||p.model==='EVO'||p.model==='E24')&&p.volts===230);$('y-clear').hidden=!p;
+    $('y-sum').textContent=p?M.label(p):'not set';
+    $('y-lede').textContent=p?M.summary(p):'Pick your model, voltage and install path. The runbook, checks, wiring and troubleshooting pages then show only what applies to your machine. Until you do, every note shows, tagged with the machines it\'s for.';
+  }
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b||b.disabled)return;
+    var p=M.current();
+    if(b.hasAttribute('data-ymodel'))p.model=b.getAttribute('data-ymodel');
+    else if(b.hasAttribute('data-yvolt'))p.volts=Number(b.getAttribute('data-yvolt'));
+    else if(b.hasAttribute('data-yeco'))p.eco=b.getAttribute('data-yeco')==='yes';
+    else if(b.hasAttribute('data-ypath'))p.path=b.getAttribute('data-ypath');
+    else if(b.id==='y-clear'){M.set(null);return}
+    else return;
+    M.set(p);
+  });
+  window.addEventListener('gaggia-machine',sync);
+  sync();
+})();
+</script>

@@ -1,0 +1,143 @@
+<svg id="cut" class="cut" viewBox="24 44 926 510" role="img" aria-labelledby="cut-t">
+  <title id="cut-t">Side x-ray of a stock Gaggia Classic Pro, simplified: the tank and its filling funnel at the back, the pump standing upright with the over-pressure valve on top, the aluminum boiler at the front with an element on its side, the thermostats and thermal fuse on it, the group body under it with the 3-way valve behind, and the steam valve and wand at the front</title>
+  <defs>
+    <pattern id="cut-dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".9" class="dot"/></pattern>
+    <linearGradient id="cut-brass" x1="0" x2="1"><stop offset="0" stop-color="#9C7A36"/><stop offset=".4" stop-color="#E2C27C"/><stop offset=".7" stop-color="#C39A4E"/><stop offset="1" stop-color="#8E6C2C"/></linearGradient>
+    <linearGradient id="cut-chrome" x1="0" x2="1"><stop offset="0" stop-color="#7C848B"/><stop offset=".35" stop-color="#EEF1F3"/><stop offset=".65" stop-color="#B4BBC1"/><stop offset="1" stop-color="#737B82"/></linearGradient>
+    <linearGradient id="cut-alu" x1="0" x2="1"><stop offset="0" stop-color="#8E979F"/><stop offset=".45" stop-color="#D5DADF"/><stop offset=".75" stop-color="#B3BAC1"/><stop offset="1" stop-color="#848D95"/></linearGradient>
+    <radialGradient id="cut-glow" cx="50%" cy="62%" r="65%"><stop offset="0" stop-color="#FF9A3C" stop-opacity=".95"/><stop offset=".6" stop-color="#F27A1A" stop-opacity=".35"/><stop offset="1" stop-color="#F27A1A" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="960" height="600" fill="url(#cut-dots)"/>
+
+  <!-- shell -->
+  <rect x="160" y="70" width="640" height="460" rx="14" class="shell"/>
+  <rect x="160" y="56" width="640" height="14" rx="4" class="shell-top"/>
+  <rect x="182" y="530" width="44" height="10" rx="2" class="foot"/><rect x="734" y="530" width="44" height="10" rx="2" class="foot"/>
+  <text x="790" y="92" class="lbl" text-anchor="end">back</text><text x="208" y="92" class="lbl">front</text>
+
+  <!-- tank, with the filling funnel under the lid in the top cover -->
+  <g id="p-tank" class="part">
+    <path d="M640,56 H704 L692,150 H652 Z" class="funnel"/>
+    <rect x="600" y="150" width="180" height="270" rx="10" class="tank"/>
+    <path d="M602,214 H778 V410 Q778,418 770,418 H610 Q602,418 602,410 Z" class="tankwater"/>
+    <path id="w-level" d="M606,214 H774" class="wave"/>
+  </g>
+
+  <!-- pipes (static) -->
+  <g class="pipes">
+    <path id="pp-intake" d="M690,418 V476 Q690,488 678,488 H552 Q540,488 540,476 V470"/>
+    <path id="pp-opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V160"/>
+    <path id="pp-pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412"/>
+    <path id="pp-steam" d="M384,168 V122 Q384,110 372,110 H232 Q220,110 220,122 V150"/>
+    <path id="pp-drain" d="M440,330 V512"/>
+  </g>
+
+  <!-- pump, standing upright, with the over-pressure valve on top -->
+  <g id="p-pump" class="part">
+    <g class="pumpbody">
+      <rect x="518" y="336" width="44" height="136" rx="18" class="pump"/>
+      <rect x="512" y="372" width="56" height="64" rx="6" class="coil"/>
+      <g class="windings"><line x1="514" y1="382" x2="566" y2="382"/><line x1="514" y1="394" x2="566" y2="394"/><line x1="514" y1="406" x2="566" y2="406"/><line x1="514" y1="418" x2="566" y2="418"/><line x1="514" y1="430" x2="566" y2="430"/></g>
+    </g>
+    <rect x="532" y="468" width="16" height="10" rx="2" class="nipple"/>
+    <rect x="566" y="444" width="10" height="16" rx="2" class="pfuse"/>
+  </g>
+  <g id="p-opv" class="part">
+    <rect x="512" y="292" width="56" height="44" rx="6" class="opv"/>
+    <path d="M528,302 h24 M528,310 h24 M528,318 h24 M528,326 h24" class="spring2"/>
+  </g>
+
+  <!-- boiler: aluminum, with an element on each side; the near one is drawn -->
+  <g id="p-boiler" class="part">
+    <rect x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-alu)" class="alu-s"/>
+    <rect x="250" y="178" width="150" height="112" rx="12" class="boilerwater"/>
+    <rect id="heatglow" x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-glow)" opacity="0"/>
+  </g>
+  <g id="p-element" class="part">
+    <path id="element" d="M262,290 V226 Q262,206 282,206 H368 Q388,206 388,226 V290" class="element"/>
+    <rect x="256" y="288" width="12" height="10" rx="2" class="elterm"/><rect x="382" y="288" width="12" height="10" rx="2" class="elterm"/>
+  </g>
+  <g id="p-tstat" class="part">
+    <g class="tst"><circle cx="325" cy="252" r="13"/><circle cx="325" cy="252" r="5" class="tst-c"/><text x="325" y="279" class="mini" text-anchor="middle">brew</text></g>
+    <g class="tst"><rect x="344" y="152" width="30" height="16" rx="3"/><text x="359" y="146" class="mini" text-anchor="middle">steam</text></g>
+    <g class="tst fuse"><rect x="268" y="158" width="44" height="10" rx="5"/><text x="290" y="150" class="mini" text-anchor="middle">fuse</text></g>
+  </g>
+
+  <!-- group body under the boiler, inlet connector and 3-way valve behind it, portafilter -->
+  <g id="p-group" class="part">
+    <path d="M262,300 H388 V346 Q388,352 382,352 H268 Q262,352 262,346 Z" fill="url(#cut-chrome)" class="chrome-s"/>
+    <line x1="270" y1="352" x2="380" y2="352" class="screen"/>
+    <rect x="388" y="332" width="24" height="20" rx="3" fill="url(#cut-brass)" class="brass-s"/>
+  </g>
+  <g id="p-sol" class="part">
+    <rect x="412" y="296" width="40" height="34" rx="4" fill="url(#cut-brass)" class="brass-s"/>
+    <rect x="416" y="262" width="32" height="34" rx="4" class="solcoil"/>
+    <line x1="420" y1="272" x2="444" y2="272" class="wind2"/><line x1="420" y1="280" x2="444" y2="280" class="wind2"/><line x1="420" y1="288" x2="444" y2="288" class="wind2"/>
+  </g>
+  <g id="p-pf" class="part">
+    <path d="M268,356 H382 L374,380 H276 Z" fill="url(#cut-chrome)" class="chrome-s"/>
+    <path d="M270,364 L84,374 Q76,375 76,382 Q76,389 84,389 L272,378 Z" class="handle"/>
+    <rect x="308" y="380" width="10" height="10" rx="2" class="spout"/><rect x="334" y="380" width="10" height="10" rx="2" class="spout"/>
+  </g>
+  <g id="p-tray" class="part">
+    <rect x="118" y="512" width="340" height="18" rx="4" class="tray"/>
+    <path d="M136,518 h304 M136,524 h304" class="grate"/>
+    <path d="M300,452 H352 L348,512 H304 Z" class="cup"/>
+  </g>
+
+  <!-- steam valve and wand at the front; the knob comes through the side panel -->
+  <g id="p-wand" class="part">
+    <rect x="206" y="150" width="28" height="36" rx="5" fill="url(#cut-chrome)" class="chrome-s"/>
+    <g id="knob"><circle cx="220" cy="168" r="15" class="knob"/><line x1="220" y1="158" x2="220" y2="178" class="knobmark"/></g>
+    <path id="wand" d="M220,186 V262 Q220,272 210,274 L124,290 Q110,293 110,306 V380" class="wand"/>
+    <path id="jug" d="M88,396 H134 L130,452 H92 Z" class="jug"/>
+  </g>
+
+  <!-- front panel: power, brew and steam rockers with the three lamps below -->
+  <g id="p-panel" class="part">
+    <rect x="164" y="92" width="34" height="160" rx="6" class="panel"/>
+    <rect x="170" y="100" width="22" height="22" rx="4" class="sw" id="sw-pwr"/>
+    <rect x="170" y="130" width="22" height="22" rx="4" class="sw" id="sw-brew"/>
+    <rect x="170" y="160" width="22" height="22" rx="4" class="sw" id="sw-steam"/>
+    <circle cx="181" cy="200" r="5" class="lmp" id="cl-pwr"/><circle cx="181" cy="218" r="5" class="lmp" id="cl-brew"/><circle cx="181" cy="236" r="5" class="lmp" id="cl-steam"/>
+  </g>
+  <g id="p-inlet" class="part">
+    <rect x="796" y="462" width="22" height="40" rx="4" class="inlet"/>
+    <path d="M818,482 C860,482 880,520 940,520" class="cord"/>
+  </g>
+
+  <!-- flows (animated) -->
+  <g class="flows">
+    <path class="flow water" data-f="intake" d="M690,420 V476 Q690,488 678,488 H552 Q540,488 540,476 V470"/>
+    <path class="flow water" data-f="pump" d="M540,470 V336"/>
+    <path class="flow water thin" data-f="opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V214"/>
+    <path class="flow water" data-f="pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412"/>
+    <path class="flow water" data-f="boilerin" d="M400,342 V290"/>
+    <path class="flow water" data-f="boiler" d="M384,240 H404 Q416,240 416,252 V300 H432 V312"/>
+    <path class="flow water" data-f="togroup" d="M424,318 Q424,326 416,326 H330 V352"/>
+    <path class="flow water" data-f="boilerup" d="M384,290 V176"/>
+    <path class="flow coffee" data-f="shot1" d="M313,390 V452"/>
+    <path class="flow coffee" data-f="shot2" d="M339,390 V452"/>
+    <path class="flow water" data-f="drain" d="M440,330 V512"/>
+    <path class="flow water" data-f="steamwater" d="M384,176 V122 Q384,110 372,110 H232 Q220,110 220,122 V262 Q220,272 210,274 L124,290 Q110,293 110,306 V430"/>
+    <path class="flow steam" data-f="steam" d="M384,176 V122 Q384,110 372,110 H232 Q220,110 220,122 V262 Q220,272 210,274 L124,290 Q110,293 110,306 V384"/>
+  </g>
+  <g id="puffs" class="puffs"><circle cx="110" cy="392" r="7"/><circle cx="116" cy="404" r="9"/><circle cx="104" cy="416" r="8"/></g>
+
+  <!-- hotspots -->
+  <g class="hots">
+    <g class="hot" data-part="tank" tabindex="0" role="button" aria-label="Water tank"><circle cx="690" cy="300" r="18"/><text x="690" y="305">1</text></g>
+    <g class="hot" data-part="pump" tabindex="0" role="button" aria-label="Vibratory pump"><circle cx="490" cy="420" r="18"/><text x="490" y="425">2</text></g>
+    <g class="hot" data-part="opv" tabindex="0" role="button" aria-label="Over-pressure valve"><circle cx="540" cy="266" r="18"/><text x="540" y="271">3</text></g>
+    <g class="hot" data-part="boiler" tabindex="0" role="button" aria-label="Boiler"><circle cx="282" cy="186" r="18"/><text x="282" y="191">4</text></g>
+    <g class="hot" data-part="element" tabindex="0" role="button" aria-label="Heating elements"><circle cx="368" cy="266" r="18"/><text x="368" y="271">5</text></g>
+    <g class="hot" data-part="tstat" tabindex="0" role="button" aria-label="Thermostats and thermal fuse"><circle cx="410" cy="150" r="18"/><text x="410" y="155">6</text></g>
+    <g class="hot" data-part="sol" tabindex="0" role="button" aria-label="3-way solenoid valve"><circle cx="478" cy="266" r="18"/><text x="478" y="271">7</text></g>
+    <g class="hot" data-part="group" tabindex="0" role="button" aria-label="Group head"><circle cx="234" cy="326" r="18"/><text x="234" y="331">8</text></g>
+    <g class="hot" data-part="pf" tabindex="0" role="button" aria-label="Portafilter"><circle cx="160" cy="406" r="18"/><text x="160" y="411">9</text></g>
+    <g class="hot" data-part="wand" tabindex="0" role="button" aria-label="Steam valve and wand"><circle cx="72" cy="300" r="18"/><text x="72" y="305">10</text></g>
+    <g class="hot" data-part="tray" tabindex="0" role="button" aria-label="Drip tray"><circle cx="230" cy="496" r="18"/><text x="230" y="501">11</text></g>
+    <g class="hot" data-part="panel" tabindex="0" role="button" aria-label="Switches and lamps"><circle cx="138" cy="120" r="18"/><text x="138" y="125">12</text></g>
+    <g class="hot" data-part="inlet" tabindex="0" role="button" aria-label="Power inlet"><circle cx="840" cy="440" r="18"/><text x="840" y="445">13</text></g>
+  </g>
+</svg>

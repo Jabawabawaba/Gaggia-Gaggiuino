@@ -1,0 +1,765 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><title>Gaggia Install Runbook</title>
+<style>
+.site-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;font:500 14px/1.35 "Barlow",system-ui,sans-serif;background:var(--surface,#F9FAFA);color:var(--ink,#16191C);border-bottom:1px solid var(--line,#CBD0D5);transition:transform .22s ease,box-shadow .22s ease}
+/* it slides away while you read down the page and comes back as soon as you scroll up a little (NAV_JS) */
+.site-nav.nav-hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+.site-nav.nav-float{box-shadow:0 6px 18px rgba(0,0,0,.16)}
+@media (prefers-reduced-motion:reduce){.site-nav{transition:none}}
+.site-nav .in{max-width:1300px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.site-nav a{color:var(--ink,#16191C);text-decoration:none;padding:4px 0;white-space:nowrap}
+.site-nav a:hover,.site-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+.site-nav .brand{font-weight:700;letter-spacing:.01em;padding:8px 0}
+.site-nav .brand small{font-weight:500;color:var(--muted,#59616A);margin-left:6px;font-size:12px}
+.site-nav .nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;flex:1 1 auto;min-width:0}
+.site-nav .grp{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 12px}
+.site-nav .gl{font:600 10.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A)}
+.site-nav button{font:inherit;color:inherit}
+.nav-toggle{display:none;appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer;margin-left:auto}
+.nav-toggle[aria-expanded="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.mchip{appearance:none;border:1px solid var(--accent,#D98400);background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);border-radius:999px;padding:6px 12px;min-height:36px;cursor:pointer;font-weight:600;white-space:nowrap}
+.mchip b{color:var(--ink,#16191C);font-weight:600;margin-left:4px}
+/* desktop: brand and Your Gaggia on the first row, every page on the second */
+@media (min-width:1061px){
+  .site-nav .nav-links{order:3;flex-basis:100%}
+  .mchip{margin-left:auto}
+}
+/* tablets and phones: brand, Your Gaggia and the Pages button on one row; the page list opens below */
+@media (max-width:1060px){
+  .site-nav .brand{order:1}
+  .mchip{order:2;margin-left:auto;min-height:40px}
+  .nav-toggle{display:inline-block;order:3;margin-left:0;min-height:40px}
+  .site-nav .nav-links{display:none;order:5;flex-basis:100%;flex-direction:column;align-items:flex-start;gap:6px;padding:6px 0 6px}
+  .site-nav .nav-links.open{display:flex;position:absolute;left:0;right:0;top:100%;background:var(--surface,#F9FAFA);border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);box-shadow:0 12px 24px rgba(0,0,0,.18);padding:4px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+  .site-nav .grp{gap:0 18px}
+  .site-nav .nav-links a{display:inline-flex;align-items:center;min-height:40px}
+}
+@media (max-width:480px){
+  .site-nav .in{gap:6px 10px}
+  .site-nav .brand small{display:none}
+  .mchip:not(.set) #mchip-l{display:none}
+  .mchip.set .mchip-k{display:none}
+  .mchip.set b{margin-left:0}
+  .mchip-x{display:none}
+}
+/* the page list (phones) and the Your Gaggia panel open over the page, so nothing below them jumps */
+.mpanel{position:absolute;left:0;right:0;top:100%;border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);box-shadow:0 12px 24px rgba(0,0,0,.18);max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+.mpanel .in{display:grid;gap:12px;padding-block:14px 16px}
+/* behind an open page list or panel: dims the page, and a tap on it closes them instead of following whatever link was under it */
+.nav-scrim{position:fixed;inset:0;z-index:49;background:rgba(10,14,18,.3);-webkit-tap-highlight-color:transparent}
+.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.mk{font:600 11px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);min-width:7ch}
+.mseg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line,#CBD0D5);border-radius:999px;overflow:hidden}
+.mseg button{appearance:none;border:0;border-right:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);padding:7px 13px;cursor:pointer;font-weight:600;min-height:36px}
+.mseg button:last-child{border-right:0}
+.mseg button[aria-pressed="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0)}
+.mseg button[disabled]{opacity:.4;cursor:default}
+.mh{font-size:13px;color:var(--muted,#59616A)}
+#m-summary{margin:0;font-size:14px;color:var(--muted,#59616A);max-width:80ch}
+.mact{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.mact a{color:var(--accent-ink,#965300);text-decoration:underline}
+.mact button{appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer}
+.mact button#m-done{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono,ui-monospace,monospace);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);vertical-align:2px;margin-left:6px;white-space:nowrap}
+.site-foot{font:400 13.5px/1.5 "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);border-top:1px solid var(--line,#CBD0D5);background:var(--bg,#ECEEF0)}
+.site-foot .in{max-width:1300px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));display:grid;gap:6px}
+.site-foot a{color:var(--accent-ink,#965300)}
+.site-foot p{margin:0;max-width:95ch}
+/* every page ends with the full page list, so the next page is one tap away at the bottom too */
+.foot-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;min-width:0;padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--line,#CBD0D5)}
+@media (min-width:640px){.foot-nav{grid-template-columns:repeat(4,minmax(0,180px))}}
+.foot-nav .fn-home{grid-column:1/-1;justify-self:start;font-weight:700;color:var(--ink,#16191C);text-decoration:none;padding:4px 0}
+.foot-nav .fn-g{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0}
+.foot-nav .gl{font:600 11.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);margin-bottom:2px}
+.foot-nav .fn-g a{color:var(--ink,#16191C);text-decoration:none;padding:3px 0}
+.foot-nav a:hover,.foot-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+@media (pointer:coarse){.foot-nav .fn-g a,.foot-nav .fn-home{padding:8px 0}}
+@media print{.site-nav,.site-foot,.swipe-hint,.nav-scrim{display:none!important}}
+/* phones: inputs fill their boxes, small text buttons get a bigger tap area, wide drawings say they scroll */
+.read input,.money input,.unitbox input{align-self:stretch}
+@media (pointer:coarse){
+  .linkbtn{min-height:40px}
+  summary{min-height:40px}
+  .mact a,.foot .links a{display:inline-block;padding:10px 0}
+  input.mm{min-height:36px}
+  input[type=range]{height:32px}
+}
+@media (max-width:600px){
+  .plate{font-size:12px}
+  .vtag{font-size:11px}
+}
+.swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
+.swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
+</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html" aria-current="page">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
+   Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
+   condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
+   show; with no voltage, both voltages' notes show and the wording stays generic. Nothing is filled in for them.
+   Condition keys:
+     model:GC,GCP,EVO,E24   the machine (GC = original Classic; GCP, EVO, E24 = the Classic Pro family)
+     fam:GC | fam:GCP       Classic or Classic Pro family (Pro, Eco, Evo, E24)
+     volts:120 | volts:230
+     eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
+     opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
+     ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
+                            so it gets custom wiring even when stock wiring is picked
+   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording. */
+(function(){
+  var KEY='gaggia-machine-v1',MODELS=['GC','GCP','EVO','E24'];
+  var NAMES={GC:'Classic',GCP:'Classic Pro',EVO:'Classic Evo',E24:'Classic E24'};
+  var SHORT={GC:'Classic',GCP:'Pro',EVO:'Evo',E24:'E24'};
+  /* the Evo and E24 carry "Pro" only in North America: Classic Evo Pro and Classic Pro E24 at 120 V */
+  function shortName(m,v){return v===120?{EVO:'Evo Pro',E24:'Pro E24'}[m]||SHORT[m]:SHORT[m]}
+  function longName(m,v){return v===120?{EVO:'Classic Evo Pro',E24:'Classic Pro E24'}[m]||NAMES[m]:NAMES[m]}
+  var TEXT={
+    gfci:{'120':'GFCI','230':'RCD','':'GFCI (RCD outside North America)'},
+    outlet:{'120':'GFCI-protected outlet','230':'socket with RCD protection','':'GFCI- or RCD-protected outlet'},
+    volts:{'120':'120 V','230':'230 V','':'your mains voltage'}
+  };
+  function pro(m){return m==='GCP'||m==='EVO'||m==='E24'}
+  function clean(s){
+    if(!s||typeof s!=='object')return null;
+    var model=MODELS.indexOf(s.model)>=0?s.model:null;
+    var v=Number(s.volts),volts=v===230?230:v===120?120:null;
+    /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
+    var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
+    var path=s.path==='SI'||s.path==='CW'?s.path:null;
+    if(!model&&!volts&&!path)return null;
+    return {model:model,volts:volts,eco:eco,path:path};
+  }
+  function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
+  var prof=read();
+  /* Eco board: true, false, or null when it isn't known yet */
+  function ecoOf(p){
+    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
+    if(p.volts===120)return false;
+    if(p.volts!==230)return null;
+    return p.eco;
+  }
+  /* the wiring the pages actually use (see wpath above); null until an install path is picked */
+  function wpathOf(p){
+    if(!p||!p.path)return null;
+    if(p.path==='CW'||p.model==='GC')return p.path;
+    /* stock wiring on a Pro-family machine, or on an unknown model: it holds at 120 V, becomes custom wiring at 230 V, and is open until the voltage (and model) are known */
+    if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
+    return p.volts===120?'SI':null;
+  }
+  function conds(when){
+    return String(when||'').split(';').map(function(c){
+      c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
+    }).filter(function(c){return c.k});
+  }
+  /* true unless the profile rules the element out; unknown fields never rule anything out */
+  function matches(when){
+    if(!when||!prof)return true;
+    return conds(when).every(function(c){
+      if(c.k==='model')return !prof.model||c.vals.indexOf(prof.model)>=0;
+      if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
+      if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
+      if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
+      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
+      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
+      if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
+      return true;
+    });
+  }
+  /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
+  function decided(when){
+    if(!prof)return false;
+    return conds(when).every(function(c){
+      if(c.k==='model'||c.k==='fam')return !!prof.model;
+      if(c.k==='volts')return !!prof.volts;
+      if(c.k==='eco')return ecoOf(prof)!==null;
+      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='path')return !!prof.path;
+      if(c.k==='wpath')return wpathOf(prof)!==null;
+      return true;
+    });
+  }
+  function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
+  function label(p){
+    p=p||prof;if(!p)return 'Set it';
+    var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
+    if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    return a.join(', ');
+  }
+  function missing(p){
+    p=p||prof;if(!p)return [];var m=[];
+    if(!p.model)m.push('model');
+    if(!p.volts)m.push('mains voltage');
+    if(!p.path)m.push('install path');
+    return m;
+  }
+  function ecoOpen(p){return !!(p&&p.model&&pro(p.model)&&p.volts===230&&p.eco===null)}
+  function andList(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
+  function summary(p){
+    p=p||prof;
+    if(!p)return 'Pick your model, voltage and install path. Until you do, every page shows all the model notes, each tagged with the machines it applies to.';
+    var m=missing(p),e=ecoOf(p),w=wpathOf(p);
+    var what=(p.model?longName(p.model,p.volts):'Gaggia')+(p.volts?' ('+p.volts+' V'+(e?', Eco board':'')+')':'');
+    var how=w==='CW'||p.path==='CW'?' with custom wiring':p.path==='SI'?' with stock wiring integration':'';
+    var nodraw=p.path==='SI'&&w==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine.':'';
+    var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
+    var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
+    var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+  }
+  function apply(root){
+    root=root||document;
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
+    var l=document.getElementById('mchip-l');
+    if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
+      var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      l.textContent=!prof?'Set it':main.length?main.join(', '):x;
+      if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
+    var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
+    syncPanel();
+  }
+  function set(p){
+    prof=p?clean(p):null;
+    try{if(prof)localStorage.setItem(KEY,JSON.stringify(prof));else localStorage.removeItem(KEY)}catch(e){}
+    apply();
+    try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
+  }
+  /* start from what's saved, never from guesses */
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  /* ---- nav panel ---- */
+  function syncPanel(){
+    var pan=document.getElementById('mpanel');if(!pan)return;
+    var p=prof||{},e=ecoOf(p);
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mmodel]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mmodel')===p.model))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
+    var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
+    var s=document.getElementById('m-summary');if(s)s.textContent=summary();
+  }
+  function wire(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    var nt=document.getElementById('nav-toggle'),nl=document.getElementById('nav-links');
+    /* the page list and the Your Gaggia panel open over the page, one at a time; a tap outside or Escape closes them */
+    var scrim=document.getElementById('nav-scrim');
+    function sync(){if(scrim)scrim.hidden=!((nl&&nl.classList.contains('open'))||(pan&&!pan.hidden))}
+    function closeMenu(){if(nt&&nl&&nl.classList.contains('open')){nt.setAttribute('aria-expanded','false');nl.classList.remove('open');sync();return true}}
+    function closePanel(){if(chip&&pan&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();return true}}
+    if(scrim)scrim.addEventListener('click',function(){closeMenu();closePanel()});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&closeMenu())nt.focus()});
+    if(chip&&pan){
+      chip.addEventListener('click',function(){var open=pan.hidden;pan.hidden=!open;chip.setAttribute('aria-expanded',String(open));if(open)closeMenu();sync()});
+      pan.addEventListener('click',function(e){
+        var b=e.target.closest('button');if(!b||b.disabled)return;
+        var p=current();
+        if(b.hasAttribute('data-mmodel'))p.model=b.getAttribute('data-mmodel');
+        else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
+        else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
+        else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.id==='m-clear'){set(null);return}
+        else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
+        else return;
+        set(p);
+      });
+      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync()}});
+    }
+    if(nt&&nl)nt.addEventListener('click',function(){var open=nt.getAttribute('aria-expanded')!=='true';nt.setAttribute('aria-expanded',String(open));nl.classList.toggle('open',open);if(open)closePanel();sync()});
+    /* buttons on a page that set one field: data-setmachine="model:GCP" or "path:CW" */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-setmachine]'),function(b){
+      b.addEventListener('click',function(){
+        var p=current();
+        String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
+          var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+        });
+        set(p);
+      });
+    });
+    var inViewer=typeof window.claude!=='undefined';
+    var pb=document.querySelectorAll('[data-print]');
+    if(!inViewer)Array.prototype.forEach.call(pb,function(b){b.hidden=false;b.addEventListener('click',function(){window.print()})});
+    apply();
+    hints();window.addEventListener('resize',hints);
+  }
+  /* "swipe sideways" under drawings and tables that are wider than the screen */
+  function hints(){
+    Array.prototype.forEach.call(document.querySelectorAll('.scroll,.tablewrap,.table-wrap'),function(el){
+      var over=el.scrollWidth>el.clientWidth+8,h=el.nextElementSibling&&el.nextElementSibling.classList.contains('swipe-hint')?el.nextElementSibling:null;
+      if(over&&!h){h=document.createElement('p');h.className='swipe-hint';h.textContent=el.querySelector('svg')?'Swipe sideways to see the whole drawing':'Swipe sideways to see every column';el.parentNode.insertBefore(h,el.nextSibling)}
+      else if(!over&&h)h.remove();
+    });
+  }
+  window.GaggiaMachine={get:function(){return prof},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: rating-plate header, overall progress, a strip of eight phase tabs with their own progress, then one phase at a time: goal, any stop point, big tickable steps, phase notes, and previous/next. Sized for a tablet propped on the bench. */
+:root{
+  --bg:#ECEEF0; --surface:#F9FAFA; --surface-2:#E2E5E8; --ink:#16191C; --muted:#59616A; --line:#CBD0D5;
+  --accent:#D98400; --accent-ink:#965300; --accent-soft:#F4E1C0; --on-accent:#1A1206;
+  --good:#2D7A4C; --good-soft:#DCEFE3; --bad:#B13A2F; --bad-soft:#F6DEDB;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+    --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+    --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+  --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+  --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-underline-offset:3px}
+button,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:900px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.top{display:grid;gap:14px;margin-bottom:20px}
+.plate{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 12px;justify-self:start;max-width:100%;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;font:500 11.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.plate .rivet{width:6px;height:6px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 1px var(--muted);opacity:.7}
+.plate b{color:var(--ink);font-weight:600}
+/* rivets pinned to the plate's ends so a wrapped plate never leaves one on a line of its own */
+.plate{position:relative;padding:7px 26px}.plate .rivet{position:absolute;top:calc(50% - 3px);left:10px}.plate .rivet:last-child{left:auto;right:10px}
+h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h2{font:700 clamp(28px,4.4vw,38px)/1 var(--f-display);letter-spacing:.02em;text-transform:uppercase;margin:0;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:64ch}
+
+.prog{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 18px;margin-bottom:14px}
+.prog .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.prog .v{font:600 22px/1.15 var(--f-mono);font-variant-numeric:tabular-nums}
+.prog .s{font-size:14px;color:var(--muted)}
+.meter{grid-column:1 / -1;height:8px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.meter span{display:block;height:100%;background:var(--accent);transition:width .25s}
+.status{font:500 12px var(--f-mono);color:var(--muted);display:inline-flex;align-items:center;gap:7px;justify-self:end}
+.lamp{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.status.ok .lamp{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+.phases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:22px}
+@media (max-width:540px){.phases{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ph{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 8px 9px;text-align:left;cursor:pointer;display:grid;gap:5px;min-height:62px;min-width:0}
+.ph .n{font:600 11px var(--f-mono);letter-spacing:.08em;color:var(--muted)}
+.ph .nm{font:600 16px/1.15 var(--f-display);letter-spacing:.03em;text-transform:uppercase}
+.ph .pb{height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+.ph .pb span{display:block;height:100%;background:var(--good)}
+.ph[aria-current="step"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.ph.done{background:var(--good-soft);border-color:var(--good)}
+.ph.done .n{color:var(--good)}
+
+.phase-h{display:grid;gap:8px;border-bottom:2px solid var(--ink);padding-bottom:12px}
+.eyebrow{font:600 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink)}
+.goal{margin:0;color:var(--muted);max-width:66ch}
+.stop{display:grid;gap:4px;border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:12px 16px;margin-top:14px}
+.stop strong{font:600 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bad)}
+.stop p{margin:0;font-size:16px}
+.pnote{margin-top:14px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--surface);padding:12px 16px;font-size:16px;max-width:70ch}
+.st-meta a.off{font-weight:600}
+.settings{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.settings table{border-collapse:collapse;width:100%;font-size:15.5px}
+.settings th{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+.settings td{padding:9px 14px;border-bottom:1px solid var(--line)}
+.settings tr:last-child td{border-bottom:0}
+.settings td.v{font:600 15px var(--f-mono);white-space:nowrap}
+.settings caption{caption-side:bottom;text-align:left;padding:10px 14px;font-size:13.5px;color:var(--muted)}
+
+.steps{list-style:none;margin:6px 0 0;padding:0}
+.step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.step input{appearance:none;-webkit-appearance:none;width:32px;height:32px;margin:2px 0 0;border:2px solid var(--muted);border-radius:8px;background:var(--surface);cursor:pointer;display:grid;place-items:center;transition:background .12s,border-color .12s}
+.step input::after{content:"";width:12px;height:6px;border-left:3px solid var(--on-accent);border-bottom:3px solid var(--on-accent);transform:rotate(-45deg) translate(1px,-2px);opacity:0}
+.step input:checked{background:var(--good);border-color:var(--good)}
+.step input:checked::after{opacity:1;border-color:var(--bg)}
+.step.stopstep input{border-color:var(--bad)}
+.step label{cursor:pointer;min-width:0}
+.st-t{font-weight:600;font-size:18px;line-height:1.35;display:block}
+.st-d{display:block;color:var(--muted);font-size:16px;margin-top:3px;max-width:64ch}
+.st-meta{grid-column:2;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:14px}
+.src{font:600 10.5px/1 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted)}
+.when{font:500 12.5px var(--f-mono);color:var(--good)}
+.step.done .st-t{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.step.next{background:linear-gradient(90deg,var(--accent-soft),transparent 70%);border-radius:8px}
+
+.notes{margin-top:22px;display:grid;gap:6px}
+.notes .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:10px 12px;font-size:16px;line-height:1.45;resize:vertical}
+.textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.nav{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:22px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 18px;font:600 16px var(--f-body);cursor:pointer;min-height:50px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn[disabled]{opacity:.45;cursor:default}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);display:grid;gap:10px}
+.links{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px}
+.fine{margin:0;font-size:14px;color:var(--muted);max-width:80ch}
+.linkbtn{appearance:none;border:0;background:none;padding:4px 0;font:500 14px var(--f-body);color:var(--bad);text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start}
+a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
+.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent-ink);vertical-align:3px;margin-left:8px;white-space:nowrap}
+.hdr-actions{display:flex;gap:10px;flex-wrap:wrap}
+.print-only{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#fff;--surface:#fff;--surface-2:#eee;--ink:#000;--muted:#333;--line:#888;--accent:#000;--accent-ink:#000;--accent-soft:#fff;--good:#000;--good-soft:#fff;--bad:#000;--bad-soft:#fff;color-scheme:light}
+  @page{margin:13mm 12mm}
+  body{background:#fff;color:#000;font-size:10.5pt;line-height:1.35}
+  .wrap{max-width:none;padding:0}
+  .prog,.phases,#phase,.foot,.top .lede:not(.print-only),.hdr-actions,[data-print]{display:none!important}
+  .print-only{display:block}
+  .top{gap:6px;margin-bottom:6mm}
+  .plate{border:.6pt solid #000;color:#000}
+  h1{font-size:24pt}
+  #print-for{font-size:10pt;color:#000}
+  .pp{margin-top:6mm}
+  .pp-h{display:flex;align-items:baseline;gap:8px;border-bottom:1.2pt solid #000;padding-bottom:1.5mm;break-after:avoid}
+  .pp-n{font:600 9pt var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+  .pp h2{font-size:15pt;margin:0}
+  .pp-goal{margin:1.5mm 0 2mm;font-size:10pt;break-after:avoid}
+  .pp-stop{border:1pt solid #000;padding:2mm 3mm;margin:2mm 0;font-size:10pt}
+  .pp-set{border-collapse:collapse;width:100%;margin:2mm 0;font-size:9.5pt}
+  .pp-set th,.pp-set td{border:.5pt solid #888;padding:1.2mm 2mm;text-align:left}
+  .pp-set td:last-child{width:28mm}
+  .pstep{display:grid;grid-template-columns:7mm 1fr;gap:2mm;padding:1.8mm 0;border-bottom:.4pt solid #bbb;break-inside:avoid}
+  .pbox{width:4.4mm;height:4.4mm;border:.9pt solid #000;margin-top:.4mm;display:grid;place-items:center;font-size:9pt;line-height:1}
+  .pp-d{font-size:9.5pt;color:#222;margin-top:.4mm}
+  .pp-src{font:500 7.5pt var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:#444;margin-top:.6mm}
+  .pp-tag{font:600 7.5pt var(--f-mono);border:.6pt solid #000;padding:0 1mm;border-radius:1mm}
+  .pp-notes{margin-top:2mm;break-inside:avoid;font-size:9.5pt}
+  .pp-note{white-space:pre-wrap;border:.5pt solid #888;padding:2mm;margin-top:1mm}
+  .pp-lines{height:14mm;margin-top:1mm;background:repeating-linear-gradient(to bottom,transparent 0,transparent 6.6mm,#999 6.6mm,#999 6.9mm)}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="plate" aria-label="Build spec">
+      <span class="rivet" aria-hidden="true"></span>
+      <span><b>Install runbook</b></span><span>Gaggia Classic family</span><span>Gen 3 · PCB v4</span>
+      <span class="rivet" aria-hidden="true"></span>
+    </div>
+    <h1>Gaggia Install Runbook</h1>
+    <p class="lede">The whole Gaggiuino install in eight phases, from the bench test to the first calibrated shot. Each step links to the section of the official guide that covers it, so the guide stays the instructions and this page keeps your place. Set your model and install path in the top bar to hide the steps that aren't yours.</p>
+    <p class="lede print-only" id="print-for"></p>
+    <div class="hdr-actions"><button type="button" class="btn" data-print hidden>Print the whole runbook</button></div>
+  </header>
+
+  <section class="prog" aria-label="Progress">
+    <div><span class="k">Install progress</span><div class="v" id="p-v">0 of 0</div><div class="s" id="p-s"></div></div>
+    <span class="status" id="status"><span class="lamp"></span><span id="status-text">Loading</span></span>
+    <div class="meter" aria-hidden="true"><span id="p-bar" style="width:0"></span></div>
+  </section>
+
+  <nav class="phases" id="phases" aria-label="Phases"></nav>
+
+  <main id="phase"></main>
+  <section class="print-only" id="print-all"></section>
+
+  <footer class="foot">
+    <div class="links">
+      <a href="wiring.html">Wiring reference</a>
+      <a href="wire-labels.html">Wire labels</a>
+      <a href="power-on-checks.html">Power-on checks</a>
+      <a href="cut-list.html">Cut list</a>
+      <a href="troubleshooting.html">Troubleshooting</a>
+      <a href="parts-tracker.html">Parts tracker</a>
+    </div>
+    <p class="fine">Steps follow the official Gaggiuino guides: the build process, PCB, stock wiring integration, custom wiring, machine-specific, screen, flashing and Gen 3 manual pages. A step tagged Official is the guide's own instruction, summarized; one tagged Practice is ordinary bench practice added here. Where the two ever disagree, follow the official guide.</p>
+    <button type="button" class="linkbtn" id="reset">Clear all ticks</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var L={wiring:'wiring.html',labels:'wire-labels.html',checks:'power-on-checks.html',which:'which-gaggia.html',cut:'cut-list.html',trouble:'troubleshooting.html',models:'model-notes.html'};
+  /* Sections of the official Gaggiuino docs (docsify: #/page?id=heading-slug). Headings checked against the docs source, Sept 2026. */
+  var O='https://gaggiuino.github.io/#/',SI=O+'guides-stm32/3pln-stock-wiring-integration',CW=O+'guides-stm32/3pln-custom-wiring',MS=O+'guides/machine-specific-guide',MAN=O+'learning/user-manual-gen3';
+  var OFF={
+    home:O,compat:O+'?id=compatibility',build:O+'?id=build-process',bom:O+'?id=bill-of-materials',
+    pcbtest:O+'guides-stm32/pcb-guide?id=pre-install-test',verify:O+'guides-stm32/pcb-guide?id=verification',flash:O+'guides-stm32/mcu-flashing',
+    si:SI,siSchem:SI+'?id=schematics',siWires:SI+'?id=integration-wires',siOpen:SI+'?id=open-machine',siBrew:SI+'?id=brew-thermostat-replacement',
+    siPump:SI+'?id=pump-area',siSsr:SI+'?id=ssr',siSwitch:SI+'?id=switch',siPt:SI+'?id=pressure-transducer',siFinish:SI+'?id=internal-finishing-touches',
+    cw:CW,cwAlt:CW+'?id=alternate-components',cwSchem:CW+'?id=custom-wire-harness-schematics',cwTc:CW+'?id=thermocouple',cwSsr:CW+'?id=ssr',
+    cwPt:CW+'?id=pressure-transducer',cwFinish:CW+'?id=internal-finishing-touches',
+    ms:MS,opv:MS+'?id=_10-12-bar-opv',psm:MS+'?id=power-switch-mod',cci:MS+'?id=combined-connector-insulation',ground:MS+'?id=grounding',
+    screen:O+'guides/interface-screen?id=assembly',manual:MAN,wifi:MAN+'?id=connecting-to-webui',start:MAN+'?id=initial-startup',
+    pz:MAN+'?id=pz-calibration',boiler:MAN+'?id=boiler',clean:MAN+'?id=cleaning',
+    scales:O+'accessories/hw-scales',tof:O+'accessories/tofnled',community:O+'community/community-media',
+    releases:'https://github.com/Zer0-bit/gaggiuino/releases/latest'
+  };
+
+  /* The install, phase by phase. Each step: id, t (title), d (detail), src (Official = the official guide's own instruction, summarized;
+     Practice = ordinary bench practice added here), off [label, url] or offp {SI:[..],CW:[..]} for the official section,
+     link [label, key] for a page on this site, w (which machines; see machine.js), stop (the checklist gate). */
+  var PHASES=[
+    {id:'p0',n:'Phase 0',name:'Before you start',goal:'Know your machine, pick your install path, and line up the mods your model needs before anything is opened.',steps:[
+      {id:'p0v',t:'Identify your Gaggia',d:'Model and mains voltage decide which official schematic and which machine-specific mods apply. The rating label under the machine gives the model number (SIN035R, RI9380 and so on) and the voltage. Set them in the top bar so this page only shows your steps.',src:'Official',off:['Compatibility table',OFF.compat],link:['Which Gaggia','which']},
+      {id:'p0x',t:'Rule out the 2015 to 2018 Classic',d:'The 230 V Classic sold from 2015 to 2018 (SIN035U, RI9403) has no 3-way valve, and the official docs list it as not compatible. Check the label before you buy parts.',src:'Official',off:['Compatibility table',OFF.compat],w:'model:GC;volts:230'},
+      {id:'p0p',t:'Choose stock wiring or custom wiring',d:'Stock wiring integration keeps the machine\'s harness and adds seven short wires. Custom wiring replaces the harness: more work, but a cleaner, more straightforward install. Read both guides before you decide.',src:'Official',off:['Build process',OFF.build]},
+      {id:'p0e',t:'Eco board: plan on custom wiring and the switch mod',d:'230 V Pro-family machines with the Eco board turn themselves off after 20 idle minutes and have a power switch that springs back. The official guide recommends custom wiring for them, and the switch needs a small mod so it stays on.',src:'Official',off:['Compatibility table',OFF.compat],w:'eco:yes'},
+      {id:'p0w',t:'230 V Pro family: plan on custom wiring',d:'The official stock-integration schematics cover the 120 V Pro family and both Classics, not a 230 V Pro-family machine, with or without the Eco board. Follow the custom wiring guide. Once your model and voltage are set, this runbook and the wiring, cut list, labels and checks all show custom wiring for it.',src:'Official',off:['Stock wiring integration: Schematics',OFF.siSchem],w:'path:SI;fam:GCP;volts:230'},
+      {id:'p0g',t:'Plan to ground the machine',d:'Most US Classics were sold with a two-prong cord and an ungrounded case. The machine-specific guide fits a three-pin inlet, a grounded cord and ground wires. Order those parts with the rest.',src:'Official',off:['Grounding',OFF.ground],w:'ground'},
+      {id:'p0o',t:'Order a 12 bar OPV spring or M3 washers',d:'US Evo Pro and E24 machines come with a 9 bar OPV. Gaggiuino needs it at 10 to 12 bar, at least 1 bar above your highest shot pressure, because it can\'t tell when the OPV starts to open. Either a 12 bar spring, or 3 or 4 M3 stainless washers to preload the 9 bar one.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
+      {id:'p0c',t:'Get silicone tape for the switch connector block',d:'Most Evo and E24 machines gather each switch\'s connectors in one combined block. Each connector comes out, gets its own self-fusing silicone tape or 6 mm silicone heat shrink, and a label.',src:'Official',off:['Combined Connector Insulation',OFF.cci],w:'model:EVO,E24'},
+      {id:'p0h',t:'If you want help, open one Discord thread',d:'One thread per person and machine: #install-help-gc for a Classic, #install-help-gcp for the Pro family. Title it [username][machine][control system] plus a short title, and rename it as your questions change.',src:'Official',off:['Build process',OFF.build]},
+      {id:'p0t',t:'Get the tools on the bench',d:'A multimeter, a crimper for 6.3 mm spades and fork terminals, wire strippers, a heat gun, self-fusing silicone tape, an oil-based marker (it writes on silicone), Kapton tape and zip ties.',src:'Practice'},
+      {id:'p0l',t:'Print the labels',d:'The guide suggests labeling every stock connector before you move it, so the work can be traced and undone. The wire labels page prints the guide\'s own names.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels']}
+    ]},
+    {id:'p1',n:'Phase 1',name:'Bench test',goal:'Prove the PCB, screen and sensors on the bench before anything goes into the machine. Faults are far easier to find here.',steps:[
+      {id:'p1a',t:'Lay the electronics out safely',d:'In their housings, or on a non-conductive surface, before any power is connected.',src:'Official',off:['Pre-install test',OFF.pcbtest]},
+      {id:'p1b',t:'Connect the bench set',d:'Thermocouple to J4, pressure transducer to J6, screen to J1, SSR control to J9, and the ToFnLED to J2 if you have one, as the PCB guide\'s low-voltage schematic shows.',src:'Official',off:['Pre-install test',OFF.pcbtest]},
+      {id:'p1c',t:'Fold the thermocouple wires',d:'Fold each bare wire over before clamping it, and keep the insulation out of the clamp.',src:'Official',off:['Pre-install test',OFF.pcbtest]},
+      {id:'p1d',t:'Check the screen cable by pin, not color',d:'Blue and yellow can be swapped between cable revisions. Don\'t take a pre-made cable apart.',src:'Official',off:['Pre-install test',OFF.pcbtest]},
+      {id:'p1e',t:'Power it from the PCB\'s USB-C',d:'No mains anywhere near it yet.',src:'Official',off:['Pre-install test',OFF.pcbtest]},
+      {id:'p1f',t:'Watch it boot',d:'"Initialization in progress" clears in a few seconds, then "Filling boiler" shows and a red LED under the PCB lights.',src:'Official',off:['Verification',OFF.verify]},
+      {id:'p1g',t:'Warm the thermocouple',d:'The temperature should show and rise as you warm the probe in your hand. If it falls instead, the two thermocouple wires are swapped.',src:'Official',off:['Verification',OFF.verify]},
+      {id:'p1h',t:'Check the SSR light and pressure',d:'The SSR light is on below the setpoint and flashes near it. Pressure reads 0.0 bar and holds steady. The target is brew temperature, not steam.',src:'Official',off:['Verification',OFF.verify]},
+      {id:'p1j',t:'Join it to your Wi-Fi',d:'Connect to the Gaggiuino AP (the password is the network name with a zero for the "o" and no space), open gaggiuino.local, then Settings, System, Connect, and pick a 2.4 GHz network.',src:'Official',off:['Connecting to WebUI',OFF.wifi]},
+      {id:'p1i',t:'Match the firmware versions',d:'Settings, About: the core and screen build numbers match each other and the latest release. If not, update over the air from gaggiuino.local in this order: core, then ui-embedded, then ui-web.',src:'Official',off:['MCU Flashing',OFF.flash]}
+    ]},
+    {id:'p2',n:'Phase 2',name:'Open up and prep',goal:'Open the machine, label what\'s there, and do your model\'s mods while everything is easy to reach.',steps:[
+      {id:'p2a',t:'Unplug and take the top off',d:'Cord out of the wall, then the two screws that hold the top cover.',src:'Official',off:['Open machine',OFF.siOpen]},
+      {id:'p2b',t:'Label the stock connectors',d:'With an oil-based marker, using the guide\'s names: switches P (power), B (brew) and S (steam) with positions 1 to 6, heaters H1 to H4, steam thermostat Sa and Sb, brew thermostat Ba and Bb, valve Va and Vb, pump Pa and Pb.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels'],w:'fam:GCP'},
+      {id:'p2b2',t:'Label the stock connectors',d:'With an oil-based marker, using the guide\'s names: the switch assembly\'s numbered positions, heaters H1 to H4, steam thermostat Sa and Sb, brew thermostat Ba and Bb, valve Va and Vb, pump Pa and Pb, and the pump fuse F.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels'],w:'fam:GC'},
+      {id:'p2c',t:'Compare your wiring with the schematic',d:'Stock wire colors and connector positions, especially at the pump, don\'t always match the drawings. Check your machine against the schematic for your model before moving anything, and ask in your help thread if anything is unclear.',src:'Official',off:['Schematics',OFF.siSchem],w:'wpath:SI'},
+      {id:'p2d',t:'Split and insulate the switch connector block',d:'Easier with the switch or boiler out. Press each connector\'s locking tab with a small screwdriver, pull it out the back, insulate it with silicone tape or 6 mm heat shrink, and label it. Do them one at a time.',src:'Official',off:['Combined Connector Insulation',OFF.cci],w:'model:EVO,E24'},
+      {id:'p2e',t:'Do the power switch mod',d:'Take the power switch out, release its side walls with a thin pry tool, remove the third spring and reassemble. The switch then stays on when pressed instead of springing back.',src:'Official',off:['Power Switch Mod',OFF.psm],w:'eco:yes'},
+      {id:'p2f',t:'Fit the grounded inlet and ground wires',d:'A three-pin C14 inlet in place of the two-pin socket, a grounded cord, and ground wires from the inlet to the boiler fuse clip and on to the cup warmer, with uninsulated spades at the boiler. Note which inlet wire is line and which is neutral; on some machines they\'re swapped. Earth never connects to the PCB\'s 5 V ground.',src:'Official',off:['Grounding',OFF.ground],w:'ground'},
+      {id:'p2g',t:'Raise the OPV to 10 to 12 bar',d:'Open the OPV and fit the 12 bar spring, or put M3 washers behind the 9 bar spring: 4 if they\'re 0.5 mm thick, 3 if they\'re 0.8 mm. You\'ll check it with a blank basket in Phase 5.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
+      {id:'p2h',t:'Build the new harness',d:'From the custom wiring schematic for your model and voltage, reusing components from the stock harness on new wire. Cut each run from the cut list and label both ends before crimping.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],link:['Cut list','cut'],w:'wpath:CW'},
+      {id:'p2i',t:'Fork terminals on all four SSR terminals',d:'Two load, two control. The schematic calls for them.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],w:'wpath:CW'},
+      {id:'p2j',t:'High-temperature ends at the boiler',d:'Uninsulated spades crimped with an open-barrel crimper, then silicone heat shrink or self-fusing silicone tape over them. Nylon-insulated spades are rated to only 105 °C.',src:'Official',off:['Alternate Components',OFF.cwAlt],w:'wpath:CW'},
+      {id:'p2k',t:'Pull-test every crimp',d:'A firm tug. Redo any that move.',src:'Practice'}
+    ]},
+    {id:'p3',n:'Phase 3',name:'Sensors',goal:'Thermocouple and pressure transducer in. Both are easier with the boiler tipped up.',steps:[
+      {id:'p3a',t:'Take out the brew thermostat',d:'Unscrew it from the side of the boiler; the thermocouple goes into its hole. The boiler\'s thermal fuse stays in the circuit.',src:'Official',offp:{SI:['Brew Thermostat Replacement',OFF.siBrew],CW:['Thermocouple',OFF.cwTc]}},
+      {id:'p3b',t:'Jumper the brew thermostat wires',d:'A short wire with a male spade on each end joins Ba and Bb, so that path is always closed. The joints sit at the boiler, so use uninsulated spades and cover each joint with silicone heat shrink or self-fusing silicone tape: nylon-insulated spades melt there.',src:'Official',off:['Brew Thermostat Replacement',OFF.siBrew],w:'wpath:SI'},
+      {id:'p3c',t:'Fit the thermocouple',d:'M4 ungrounded K-type, into the brew thermostat\'s hole with thermal paste rated to 180 °C or more. Barely finger tight, never more, with the wire free to rotate as it goes in. Lifting the boiler (four screws up from below, plus the steam knob and wand) makes this much easier.',src:'Official',offp:{SI:['Brew Thermostat Replacement',OFF.siBrew],CW:['Thermocouple',OFF.cwTc]}},
+      {id:'p3d',t:'Route the thermocouple lead',d:'Around the front of the boiler and back to the control enclosure on the right, away from the pump area.',src:'Official',offp:{SI:['Brew Thermostat Replacement',OFF.siBrew],CW:['Thermocouple',OFF.cwTc]}},
+      {id:'p3e',t:'Pick how the pressure transducer connects',d:'A T-fitting cut into the hose from the pump to the boiler, or a pressure tap block clamped between the group and its inlet fitting. Both fit every Classic and Pro-family model.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p3f',t:'T-fitting: cut the PTFE line',d:'Between pump and boiler, nearer the boiler but high enough that the T sits mostly upright. Cut square and push the tube fully past both the teeth and the O-ring of the push-to-connect T. Then 200 to 250 mm of tube to the transducer fitting.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]},w:'fam:GC'},
+      {id:'p3g',t:'T-fitting: cut the braided hose',d:'About 65 mm above the boiler connection. A loose clamp on each cut end, the barbed T in, clamps over the middle of the barbs. Then 200 to 250 mm of hose to the transducer fitting, clamped the same way. A rubber glove helps grip the hose; a little water-based lubricant helps it on.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]},w:'fam:GCP'},
+      {id:'p3h',t:'Or: fit the pressure tap block',d:'40 mm of square-cut PTFE tube in the block\'s fitting, with the fitting\'s thread protruding less than 1 mm into the water path. Then clamp the block between the group and the inlet connector (the metal OPV on a Classic) with both O-rings facing the group.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p3i',t:'Seal the transducer on its O-ring',d:'Press the small white O-ring flush into the fitting first, because many fittings are too short for the sensor\'s own base O-ring to seal. Hand tight plus at most a quarter turn: overtightening damages the O-ring or stops the reading.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p3j',t:'Park the transducer low',d:'At the base of the machine, below the T and not touching metal. If readings turn out noisy, wrap it in foam or fix it to the frame.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}}
+    ]},
+    {id:'p4',n:'Phase 4',name:'Wire and check',goal:'Make the mains connections for your path, then the low-voltage ones, then prove everything with the meter before the cord goes near the wall.',steps:[
+      {id:'p4a',t:'Mount the SSR on the back wall',d:'An M4 or 8-32 screw, washer and nut. On a Pro, leave room above it for the funnel piece and its screw.',src:'Official',off:['SSR',OFF.siSsr],w:'wpath:SI'},
+      {id:'p4b',t:'Steam thermostat connectors to the SSR',d:'Unplug Sa and Sb from the steam thermostat and connect them to the SSR\'s two AC terminals, either way round, through the Sa and Sb integration wires (fork terminal at the SSR). The thermostat itself can come out.',src:'Official',off:['SSR',OFF.siSsr],link:['Cut list','cut'],w:'wpath:SI'},
+      {id:'p4c',t:'Pump area: three connections',d:'Unplug the stock pump wire Pb from the pump and join it to the new 3 wire, which goes to the PCB\'s valve output. Plug the new P wire onto the pump where Pb was. Piggyback the new N wire onto the neutral at Pa.',src:'Official',off:['Pump Area',OFF.siPump],w:'wpath:SI'},
+      {id:'p4d',t:'Switches: line to the brew switch source',d:'Disconnect the switch wires the schematic marks as changing, and connect the new L wire to the brew switch source wire.',src:'Official',off:['Switch',OFF.siSwitch],w:'wpath:SI;fam:GC'},
+      {id:'p4e',t:'Switches: move the mains wires',d:'Move the wires on the brew and steam switches as the schematic shows, with the brew switch wire joined to the new L wire. You should end with one empty column of spades on each of the brew and steam switches.',src:'Official',off:['Switch',OFF.siSwitch],w:'wpath:SI;fam:GCP'},
+      {id:'p4f',t:'Switches: add the low-voltage wires',d:'GND, brew and steam signal wires from J7 onto the spades you just freed, as the schematic shows.',src:'Official',off:['Switch',OFF.siSwitch],w:'wpath:SI'},
+      {id:'p4g',t:'Insulate every connector left loose',d:'Stock connectors that are now unplugged stay in the machine. Insulate each one and tie it so it can\'t touch anything.',src:'Official',off:['Internal Finishing Touches',OFF.siFinish],w:'wpath:SI'},
+      {id:'p4h',t:'Mount the SSR through a vent slot',d:'An M4 or 8-32 screw, washer and nut on the back wall, with room above for the funnel piece and its screw, and clear of the pump and its housing.',src:'Official',off:['SSR',OFF.cwSsr],w:'wpath:CW'},
+      {id:'p4i',t:'Fit the harness run by run',d:'Against the schematic for your model and voltage. Tick each run off the cut list as it goes in.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],link:['Wiring','wiring'],w:'wpath:CW'},
+      {id:'p4k',t:'Keep mains and low voltage apart',d:'The stock integration guide suggests AC wires on the left side of the case, above the thermocouple wire, and DC wires and sensors on the right. Nothing but silicone-jacketed wire rated to 200 °C may touch the boiler or the steam wand.',src:'Official',offp:{SI:['Switch',OFF.siSwitch],CW:['Internal Finishing Touches',OFF.cwFinish]}},
+      {id:'p4l',t:'Feed the screen and ST-Link wires out the back',d:'Take the pins out of the screen connector, sleeve the bundle in heat shrink where it passes the sharp vent (don\'t shrink it), feed it out through the back vents, and stick the ST-Link down with double-sided tape.',src:'Official',offp:{SI:['Internal Finishing Touches',OFF.siFinish],CW:['Internal Finishing Touches',OFF.cwFinish]}},
+      {id:'p4m',t:'Tie the bundles down',d:'Zip ties, with nothing able to drift onto the boiler, the wand or a spade.',src:'Official',offp:{SI:['Internal Finishing Touches',OFF.siFinish],CW:['Internal Finishing Touches',OFF.cwFinish]}},
+      {id:'p4z',t:'Pass the power-on checks',d:'Every section up to Covers on, all unplugged. Have someone else trace the wiring against the schematic too. The last section waits until the covers are back on in Phase 5.',src:'Practice',link:['Power-on checks','checks'],stop:true}
+    ]},
+    {id:'p5',n:'Phase 5',name:'Screen and first power-on',goal:'Mount the screen, close up, then mains for the first time: fill the boiler, prime the sensor line and test the pressure.',stop:'Don\'t plug in until every check on the power-on checklist passes.',steps:[
+      {id:'p5a',t:'Mount the screen',d:'Front, funnel or rear mount, as the screen guide shows for the mount you have. Plug the small screen connectors in first; they pass through the housing gaps more easily than the other end.',src:'Official',off:['Interface: Screen',OFF.screen]},
+      {id:'p5b',t:'Funnel and cup warmer back on, then the last checks',d:'Reconnect their earth wires as each part goes on, as the screen guide reminds you. Then run Covers on, the last section of the power-on checks, before anything gets plugged in.',src:'Official',off:['Interface: Screen',OFF.screen],link:['Power-on checks','checks']},
+      {id:'p5c',t:'Tank full, drip tray in',d:'Portafilter out, a cup under the group.',src:'Practice'},
+      {id:'p5d',t:'Plug in and switch on',d:'Use a {outlet}. Stay by the plug. At any smell, smoke, trip or odd noise, unplug first and investigate after.',src:'Practice'},
+      {id:'p5e',t:'Fill the boiler first',d:'Before anything else: turn on Flush and run it until water comes out of the group for 5 seconds or more.',src:'Official',off:['Initial Startup',OFF.start]},
+      {id:'p5f',t:'Watch the temperature rise',d:'Once the boiler is full, the temperature must climb while the SSR light is on. If it falls instead, switch off and unplug: the thermocouple wires are reversed.',src:'Practice'},
+      {id:'p5g',t:'T-fitting: run [UT] Tube Fill',d:'From Community Profiles in the web UI. It fills the sensor line so there\'s no air in it.',src:'Official',off:['Initial Startup',OFF.start]},
+      {id:'p5h',t:'Tap block: flush, then test',d:'Run Flush for 10 seconds with the group open to fill the system, then flush with a blank basket to test pressure.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p5i',t:'Run [UT] Test OPV with a blank basket',d:'It passes at a peak of 10.5 to 13 bar, with water moving through the OPV tubing and no leaks. That range, from the Gen 3 manual, is the pass mark on every model.',src:'Official',off:['Initial Startup',OFF.start]},
+      {id:'p5j',t:'If the OPV peaks below 10.5 bar, add a washer',d:'On a US Evo Pro or E24 with the washer method, add one more M3 washer and run [UT] Test OPV again. The machine-specific guide aims the OPV itself at 10 to 12 bar; the test above is the one to pass.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
+      {id:'p5k',t:'Check for leaks, unplugged',d:'Switch off and unplug first. Lift the cup warmer and touch a dry paper towel to the T or tap block, the transducer and the thermocouple. Close it up and rerun h1 to h6 of the power-on checks before you plug back in.',src:'Practice',link:['Power-on checks','checks']},
+      {id:'p5l',t:'Try each switch',d:'Brew runs the pump, steam switches the target to steam temperature, and brew and steam together start hot water mode.',src:'Official',off:['Gaggiuino Tips',OFF.manual+'?id=gaggiuino-tips']},
+      {id:'p5m',t:'Let it heat and settle',d:'Give it 10 to 15 minutes to reach thermal equilibrium. Anything odd: the troubleshooting page goes symptom by symptom.',src:'Official',link:['Troubleshooting','trouble']}
+    ]},
+    {id:'p6',n:'Phase 6',name:'Calibrate',goal:'Tune Gaggiuino to this pump and boiler.',note:'Leave Settings, Boiler on the defaults. The Gen 3 manual recommends them for the Gaggia Classic and the Classic Pro family.',steps:[
+      {id:'p6a',t:'Run [UT] PZ Cal',d:'Calibrates Pump Zero, the water moved per pump pulse at 0 bar. Follow the profile\'s own instructions.',src:'Official',off:['PZ Calibration',OFF.pz]},
+      {id:'p6b',t:'Keep the boiler settings on default',d:'Steam temperature, Brew Delta and the advanced heating values all start from the defaults on a Gaggia.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
+      {id:'p6c',t:'Temperature offset only against a real measurement',d:'Change it only if you can measure at the group head, for example with a Scace-type device.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
+      {id:'p6d',t:'Set the time zone, add a microSD card',d:'Shot history needs a microSD card (1 to 8 GB, FAT32), and a network connection with the time zone offset set for the right date and time.',src:'Official',off:['User Manual Gen 3',OFF.manual]},
+      {id:'p6e',t:'Calibrate hardware scales, if fitted',d:'From the web UI, as the scales guide describes.',src:'Official',off:['Hardware Scales',OFF.scales]},
+      {id:'p6f',t:'Check the ToFnLED, if fitted',d:'Tank level on the home screen, and the LED settings.',src:'Official',off:['ToFnLED',OFF.tof]}
+    ]},
+    {id:'p7',n:'Phase 7',name:'Finish',goal:'Tidy up, write down what you ended with, and learn the cleaning routines.',steps:[
+      {id:'p7a',t:'Final tidy, unplugged',d:'Zip ties where they\'re needed and Kapton tape on the screen cable. Close it up again and rerun h1 to h6 of the power-on checks before you plug back in.',src:'Practice',link:['Power-on checks','checks']},
+      {id:'p7b',t:'Post your first start and first shot',d:'The official build process asks you to record both and post them to #first-start and #first-shot on Discord.',src:'Official',off:['Build process',OFF.build]},
+      {id:'p7c',t:'Learn the cleaning routines',d:'Backflush with a blind basket in Flush mode. Descale from the Descale button, about 30 minutes a tank, then a second tank of clean water.',src:'Official',off:['Cleaning',OFF.clean]},
+      {id:'p7d',t:'Write down your final settings',d:'In the notes below, along with anything you\'d do differently.',src:'Practice'},
+      {id:'p7e',t:'Hardware scales or ToFnLED (optional)',d:'Each one is independent of the core install and has its own official guide.',src:'Official',off:['Hardware Scales',OFF.scales]}
+    ]}
+  ];
+
+  var ALL=[];PHASES.forEach(function(p,i){p.steps.forEach(function(s){s.phase=i;ALL.push(s)})});
+  var KEY='gaggia-install-runbook-v1';
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function fmtDate(ts){try{return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}catch(e){return ''}}
+  function M(){return window.GaggiaMachine||null}
+  function vis(s){var m=M();return !s.w||!m||m.matches(s.w)}
+  function stepsOf(i){return PHASES[i].steps.filter(vis)}
+  function visAll(){return ALL.filter(vis)}
+  var FALLBACK={outlet:'GFCI-protected outlet (an RCD outside North America)',gfci:'GFCI',volts:'120 V'};
+  function fill(t){var m=M();return String(t).replace(/\{(outlet|gfci|volts)\}/g,function(_,k){return m?m.text(k):FALLBACK[k]})}
+  /* A short tag saying which machines a step or note is for, from its data-when / w condition */
+  function wlabel(w){
+    var NM={GC:'Classic',GCP:'Classic Pro',EVO:'Evo',E24:'E24'},out=[];
+    String(w).split(';').forEach(function(c){
+      c=c.trim();if(!c)return;var i=c.indexOf(':'),k=i<0?c:c.slice(0,i),v=i<0?[]:c.slice(i+1).split(',');
+      if(k==='model')out.push(v.map(function(x){return NM[x]||x}).join(', '));
+      else if(k==='fam')out.push(v[0]==='GCP'?'Pro family':'Classic');
+      else if(k==='volts')out.push(v.join('/')+' V');
+      else if(k==='eco')out.push(v[0]==='yes'?'Eco board':'No Eco board');
+      else if(k==='opv9')out.push('US Evo Pro, E24');
+      else if(k==='ground')out.push('120 V Classic');
+      else if(k==='path'||k==='wpath')out.push(v[0]==='SI'?'Stock wiring':'Custom wiring');
+    });
+    return out.join(' · ');
+  }
+  /* the official-guide link for a step: offp picks the section for the reader's install path (stock wiring when not set) */
+  function offOf(s){
+    if(s.offp){var m=window.GaggiaMachine,k=(m&&m.wpath&&m.wpath())||'SI';return s.offp[k]||s.offp.SI}
+    return s.off||null;
+  }
+
+  function wtag(s){var m=M();if(!s.w||(m&&m.decided&&m.decided(s.w)))return '';return '<span class="vtag">'+esc(wlabel(s.w))+'</span>'}
+
+  /* ---------- state ---------- */
+  function defaults(){return {done:{},notes:{},phase:0,updatedAt:0}}
+  function normalize(s){
+    var o=defaults();if(!s||typeof s!=='object')return o;
+    var ids={};ALL.forEach(function(x){ids[x.id]=1});
+    if(s.done&&typeof s.done==='object')Object.keys(s.done).forEach(function(k){if(ids[k]&&typeof s.done[k]==='number')o.done[k]=s.done[k]});
+    if(s.notes&&typeof s.notes==='object')Object.keys(s.notes).forEach(function(k){if(/^p[0-7]$/.test(k)&&typeof s.notes[k]==='string')o.notes[k]=s.notes[k].slice(0,4000)});
+    if(typeof s.phase==='number'&&s.phase>=0&&s.phase<PHASES.length)o.phase=Math.floor(s.phase);
+    o.updatedAt=typeof s.updatedAt==='number'?s.updatedAt:0;
+    return o;
+  }
+
+  /* ---------- render ---------- */
+  function phaseCount(i){var st=stepsOf(i),n=0;st.forEach(function(s){if(state.done[s.id])n++});return [n,st.length]}
+  function renderNav(){
+    $('phases').innerHTML=PHASES.map(function(p,i){
+      var c=phaseCount(i),pct=c[1]?Math.round(100*c[0]/c[1]):0;
+      return '<button type="button" class="ph'+(c[0]===c[1]?' done':'')+'" data-ph="'+i+'"'+(i===state.phase?' aria-current="step"':'')+' aria-label="'+esc(p.n+', '+p.name+', '+c[0]+' of '+c[1]+' done')+'"><span class="n">Phase '+i+' · '+c[0]+'/'+c[1]+'</span><span class="nm">'+esc(p.name)+'</span><span class="pb"><span style="width:'+pct+'%"></span></span></button>';
+    }).join('');
+  }
+  function renderPhase(){
+    var i=state.phase,p=PHASES[i],h='';
+    h+='<div class="phase-h"><span class="eyebrow">'+esc(p.n)+' of '+(PHASES.length-1)+'</span><h2 id="ph-title" tabindex="-1">'+esc(p.name)+'</h2><p class="goal">'+esc(p.goal)+'</p></div>';
+    if(p.stop)h+='<div class="stop" role="note"><strong>Stop point</strong><p>'+esc(p.stop)+' <a href="'+esc(L.checks)+'" target="_blank" rel="noopener">Open the power-on checks</a></p></div>';
+    if(p.note)h+='<div class="pnote" role="note">'+esc(p.note)+'</div>';
+    h+='<ol class="steps">'+stepsOf(i).map(function(s){
+      var d=state.done[s.id];
+      var o=offOf(s),link=(o?'<a class="off" href="'+esc(o[1])+'" target="_blank" rel="noopener">Official: '+esc(o[0])+'</a>':'')+(s.link?'<a href="'+esc(L[s.link[1]])+'" target="_blank" rel="noopener">'+esc(s.link[0])+'</a>':'');
+      return '<li class="step'+(d?' done':'')+(s.stop?' stopstep':'')+'" data-step="'+s.id+'"><input type="checkbox" id="c-'+s.id+'" data-tick="'+s.id+'"'+(d?' checked':'')+'><label for="c-'+s.id+'"><span class="st-t">'+esc(fill(s.t))+wtag(s)+'</span><span class="st-d">'+esc(fill(s.d))+'</span></label>'+
+        '<div class="st-meta"><span class="src">'+esc(s.src)+'</span>'+link+'<span class="when" data-done="'+s.id+'">'+(d?'Done '+fmtDate(d):'')+'</span></div></li>';
+    }).join('')+'</ol>';
+    h+='<div class="notes"><label class="k" for="notes">Notes for '+esc(p.n)+'</label><textarea class="textarea" id="notes" placeholder="Readings, part numbers, what you changed">'+esc(state.notes[p.id]||'')+'</textarea></div>';
+    h+='<div class="nav"><button type="button" class="btn" id="prev"'+(i===0?' disabled':'')+'>Previous phase</button><button type="button" class="btn" id="nextopen">Next open step</button><button type="button" class="btn primary" id="next"'+(i===PHASES.length-1?' disabled':'')+'>Next phase</button></div>';
+    $('phase').innerHTML=h;
+    markNext();
+  }
+  function markNext(){
+    Array.prototype.forEach.call(document.querySelectorAll('.step.next'),function(el){el.classList.remove('next')});
+    var first=stepsOf(state.phase).filter(function(s){return !state.done[s.id]})[0];
+    if(first){var el=document.querySelector('[data-step="'+first.id+'"]');if(el)el.classList.add('next')}
+  }
+  function renderProgress(){
+    var all=visAll(),n=all.filter(function(s){return state.done[s.id]}).length;
+    $('p-v').textContent=n+' of '+all.length+' steps';
+    var next=all.filter(function(s){return !state.done[s.id]})[0];
+    $('p-s').textContent=next?('Next: '+PHASES[next.phase].n+', '+next.t):'Every step done. Enjoy the coffee.';
+    $('p-bar').style.width=(all.length?Math.round(100*n/all.length):0)+'%';
+  }
+  function renderPrint(){
+    var m=M(),pf=$('print-for');
+    if(pf)pf.textContent=(m&&m.get()?'Your Gaggia: '+m.label()+'. ':'')+'Printed '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'. Started: ____________   Finished: ____________';
+    $('print-all').innerHTML=PHASES.map(function(p,i){
+      var h='<section class="pp"><div class="pp-h"><span class="pp-n">'+esc(p.n)+'</span><h2>'+esc(p.name)+'</h2></div><p class="pp-goal">'+esc(p.goal)+'</p>';
+      if(p.stop)h+='<p class="pp-stop"><b>Stop point.</b> '+esc(p.stop)+'</p>';
+      if(p.note)h+='<p class="pp-goal">'+esc(p.note)+'</p>';
+      h+=stepsOf(i).map(function(s){var d=state.done[s.id];return '<div class="pstep"><span class="pbox">'+(d?'✓':'')+'</span><div><b>'+esc(fill(s.t))+'</b>'+(s.w?' <span class="pp-tag">'+esc(wlabel(s.w))+'</span>':'')+'<div class="pp-d">'+esc(fill(s.d))+'</div><div class="pp-src">'+esc(s.src)+(offOf(s)?' · official guide: '+esc(offOf(s)[0]):'')+(d?' · done '+fmtDate(d):'')+'</div></div></div>'}).join('');
+      var note=state.notes[p.id];
+      h+='<div class="pp-notes"><b>Notes</b>'+(note?'<div class="pp-note">'+esc(note)+'</div>':'<div class="pp-lines"></div>')+'</div></section>';
+      return h;
+    }).join('');
+  }
+  function renderAll(){renderNav();renderPhase();renderProgress();renderPrint()}
+  window.addEventListener('gaggia-machine',function(){renderAll()});
+  window.addEventListener('beforeprint',function(){renderPrint()});
+
+  /* ---------- persistence ---------- */
+  var state=defaults(),dbRef=null,mode='local',readOnly=false,saveTimer=null,chain=Promise.resolve();
+  function loadLocal(){try{var s=localStorage.getItem(KEY);return s?normalize(JSON.parse(s)):null}catch(e){return null}}
+  function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+  function setStatus(kind){
+    var txt={loading:'Loading',local:'Saved on this device',saving:'Saving',saved:'Saved',readonly:'View only: changes stay on this screen',full:'Storage is full: changes stay on this device'}[kind]||'';
+    $('status-text').textContent=txt;$('status').classList.toggle('ok',kind==='saved');
+  }
+  function writeOnce(body){return dbRef.set(body).catch(function(e){if(e&&e.code==='unavailable')return new Promise(function(r){setTimeout(r,700+Math.random()*900)}).then(function(){return dbRef.set(body)});throw e})}
+  function onWriteError(e){
+    if(e&&e.code==='quota_exceeded'){setStatus('full');return}
+    if(e&&(e.code==='invalid_argument'||e.code==='not_granted'||e.code==='revoked'||e.code==='capability_disabled'||e.code==='capability_removed')){readOnly=true;setStatus('readonly');return}
+    setStatus('local');
+  }
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    if(mode!=='db'){setStatus('local');return}
+    if(readOnly){setStatus('readonly');return}
+    setStatus('saving');
+    saveTimer=setTimeout(function(){var body=JSON.parse(JSON.stringify(state));chain=chain.then(function(){return writeOnce(body)}).then(function(){if(!readOnly)setStatus('saved')}).catch(onWriteError)},700);
+  }
+  function touch(){state.updatedAt=Date.now();saveLocal();scheduleSave()}
+  function connect(){
+    var p;
+    try{p=(window.claude&&typeof window.claude.use==='function')?window.claude.use('db'):Promise.resolve(null)}catch(e){p=Promise.resolve(null)}
+    Promise.resolve(p).then(function(db){
+      if(!db){mode='local';setStatus('local');return}
+      dbRef=db.doc('runbook/state');mode='db';
+      return dbRef.get().then(function(snap){
+        if(snap.exists){var remote=normalize(snap.data());if(remote.updatedAt>=state.updatedAt){state=remote;saveLocal();renderAll();setStatus('saved')}else scheduleSave()}
+        else if(state.updatedAt>0)scheduleSave();else setStatus('saved');
+      }).catch(function(e){if(e&&e.code==='unavailable'){mode='local';setStatus('local')}else onWriteError(e)});
+    }).catch(function(){mode='local';setStatus('local')});
+  }
+
+  /* ---------- events ---------- */
+  function go(i){state.phase=Math.max(0,Math.min(PHASES.length-1,i));touch();renderNav();renderPhase();var t=$('ph-title');if(t){t.focus({preventScroll:true});$('phases').scrollIntoView({behavior:'smooth',block:'start'})}}
+  $('phases').addEventListener('click',function(e){var b=e.target.closest('[data-ph]');if(b)go(+b.getAttribute('data-ph'))});
+  $('phase').addEventListener('change',function(e){
+    var id=e.target.getAttribute('data-tick');if(!id)return;
+    if(e.target.checked)state.done[id]=Date.now();else delete state.done[id];
+    var li=e.target.closest('.step');if(li)li.classList.toggle('done',e.target.checked);
+    var w=document.querySelector('[data-done="'+id+'"]');if(w)w.textContent=e.target.checked?'Done '+fmtDate(state.done[id]):'';
+    touch();renderNav();renderProgress();markNext();
+  });
+  $('phase').addEventListener('input',function(e){if(e.target.id!=='notes')return;var p=PHASES[state.phase];if(e.target.value)state.notes[p.id]=e.target.value.slice(0,4000);else delete state.notes[p.id];touch()});
+  $('phase').addEventListener('click',function(e){
+    if(e.target.id==='prev')go(state.phase-1);
+    else if(e.target.id==='next')go(state.phase+1);
+    else if(e.target.id==='nextopen'){
+      var next=visAll().filter(function(s){return !state.done[s.id]})[0];if(!next)return;
+      if(next.phase!==state.phase){state.phase=next.phase;touch();renderNav();renderPhase()}
+      var el=document.querySelector('[data-step="'+next.id+'"]');if(el){el.scrollIntoView({behavior:'smooth',block:'center'});var c=el.querySelector('input');if(c)c.focus({preventScroll:true})}
+    }
+  });
+  var resetBtn=$('reset'),resetTimer=null;
+  resetBtn.addEventListener('click',function(){
+    if(!resetTimer){resetBtn.textContent='Tap again to clear every tick';resetTimer=setTimeout(function(){resetTimer=null;resetBtn.textContent='Clear all ticks'},4000);return}
+    clearTimeout(resetTimer);resetTimer=null;resetBtn.textContent='Clear all ticks';
+    state.done={};touch();renderAll();
+  });
+
+  state=loadLocal()||defaults();
+  renderAll();setStatus('loading');
+  connect();
+})();
+</script>
+<footer class="site-foot"><div class="in"><nav class="foot-nav" aria-label="All pages"><a class="fn-home" href="index.html">Gaggia × Gaggiuino home</a><div class="fn-g"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></div><div class="fn-g"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></div><div class="fn-g"><span class="gl">Install</span><a href="runbook.html" aria-current="page">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></div><div class="fn-g"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></div></nav><p><strong>Mains voltage.</strong> This conversion puts your hands near 120/230 V wiring. Work only with the cord out, check everything with a meter before first power-on, and stop if anything here disagrees with the official Gaggiuino docs or your own reading of the machine. Nothing on this site has been reviewed by the Gaggiuino project. You are responsible for your own build.</p><p>Unofficial community material for the Gaggia Classic family. The install itself is the official guide at <a href="https://gaggiuino.github.io/">gaggiuino.github.io</a>; these pages organize it, link to each step and add tools around it. Content is <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>, like the sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia site</a>. · <a href="https://github.com/Jabawabawaba/Gaggia-Gaggiuino">Source and issues on GitHub</a></p></div></footer></body></html>

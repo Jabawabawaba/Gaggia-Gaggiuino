@@ -1,0 +1,811 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><title>Gaggia Parts Tracker</title>
+<style>
+.site-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;font:500 14px/1.35 "Barlow",system-ui,sans-serif;background:var(--surface,#F9FAFA);color:var(--ink,#16191C);border-bottom:1px solid var(--line,#CBD0D5);transition:transform .22s ease,box-shadow .22s ease}
+/* it slides away while you read down the page and comes back as soon as you scroll up a little (NAV_JS) */
+.site-nav.nav-hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+.site-nav.nav-float{box-shadow:0 6px 18px rgba(0,0,0,.16)}
+@media (prefers-reduced-motion:reduce){.site-nav{transition:none}}
+.site-nav .in{max-width:1300px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.site-nav a{color:var(--ink,#16191C);text-decoration:none;padding:4px 0;white-space:nowrap}
+.site-nav a:hover,.site-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+.site-nav .brand{font-weight:700;letter-spacing:.01em;padding:8px 0}
+.site-nav .brand small{font-weight:500;color:var(--muted,#59616A);margin-left:6px;font-size:12px}
+.site-nav .nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;flex:1 1 auto;min-width:0}
+.site-nav .grp{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 12px}
+.site-nav .gl{font:600 10.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A)}
+.site-nav button{font:inherit;color:inherit}
+.nav-toggle{display:none;appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer;margin-left:auto}
+.nav-toggle[aria-expanded="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.mchip{appearance:none;border:1px solid var(--accent,#D98400);background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);border-radius:999px;padding:6px 12px;min-height:36px;cursor:pointer;font-weight:600;white-space:nowrap}
+.mchip b{color:var(--ink,#16191C);font-weight:600;margin-left:4px}
+/* desktop: brand and Your Gaggia on the first row, every page on the second */
+@media (min-width:1061px){
+  .site-nav .nav-links{order:3;flex-basis:100%}
+  .mchip{margin-left:auto}
+}
+/* tablets and phones: brand, Your Gaggia and the Pages button on one row; the page list opens below */
+@media (max-width:1060px){
+  .site-nav .brand{order:1}
+  .mchip{order:2;margin-left:auto;min-height:40px}
+  .nav-toggle{display:inline-block;order:3;margin-left:0;min-height:40px}
+  .site-nav .nav-links{display:none;order:5;flex-basis:100%;flex-direction:column;align-items:flex-start;gap:6px;padding:6px 0 6px}
+  .site-nav .nav-links.open{display:flex;position:absolute;left:0;right:0;top:100%;background:var(--surface,#F9FAFA);border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);box-shadow:0 12px 24px rgba(0,0,0,.18);padding:4px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+  .site-nav .grp{gap:0 18px}
+  .site-nav .nav-links a{display:inline-flex;align-items:center;min-height:40px}
+}
+@media (max-width:480px){
+  .site-nav .in{gap:6px 10px}
+  .site-nav .brand small{display:none}
+  .mchip:not(.set) #mchip-l{display:none}
+  .mchip.set .mchip-k{display:none}
+  .mchip.set b{margin-left:0}
+  .mchip-x{display:none}
+}
+/* the page list (phones) and the Your Gaggia panel open over the page, so nothing below them jumps */
+.mpanel{position:absolute;left:0;right:0;top:100%;border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);box-shadow:0 12px 24px rgba(0,0,0,.18);max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+.mpanel .in{display:grid;gap:12px;padding-block:14px 16px}
+/* behind an open page list or panel: dims the page, and a tap on it closes them instead of following whatever link was under it */
+.nav-scrim{position:fixed;inset:0;z-index:49;background:rgba(10,14,18,.3);-webkit-tap-highlight-color:transparent}
+.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.mk{font:600 11px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);min-width:7ch}
+.mseg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line,#CBD0D5);border-radius:999px;overflow:hidden}
+.mseg button{appearance:none;border:0;border-right:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);padding:7px 13px;cursor:pointer;font-weight:600;min-height:36px}
+.mseg button:last-child{border-right:0}
+.mseg button[aria-pressed="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0)}
+.mseg button[disabled]{opacity:.4;cursor:default}
+.mh{font-size:13px;color:var(--muted,#59616A)}
+#m-summary{margin:0;font-size:14px;color:var(--muted,#59616A);max-width:80ch}
+.mact{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.mact a{color:var(--accent-ink,#965300);text-decoration:underline}
+.mact button{appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer}
+.mact button#m-done{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono,ui-monospace,monospace);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);vertical-align:2px;margin-left:6px;white-space:nowrap}
+.site-foot{font:400 13.5px/1.5 "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);border-top:1px solid var(--line,#CBD0D5);background:var(--bg,#ECEEF0)}
+.site-foot .in{max-width:1300px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));display:grid;gap:6px}
+.site-foot a{color:var(--accent-ink,#965300)}
+.site-foot p{margin:0;max-width:95ch}
+/* every page ends with the full page list, so the next page is one tap away at the bottom too */
+.foot-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;min-width:0;padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--line,#CBD0D5)}
+@media (min-width:640px){.foot-nav{grid-template-columns:repeat(4,minmax(0,180px))}}
+.foot-nav .fn-home{grid-column:1/-1;justify-self:start;font-weight:700;color:var(--ink,#16191C);text-decoration:none;padding:4px 0}
+.foot-nav .fn-g{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0}
+.foot-nav .gl{font:600 11.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);margin-bottom:2px}
+.foot-nav .fn-g a{color:var(--ink,#16191C);text-decoration:none;padding:3px 0}
+.foot-nav a:hover,.foot-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+@media (pointer:coarse){.foot-nav .fn-g a,.foot-nav .fn-home{padding:8px 0}}
+@media print{.site-nav,.site-foot,.swipe-hint,.nav-scrim{display:none!important}}
+/* phones: inputs fill their boxes, small text buttons get a bigger tap area, wide drawings say they scroll */
+.read input,.money input,.unitbox input{align-self:stretch}
+@media (pointer:coarse){
+  .linkbtn{min-height:40px}
+  summary{min-height:40px}
+  .mact a,.foot .links a{display:inline-block;padding:10px 0}
+  input.mm{min-height:36px}
+  input[type=range]{height:32px}
+}
+@media (max-width:600px){
+  .plate{font-size:12px}
+  .vtag{font-size:11px}
+}
+.swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
+.swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
+</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html" aria-current="page">Parts tracker</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
+   Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
+   condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
+   show; with no voltage, both voltages' notes show and the wording stays generic. Nothing is filled in for them.
+   Condition keys:
+     model:GC,GCP,EVO,E24   the machine (GC = original Classic; GCP, EVO, E24 = the Classic Pro family)
+     fam:GC | fam:GCP       Classic or Classic Pro family (Pro, Eco, Evo, E24)
+     volts:120 | volts:230
+     eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
+     opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
+     ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
+                            so it gets custom wiring even when stock wiring is picked
+   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording. */
+(function(){
+  var KEY='gaggia-machine-v1',MODELS=['GC','GCP','EVO','E24'];
+  var NAMES={GC:'Classic',GCP:'Classic Pro',EVO:'Classic Evo',E24:'Classic E24'};
+  var SHORT={GC:'Classic',GCP:'Pro',EVO:'Evo',E24:'E24'};
+  /* the Evo and E24 carry "Pro" only in North America: Classic Evo Pro and Classic Pro E24 at 120 V */
+  function shortName(m,v){return v===120?{EVO:'Evo Pro',E24:'Pro E24'}[m]||SHORT[m]:SHORT[m]}
+  function longName(m,v){return v===120?{EVO:'Classic Evo Pro',E24:'Classic Pro E24'}[m]||NAMES[m]:NAMES[m]}
+  var TEXT={
+    gfci:{'120':'GFCI','230':'RCD','':'GFCI (RCD outside North America)'},
+    outlet:{'120':'GFCI-protected outlet','230':'socket with RCD protection','':'GFCI- or RCD-protected outlet'},
+    volts:{'120':'120 V','230':'230 V','':'your mains voltage'}
+  };
+  function pro(m){return m==='GCP'||m==='EVO'||m==='E24'}
+  function clean(s){
+    if(!s||typeof s!=='object')return null;
+    var model=MODELS.indexOf(s.model)>=0?s.model:null;
+    var v=Number(s.volts),volts=v===230?230:v===120?120:null;
+    /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
+    var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
+    var path=s.path==='SI'||s.path==='CW'?s.path:null;
+    if(!model&&!volts&&!path)return null;
+    return {model:model,volts:volts,eco:eco,path:path};
+  }
+  function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
+  var prof=read();
+  /* Eco board: true, false, or null when it isn't known yet */
+  function ecoOf(p){
+    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
+    if(p.volts===120)return false;
+    if(p.volts!==230)return null;
+    return p.eco;
+  }
+  /* the wiring the pages actually use (see wpath above); null until an install path is picked */
+  function wpathOf(p){
+    if(!p||!p.path)return null;
+    if(p.path==='CW'||p.model==='GC')return p.path;
+    /* stock wiring on a Pro-family machine, or on an unknown model: it holds at 120 V, becomes custom wiring at 230 V, and is open until the voltage (and model) are known */
+    if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
+    return p.volts===120?'SI':null;
+  }
+  function conds(when){
+    return String(when||'').split(';').map(function(c){
+      c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
+    }).filter(function(c){return c.k});
+  }
+  /* true unless the profile rules the element out; unknown fields never rule anything out */
+  function matches(when){
+    if(!when||!prof)return true;
+    return conds(when).every(function(c){
+      if(c.k==='model')return !prof.model||c.vals.indexOf(prof.model)>=0;
+      if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
+      if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
+      if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
+      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
+      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
+      if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
+      return true;
+    });
+  }
+  /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
+  function decided(when){
+    if(!prof)return false;
+    return conds(when).every(function(c){
+      if(c.k==='model'||c.k==='fam')return !!prof.model;
+      if(c.k==='volts')return !!prof.volts;
+      if(c.k==='eco')return ecoOf(prof)!==null;
+      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='path')return !!prof.path;
+      if(c.k==='wpath')return wpathOf(prof)!==null;
+      return true;
+    });
+  }
+  function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
+  function label(p){
+    p=p||prof;if(!p)return 'Set it';
+    var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
+    if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    return a.join(', ');
+  }
+  function missing(p){
+    p=p||prof;if(!p)return [];var m=[];
+    if(!p.model)m.push('model');
+    if(!p.volts)m.push('mains voltage');
+    if(!p.path)m.push('install path');
+    return m;
+  }
+  function ecoOpen(p){return !!(p&&p.model&&pro(p.model)&&p.volts===230&&p.eco===null)}
+  function andList(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
+  function summary(p){
+    p=p||prof;
+    if(!p)return 'Pick your model, voltage and install path. Until you do, every page shows all the model notes, each tagged with the machines it applies to.';
+    var m=missing(p),e=ecoOf(p),w=wpathOf(p);
+    var what=(p.model?longName(p.model,p.volts):'Gaggia')+(p.volts?' ('+p.volts+' V'+(e?', Eco board':'')+')':'');
+    var how=w==='CW'||p.path==='CW'?' with custom wiring':p.path==='SI'?' with stock wiring integration':'';
+    var nodraw=p.path==='SI'&&w==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine.':'';
+    var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
+    var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
+    var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+  }
+  function apply(root){
+    root=root||document;
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
+    var l=document.getElementById('mchip-l');
+    if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
+      var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      l.textContent=!prof?'Set it':main.length?main.join(', '):x;
+      if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
+    var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
+    syncPanel();
+  }
+  function set(p){
+    prof=p?clean(p):null;
+    try{if(prof)localStorage.setItem(KEY,JSON.stringify(prof));else localStorage.removeItem(KEY)}catch(e){}
+    apply();
+    try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
+  }
+  /* start from what's saved, never from guesses */
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  /* ---- nav panel ---- */
+  function syncPanel(){
+    var pan=document.getElementById('mpanel');if(!pan)return;
+    var p=prof||{},e=ecoOf(p);
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mmodel]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mmodel')===p.model))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
+    var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
+    var s=document.getElementById('m-summary');if(s)s.textContent=summary();
+  }
+  function wire(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    var nt=document.getElementById('nav-toggle'),nl=document.getElementById('nav-links');
+    /* the page list and the Your Gaggia panel open over the page, one at a time; a tap outside or Escape closes them */
+    var scrim=document.getElementById('nav-scrim');
+    function sync(){if(scrim)scrim.hidden=!((nl&&nl.classList.contains('open'))||(pan&&!pan.hidden))}
+    function closeMenu(){if(nt&&nl&&nl.classList.contains('open')){nt.setAttribute('aria-expanded','false');nl.classList.remove('open');sync();return true}}
+    function closePanel(){if(chip&&pan&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();return true}}
+    if(scrim)scrim.addEventListener('click',function(){closeMenu();closePanel()});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&closeMenu())nt.focus()});
+    if(chip&&pan){
+      chip.addEventListener('click',function(){var open=pan.hidden;pan.hidden=!open;chip.setAttribute('aria-expanded',String(open));if(open)closeMenu();sync()});
+      pan.addEventListener('click',function(e){
+        var b=e.target.closest('button');if(!b||b.disabled)return;
+        var p=current();
+        if(b.hasAttribute('data-mmodel'))p.model=b.getAttribute('data-mmodel');
+        else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
+        else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
+        else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.id==='m-clear'){set(null);return}
+        else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
+        else return;
+        set(p);
+      });
+      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync()}});
+    }
+    if(nt&&nl)nt.addEventListener('click',function(){var open=nt.getAttribute('aria-expanded')!=='true';nt.setAttribute('aria-expanded',String(open));nl.classList.toggle('open',open);if(open)closePanel();sync()});
+    /* buttons on a page that set one field: data-setmachine="model:GCP" or "path:CW" */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-setmachine]'),function(b){
+      b.addEventListener('click',function(){
+        var p=current();
+        String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
+          var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+        });
+        set(p);
+      });
+    });
+    var inViewer=typeof window.claude!=='undefined';
+    var pb=document.querySelectorAll('[data-print]');
+    if(!inViewer)Array.prototype.forEach.call(pb,function(b){b.hidden=false;b.addEventListener('click',function(){window.print()})});
+    apply();
+    hints();window.addEventListener('resize',hints);
+  }
+  /* "swipe sideways" under drawings and tables that are wider than the screen */
+  function hints(){
+    Array.prototype.forEach.call(document.querySelectorAll('.scroll,.tablewrap,.table-wrap'),function(el){
+      var over=el.scrollWidth>el.clientWidth+8,h=el.nextElementSibling&&el.nextElementSibling.classList.contains('swipe-hint')?el.nextElementSibling:null;
+      if(over&&!h){h=document.createElement('p');h.className='swipe-hint';h.textContent=el.querySelector('svg')?'Swipe sideways to see the whole drawing':'Swipe sideways to see every column';el.parentNode.insertBefore(h,el.nextSibling)}
+      else if(!over&&h)h.remove();
+    });
+  }
+  window.GaggiaMachine={get:function(){return prof},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: rating-plate header, four summary readouts, filter chips, then the parts list grouped by where each part goes. Each row: what it is, status pill, estimate, price paid, and a fold-out for box contents and notes. */
+:root{
+  --bg:#ECEEF0;
+  --surface:#F9FAFA;
+  --surface-2:#E2E5E8;
+  --ink:#16191C;
+  --muted:#59616A;
+  --line:#CBD0D5;
+  --accent:#D98400;
+  --accent-ink:#965300;
+  --accent-soft:#F4E1C0;
+  --on-accent:#1A1206;
+  --good:#2D7A4C; --good-soft:#DCEFE3;
+  --blue:#2F6F98; --blue-soft:#DCE9F2;
+  --bad:#B13A2F;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+    --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+    --good:#63C08A; --good-soft:#17301F; --blue:#6AAED6; --blue-soft:#16293A; --bad:#EC7064;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+  --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+  --good:#63C08A; --good-soft:#17301F; --blue:#6AAED6; --blue-soft:#16293A; --bad:#EC7064;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+
+.top{display:grid;gap:14px;margin-bottom:24px}
+.plate{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 12px;justify-self:start;max-width:100%;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;font:500 11.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.plate .rivet{width:6px;height:6px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 1px var(--muted);opacity:.7}
+.plate b{color:var(--ink);font-weight:600}
+h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;margin:0}
+.lede{margin:0;color:var(--muted);max-width:64ch;font-size:17px}
+
+.readouts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:12px}
+.ro{padding:14px 16px;border-left:1px solid var(--line);min-width:0;display:grid;gap:4px;align-content:start}
+.ro:first-child{border-left:0}
+.ro .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ro .v{font:600 22px/1.15 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em;overflow-wrap:anywhere}
+.ro .s{font-size:13px;color:var(--muted);line-height:1.35}
+@media (max-width:760px){.readouts{grid-template-columns:repeat(2,minmax(0,1fr))}.ro:nth-child(3){border-left:0}.ro:nth-child(n+3){border-top:1px solid var(--line)}}
+.sbar{display:flex;height:10px;border-radius:3px;overflow:hidden;background:var(--surface-2);gap:2px;margin-bottom:22px}
+.sbar span{display:block;height:100%;transition:flex-grow .25s}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px 16px;flex-wrap:wrap;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font:600 14px var(--f-body);cursor:pointer;min-height:38px;display:inline-flex;align-items:center;gap:7px}
+.fchip .n{font:500 12px var(--f-mono);color:var(--muted)}
+.fchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.fchip[aria-pressed="true"] .n{color:var(--bg);opacity:.75}
+.status{font:500 12px var(--f-mono);color:var(--muted);display:inline-flex;align-items:center;gap:7px}
+.lamp{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.status.ok .lamp{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+.group{margin-top:26px}
+.group-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.group-h .sum{font:500 13.5px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.part{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 20px;padding:16px 0 14px 14px;border-bottom:1px solid var(--line);border-left:3px solid var(--line)}
+.part[data-status="need"]{border-left-color:var(--accent)}
+.part[data-status="ordered"]{border-left-color:var(--blue)}
+.part[data-status="received"],.part[data-status="have"]{border-left-color:var(--good)}
+.part[data-status="skip"]{border-left-color:transparent}
+.part[data-status="skip"] .p-main h3,.part[data-status="skip"] .p-est{color:var(--muted)}
+.p-main{min-width:0}
+.p-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
+.p-title h3{margin:0;font-size:17px;font-weight:600;line-height:1.3}
+.tag{font:600 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted)}
+.p-spec{margin:4px 0 0;color:var(--muted);font-size:14.5px;line-height:1.45;max-width:62ch}
+.src{font-size:13.5px;color:var(--muted);margin-top:5px}
+.p-side{display:grid;justify-items:end;align-content:start;gap:8px;text-align:right}
+.p-est{font:500 14px var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.p-est b{color:var(--ink);font-weight:500}
+
+.pillwrap{position:relative;display:inline-flex;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted)}
+.pillwrap::after{content:"";position:absolute;right:12px;top:50%;margin-top:-2px;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;pointer-events:none}
+.pill{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:inherit;padding:8px 30px 8px 14px;font:600 14px var(--f-body);border-radius:999px;cursor:pointer;min-height:38px}
+.pill option{color:var(--ink);background:var(--surface)}
+.part[data-status="need"] .pillwrap{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.part[data-status="ordered"] .pillwrap{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+.part[data-status="received"] .pillwrap,.part[data-status="have"] .pillwrap{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+
+.money{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 10px;height:38px}
+.money span{font:500 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+.money input{border:0;background:transparent;font:500 15px var(--f-mono);width:7ch;padding:0 4px;outline:none;font-variant-numeric:tabular-nums}
+.money:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.money input::-webkit-outer-spin-button,.money input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.money input[type=number]{-moz-appearance:textfield}
+
+.p-more{grid-column:1 / -1}
+.p-more summary{cursor:pointer;font:500 14px var(--f-body);color:var(--accent-ink);list-style:none;display:inline-flex;align-items:center;gap:8px;padding:4px 0}
+.p-more summary::-webkit-details-marker{display:none}
+.p-more summary::before{content:"";width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:5px solid currentColor;transition:transform .15s}
+.p-more[open] summary::before{transform:rotate(90deg)}
+.p-more .inner{display:grid;gap:10px;padding:8px 0 4px}
+.subs{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.subs li{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:15px;line-height:1.4}
+.subs input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--good);flex:none;cursor:pointer}
+.subs label{cursor:pointer;min-width:0}
+.subs .lk{font-size:13px;white-space:nowrap}
+.subs li.got label{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.flabel{font:600 11px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.textarea,.input{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:9px 11px;font-size:15px;line-height:1.45}
+.textarea{min-height:64px;resize:vertical}
+.textarea:focus,.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.linkbtn{appearance:none;border:0;background:none;padding:4px 0;font:500 14px var(--f-body);color:var(--accent-ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn.danger{color:var(--bad)}
+.empty-filter{padding:18px 0;color:var(--muted)}
+
+.addform{margin-top:14px;border:1px dashed var(--line);border-radius:var(--radius);padding:14px;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,2fr) auto;gap:10px;align-items:end}
+.addform .f{display:grid;gap:5px;min-width:0}
+.addform .money{height:auto;min-height:44px;width:100%}
+.addform .money input{width:100%}
+.addform .input{min-height:44px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:10px 14px;font-weight:600;font-size:15px;cursor:pointer;min-height:44px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.armed{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.addmsg{grid-column:1 / -1;font-size:13.5px;color:var(--muted);margin:0}
+
+.foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.fine{margin:0;font-size:13px;color:var(--muted);line-height:1.45;max-width:64ch}
+
+@media (max-width:640px){
+  .part{grid-template-columns:minmax(0,1fr)}
+  .p-side{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px 12px;text-align:left}
+  .addform{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="plate" aria-label="Build spec">
+      <span class="rivet" aria-hidden="true"></span>
+      <span><b>Bill of materials</b></span><span>Gaggia Classic family</span><span>Gaggiuino Gen 3</span><span>PCB v4</span>
+      <span class="rivet" aria-hidden="true"></span>
+    </div>
+    <h1>Gaggia Parts Tracker</h1>
+    <p class="lede">Every part for the build. Set each one's status as you buy it, enter what you actually paid, and tick off the pieces inside each line as they arrive. Estimates match the <a href="budget.html">budget</a>.</p>
+  </header>
+
+  <section class="readouts" aria-label="Summary">
+    <div class="ro"><span class="k">In hand</span><span class="v" id="r-hand"></span><span class="s" id="r-hand-s"></span></div>
+    <div class="ro"><span class="k">Spent so far</span><span class="v" id="r-spent"></span><span class="s" id="r-spent-s"></span></div>
+    <div class="ro"><span class="k">Still to buy</span><span class="v" id="r-left"></span><span class="s" id="r-left-s"></span></div>
+    <div class="ro"><span class="k">Projected total</span><span class="v" id="r-total"></span><span class="s" id="r-total-s">Before shipping and tax</span></div>
+  </section>
+  <div class="sbar" id="sbar" aria-hidden="true"></div>
+
+  <div class="toolbar">
+    <div class="chips" id="chips" role="group" aria-label="Show"></div>
+    <span class="status" id="status"><span class="lamp"></span><span id="status-text">Loading</span></span>
+  </div>
+
+  <div id="groups"></div>
+
+  <section class="group" id="add-group" aria-labelledby="add-h">
+    <div class="group-h"><h2 id="add-h">Add a part</h2></div>
+    <form class="addform" id="addform" novalidate>
+      <div class="f"><label class="flabel" for="add-name">Part</label><input class="input" id="add-name" type="text" placeholder="e.g. Bottomless portafilter" maxlength="120"></div>
+      <div class="f"><label class="flabel" for="add-est">Estimate</label><span class="money"><span>$</span><input id="add-est" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></span></div>
+      <div class="f"><label class="flabel" for="add-url">Link (optional)</label><input class="input" id="add-url" type="url" inputmode="url" placeholder="https://"></div>
+      <button class="btn primary" type="submit">Add part</button>
+      <p class="addmsg" id="add-msg">Parts you add show up under Your additions and count toward the totals.</p>
+    </form>
+  </section>
+
+  <div class="foot">
+    <p class="fine">Estimates were checked October 16, 2026, and exclude shipping, tax and import duty. Where you enter a price paid, it replaces the estimate. Ordered parts without a price count at their estimate.</p>
+    <button class="btn" id="reset" type="button">Clear all statuses</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var GROUPS=[
+    {id:'machine',name:'Machine',parts:[
+      {id:'gaggia',name:'Gaggia Classic family machine',spec:'A Classic, Classic Pro, Evo Pro or E24: any with the 3-way valve, which rules out the 2015 V2. Used, about $250 to $425; new, the E24 from $499.',lo:250,hi:549,req:true,
+        src:[['Used Gaggia check','used-checklist.html'],['Which Gaggia','which-gaggia.html'],['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24']]}
+    ]},
+    {id:'kit',name:'Gaggiuino electronics',parts:[
+      {id:'kit',name:'Gaggiuino kit',spec:'DIY-EFI\'s 4.3" Gen 3 kit, £160 before VAT (about $212), on October 16, with only 7 Gen 3 screens left and backorders taken. It has no mains wiring, and Gaggiuino items can\'t be returned. DIY-EFI\'s Gen 3.5 kit (£175) has a newer screen the official docs don\'t cover yet. Gaggiuino.co\'s $240 kit, which adds a mains harness, was sold out. Peak Coffee\'s $248 kit was in stock, but Peak is no longer an approved supplier and the docs say the Gen 3 screen must come from one.',lo:212,hi:254,req:true,
+        src:[['DIY-EFI','https://diy-efi.co.uk/product/gaggiuino-classic-kit-v4-gen3'],['Gaggiuino.co','https://gaggiuino.co/products/gaggiuino-kit-gaggia-classic-pro']],
+        subs:[['pcb','V4 PCB (STM32U585)'],['screen','4.3" ESP32-S3 screen and its cable'],['lv','Low-voltage cables for the switches and SSR'],['sensor','Pressure sensor and its lead'],['tc','M4 K-type thermocouple, ungrounded'],['ssr','SSR-40DA'],['stlink','ST-Link programmer'],['ptb','Pressure tap block kit']]},
+      {id:'ship',name:'Shipping and import duty',spec:'DIY-EFI doesn\'t publish US shipping, so check at checkout. US import duty now applies to small parcels too; the rate for these boards wasn\'t found.',req:true},
+      {id:'sd',name:'MicroSD card',spec:'1 to 8 GB, formatted FAT32. Turns on shot history. Any brand works.',lo:5,hi:10,req:false,def:'need'}
+    ]},
+    {id:'gaggia-parts',name:'Wiring and install parts',parts:[
+      {id:'wire',name:'18 AWG silicone wire',spec:'200 °C silicone. Stock integration: 1 m each of red, black and white is plenty. Custom wiring: 1 m each of black, white, red, orange, blue, yellow and green, with 2 m of white on 120 V or 2 m of blue on 230 V, so you can follow the schematic\'s colors. The cut list gives your exact lengths.',lo:10,hi:30,req:true,
+        src:[['Cut list','cut-list.html'],['AliExpress (official BOM link)','https://www.aliexpress.com/item/2255800441309579.html']]},
+      {id:'conn',name:'Connectors and insulation',spec:'Everything that joins the wiring. The cut list counts each part for your schematic.',lo:20,hi:40,req:true,
+        subs:[['spades','6.3 mm spades, male and female, insulated, for anything away from the boiler','https://www.aliexpress.com/item/1005002765359666.html'],['bare','Open-barrel 6.3 mm spades for the boiler and valve: the guide warns that insulated spades melt there','https://www.aliexpress.com/item/3256801761334075.html'],['fork','Fork terminals: SV1.25-5, plus SV2-5 for custom wiring','https://www.aliexpress.com/item/3256805357612913.html'],['pig','Piggyback spade, for N at the pump (stock integration)','https://www.aliexpress.com/item/32800326782.html'],['bn','BN1.25 and BN2 bare butt splices (custom wiring)','https://www.aliexpress.com/item/3256801144001097.html'],['tape','Self-fusing silicone tape, or 4 to 6 mm silicone heat shrink','https://www.aliexpress.com/item/3256805094022385.html'],['ssrhw','SSR screw, washer and nut: M4x10, or an 8-32 set from a hardware store','https://www.aliexpress.com/item/2255801137435920.html']]},
+      {id:'paste',name:'Thermal paste rated 180 °C or more',spec:'Only if the paste on the brew thermostat has dried out. The official guide lists Thermal Grizzly Kryonaut, Noctua NT-H2, SYY-157 and GELID GC-Extreme.',lo:5,hi:15,req:false,def:'need'},
+      {id:'opv',name:'12 bar OPV spring or M3 washers',spec:'US Evo Pro and E24 only: their 9 bar valve has to go up to 10 to 12 bar. A 12 bar spring, or three or four stainless M3 washers (6.9 to 7.1 mm across, 0.5 to 0.8 mm thick) behind the old spring.',lo:3,hi:15,req:false,def:'skip',
+        src:[['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=_10-12-bar-opv']]},
+      {id:'ground',name:'Grounding retrofit',spec:'120 V original Classic with a two-pin cord only, per the official guide.',lo:15,hi:30,req:false,def:'skip',
+        src:[['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=grounding']],
+        subs:[['inlet','C14 three-pin panel inlet: Schurter 6100.4312 or 6100.4315','https://www.digikey.com/en/products/detail/schurter-inc/6100-4312/640562'],['cord','Right-angle 5-15P to C13 cord, 14 to 16 gauge','https://www.digikey.com/en/products/detail/qualtek/313010-01/183386'],['green','0.4 m or more of green 16 to 18 AWG silicone wire','https://www.aliexpress.com/item/2255800441309579.html']]},
+      {id:'tfit',name:'Or: T-fitting parts instead of the tap block',spec:'Only if you\'d rather tap the pump line than fit the kit\'s pressure tap block. Classic: a push-to-connect T in the PTFE tube. Pro family: a barbed T in the braided hose, about 65 mm above the boiler, with clamps.',req:false,def:'skip',
+        subs:[['gc','Classic: PE/6 mm T, PLF 6-02 fitting, 4x6 mm PTFE tube','https://www.aliexpress.com/item/1005003750203358.html'],['gcp','Pro family: 6 mm barbed T, 6 mm barb to 1/4" fitting, clamps, Saeco braided hose 996530009505','https://www.wholelattelove.com/products/ga-16000380-reinforced-silicone-tube-5x9-mm']]}
+    ]},
+    {id:'prints',name:'Printed parts',parts:[
+      {id:'prints',name:'Housings and screen mount',spec:'From Hudson Creative Group, printed to order in the US. Check which screen your kit ships before ordering its housing.',lo:24,hi:35,req:true,
+        src:[['Hudson Creative Group','https://gaggiuino.hudsoncreativegroup.com/']],
+        subs:[['pcbh','PCB v4 / v3.1 housing, $8','https://gaggiuino.hudsoncreativegroup.com/Store/Product/57'],['scrh','4.3" screen housing: $12 for the Gen 3 screen, or $8 for the Gen 3.5 (P4) one','https://gaggiuino.hudsoncreativegroup.com/Store/Product/78'],['mount','Front mount ($4), or a funnel mount ($15, Classic or Pro family version)','https://gaggiuino.hudsoncreativegroup.com/Store/Product/67'],['hw','Mount hardware: magnets for the front mount, or M3 screws, washers, nylock nuts and a heat-set insert for the funnel mount']]}
+    ]},
+    {id:'tools',name:'Tools',parts:[
+      {id:'meter',name:'Multimeter',spec:'Auto-ranging, with continuity and resistance. Needed for the power-on checks. Any store-brand auto-ranging meter with those two functions works.',lo:25,hi:45,req:true},
+      {id:'crimper',name:'Open-barrel crimper',spec:'For the bare spades and splices near the boiler. The IWISS IWS-1424A ($12) is the open-barrel crimper the official custom wiring guide names. Mark this as already have if yours is the open-barrel kind.',lo:20,hi:35,req:false,def:'need',
+        src:[['IWISS IWS-1424A','https://www.iwiss.com/products/iws-1424a-non-insulated-open-barrel-terminal-crimp-tool-wire-crimper-for-molex-delphi-amp-tyco-harley-pc-computer-automotive-24-14-awg']]}
+    ]},
+    {id:'extras',name:'Optional extras',parts:[
+      {id:'btscale',name:'Bluetooth scale',spec:'Real in-cup weight with no install. Pick a model from the supported list.',lo:99,hi:140,req:false,def:'skip',
+        src:[['Supported scales','https://github.com/Zer0-bit/esp-arduino-ble-scales'],['Bookoo','https://bookoocoffee.com/']]},
+      {id:'hwscales',name:'Hardware scales',spec:'Load cells under the drip tray, read by a dual HX711 board. Follow the official scales guide for the load cells and mounts.',lo:45,hi:95,req:false,def:'skip',
+        src:[['Official guide','https://gaggiuino.github.io/#/accessories/hw-scales']],
+        subs:[['board','Dual scales board: DIY-EFI (£18 before VAT, no load cells), or Peak Coffee\'s with two or four 750 g cells ($68 or $88)','https://diy-efi.co.uk/product/gaggiuino-dual-scales'],['cells','Two to four 750 g load cells, if the board came without them'],['base','Scale base, printed ($10 at Hudson)','https://gaggiuino.hudsoncreativegroup.com/Store/Product/35'],['mag','Magnets, 5 x 2 mm, and M3 screws']]},
+      {id:'tof',name:'Water tank sensor',spec:'The ToFnLED board reads the tank level and lights the tank. It mounts above the tank on magnets.',lo:33,hi:40,req:false,def:'skip',
+        src:[['Official guide','https://gaggiuino.github.io/#/accessories/tofnled']],
+        subs:[['board','ToFnLED board: DIY-EFI (£25 before VAT) or Peak Coffee ($38, with cables)','https://diy-efi.co.uk/product/gaggiuino-tofnled'],['cable','4-pin JST SH Qwiic cable, 250 mm or longer, "opposite direction" type','https://www.digikey.com/en/products/detail/jst-sales-america-inc/A04SR04SR30K254A/9922185'],['housing','Housing ($2 at Hudson)','https://gaggiuino.hudsoncreativegroup.com/Store/Product/42'],['mag','2 disc magnets, 5 x 1 mm, and super glue']]}
+    ]}
+  ];
+  var STATUSES=[['need','To buy'],['ordered','Ordered'],['received','Received'],['have','Already have'],['skip','Not getting']];
+  var FILTERS=[['all','All'],['need','To buy'],['ordered','On order'],['done','In hand'],['skip','Not getting']];
+  var KEY='gaggia-parts-tracker-v1';
+  var PARTS={};GROUPS.forEach(function(g){g.parts.forEach(function(p){p.group=g.id;PARTS[p.id]=p})});
+
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function fmt(n){return '$'+Math.round(n).toLocaleString('en-US')}
+  function rng(lo,hi){return lo===hi?fmt(lo):fmt(lo)+' – '+fmt(hi)}
+  function num(v){return (typeof v==='number'&&isFinite(v)&&v>=0)?v:null}
+  function isUrl(u){return typeof u==='string'&&/^https?:\/\/\S+$/i.test(u.trim())}
+
+  /* ---------- state ---------- */
+  function defaults(){return {parts:{},custom:[],updatedAt:0}}
+  function normalize(s){
+    var out=defaults();if(!s||typeof s!=='object')return out;
+    var valid=STATUSES.map(function(x){return x[0]});
+    if(Array.isArray(s.custom)){
+      s.custom.forEach(function(c){
+        if(c&&typeof c==='object'&&typeof c.id==='string'&&/^c[a-z0-9]+$/.test(c.id)&&typeof c.name==='string'&&c.name.trim()){
+          out.custom.push({id:c.id,name:c.name.slice(0,120),est:num(c.est),url:isUrl(c.url)?c.url.trim():''});
+        }
+      });
+    }
+    if(s.parts&&typeof s.parts==='object'){
+      Object.keys(s.parts).forEach(function(k){
+        var p=s.parts[k];if(!p||typeof p!=='object')return;
+        var o={};
+        if(valid.indexOf(p.status)>=0)o.status=p.status;
+        if(num(p.paid)!=null)o.paid=num(p.paid);
+        if(typeof p.note==='string'&&p.note)o.note=p.note.slice(0,2000);
+        if(p.got&&typeof p.got==='object'){o.got={};Object.keys(p.got).forEach(function(g){if(p.got[g]===true)o.got[g]=true})}
+        out.parts[k]=o;
+      });
+    }
+    out.updatedAt=typeof s.updatedAt==='number'?s.updatedAt:0;
+    return out;
+  }
+  function allParts(){
+    var list=[];GROUPS.forEach(function(g){g.parts.forEach(function(p){list.push(p)})});
+    state.custom.forEach(function(c){list.push({id:c.id,name:c.name,lo:c.est,hi:c.est,req:false,def:'need',group:'custom',custom:true,src:c.url?[['Link',c.url]]:null})});
+    return list;
+  }
+  function ps(p){var s=state.parts[p.id]||{};return {status:s.status||(p.req?'need':(p.def||'need')),paid:num(s.paid),note:s.note||'',got:s.got||{}}}
+  function hasEst(p){return typeof p.lo==='number'&&typeof p.hi==='number'}
+
+  function compute(){
+    var r={active:0,inhand:0,need:0,ordered:0,skip:0,spent:0,commitLo:0,commitHi:0,commitN:0,leftLo:0,leftHi:0,leftN:0,leftNoEst:0,counts:{need:0,ordered:0,received:0,have:0,skip:0}};
+    allParts().forEach(function(p){
+      var s=ps(p);r.counts[s.status]++;
+      if(s.status==='skip')return;
+      r.active++;
+      if(s.status==='received'||s.status==='have')r.inhand++;
+      if(s.status!=='need'){
+        if(s.paid!=null)r.spent+=s.paid;
+        else if(s.status==='ordered'||s.status==='received'){if(hasEst(p)){r.commitLo+=p.lo;r.commitHi+=p.hi;r.commitN++}}
+      }else{
+        r.leftN++;
+        if(hasEst(p)){r.leftLo+=p.lo;r.leftHi+=p.hi}else r.leftNoEst++;
+      }
+    });
+    r.totLo=r.spent+r.commitLo+r.leftLo;r.totHi=r.spent+r.commitHi+r.leftHi;
+    return r;
+  }
+
+  /* ---------- render ---------- */
+  var filter='all';
+  function partHtml(p){
+    var s=ps(p);
+    var tags=(p.req?'':'<span class="tag">'+(p.custom?'Added':'Optional')+'</span>');
+    var src=(p.src&&p.src.length)?'<div class="src">'+p.src.map(function(x){return '<a href="'+esc(x[1])+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join(' · ')+'</div>':'';
+    var opts=STATUSES.map(function(o){return '<option value="'+o[0]+'"'+(s.status===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('');
+    var subs='';
+    if(p.subs&&p.subs.length){
+      subs='<div><div class="flabel" style="margin-bottom:4px">'+esc(p.subTitle||'Parts in this line')+'</div><ul class="subs">'+p.subs.map(function(sb){
+        var key=p.id+'__'+sb[0],got=!!s.got[sb[0]];
+        return '<li class="'+(got?'got':'')+'"><input type="checkbox" id="g-'+key+'" data-got="'+p.id+'" data-sub="'+sb[0]+'"'+(got?' checked':'')+'><label for="g-'+key+'">'+esc(sb[1])+'</label>'+(sb[2]?' <a class="lk" href="'+esc(sb[2])+'" target="_blank" rel="noopener">Link</a>':'')+'</li>';
+      }).join('')+'</ul></div>';
+    }
+    return '<article class="part" data-part="'+p.id+'" data-status="'+s.status+'">'+
+      '<div class="p-main"><div class="p-title"><h3>'+esc(p.name)+'</h3>'+tags+'</div>'+(p.spec?'<p class="p-spec">'+esc(p.spec)+'</p>':'')+src+'</div>'+
+      '<div class="p-side">'+
+        '<label class="vh" for="st-'+p.id+'">Status for '+esc(p.name)+'</label>'+
+        '<span class="pillwrap"><select class="pill" id="st-'+p.id+'" data-st="'+p.id+'">'+opts+'</select></span>'+
+        '<span class="p-est">'+(hasEst(p)?'Est. <b>'+rng(p.lo,p.hi)+'</b>':'No estimate')+'</span>'+
+        '<span class="money"><label for="paid-'+p.id+'"><span>Paid $</span></label><input id="paid-'+p.id+'" data-paid="'+p.id+'" type="number" inputmode="decimal" min="0" step="0.01" placeholder="—" value="'+(s.paid!=null?s.paid:'')+'"></span>'+
+      '</div>'+
+      '<details class="p-more" data-more="'+p.id+'"><summary data-sum="'+p.id+'"></summary><div class="inner">'+subs+
+        '<div><label class="flabel" for="note-'+p.id+'">Notes</label><textarea class="textarea" id="note-'+p.id+'" data-note="'+p.id+'" rows="2" placeholder="Vendor, order number, tracking, what fits">'+esc(s.note)+'</textarea></div>'+
+        (p.custom?'<div><button class="linkbtn danger" type="button" data-remove="'+p.id+'">Remove this part</button></div>':'')+
+      '</div></details>'+
+    '</article>';
+  }
+  function renderAll(){
+    var html='';
+    GROUPS.forEach(function(g){
+      html+='<section class="group" data-group="'+g.id+'" aria-labelledby="h-'+g.id+'"><div class="group-h"><h2 id="h-'+g.id+'">'+esc(g.name)+'</h2><span class="sum" data-gsum="'+g.id+'"></span></div>'+g.parts.map(partHtml).join('')+'</section>';
+    });
+    if(state.custom.length){
+      var cparts=allParts().filter(function(p){return p.custom});
+      html+='<section class="group" data-group="custom" aria-labelledby="h-custom"><div class="group-h"><h2 id="h-custom">Your additions</h2><span class="sum" data-gsum="custom"></span></div>'+cparts.map(partHtml).join('')+'</section>';
+    }
+    html+='<p class="empty-filter" id="empty-filter" hidden>Nothing in this view.</p>';
+    $('groups').innerHTML=html;
+    update();
+  }
+  function moreSummary(p){
+    var s=ps(p),bits=[];
+    if(p.subs&&p.subs.length){var n=p.subs.filter(function(sb){return s.got[sb[0]]}).length;bits.push(n+' of '+p.subs.length+' parts in hand')}
+    bits.push(s.note?'Has a note':'Add a note');
+    return bits.join(' · ');
+  }
+  function inFilter(st){
+    if(filter==='all')return true;
+    if(filter==='done')return st==='received'||st==='have';
+    return st===filter;
+  }
+  function update(){
+    var list=allParts(),visibleAny=false,gsums={};
+    list.forEach(function(p){
+      var s=ps(p),row=document.querySelector('[data-part="'+p.id+'"]');if(!row)return;
+      row.setAttribute('data-status',s.status);
+      var show=inFilter(s.status);row.hidden=!show;if(show)visibleAny=true;
+      var sum=document.querySelector('[data-sum="'+p.id+'"]');if(sum)sum.textContent=moreSummary(p);
+      var g=gsums[p.group]||(gsums[p.group]={lo:0,hi:0,n:0,vis:0});
+      if(show)g.vis++;
+      if(s.status!=='skip'){g.n++;if(s.paid!=null&&s.status!=='need'){g.lo+=s.paid;g.hi+=s.paid}else if(hasEst(p)){g.lo+=p.lo;g.hi+=p.hi}}
+    });
+    Object.keys(gsums).forEach(function(gid){
+      var el=document.querySelector('[data-gsum="'+gid+'"]'),g=gsums[gid];
+      if(el)el.textContent=g.n?rng(g.lo,g.hi):'Not getting';
+      var sec=document.querySelector('[data-group="'+gid+'"]');if(sec)sec.hidden=!g.vis;
+    });
+    $('empty-filter').hidden=visibleAny;
+
+    var r=compute();
+    $('r-hand').textContent=r.inhand+' of '+r.active;
+    $('r-hand-s').textContent=r.counts.ordered?(r.counts.ordered+' on order'):(r.active-r.inhand===0?'Everything is here':'Nothing on order yet');
+    $('r-spent').textContent=fmt(r.spent);
+    $('r-spent-s').textContent=r.commitN?('Plus '+rng(r.commitLo,r.commitHi)+' ordered, price not entered'):'From prices you entered';
+    $('r-left').textContent=r.leftN?(r.leftLo===r.leftHi&&r.leftLo===0?'$0':rng(r.leftLo,r.leftHi)):'$0';
+    $('r-left-s').textContent=r.leftN?(r.leftN+' part'+(r.leftN===1?'':'s')+(r.leftNoEst?(', '+r.leftNoEst+' without an estimate'):'')):'Nothing left to buy';
+    $('r-total').textContent=rng(r.totLo,r.totHi);
+
+    var c=r.counts;
+    $('sbar').innerHTML=[['received','var(--good)',c.received+c.have],['ordered','var(--blue)',c.ordered],['need','var(--accent)',c.need]].map(function(x){
+      return x[2]?'<span style="flex-grow:'+x[2]+';background:'+x[1]+'"></span>':'';
+    }).join('');
+    var fc={all:list.length,need:c.need,ordered:c.ordered,done:c.received+c.have,skip:c.skip};
+    $('chips').innerHTML=FILTERS.map(function(f){
+      return '<button type="button" class="fchip" data-filter="'+f[0]+'" aria-pressed="'+(filter===f[0])+'">'+f[1]+' <span class="n">'+fc[f[0]]+'</span></button>';
+    }).join('');
+  }
+
+  /* ---------- persistence ---------- */
+  var state=defaults(),dbRef=null,mode='local',readOnly=false,saveTimer=null,chain=Promise.resolve();
+  function loadLocal(){try{var s=localStorage.getItem(KEY);return s?normalize(JSON.parse(s)):null}catch(e){return null}}
+  function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+  function setStatus(kind){
+    var txt={loading:'Loading',local:'Saved on this device',saving:'Saving',saved:'Saved',readonly:'View only: changes stay on this screen',full:'Storage is full: changes stay on this device'}[kind]||'';
+    $('status-text').textContent=txt;$('status').classList.toggle('ok',kind==='saved');
+  }
+  function writeOnce(body){
+    return dbRef.set(body).catch(function(e){
+      if(e&&e.code==='unavailable')return new Promise(function(r){setTimeout(r,700+Math.random()*900)}).then(function(){return dbRef.set(body)});
+      throw e;
+    });
+  }
+  function onWriteError(e){
+    if(e&&e.code==='quota_exceeded'){setStatus('full');return}
+    if(e&&(e.code==='invalid_argument'||e.code==='not_granted'||e.code==='revoked'||e.code==='capability_disabled'||e.code==='capability_removed')){readOnly=true;setStatus('readonly');return}
+    setStatus('local');
+  }
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    if(mode!=='db'){setStatus('local');return}
+    if(readOnly){setStatus('readonly');return}
+    setStatus('saving');
+    saveTimer=setTimeout(function(){
+      var body=JSON.parse(JSON.stringify(state));
+      chain=chain.then(function(){return writeOnce(body)}).then(function(){if(!readOnly)setStatus('saved')}).catch(onWriteError);
+    },700);
+  }
+  function changed(){state.updatedAt=Date.now();saveLocal();update();scheduleSave()}
+  function patch(id,obj){var cur=state.parts[id]||{};state.parts[id]=Object.assign({},cur,obj);changed()}
+
+  function connect(){
+    var p;
+    try{p=(window.claude&&typeof window.claude.use==='function')?window.claude.use('db'):Promise.resolve(null)}catch(e){p=Promise.resolve(null)}
+    Promise.resolve(p).then(function(db){
+      if(!db){mode='local';setStatus('local');return}
+      dbRef=db.doc('tracker/state');mode='db';
+      return dbRef.get().then(function(snap){
+        if(snap.exists){
+          var remote=normalize(snap.data());
+          if(remote.updatedAt>=state.updatedAt){state=remote;saveLocal();renderAll();setStatus('saved')}
+          else scheduleSave();
+        }else if(state.updatedAt>0)scheduleSave();
+        else setStatus('saved');
+      }).catch(function(e){if(e&&e.code==='unavailable'){mode='local';setStatus('local')}else onWriteError(e)});
+    }).catch(function(){mode='local';setStatus('local')});
+  }
+
+  /* ---------- events ---------- */
+  var groupsEl=$('groups');
+  groupsEl.addEventListener('change',function(e){
+    var t=e.target;
+    if(t.hasAttribute('data-st')){patch(t.getAttribute('data-st'),{status:t.value});return}
+    if(t.hasAttribute('data-got')){
+      var id=t.getAttribute('data-got'),sub=t.getAttribute('data-sub'),cur=state.parts[id]||{},got=Object.assign({},cur.got||{});
+      if(t.checked)got[sub]=true;else delete got[sub];
+      var li=t.closest('li');if(li)li.classList.toggle('got',t.checked);
+      patch(id,{got:got});
+    }
+  });
+  groupsEl.addEventListener('input',function(e){
+    var t=e.target;
+    if(t.hasAttribute('data-paid')){
+      var id=t.getAttribute('data-paid'),cur=Object.assign({},state.parts[id]||{});
+      if(t.value===''){delete cur.paid}else{var n=Number(t.value);if(!isFinite(n)||n<0)return;cur.paid=Math.round(n*100)/100}
+      if(cur.paid!=null){var p=allParts().filter(function(x){return x.id===id})[0];if(p&&ps(p).status==='need')cur.status='ordered'}
+      state.parts[id]=cur;
+      var sel=$('st-'+id);if(sel&&cur.status)sel.value=cur.status;
+      changed();return;
+    }
+    if(t.hasAttribute('data-note')){
+      var nid=t.getAttribute('data-note'),c2=Object.assign({},state.parts[nid]||{});
+      if(t.value)c2.note=t.value.slice(0,2000);else delete c2.note;
+      state.parts[nid]=c2;changed();
+    }
+  });
+  var removeArm={};
+  groupsEl.addEventListener('click',function(e){
+    var b=e.target.closest('[data-remove]');if(!b)return;
+    var id=b.getAttribute('data-remove');
+    if(!removeArm[id]){removeArm[id]=setTimeout(function(){delete removeArm[id];b.textContent='Remove this part'},4000);b.textContent='Tap again to remove';return}
+    clearTimeout(removeArm[id]);delete removeArm[id];
+    state.custom=state.custom.filter(function(c){return c.id!==id});delete state.parts[id];
+    state.updatedAt=Date.now();saveLocal();renderAll();scheduleSave();
+  });
+  $('chips').addEventListener('click',function(e){
+    var b=e.target.closest('[data-filter]');if(!b)return;filter=b.getAttribute('data-filter');update();
+  });
+  $('addform').addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=$('add-name').value.trim(),estV=$('add-est').value,url=$('add-url').value.trim(),msg=$('add-msg');
+    if(!name){msg.textContent='Give the part a name first.';$('add-name').focus();return}
+    var est=estV===''?null:Number(estV);
+    if(est!=null&&(!isFinite(est)||est<0)){msg.textContent='The estimate needs to be a number of dollars, or left blank.';$('add-est').focus();return}
+    if(url&&!isUrl(url)){msg.textContent='The link needs to start with https://, or be left blank.';$('add-url').focus();return}
+    state.custom.push({id:'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:name.slice(0,120),est:est==null?null:Math.round(est),url:url});
+    state.updatedAt=Date.now();saveLocal();
+    $('add-name').value='';$('add-est').value='';$('add-url').value='';
+    msg.textContent='Added "'+name.slice(0,60)+'" under Your additions.';
+    if(filter!=='all'&&filter!=='need')filter='all';
+    renderAll();scheduleSave();
+  });
+  var resetBtn=$('reset'),resetTimer=null;
+  resetBtn.addEventListener('click',function(){
+    if(!resetBtn.classList.contains('armed')){
+      resetBtn.classList.add('armed');resetBtn.textContent='Tap again to clear';
+      clearTimeout(resetTimer);resetTimer=setTimeout(function(){resetBtn.classList.remove('armed');resetBtn.textContent='Clear all statuses'},4000);return;
+    }
+    clearTimeout(resetTimer);resetBtn.classList.remove('armed');resetBtn.textContent='Clear all statuses';
+    state.parts={};state.updatedAt=Date.now();saveLocal();renderAll();scheduleSave();
+  });
+
+  state=loadLocal()||defaults();
+  renderAll();setStatus('loading');
+  connect();
+})();
+</script>
+<footer class="site-foot"><div class="in"><nav class="foot-nav" aria-label="All pages"><a class="fn-home" href="index.html">Gaggia × Gaggiuino home</a><div class="fn-g"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></div><div class="fn-g"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html" aria-current="page">Parts tracker</a></div><div class="fn-g"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></div><div class="fn-g"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></div></nav><p><strong>Mains voltage.</strong> This conversion puts your hands near 120/230 V wiring. Work only with the cord out, check everything with a meter before first power-on, and stop if anything here disagrees with the official Gaggiuino docs or your own reading of the machine. Nothing on this site has been reviewed by the Gaggiuino project. You are responsible for your own build.</p><p>Unofficial community material for the Gaggia Classic family. The install itself is the official guide at <a href="https://gaggiuino.github.io/">gaggiuino.github.io</a>; these pages organize it, link to each step and add tools around it. Content is <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>, like the sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia site</a>. · <a href="https://github.com/Jabawabawaba/Gaggia-Gaggiuino">Source and issues on GitHub</a></p></div></footer></body></html>

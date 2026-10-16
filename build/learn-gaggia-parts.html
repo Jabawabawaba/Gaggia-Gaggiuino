@@ -1,0 +1,140 @@
+      <article class="pc nofig" id="part-tank" data-no="1">
+        <div class="ph"><span class="no">1</span><h3>Water tank</h3></div>
+        <div class="txt">
+          <p class="sum">A plastic tank of about 2.1 liters, filled through the lid in the cup tray on top or slid out to fill at the sink. A tube from near its floor feeds the pump, and the over-pressure valve's return tube runs back into it.</p>
+          <h4>How it works</h4>
+          <p>Nothing clever: the pump sucks water up the intake tube, and the tank isn't pressurized, so anything the over-pressure valve dumps simply runs back in. Keep the end of the intake under water; a pump drawing air rattles and stops pushing water.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> unchanged. The optional ToFnLED sits above it, reads the level and lights the tank.</p>
+        </div>
+      </article>
+
+      <article class="pc" id="part-pump" data-no="2">
+        <div class="ph"><span class="no">2</span><h3>Vibratory pump</h3></div>
+        <div class="txt">
+          <p class="sum">An Ulka vibratory pump, the EP5 on 230 V machines and the EAP5 or EFP5 on 120 V ones, standing upright at the back. A coil yanks a piston against a spring once per mains cycle, and check valves turn that buzz into one-way flow.</p>
+          <h4>How it works</h4>
+          <p>Inside is an iron piston in a tube, with a coil wound around the outside and a spring behind it. A diode in the pump lets only one half of each mains cycle through the coil, so each cycle gives one pulse: the coil pulls the piston against the spring, then the spring pushes it back. Check valves only let water move toward the boiler, so every stroke shoves a little water forward. That's why it buzzes at mains frequency, 60 strokes a second on 60 Hz mains and 50 on 50 Hz.</p>
+          <p>It's rated for 15 bar, well past brewing pressure, so something has to cap it: that's the over-pressure valve on top. A small thermal protector clipped into a pocket on the pump cuts its neutral if the coil overheats; the official drawings mark it 110 °C.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept. The PCB drives it from J12 and chooses how many mains cycles reach it, which is how it controls pressure and flow. The protector stays in its path.</p>
+        </div>
+        %%INCLUDE_MINI:pump%%
+      </article>
+
+      <article class="pc" id="part-opv" data-no="3">
+        <div class="ph"><span class="no">3</span><h3>Over-pressure valve (OPV)</h3></div>
+        <div class="txt">
+          <p class="sum">A spring-loaded valve between the pump and the boiler. When the pressure passes its setting it opens and sends the extra water back to the tank, so the pressure can't climb any further.</p>
+          <h4>How it works</h4>
+          <p>A seal is held against a seat by a spring. Water pressure pushes the other way; when it beats the spring, the seal lifts and water escapes down the return tube. The more the pump pushes past the setting, the further it opens, so the line pressure stays close to the setting.</p>
+          <p>On the Pro family it's a black valve screwed onto the top of the pump. Gaggia specifies 11 bar, though reviewers have measured 12 to 14, and US Evo Pros and E24s ship with a 9 bar valve. The original Classic has a metal valve bolted to the group's inlet instead, adjustable with a hex key under its cap.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept, and it matters more. Gaggiuino can't tell when it starts to open, so it wants it at least 1 bar above the highest pressure you'll profile: the [UT] Test OPV utility should peak at 10.5 to 13 bar. A 9 bar valve has to go up with a stiffer spring or washers.</p>
+        </div>
+        %%INCLUDE_MINI:opv%%
+      </article>
+
+      <article class="pc nofig" id="part-boiler" data-no="4">
+        <div class="ph"><span class="no">4</span><h3>Boiler</h3></div>
+        <div class="txt">
+          <p class="sum">A small aluminum boiler, 80 to 100 ml depending on the source, sitting on the brass group body with an O-ring between them; four screws from under the frame hold the pair together. It heats the water for shots and makes the steam.</p>
+          <h4>How it works</h4>
+          <p>The pump pushes water in through an inlet connector on the group body; hot water leaves for the group through the 3-way valve, and a pipe from the top feeds the steam valve. The brew thermostat screws into its side and the steam thermostat into its top. It's small, so it heats quickly.</p>
+          <p>For brewing the brew thermostat holds it a little above 100 °C; the boiler is sealed, so the water stays liquid. For steam it's heated well past boiling, and the pressure that builds pushes steam out of the wand. The 2023 Evo's boiler has a non-stick coating, and the E24's is lead-free brass.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept as it is. The thermocouple screws into the brew thermostat's M4 hole in its side.</p>
+        </div>
+      </article>
+
+      <article class="pc nofig" id="part-element" data-no="5">
+        <div class="ph"><span class="no">5</span><h3>Heating elements</h3></div>
+        <div class="txt">
+          <p class="sum">Two elements, one on each side of the boiler, outside the water. They're wired in parallel on 120 V machines and in series on 230 V ones, so the same boiler serves 120 V and 230 V machines.</p>
+          <h4>How it works</h4>
+          <p>Each is a resistance wire in a sheath, on or off with nothing in between. Power is voltage squared divided by resistance: from Gaggia's rating of 1350 W at 120 V and 1200 W at 230 V, the pair works out to about 11 Ω on a 120 V machine and about 44 Ω on a 230 V one, each element about 21 to 22 Ω. The power-on checks compare your meter with the figure from your rating plate.</p>
+          <p>Gaggia's parts lists sell the boiler only as a complete assembly, elements included.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept, now switched by the SSR. The 184 °C thermal fuse stays in their supply.</p>
+        </div>
+      </article>
+
+      <article class="pc" id="part-tstat" data-no="6">
+        <div class="ph"><span class="no">6</span><h3>Thermostats and thermal fuse</h3></div>
+        <div class="txt">
+          <p class="sum">A 107 °C brew thermostat screwed into the side of the boiler, a 145 °C steam thermostat in its top, and a 184 °C one-shot thermal fuse. The thermostats switch the elements straight on and off.</p>
+          <h4>How it works</h4>
+          <p>Each thermostat holds a bimetal disc that snaps over at its set temperature and pushes a pair of contacts apart; as it cools a few degrees it snaps back and they close. That gap is why the boiler temperature swings. On the Pro both sit on the elements' neutral side, in series, and the steam switch shorts out the brew thermostat so heating carries on to the steam one.</p>
+          <p>The fuse can't reset: once it melts, that path stays open until it's replaced. On the original Classic it sits in the neutral feed to the whole machine, with the thermostats on the line side instead.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> both thermostats leave the circuit: the thermocouple goes in the brew thermostat's hole and the SSR does the switching. The fuse stays as the safety cut-out.</p>
+        </div>
+        %%INCLUDE_MINI:tstat%%
+      </article>
+
+      <article class="pc" id="part-sol" data-no="7">
+        <div class="ph"><span class="no">7</span><h3>3-way solenoid valve</h3></div>
+        <div class="txt">
+          <p class="sum">An electrically worked valve between the boiler and the group. Powered, it lets boiler water through to the group. Unpowered, it shuts the boiler off and opens the group to a drain tube into the drip tray.</p>
+          <h4>How it works</h4>
+          <p>A coil pulls a plunger that seals one port or the other. In the stock circuit it gets power with the brew switch, and its return to neutral runs through the steam switch, so it can only open with steam off. That's what makes hot water mode work: brew and steam together run the pump with the valve shut.</p>
+          <p>The 2015 Classic, the "V2", has no 3-way valve at all.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept. The PCB opens it from J13, and Gaggiuino depends on it for pressure release and flushing, which is why the V2 can't be converted.</p>
+        </div>
+        %%INCLUDE_MINI:sol%%
+      </article>
+
+      <article class="pc" id="part-group" data-no="8">
+        <div class="ph"><span class="no">8</span><h3>Group head</h3></div>
+        <div class="txt">
+          <p class="sum">The brass group body under the boiler, chromed on the Classic and Classic Pro and plain lead-free brass on the Evo, with the dispersion block and shower screen that spread water over the puck.</p>
+          <h4>How it works</h4>
+          <p>Water from the 3-way valve spreads through the dispersion block and rains through the shower screen onto the coffee. The group sits right under the boiler, so it warms with it.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> unchanged. The optional pressure tap block clamps between the group and its inlet connector.</p>
+        </div>
+        %%INCLUDE_MINI:group%%
+      </article>
+
+      <article class="pc nofig" id="part-pf" data-no="9">
+        <div class="ph"><span class="no">9</span><h3>Portafilter</h3></div>
+        <div class="txt">
+          <p class="sum">A commercial-size 58 mm portafilter: chromed brass on the Classic and Classic Pro, stainless on the Evo Pro and E24.</p>
+          <h4>How it works</h4>
+          <p>It locks into the group against a rubber gasket, 8.5 mm thick on the Classic and Classic Pro. The basket holds the coffee, and the spouts split the shot into one or two cups.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> unchanged. You'll want a blank basket for the OPV test and backflushing.</p>
+        </div>
+      </article>
+
+      <article class="pc nofig" id="part-wand" data-no="10">
+        <div class="ph"><span class="no">10</span><h3>Steam valve and wand</h3></div>
+        <div class="txt">
+          <p class="sum">A valve fed from the top of the boiler, opened by the knob on the right side, and the wand it feeds. Older Classics have a Pannarello frother; the Pro family has a commercial-style wand with a two-hole tip.</p>
+          <h4>How it works</h4>
+          <p>With the steam switch on, the boiler heats well past boiling and the knob lets the steam out. For hot water, the brew and steam switches go on together with the knob open: the pump pushes water through the boiler and out of the wand.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept. Hot water is still brew and steam together, and the steam temperature now comes from a setting instead of the steam thermostat.</p>
+        </div>
+      </article>
+
+      <article class="pc nofig" id="part-tray" data-no="11">
+        <div class="ph"><span class="no">11</span><h3>Drip tray</h3></div>
+        <div class="txt">
+          <p class="sum">Catches drips, and the water and pressure the 3-way valve vents after every shot.</p>
+          <h4>How it works</h4>
+          <p>The valve's drain tube points down into it, so the "whoosh" at the end of a shot lands here.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> unchanged. The optional hardware scales go under it.</p>
+        </div>
+      </article>
+
+      <article class="pc nofig" id="part-panel" data-no="12">
+        <div class="ph"><span class="no">12</span><h3>Switches and lamps</h3></div>
+        <div class="txt">
+          <p class="sum">On the Pro family, three rockers (power, brew and steam) with three red lamps below them: power, brew ready and steam ready. The original Classic has all three switches in one housing with the lamps inside.</p>
+          <h4>How it works</h4>
+          <p>The Pro's power switch breaks line and neutral; the brew and steam switches carry mains straight to the pump, the valve and the thermostats. The brew and steam lamps are ready lamps, wired across their thermostats, so each lights when its thermostat opens. On Eco-board machines the power button springs back and works through the board, which holds the machine on and switches it off after 20 idle minutes. The board's circuit isn't published, so treat the button's wires as mains.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> brew and steam signal the PCB through J7 at low voltage. With custom wiring that's all they carry; with stock wiring integration some of their other spades stay on mains, so treat the back of every switch as live. The power switch stays on mains. The steam lamp becomes a boiler lamp, lit while the boiler isn't heating, and the brew lamp goes dark.</p>
+        </div>
+      </article>
+
+      <article class="pc nofig" id="part-inlet" data-no="13">
+        <div class="ph"><span class="no">13</span><h3>Power inlet</h3></div>
+        <div class="txt">
+          <p class="sum">An IEC C14 socket with an earthed three-wire cord on the Pro family. Most US Classics before 2019 have a two-pin cord and no earth.</p>
+          <h4>How it works</h4>
+          <p>Line goes to the power switch (on the Pro, neutral does too), or on Eco-board machines to the board. Earth goes to the frame, the cup tray, the valve body and the boiler.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept. A two-pin Classic gets the official grounding retrofit first, and the machine should run from a GFCI or RCD outlet.</p>
+        </div>
+      </article>

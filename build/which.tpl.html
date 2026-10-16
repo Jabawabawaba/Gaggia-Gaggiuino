@@ -1,0 +1,224 @@
+<title>Which Gaggia Is Mine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+%%BASECSS%%
+/* Layout: plate header, a timeline strip of the five versions, then one card per version (how to spot it, what it changes for the build, "this is mine" buttons), then the Eco board and voltage, and what every supported version shares. */
+.strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.strip a{display:grid;gap:2px;padding:12px 12px 10px;text-decoration:none;color:inherit;border-left:1px solid var(--line)}
+.strip a:first-child{border-left:0}
+.strip a:hover{background:var(--surface-2)}
+.strip .v{font:700 26px/1 var(--f-display)}
+.strip .y{font:500 12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.strip a.mine{background:var(--accent-soft)}
+.strip a.mine .v{color:var(--accent-ink)}
+@media (max-width:700px){.strip{grid-template-columns:repeat(3,minmax(0,1fr))}.strip a:nth-child(4){border-left:0}.strip a:nth-child(n+4){border-top:1px solid var(--line)}}
+.strip a.no .v{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.nope{font:600 13px var(--f-mono);color:var(--bad)}
+.vhead .v.sm{font-size:40px}
+.vcard{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px 24px;padding:22px 0;border-bottom:1px solid var(--line);scroll-margin-top:16px}
+.vcard.mine{background:linear-gradient(90deg,var(--accent-soft),transparent 60%);border-radius:10px;padding-left:14px}
+.vhead{display:grid;gap:4px;align-content:start}
+.vhead .v{font:700 54px/.9 var(--f-display)}
+.vhead .y{font:500 13px var(--f-mono);color:var(--muted)}
+.vbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;min-width:0}
+.vbody h3{font:600 12px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.vbody ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:15.5px}
+.vbody .build li::marker{color:var(--accent)}
+.vact{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.isyours{font:600 13px var(--f-mono);color:var(--accent-ink)}
+@media (max-width:760px){.vcard{grid-template-columns:minmax(0,1fr)}.vbody{grid-template-columns:minmax(0,1fr)}.vhead{grid-auto-flow:column;justify-content:start;align-items:baseline;gap:12px}}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:16px 18px;display:grid;gap:8px;align-content:start}
+.panel p{margin:0;font-size:15.5px}
+.panel ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:15.5px}
+.src{display:grid;gap:4px;font-size:14.5px;color:var(--muted);padding-left:18px;margin:0}
+.lbl{width:100%;border-collapse:collapse;font-size:15.5px}
+.lbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.lbl td.num{text-align:left;font-weight:600}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Identify</b></span><span>Gaggia Classic family</span><span>1991 to now</span><span class="rivet" aria-hidden="true"></span></div>
+    <h1>Which Gaggia Is Mine</h1>
+    <p class="lede">The Classic has been made for over thirty years under half a dozen names, and the names overlap: "New Classic" means two different machines depending on who says it. The rating label under the machine settles most of it. Find yours below, then tap "This is mine" so the runbook, wiring and checks show only what applies to it.</p>
+  </header>
+
+  <nav class="strip" aria-label="Versions">
+    <a href="#gc" data-strip="GC"><span class="v">Classic</span><span class="y">1991–2014</span></a>
+    <a href="#v2" class="no"><span class="v">V2</span><span class="y">2015–2018</span></a>
+    <a href="#gcp" data-strip="GCP"><span class="v">Pro</span><span class="y">2019–2022</span></a>
+    <a href="#evo" data-strip="EVO"><span class="v">Evo</span><span class="y">2023–2024</span></a>
+    <a href="#e24" data-strip="E24"><span class="v">E24</span><span class="y">2024–now</span></a>
+  </nav>
+  <p class="fine" style="margin-top:8px">Years are the official Gaggiuino table's. The US kept the old Classic until 2018, and the V2 was sold only in 230 V markets.</p>
+
+  <section class="block" aria-labelledby="h-label">
+    <div class="sec-h"><h2 id="h-label">Start with the rating label</h2></div>
+    <div class="tablewrap">
+      <table class="lbl">
+        <thead><tr><th>Type code</th><th>What it is</th><th>Gaggiuino</th></tr></thead>
+        <tbody>
+          <tr><td class="num">SIN035</td><td>The original Classic: before 2015, or before 2019 in the US</td><td>Supported (GC)</td></tr>
+          <tr><td class="num">SIN035U</td><td>Classic 2015, the "V2" (RI9403)</td><td class="nope">Not supported</td></tr>
+          <tr><td class="num">SIN035R</td><td>Classic Pro, Evo Pro or E24 with no auto-off (RI9380)</td><td>Supported (GCP)</td></tr>
+          <tr><td class="num">SIN035UR</td><td>The same family with the Eco auto-off board (RI9480, RI9481)</td><td>Supported, with the power switch mod</td></tr>
+          <tr><td class="num">EG…</td><td>Classic UP or Classic GT, new in 2025 and 2026</td><td>Not in the official docs</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine" style="margin-top:8px">The RI number alone can't always tell these apart: in the US the Pro, Evo Pro and E24 all carry RI9380, and in Europe the Evo and E24 share RI9481 (the Pro there is RI9480). On recent machines the first four digits of the serial are the year and week (2319 is 2023, week 19).</p>
+  </section>
+
+  <section class="block" aria-label="Versions in detail">
+    <article class="vcard" id="gc" data-card="GC">
+      <div class="vhead"><span class="v sm">Classic</span><span class="y">1991 to 2014 (US to 2018)</span></div>
+      <div class="vbody">
+        <div><h3>How to spot it</h3><ul>
+          <li>One molded switch housing with three rockers; the lamps sit inside the switches.</li>
+          <li>A metal over-pressure valve bolted to the group head inlet, beside the solenoid valve.</li>
+          <li>Label type SIN035, with RI9303 or RI8161, or 14101 on older US machines. Made in Italy until about late 2010, then Romania; the label says which.</li>
+          <li>US machines usually have a two-pin cord and no earth.</li>
+        </ul></div>
+        <div><h3>What it means for the build</h3><ul class="build">
+          <li>Supported. The official docs call it GC, and there are drawings for both install paths at 120 V and 230 V.</li>
+          <li>120 V: fit the official grounding retrofit, a three-pin inlet and earth wires, before anything else.</li>
+          <li>The boiler's thermal fuse sits in the neutral feed to the whole machine, and stock wiring integration keeps it there: if it blows, the PCB goes dark too. Custom wiring moves it into the heater's own line.</li>
+          <li>Pressure sensor: a push-to-connect T in the PTFE pump tube, or the pressure tap block between the group and that metal valve.</li>
+        </ul></div>
+        <div class="vact"><button type="button" class="btn primary" data-setmachine="model:GC;volts:120">This is mine, 120 V</button><button type="button" class="btn" data-setmachine="model:GC;volts:230">This is mine, 230 V</button><span class="isyours" data-yours="GC" hidden>Set as your Gaggia</span></div>
+      </div>
+    </article>
+
+    <article class="vcard" id="v2">
+      <div class="vhead"><span class="v">V2</span><span class="y">2015 to 2018</span></div>
+      <div class="vbody">
+        <div><h3>How to spot it</h3><ul>
+          <li>Push buttons instead of rockers, and a temperature LED.</li>
+          <li>No tube from the solenoid into the drip tray, because there's no 3-way valve.</li>
+          <li>Label type SIN035U, RI9403. Sold as "Classic 2015" or "Classic V2" in 230 V markets only.</li>
+        </ul></div>
+        <div><h3>What it means for the build</h3><ul class="build">
+          <li>Not supported. Gaggiuino needs the 3-way valve, and this model doesn't have one.</li>
+          <li>If a listing says "New Classic", ask for a photo of the label: the name is also used for the 2019 machine.</li>
+        </ul></div>
+        <div class="vact"><span class="nope">Not a Gaggiuino machine</span></div>
+      </div>
+    </article>
+
+    <article class="vcard" id="gcp" data-card="GCP">
+      <div class="vhead"><span class="v">Pro</span><span class="y">2019 to 2022</span></div>
+      <div class="vbody">
+        <div><h3>How to spot it</h3><ul>
+          <li>Three separate rockers with a row of three red lamps below them.</li>
+          <li>A black over-pressure valve on top of the pump; a commercial-style steam wand with a two-hole tip; a chromed brass portafilter.</li>
+          <li>Called Classic Pro in North America, Classic or Classic 2019 in the UK and EU, and "New Classic" in Gaggia's own manual.</li>
+          <li>Label SIN035R (RI9380, no auto-off) or SIN035UR (RI9480, Eco board).</li>
+        </ul></div>
+        <div><h3>What it means for the build</h3><ul class="build">
+          <li>Supported (GCP). At 120 V, either install path.</li>
+          <li>230 V EU and UK machines have the Eco auto-off board and a power button that springs back: the official power switch mod, then custom wiring.</li>
+          <li>A 230 V machine without the Eco board (SIN035R) is uncommon, and the docs call it easier to convert.</li>
+          <li>Gaggia specifies 11 bar for the valve on the pump, inside the 10 to 12 bar Gaggiuino needs; reviewers have measured 12 to 14. Owners often swap in 9 bar springs, so check.</li>
+          <li>Pressure sensor: a barbed T in the braided pump hose about 65 mm above the boiler, or the pressure tap block.</li>
+        </ul></div>
+        <div class="vact"><button type="button" class="btn primary" data-setmachine="model:GCP;volts:120">This is mine, 120 V</button><button type="button" class="btn" data-setmachine="model:GCP;volts:230;eco:yes">230 V with the Eco board</button><button type="button" class="btn" data-setmachine="model:GCP;volts:230;eco:no">230 V without it</button><span class="isyours" data-yours="GCP" hidden>Set as your Gaggia</span></div>
+      </div>
+    </article>
+
+    <article class="vcard" id="evo" data-card="EVO">
+      <div class="vhead"><span class="v">Evo</span><span class="y">2023 to 2024</span></div>
+      <div class="vbody">
+        <div><h3>How to spot it</h3><ul>
+          <li>The Pro's rockers and lamps, with a stainless portafilter and an uncoated brass group.</li>
+          <li>A non-stick coated aluminum boiler in 2023; one source says 2024 machines went back to uncoated.</li>
+          <li>On most, each switch's connectors sit together in one combined block.</li>
+          <li>Classic Evo Pro in the US (label RI9380, like the Pro), Classic Evo in Europe (RI9481, SIN035UR).</li>
+        </ul></div>
+        <div><h3>What it means for the build</h3><ul class="build">
+          <li>US: it ships with a 9 bar valve, which has to go up to 10 to 12 bar with a new spring or three or four M3 washers.</li>
+          <li>Stock wiring integration means taking the combined block apart and insulating each connector, because some stay in the machine unplugged.</li>
+          <li>Europe: the Eco board, so the power switch mod and custom wiring.</li>
+          <li>On a used 2023 machine, look into the boiler for flaking coating.</li>
+        </ul></div>
+        <div class="vact"><button type="button" class="btn primary" data-setmachine="model:EVO;volts:120">This is mine, 120 V</button><button type="button" class="btn" data-setmachine="model:EVO;volts:230;eco:yes">230 V with the Eco board</button><button type="button" class="btn" data-setmachine="model:EVO;volts:230;eco:no">230 V without it</button><span class="isyours" data-yours="EVO" hidden>Set as your Gaggia</span></div>
+      </div>
+    </article>
+
+    <article class="vcard" id="e24" data-card="E24">
+      <div class="vhead"><span class="v">E24</span><span class="y">2024 onward</span></div>
+      <div class="vbody">
+        <div><h3>How to spot it</h3><ul>
+          <li>A brass boiler, slightly bigger than the aluminum one; look under the top cover.</li>
+          <li>Otherwise it looks like the Evo, and shares its label numbers: RI9380 in the US, RI9481 in Europe.</li>
+          <li>Classic Pro E24 in the US, Classic E24 in Europe and Australia.</li>
+        </ul></div>
+        <div><h3>What it means for the build</h3><ul class="build">
+          <li>The same as the Evo: in the US, raise the 9 bar valve to 10 to 12 bar, and insulate the combined connectors for stock wiring integration.</li>
+          <li>Europe: the Eco board, so the power switch mod and custom wiring.</li>
+          <li>It's the Classic sold new today: Whole Latte Love listed it at $499 in October 2026.</li>
+        </ul></div>
+        <div class="vact"><button type="button" class="btn primary" data-setmachine="model:E24;volts:120">This is mine, 120 V</button><button type="button" class="btn" data-setmachine="model:E24;volts:230;eco:yes">230 V with the Eco board</button><button type="button" class="btn" data-setmachine="model:E24;volts:230;eco:no">230 V without it</button><span class="isyours" data-yours="E24" hidden>Set as your Gaggia</span></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="block" aria-labelledby="h-em">
+    <div class="sec-h"><h2 id="h-em">The Eco board, and voltage</h2></div>
+    <div class="two">
+      <div class="panel">
+        <h3>The Eco board</h3>
+        <p>230 V machines sold in the EU and UK from 2019 (RI9480, then RI9481 for the Evo and E24) switch themselves off after 20 minutes to meet EU energy rules.</p>
+        <ul>
+          <li>Gaggia calls it the S-OFF board: a small relay board on the pump bracket, fed straight from the mains inlet. The power button springs back and works through the board, whose circuit isn't published, so treat the button's wires as mains.</li>
+          <li>Gaggiuino's power switch mod takes one spring out so the button latches. Custom wiring then leaves the board out of the circuit, and the official guide recommends it over stock integration for these machines.</li>
+          <li>Afterwards the machine never switches itself off; Gaggiuino only puts the screen to sleep.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>120 V or 230 V</h3>
+        <p>Read the rating plate. The boiler has two heating elements, one on each side: in parallel on 120 V machines and in series on 230 V ones, so from the rated power the heater works out to about 11 Ω on a 120 V Pro and about 44 Ω on a 230 V one. The power-on checks work out yours from the plate.</p>
+        <p>US and Canadian Classic Pros, Evo Pros and E24s have no Eco board. Circuit protection is a GFCI in North America and an RCD elsewhere.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-all">
+    <div class="sec-h"><h2 id="h-all">The same on every supported version</h2></div>
+    <ul style="margin:0;padding-left:20px;display:grid;gap:6px">
+      <li>A small boiler (aluminum, brass on the E24) with a 107 °C brew thermostat, a 145 °C steam thermostat and a 184 °C one-shot thermal fuse. The thermocouple screws into the brew thermostat's M4 hole, both thermostats leave the circuit, and the fuse stays.</li>
+      <li>An Ulka vibratory pump with a small thermal protector on its neutral lead, and a 3-way solenoid valve that vents the group into the drip tray.</li>
+      <li>A 58 mm group. Gaggiuino replaces the control, so what you're really buying is the boiler, pump, valve, group and case.</li>
+      <li>Not covered here: the Classic UP (2026, with a factory PID and screen) and the dual-boiler Classic GT (2025). Neither is in the Gaggiuino docs.</li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-src">
+    <div class="sec-h"><h2 id="h-src">Sources</h2></div>
+    <ul class="src">
+      <li><a href="https://gaggiuino.github.io/#/?id=compatibility">Gaggiuino: compatibility table</a> and <a href="https://gaggiuino.github.io/#/guides/machine-specific-guide">machine-specific guide</a>: supported models, years and type codes, the power switch mod, combined connector insulation, the 10 to 12 bar valve and grounding.</li>
+      <li><a href="https://support.wholelattelove.com/hc/en-us/article_attachments/22569918987411">Gaggia service manual, Classic 2018</a>: type codes, RI suffixes, rated power, the 11 bar valve and the factory wiring.</li>
+      <li>Whole Latte Love parts diagrams for the <a href="https://www.wholelattelove.com/products/gaggia-classic-pro-stainless-steel-part-diagram-eg1001">Classic Pro</a> and <a href="https://www.wholelattelove.com/products/gaggia-classic-evo-pro-part-diagram-eg1003">Evo Pro</a>: boilers, valves and the Eco board.</li>
+      <li><a href="https://coffeeblog.co.uk/gaggia-classic-2018-19-review/">Coffeeblog: Classic 2019 review</a> and <a href="https://coffeeblog.co.uk/boilergate-gaggia-classic-pro-evo-boiler-problems/">Boilergate</a>: the Evo's coated boiler, the E24's brass boiler and serial dating.</li>
+      <li><a href="https://www.coffeeforums.co.uk/threads/complete-gaggia-classic-history-with-model-numbers-manufacturing-site-and-year.21567/page-2">Coffee Forums: Classic history</a>: label numbers, wattage changes and where each run was made.</li>
+      <li><a href="https://www.shadesofcoffee.co.uk/gaggia-classic-2019-eco-timer-disable-wire">Shades of Coffee: Eco timer</a> and <a href="https://www.coffeegeek.com/new-products/gaggia-introduces-the-gaggia-classic-pro/">CoffeeGeek: Classic Pro</a>: how the versions look and what the Eco board does.</li>
+    </ul>
+    <p class="fine" style="margin-top:10px">If your machine doesn't match any of these, post your label in your install-help thread on the Gaggiuino Discord before you buy parts.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  function mark(){
+    var m=window.GaggiaMachine,p=m&&m.get(),v=p?p.model:null;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-card]'),function(c){c.classList.toggle('mine',c.getAttribute('data-card')===v)});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-strip]'),function(c){c.classList.toggle('mine',c.getAttribute('data-strip')===v)});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-yours]'),function(c){c.hidden=c.getAttribute('data-yours')!==v});
+  }
+  window.addEventListener('gaggia-machine',mark);
+  mark();
+})();
+</script>

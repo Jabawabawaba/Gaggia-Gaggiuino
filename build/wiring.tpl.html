@@ -1,0 +1,158 @@
+<title>Gaggia Wiring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+%%BASECSS%%
+/* Layout: plate header, the variant switcher (stock or custom wiring, machine, voltage), the official schematic link,
+   then the wires for that variant: by run (grouped by circuit) or by terminal, each run expandable. */
+%%INCLUDE:wiring-switch.css%%
+.off{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:start;border-left:4px solid var(--accent);background:var(--surface);border-radius:0 12px 12px 0;padding:12px 16px;margin-top:16px}
+.off .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);padding-top:3px}
+.off p{margin:0;font-size:15.5px}
+.views{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0 6px}
+.grp-h{font:600 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 4px;padding-bottom:6px;border-bottom:2px solid var(--ink)}
+details.run{border-bottom:1px solid var(--line)}
+details.run>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;padding:11px 4px}
+details.run>summary::-webkit-details-marker{display:none}
+details.run[open]>summary{background:var(--surface)}
+details.run.flash>summary{animation:flash 1.4s ease}
+@keyframes flash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
+.rid{font:600 14px var(--f-mono);white-space:nowrap}
+.rshort{font-weight:600;font-size:16px;min-width:0}
+.rlen{font:500 14px var(--f-mono);white-space:nowrap;color:var(--muted);text-align:right}
+.rsub{grid-column:2 / -1;font-size:14px;color:var(--muted)}
+.tag2{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted);margin-left:6px;vertical-align:2px}
+.tag2.opt{background:var(--blue-soft);color:var(--blue)}
+.tag2.stk{background:var(--accent-soft);color:var(--accent-ink)}
+.tag2.bare{background:var(--bad-soft);color:var(--bad);margin-left:4px}
+.rbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px;padding:6px 4px 16px 78px;font-size:15px}
+@media (max-width:640px){.rbody{grid-template-columns:minmax(0,1fr);padding-left:4px}details.run>summary{grid-template-columns:54px minmax(0,1fr) auto}}
+.rbody h4{font:600 11px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 3px}
+.rbody p{margin:0}
+.rbody .wide{grid-column:1 / -1}
+.rbody a.jump{font:600 13px var(--f-mono)}
+.term{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.term b{font-weight:600}
+.term .ids{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.term .ids a{font:600 13px var(--f-mono);padding:3px 7px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--ink);background:var(--surface)}
+.si-t{width:100%;border-collapse:collapse;font-size:15px}
+.si-t th{font:600 11px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 8px;border-bottom:2px solid var(--ink)}
+.si-t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.si-t td.id{font:600 15px var(--f-mono);white-space:nowrap}
+.si-t td.num{font:500 14px var(--f-mono);white-space:nowrap}
+ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
+.si-t td .note{margin-top:3px}
+@media (max-width:600px){
+  .si-t thead{display:none}
+  .si-t,.si-t tbody{display:block}
+  .si-t tr{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;padding:10px 2px;border-bottom:1px solid var(--line)}
+  .si-t td{border:0;padding:0}
+  .si-t td.id{grid-row:1 / span 3}
+  .si-t td.num{white-space:normal;text-align:left}
+}
+.empty{color:var(--muted);padding:18px 0}
+@media print{.vbox,.views{display:none!important}details.run>summary{padding:1.4mm 0}details.run .rbody{display:grid!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Wiring</b></span><span>Gaggia Classic family</span><span>PCB v3.1 / v4</span><span class="rivet" aria-hidden="true"></span></div>
+    <h1>Gaggia Wiring</h1>
+    <p class="lede">Every wire for your install, taken from the official schematic for your machine and voltage: where each one starts and ends, its color, length and connectors. Open the official schematic beside this page; it's the reference, and this page turns it into a list you can work down at the bench.</p>
+  </header>
+
+  <section class="vbox" aria-label="Which schematic">
+    <div id="vsel"></div>
+    <p class="vnote" id="vnote"></p>
+  </section>
+
+  <div class="off" id="off"></div>
+
+  <div class="views" id="views" role="group" aria-label="View"></div>
+  <div id="main"></div>
+
+  <section class="block" aria-labelledby="h-src">
+    <div class="sec-h"><h2 id="h-src">Sources</h2></div>
+    <ul class="plain" style="margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px">
+      <li>The official Gaggiuino <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration">stock wiring integration</a> and <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring">custom wiring</a> guides and their schematics (PCB v3.1/v4), read September 2026. Connections, colors and lengths are as drawn on them. The seven stock-integration wire names are the guide's; the AC, G and LV run IDs are this site's.</li>
+      <li>Where a length isn't printed, the page says so. The official guide calls its lengths generous: route first, then trim.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function(){
+  %%INCLUDE:wiring-core.js%%
+  function $(id){return document.getElementById(id)}
+  var KEY='gaggia-wiring-view-v1',view='runs',cur=null,showOpt=false;
+  try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv){view=sv.view==='terms'?'terms':'runs';showOpt=!!sv.opt;cur=VARS[sv.cur]?sv.cur:null}}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({view:view,opt:showOpt,cur:cur}))}catch(e){}}
+  var override=null;
+  function mineV(){return variantFor(GM()&&GM().get())}
+  function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;return cur&&VARS[cur]?cur:ORDERV[0]}
+  function render(){
+    var active=pick(),v=VARS[active],mine=mineV(),p=GM()&&GM().get();
+    switcher($('vsel'),active,function(k){override=k===mine?null:k;cur=k;save();render()});
+    var noSI=p&&p.path==='SI'&&mine&&VARS[mine].path==='CW';
+    $('vnote').textContent=mine?(active===mine?'Showing the schematic for your Gaggia. Pick another to compare.':'Showing '+vlabel(active)+'. The dot marks yours.')+(noSI?' There\'s no official stock-integration drawing for a 230 V Pro-family machine (the guide recommends custom wiring with the Eco board), so yours is the custom wiring schematic.':''):
+      'Set your model, voltage and install path in the top bar and this page opens on your schematic. Until then, pick one here.';
+    $('off').innerHTML='<span class="k">Official</span><p><a href="'+esc(v.schematic)+'" target="_blank" rel="noopener">'+esc(vlabel(active))+' schematic</a> (opens the full-size drawing on GitHub) and the <a href="'+(v.path==='SI'?'https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration':'https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring')+'" target="_blank" rel="noopener">'+(v.path==='SI'?'stock wiring integration':'custom wiring')+' guide</a>.'+(v.path==='CW'&&v.volts===230&&v.fam==='GCP'?' 230 V Pro-family machines with the Eco board also need the power switch mod.':'')+'</p>';
+    if(v.path==='SI'){$('views').innerHTML='';renderSI(v);return}
+    $('views').innerHTML='<div class="chips"><button type="button" class="chip" data-view="runs" aria-pressed="'+(view==='runs')+'">By run</button><button type="button" class="chip" data-view="terms" aria-pressed="'+(view==='terms')+'">By terminal</button></div>'+
+      (v.runs.some(function(r){return r.opt})?'<label style="display:inline-flex;align-items:center;gap:8px;font-size:15px"><input type="checkbox" id="opt"'+(showOpt?' checked':'')+'> Optional resettable fuse runs</label>':'');
+    if(view==='terms')renderTerms(v);else renderRuns(v);
+  }
+  function runsOf(v){return v.runs.filter(function(r){return showOpt||!r.opt})}
+  function lenTxt(r){return r.mm?r.mm+' mm':(r.sys==='LV'||r.sys==='LVG'?'measure':'stock')}
+  /* ends at the boiler or valve: uninsulated spades under silicone, never nylon-insulated ones (the cut list counts them the same way) */
+  function isBare(r,i){return !!(r.k&&(r.k[i]==='b'||r.k[i]==='mb'))}
+  function endLabel(r,i){return esc(r.ends[i]||'')+(isBare(r,i)?'<span class="tag2 bare">bare</span>':'')}
+  var BARENOTE='Ends tagged bare sit at the boiler or valve: use uninsulated spades crimped with an open-barrel crimper, covered with silicone sleeve or self-fusing silicone tape. The official guide rates nylon-insulated spades at 105 °C and warns that their insulation melts on the boiler.';
+  function endTxt(r,i){var sh=(r.share&&r.share[i])||[];return endLabel(r,i)+(sh.length?' <span class="muted">shared with '+sh.map(function(x){return '<a class="jump" href="#r-'+x+'" data-jump="'+x+'">'+x+'</a>'}).join(', ')+'</span>':'')}
+  function runHTML(r){
+    var tags=(r.opt?'<span class="tag2 opt">optional</span>':'')+(r.stock?'<span class="tag2 stk">stock lead</span>':'');
+    return '<details class="run" id="r-'+r.id+'"><summary><span class="rid">'+swatch(r.color)+r.id+'</span><span class="rshort">'+esc(r.short)+tags+'</span><span class="rlen">'+lenTxt(r)+'</span><span class="rsub">'+esc(r.wire)+(r.color?', '+esc(r.color):'')+'</span></summary>'+
+      '<div class="rbody"><div><h4>From</h4><p>'+esc(r.frm)+'</p><p class="note">'+endTxt(r,0)+'</p></div><div><h4>To</h4><p>'+esc(r.to)+'</p><p class="note">'+endTxt(r,1)+'</p></div>'+
+      (r.note?'<div class="wide"><h4>Note</h4><p>'+esc(r.note)+'</p></div>':'')+(r.conf&&r.conf!=='clear'?'<div class="wide"><p class="note">Partly legible on the schematic; check it against the drawing.</p></div>':'')+'</div></details>';
+  }
+  function renderRuns(v){
+    var rs=runsOf(v),order=['L','H','N','E','LV'],h='';
+    order.forEach(function(s){
+      var g=rs.filter(function(r){return s==='LV'?(r.sys==='LV'||r.sys==='LVG'):r.sys===s});if(!g.length)return;
+      h+='<h3 class="grp-h">'+esc(SYSNAME[s])+'</h3>'+g.map(runHTML).join('');
+    });
+    if(v.lamps&&v.lamps.length)h+='<h3 class="grp-h">Inside the switch housing</h3><p style="margin:8px 0;font-size:15px">The Classic\'s lamps are wired inside its switch housing, so there\'s nothing to cut for them: the power lamp now shows boiler status, and the brew lamp is unused.</p>';
+    if(v.cables&&v.cables.length)h+='<h3 class="grp-h">Sensor and screen cables</h3><p style="margin:8px 0 0;font-size:15px">These come with their parts: the thermocouple to J4, the pressure sensor to J6 (5V, GND, P) and the screen to J1 (GND, TX, RX, 5V). Wire them by pin, not by color.</p>';
+    h+='<p class="fine" style="margin-top:10px">'+BARENOTE+'</p>';
+    $('main').innerHTML=h;
+  }
+  function renderTerms(v){
+    var rs=runsOf(v),map={},order=[];
+    rs.forEach(function(r){[r.frm,r.to].forEach(function(t){var k=t.replace(/\s*\((left|right) side\)/,'').replace(/,? side [AB]\b/,'');if(!map[k]){map[k]=[];order.push(k)}if(map[k].indexOf(r.id)<0)map[k].push(r.id)})});
+    order.sort(function(a,b){return a.localeCompare(b)});
+    var byId={};rs.forEach(function(r){byId[r.id]=r});
+    $('main').innerHTML='<p class="fine" style="margin:10px 0 4px">Every terminal and splice, with the runs that land on it. Two or more IDs means one connector holds them all.</p>'+order.map(function(k){
+      return '<div class="term"><b>'+esc(k)+'</b><span class="ids">'+map[k].map(function(id){return '<a href="#r-'+id+'" data-jump="'+id+'">'+swatch(byId[id].color)+id+'</a>'}).join('')+'</span></div>';
+    }).join('');
+  }
+  function renderSI(v){
+    var hv=v.runs.filter(function(r){return r.sys!=='LV'&&r.sys!=='LVG'}),lv=v.runs.filter(function(r){return r.sys==='LV'||r.sys==='LVG'});
+    var h='<h3 class="grp-h">What changes in the machine</h3><ul class="moves">'+v.moves.map(function(m){return '<li>'+esc(m)+'</li>'}).join('')+'</ul>';
+    h+='<h3 class="grp-h">The seven integration wires</h3><div class="tablewrap"><table class="si-t"><thead><tr><th>Wire</th><th>Goes</th><th>Ends</th><th>Length</th></tr></thead><tbody>'+
+      hv.map(function(w){return '<tr id="r-'+esc(w.id)+'"><td class="id">'+swatch(w.color)+esc(w.id)+'</td><td><b>'+esc(w.short)+'</b><div>'+esc(w.what)+'</div>'+(w.note?'<div class="note">'+esc(w.note)+'</div>':'')+'</td><td>'+w.ends.map(function(e,i){return endLabel(w,i)}).join(' to ')+'</td><td class="num">'+(w.mm?w.mm+' mm':'')+'<div class="note">'+esc(w.color)+'</div></td></tr>'}).join('')+'</tbody></table></div>'+
+      '<p class="fine" style="margin-top:8px">18 AWG silicone. Lengths and colors are the guide\'s: it calls the lengths generous, so route each wire first and then trim. '+BARENOTE+'</p>';
+    h+='<h3 class="grp-h">'+esc(SYSNAME.LV)+'</h3>'+lv.map(runHTML).join('')+'<p class="fine" style="margin-top:10px">The drawing gives no lengths for these: measure them on your machine. The thermocouple goes to J4, the pressure sensor to J6 (5V, GND, P) and the screen to J1, all on their own leads.</p>';
+    h+='<h3 class="grp-h">What stays</h3><ul class="moves">'+v.keep.map(function(m){return '<li>'+esc(m)+'</li>'}).join('')+'</ul>';
+    h+='<h3 class="grp-h">The guide\'s names for the stock connectors</h3><p class="fine" style="margin:8px 0">The guide suggests marking each stock connector before you unplug it, so the install can be traced or reversed later.</p><div class="tablewrap"><table class="si-t"><thead><tr><th>Connector</th><th>Mark it</th></tr></thead><tbody>'+v.labels.map(function(l){return '<tr><td>'+esc(l[0])+'</td><td class="num">'+esc(l[1])+'</td></tr>'}).join('')+'</tbody></table></div><p class="fine" style="margin-top:8px">The <a href="wire-labels.html">wire labels</a> page prints flags for the new wires and the parked connectors.</p>';
+    $('main').innerHTML=h;
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-view]');if(b){view=b.getAttribute('data-view');save();render();return}
+    var j=e.target.closest('[data-jump]');if(j){e.preventDefault();var id=j.getAttribute('data-jump');if(view!=='runs'){view='runs';save();render()}var d=$('r-'+id);if(d){d.open=true;d.classList.remove('flash');void d.offsetWidth;d.classList.add('flash');d.scrollIntoView({behavior:'smooth',block:'center'})}}
+  });
+  document.addEventListener('change',function(e){if(e.target.id==='opt'){showOpt=e.target.checked;save();render()}});
+  window.addEventListener('gaggia-machine',function(){override=null;render()});
+  render();
+})();
+</script>

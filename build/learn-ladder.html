@@ -1,0 +1,97 @@
+<div class="lad" id="lad">
+  <div class="lad-ctl" role="group" aria-label="Switches and boiler temperature">
+    <button type="button" class="tgl" data-lsw="pwr" aria-pressed="false"><i></i>Power</button>
+    <button type="button" class="tgl" data-lsw="brew" aria-pressed="false"><i></i>Brew</button>
+    <button type="button" class="tgl" data-lsw="steam" aria-pressed="false"><i></i>Steam</button>
+    <span class="lad-t"><label for="lad-temp">Boiler</label><input type="range" id="lad-temp" min="20" max="195" step="any" value="25"><output id="lad-tv">25 °C</output></span>
+    <button type="button" class="btn" id="lad-run" aria-pressed="false">Let it run</button>
+    <button type="button" class="btn" id="lad-reset" hidden>Fit a new fuse</button>
+  </div>
+  <div class="lad-fig scroll">
+    <svg viewBox="0 0 900 486" id="lad-svg" role="img" aria-labelledby="lad-t">
+      <title id="lad-t">Ladder diagram of the stock Gaggia Classic Pro circuit at 120 V: line on the left rail, neutral on the right, one rung per load. The power switch breaks both. The power lamp sits across the switched supply, ahead of the 184 °C thermal fuse that feeds everything else. The elements run through the steam thermostat and then the brew thermostat to neutral, with the steam lamp across the steam thermostat, the brew lamp across the brew thermostat, and one pole of the steam switch around the brew thermostat. The brew switch feeds the pump, through its thermal protector, and the 3-way valve, whose return runs through the steam switch's other pole.</title>
+      <!-- supply and power switch -->
+      <text x="90" y="18" class="lt" text-anchor="middle">L</text><text x="810" y="18" class="lt" text-anchor="middle">N</text>
+      <path id="s-inL" class="w" d="M90,24 V40"/><path id="s-inN" class="w n up" d="M810,24 V40"/>
+      <g class="swi" id="c-pwrL" transform="translate(90 40)"><circle r="3.5" class="tm"/><circle cy="26" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="0" y2="26"/></g>
+      <g class="swi" id="c-pwrN" transform="translate(810 40)"><circle r="3.5" class="tm"/><circle cy="26" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="0" y2="26"/></g>
+      <line x1="96" y1="53" x2="804" y2="53" class="link"/>
+      <text x="450" y="47" class="lc" text-anchor="middle">power switch, both poles</text>
+      <path id="s-railL0" class="w" d="M90,66 V118"/><path id="s-railN" class="w n up" d="M810,66 V392"/>
+
+      <!-- rung 1: power lamp, ahead of the fuse -->
+      <path id="s-r1a" class="w" d="M90,92 H436"/><path id="s-r1b" class="w n" d="M464,92 H810"/>
+      <g class="ld lamp" id="c-lamp1" transform="translate(450 92)"><circle r="12"/><path d="M-8,-8 L8,8 M8,-8 L-8,8"/></g>
+      <text x="450" y="118" class="lc" text-anchor="middle">power lamp</text>
+
+      <!-- the thermal fuse in the line, feeding everything below -->
+      <g class="ld fuse vert" id="c-tfuse" transform="translate(90 118)"><rect x="-8" y="0" width="16" height="36" rx="3"/><line x1="0" y1="0" x2="0" y2="36"/></g>
+      <text x="104" y="134" class="lc">thermal fuse</text><text x="104" y="147" class="lc dim" id="lab-fuse"></text>
+      <path id="s-railL" class="w" d="M90,154 V332"/>
+
+      <!-- rung 2: elements, then the steam and brew thermostats on the neutral side, with a lamp across each -->
+      <path id="s-r2a" class="w" d="M90,214 H176"/>
+      <g class="ld el" id="c-el" transform="translate(176 214)"><path d="M0,0 l8,-10 l10,20 l10,-20 l10,20 l10,-20 l10,20 l10,-20 l10,20 l10,-20 l8,10"/></g>
+      <text x="229" y="242" class="lc" text-anchor="middle">elements</text>
+      <path id="s-r2b" class="w n" d="M282,214 H330"/>
+      <circle cx="330" cy="214" r="3" class="node"/>
+      <path id="s-r2c" class="w n" d="M330,214 H380"/>
+      <g class="swi th" id="c-steamt" transform="translate(380 214)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="402" y="242" class="lc" text-anchor="middle">steam thermostat</text><text x="402" y="255" class="lc dim" text-anchor="middle" id="lab-steam"></text>
+      <path id="s-r2d" class="w n" d="M424,214 H480"/>
+      <circle cx="480" cy="214" r="3" class="node"/>
+      <path id="s-r2e" class="w n" d="M480,214 H560"/>
+      <g class="swi th" id="c-brewt" transform="translate(560 214)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="582" y="242" class="lc" text-anchor="middle">brew thermostat</text><text x="582" y="255" class="lc dim" text-anchor="middle" id="lab-brew"></text>
+      <path id="s-r2f" class="w n" d="M604,214 H700"/>
+      <circle cx="700" cy="214" r="3" class="node"/>
+      <path id="s-r2g" class="w n" d="M700,214 H810"/>
+      <!-- steam lamp across the steam thermostat, brew lamp across the brew thermostat -->
+      <path id="s-sl1" class="w n" d="M330,214 V170 H390"/>
+      <g class="ld lamp ht" id="c-slamp" transform="translate(402 170)"><circle r="12"/><path d="M-8,-8 L8,8 M8,-8 L-8,8"/></g>
+      <text x="402" y="150" class="lc" text-anchor="middle">steam lamp</text>
+      <path id="s-sl2" class="w n" d="M414,170 H452 V214"/>
+      <circle cx="452" cy="214" r="3" class="node"/>
+      <path id="s-bl1" class="w n" d="M508,214 V170 H570"/>
+      <circle cx="508" cy="214" r="3" class="node"/>
+      <g class="ld lamp ht" id="c-blamp" transform="translate(582 170)"><circle r="12"/><path d="M-8,-8 L8,8 M8,-8 L-8,8"/></g>
+      <text x="582" y="150" class="lc" text-anchor="middle">brew lamp</text>
+      <path id="s-bl2" class="w n" d="M594,170 H700 V214"/>
+      <!-- steam switch, pole B: shorts out the brew thermostat when steam is on -->
+      <path id="s-by1" class="w n" d="M480,214 V282 H640"/>
+      <g class="swi" id="c-steamB" transform="translate(640 282)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="662" y="304" class="lc" text-anchor="middle">steam switch</text>
+      <path id="s-by2" class="w n" d="M684,282 H700 V214"/>
+
+      <!-- rung 3: brew switch, then the pump with its diode and thermal protector -->
+      <text x="160" y="322" class="lc" text-anchor="middle">brew switch</text>
+      <path id="s-r3a" class="w" d="M90,332 H232"/>
+      <g class="swi" id="c-brew" transform="translate(232 332)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <path id="s-r3b" class="w" d="M276,332 H330"/>
+      <circle cx="330" cy="332" r="3" class="node"/>
+      <path id="s-r3c" class="w" d="M330,332 H380"/>
+      <g class="ld diode" id="c-diode" transform="translate(380 332)"><polygon points="0,-9 0,9 16,0"/><line x1="16" y1="-9" x2="16" y2="9"/></g>
+      <text x="388" y="314" class="lc" text-anchor="middle">diode</text>
+      <path id="s-r3d" class="w" d="M396,332 H426"/>
+      <g class="ld coil" id="c-pump" transform="translate(426 332)"><path d="M0,0 c6,-14 14,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0"/></g>
+      <text x="466" y="360" class="lc" text-anchor="middle">pump coil</text>
+      <path id="s-r3e" class="w n" d="M506,332 H560"/>
+      <g class="ld fuse" id="c-pfuse" transform="translate(560 332)"><rect x="0" y="-8" width="36" height="16" rx="3"/><line x1="0" y1="0" x2="36" y2="0"/></g>
+      <text x="578" y="360" class="lc" text-anchor="middle">pump protector</text>
+      <path id="s-r3f" class="w n" d="M596,332 H810"/>
+      <!-- rung 4: the valve coil hangs off the brew switch and returns through the steam switch's other pole -->
+      <path id="s-r4a" class="w" d="M330,332 V392 H380"/>
+      <g class="ld coil" id="c-sol" transform="translate(380 392)"><path d="M0,0 c6,-14 14,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0"/></g>
+      <text x="420" y="418" class="lc" text-anchor="middle">3-way valve coil</text>
+      <path id="s-r4b" class="w n" d="M460,392 H640"/>
+      <g class="swi" id="c-steamA" transform="translate(640 392)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="662" y="414" class="lc" text-anchor="middle">steam switch, other pole:</text><text x="662" y="427" class="lc" text-anchor="middle">closed with steam off</text>
+      <path id="s-r4c" class="w n" d="M684,392 H810"/>
+      <path d="M662,292 V382" class="link" fill="none"/>
+      <!-- earth -->
+      <g class="earth" transform="translate(120 462)"><line x1="0" y1="-12" x2="0" y2="0"/><line x1="-12" y1="0" x2="12" y2="0"/><line x1="-8" y1="5" x2="8" y2="5"/><line x1="-4" y1="10" x2="4" y2="10"/></g>
+      <text x="142" y="468" class="lc">earth goes to the frame, cup tray, valve body and boiler, not to any rung</text>
+    </svg>
+  </div>
+  <p class="lad-status" id="lad-status" aria-live="polite"></p>
+</div>

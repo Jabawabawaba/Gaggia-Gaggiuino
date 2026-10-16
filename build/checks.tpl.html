@@ -1,0 +1,570 @@
+<title>Gaggia Power-On Checks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: rating-plate header and the unplugged warning, the schematic switcher, a gate readout (ready or not), run picker and meter setup, then eight sections of checks for that schematic. Each check: probe points, switch position, expected reading, the reading you got, and an automatic pass or fail. */
+:root{
+  --bg:#ECEEF0; --surface:#F9FAFA; --surface-2:#E2E5E8; --ink:#16191C; --muted:#59616A; --line:#CBD0D5;
+  --accent:#D98400; --accent-ink:#965300; --accent-soft:#F4E1C0; --on-accent:#1A1206;
+  --good:#2D7A4C; --good-soft:#DCEFE3; --bad:#B13A2F; --bad-soft:#F6DEDB;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+    --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+    --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+  --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+  --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.top{display:grid;gap:14px;margin-bottom:20px}
+.plate{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 12px;justify-self:start;max-width:100%;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;font:500 11.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.plate .rivet{width:6px;height:6px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 1px var(--muted);opacity:.7}
+.plate b{color:var(--ink);font-weight:600}
+/* rivets pinned to the plate's ends so a wrapped plate never leaves one on a line of its own */
+.plate{position:relative;padding:7px 26px}.plate .rivet{position:absolute;top:calc(50% - 3px);left:10px}.plate .rivet:last-child{left:auto;right:10px}
+h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;margin:0}
+.lede{margin:0;color:var(--muted);max-width:66ch;font-size:17px}
+.warn{border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:12px 16px;display:grid;gap:4px}
+.warn strong{font:600 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bad)}
+.warn p{margin:0;font-size:15.5px}
+
+.gate{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px 18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:16px 18px;margin:22px 0 12px}
+.gate .lampbig{width:22px;height:22px;border-radius:50%;background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--line)}
+.gate.ready .lampbig{background:var(--good);box-shadow:0 0 0 5px var(--good-soft)}
+.gate.failed .lampbig{background:var(--bad);box-shadow:0 0 0 5px var(--bad-soft)}
+.gate.going .lampbig{background:var(--accent);box-shadow:0 0 0 5px var(--accent-soft)}
+.gate .g-t{font:600 20px/1.2 var(--f-display);letter-spacing:.04em;text-transform:uppercase}
+.gate .g-s{font-size:14.5px;color:var(--muted)}
+.counts{display:flex;gap:16px;font:500 13px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted);flex-wrap:wrap;justify-content:flex-end}
+.counts b{font-weight:600;color:var(--ink);font-size:18px;display:block;line-height:1.1}
+@media (max-width:640px){.gate{grid-template-columns:auto minmax(0,1fr)}.counts{grid-column:1 / -1;justify-content:flex-start}}
+.bar{display:flex;height:8px;border-radius:3px;overflow:hidden;background:var(--surface-2);gap:2px;margin-bottom:22px}
+.bar span{display:block;height:100%}
+
+.setup{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 18px;display:grid;gap:14px}
+.runrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.runchip{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font:600 14px var(--f-body);cursor:pointer;min-height:36px}
+.runchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.linkbtn{appearance:none;border:0;background:none;padding:6px 2px;font:500 14px var(--f-body);color:var(--accent-ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn.danger{color:var(--bad)}
+.status{margin-left:auto;font:500 12px var(--f-mono);color:var(--muted);display:inline-flex;align-items:center;gap:7px}
+.lamp{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.status.ok .lamp{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 18px}
+@media (max-width:640px){.fields{grid-template-columns:minmax(0,1fr)}}
+.f{display:grid;gap:4px;min-width:0}
+.k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.unitbox{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--surface);height:40px;padding:0 10px;max-width:100%}
+.unitbox input{border:0;background:transparent;width:11ch;font:500 15px var(--f-mono);outline:none;font-variant-numeric:tabular-nums}
+.unitbox span{font:500 13px var(--f-mono);color:var(--muted)}
+.unitbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.f small{font-size:13px;color:var(--muted)}
+.f .unitbox{justify-self:start}
+
+.sec{margin-top:30px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.sec-h .sum{font:500 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+.sec-intro{margin:8px 0 0;color:var(--muted);font-size:15px;max-width:72ch}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;padding:14px 0 14px 14px;border-bottom:1px solid var(--line);border-left:3px solid var(--line)}
+.item[data-r="pass"]{border-left-color:var(--good)}
+.item[data-r="fail"]{border-left-color:var(--bad)}
+.i-main{min-width:0;display:grid;gap:4px}
+.i-title{font-weight:600;font-size:16.5px;line-height:1.35}
+.cid{font:600 12.5px var(--f-mono);color:var(--muted);margin-right:9px;letter-spacing:.02em}
+.item{scroll-margin-top:84px;transition:background-color .5s ease}
+.item.hit{background:var(--accent-soft)}
+.i-how{margin:0;color:var(--muted);font-size:14.5px;max-width:62ch}
+.i-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag{font:600 10.5px/1 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted)}
+.tag.on{background:var(--accent-soft);color:var(--accent-ink)}
+.exp{font:500 13px var(--f-mono);color:var(--ink)}
+.i-side{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;align-content:start}
+.read{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--surface);height:40px;overflow:hidden}
+.read input{border:0;background:transparent;width:8ch;padding:0 8px;font:500 15px var(--f-mono);outline:none;font-variant-numeric:tabular-nums}
+.read select{border:0;border-left:1px solid var(--line);background:var(--surface-2);height:100%;padding:0 6px;font:500 13px var(--f-mono);cursor:pointer}
+.read:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.olbtn,.pf{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:8px;height:40px;padding:0 12px;font:600 13px var(--f-mono);cursor:pointer;letter-spacing:.05em}
+.olbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pf[aria-pressed="true"][data-v="pass"]{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.pf[aria-pressed="true"][data-v="fail"]{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.res{font:600 12px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;min-width:8.5ch;text-align:center;padding:6px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.res.pass{background:var(--good-soft);color:var(--good)}
+.res.fail{background:var(--bad-soft);color:var(--bad)}
+.fix{grid-column:1 / -1;margin:0;font-size:14.5px;color:var(--bad);max-width:74ch}
+@media (max-width:640px){.item{grid-template-columns:minmax(0,1fr)}.i-side{justify-content:flex-start}}
+
+.notes{margin-top:30px;display:grid;gap:6px}
+.textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:10px 12px;font-size:15px;line-height:1.45;resize:vertical}
+.textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);display:grid;gap:8px}
+.links{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px}
+.fine{margin:0;font-size:14px;color:var(--muted);max-width:80ch}
+a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
+%%INCLUDE:wiring-switch.css%%
+.hdr-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pbtn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px;font:600 15px var(--f-body);cursor:pointer;min-height:44px}
+.print-only{display:none}
+@media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#fff;--surface:#fff;--surface-2:#eee;--ink:#000;--muted:#333;--line:#888;--accent:#000;--accent-ink:#000;--accent-soft:#fff;--good:#000;--good-soft:#fff;--bad:#000;--bad-soft:#fff;color-scheme:light}
+  @page{margin:12mm 11mm}
+  body{background:#fff;color:#000;font-size:10pt;line-height:1.3}
+  .wrap{max-width:none;padding:0}
+  .lede,.bar,.runrow,.i-side,.foot,[data-print],.fix{display:none!important}
+  .print-only{display:block}
+  #print-for{display:block;font-size:10pt}
+  h1{font-size:22pt}
+  .top{gap:6px;margin-bottom:4mm}
+  .warn{border:1pt solid #000;padding:2mm 3mm}
+  .warn strong,.warn p{color:#000}
+  .gate{margin:3mm 0;padding:2mm 3mm;border:1pt solid #000;border-radius:2mm}
+  .gate .lampbig{display:none}
+  .setup{border:1pt solid #000;padding:2mm 3mm;gap:2mm}
+  .fields{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .unitbox{border:.6pt solid #000;height:7mm}
+  input::placeholder{color:transparent}
+  .sec{margin-top:5mm}
+  .sec-h{border-bottom:1.2pt solid #000;break-after:avoid}
+  .sec-intro{font-size:9pt;margin:1mm 0 0;break-after:avoid}
+  .item{grid-template-columns:minmax(0,1fr);padding:1.8mm 0 1.8mm 2mm;border-left:.8pt solid #000;break-inside:avoid;gap:1mm}
+  .i-title{font-size:10.5pt}
+  .i-how{font-size:9pt;color:#222}
+  .tag{border:.5pt solid #000;background:#fff;color:#000}
+  .exp{font-size:9pt}
+  .pline{font-size:9.5pt}
+  .pblank{display:inline-block;width:32mm;border-bottom:.6pt solid #000;margin-right:4mm;vertical-align:-1mm}
+  .pbx{display:inline-block;width:3.6mm;height:3.6mm;border:.8pt solid #000;vertical-align:-.7mm;margin:0 1mm 0 3mm}
+  .notes{break-inside:avoid}
+  .textarea{border:.6pt solid #000;min-height:30mm;background:repeating-linear-gradient(to bottom,transparent 0,transparent 6.6mm,#bbb 6.6mm,#bbb 6.9mm)}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="plate" aria-label="Build spec">
+      <span class="rivet" aria-hidden="true"></span>
+      <span><b>Pre-power-on</b></span><span>Gaggia Classic family</span><span>Unplugged</span><span>Multimeter</span>
+      <span class="rivet" aria-hidden="true"></span>
+    </div>
+    <h1>Gaggia Power&#8209;On Checks</h1>
+    <p class="lede">Every check to pass before the converted Gaggia is plugged in for the first time, for your install path and schematic. Type in what the meter shows and each check marks itself pass or fail. Wire IDs like J, Sa or AC3 match the <a href="%%LINK_WIRING%%">wiring page</a>.</p>
+    <div class="warn" role="note">
+      <strong>Unplugged for every step</strong>
+      <p>Pull the cord from the wall and from the machine's inlet before you start, and keep it out until every check passes. A basic multimeter catches shorts, open circuits and wrong connections, but it can't test insulation under voltage. For first power-on, use a <span data-mtext="outlet">GFCI-protected outlet</span> and keep the covers on.</p>
+    </div>
+    <div class="hdr-actions"><button type="button" class="pbtn" data-print hidden>Print the checklist</button><span class="print-only" id="print-for"></span>
+    </div>
+  </header>
+
+  <section class="vbox" aria-label="Which schematic" style="margin-top:18px">
+    <div id="vsel"></div>
+    <p class="vnote" id="vnote"></p>
+  </section>
+
+  <section class="gate" id="gate" aria-live="polite">
+    <span class="lampbig" aria-hidden="true"></span>
+    <div><div class="g-t" id="g-t">Not started</div><div class="g-s" id="g-s"></div></div>
+    <div class="counts"><span><b id="c-pass">0</b>passed</span><span><b id="c-fail">0</b>failed</span><span><b id="c-left">0</b>to do</span></div>
+  </section>
+  <div class="bar" id="bar" aria-hidden="true"></div>
+
+  <section class="setup" aria-label="Run and meter setup">
+    <div class="runrow">
+      <span class="k">Run</span>
+      <span id="runs"></span>
+      <button class="linkbtn" id="newrun" type="button">Start a new run</button>
+      <button class="linkbtn danger" id="delrun" type="button">Delete this run</button>
+      <span class="status" id="status"><span class="lamp"></span><span id="status-text">Loading</span></span>
+    </div>
+    <div class="fields">
+      <div class="f"><label class="k" for="leads">Meter leads touched together</label><span class="unitbox"><input id="leads" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.2"><span>Ω</span></span><small>Subtracted from the "under 1 Ω" checks.</small></div>
+      <div class="f"><label class="k" for="watts">Heater power, from the rating plate</label><span class="unitbox"><input id="watts" type="number" inputmode="numeric" min="100" step="10" placeholder="e.g. 1350"><span>W</span></span><small id="watts-s">Sets the expected heater resistance.</small></div>
+      <div class="f"><label class="k" for="volts">Rated voltage</label><span class="unitbox"><input id="volts" type="number" inputmode="numeric" min="100" step="1" placeholder="120/230"><span>V</span></span><small id="volts-s">From the same plate: 120 V in North America, 230 V in most other places.</small></div>
+    </div>
+  </section>
+
+  <div id="sections"></div>
+
+  <section class="notes">
+    <label class="k" for="notes">Notes for this run</label>
+    <textarea class="textarea" id="notes" placeholder="What failed, what you changed, who double-checked the harness"></textarea>
+  </section>
+
+  <footer class="foot">
+    <div class="links">
+      <a href="%%LINK_RUNBOOK%%">Runbook</a>
+      <a href="%%LINK_WIRING%%">Wiring</a>
+      <a href="%%LINK_LABELS%%">Wire labels</a>
+      <a href="%%LINK_TROUBLE%%">Troubleshooting</a>
+    </div>
+    <p class="fine">Built from the official Gaggiuino schematics and the stock wiring integration, custom wiring and machine-specific guides, and Gaggia's own wiring diagrams for the stock circuit. Expected readings are what a sound circuit shows on a basic meter; when a reading looks odd but passes, trust the odd feeling and trace it.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  %%INCLUDE:wiring-core.js%%
+  /* The checks for every schematic; `when` limits an item to some of them. Tokens are space-separated and all
+     must match; alternatives within a token use |. SI/CW = install path, GC/GCP = family, 120/230 = volts,
+     EVO/E24 = the reader's model (an unset model never hides anything). `t` and `how` may be functions of
+     the variant, so wire IDs come from the same data as the wiring page. */
+  function ids(v,res){
+    var out=[];res.forEach(function(re){v.runs.forEach(function(r){if(re.test(r.short)&&out.indexOf(r.id)<0)out.push(r.id)})});
+    return out.length>1?out.slice(0,-1).join(', ')+' and '+out[out.length-1]:out.join('');
+  }
+  function joinp(parts){parts=parts.filter(Boolean);return parts.length?parts.join(', ')+'.':''}
+  var SECTIONS=[
+    {id:'a',name:'Before you measure',intro:'Get the machine safe and the meter ready.',items:[
+      {id:'a1',t:'Cord out of the wall and out of the machine',how:'Both ends. The inlet pins are your probe points for the next sections.',type:'check'},
+      {id:'a2',t:'Meter set to resistance or continuity',how:'Lowest Ω range. Touch the leads together and enter that reading under Meter leads above.',type:'check'},
+      {id:'a3',t:'Wiring complete and every connector seated',how:'Every wire on the wiring page fitted, including the PCB spades J10 to J13 and the J4, J7 and J9 plugs. The PCB stays connected unless a check says otherwise.',type:'check'},
+      {id:'a4',when:'GC 120',t:'Three-pin inlet and earth wiring fitted',how:'Most 120 V Classics left the factory with a two-pin cord and no earth. The official machine-specific guide covers the retrofit: a C14 three-pin inlet and earth wires to the boiler and cup tray. The earth checks below assume it\'s done.',type:'check'}
+    ]},
+    {id:'b',name:'Earth',intro:'Earth must reach every exposed metal part and must stay off the 5 V side.',items:[
+      {id:'b1',t:'Inlet earth pin ↔ bare chassis metal',how:'A screw head or a scratch-free bare spot on the frame.',type:'low',fix:'Earth isn\'t reaching the chassis. Check the earth wires from the inlet and their spades.'},
+      {id:'b2',t:'Inlet earth pin ↔ boiler earth spade',how:function(v){return v.path==='CW'?'Through '+ids(v,[/^Socket GND/,/Valve gnd → Socket GND/,/Chassis gnd → Valve gnd/,/Valve gnd → Boiler gnd/,/Boiler gnd → Valve gnd/])+'.':'Through the stock earth wires.'},type:'low',fix:'Check each earth wire between the inlet and the boiler, and their spades.'},
+      {id:'b3',when:'CW|GCP',t:'Inlet earth pin ↔ valve earth spade',how:function(v){return v.path==='CW'?'Through '+ids(v,[/^Socket GND/,/Chassis gnd → Valve gnd/,/Valve gnd → Socket GND/])+'.':'Through the stock earth wires.'},type:'low',fix:'Check the earth wire to the valve and its spades.'},
+      {id:'b4',t:'Inlet earth pin ↔ group head',how:'Where the portafilter locks in.',type:'low',fix:'The group isn\'t earthed through the boiler. Find the break before going further.'},
+      {id:'b5',t:'Inlet earth pin ↔ the cup warmer\'s earth wire',how:function(v){return 'At the spade that plugs onto the cup warmer, with the cup warmer plate lifted off'+(v.path==='CW'?': '+ids(v,[/^Cup warmer gnd/])+' and the boiler earth':'')+'. The plate itself gets checked with the covers on, in the last section.'},type:'low',fix:'The cup warmer\'s earth wire isn\'t connected back to the inlet. Check the wire and its spades.'},
+      {id:'b6',t:'Inlet earth pin ↔ PCB 5 V ground (J7 GND pin)',how:'Earth and the 5 V ground must never meet: the low-voltage side floats so the thermocouple reads correctly, as the official grounding guide warns.',type:'open',fix:'Something joins earth to the 5 V ground. Look for a grounded thermocouple, a pinched low-voltage wire, or a sensor touching metal.'},
+      {id:'b7',t:'Thermocouple lead ↔ boiler body',how:'Unclamp the thermocouple wires from J4 and probe either wire against the boiler. Fold them over again when they go back in.',type:'open',tags:['J4 unclamped'],fix:'This is a grounded thermocouple, or its insulation is damaged. Gaggiuino needs the ungrounded type.'}
+    ]},
+    {id:'c',name:'Components',intro:'Readings worth keeping, taken before the shorts and paths below so those test the wiring as it will run. Power switch off. Where a check says leads off, put each lead back exactly where it came from before you move on.',items:[
+      {id:'c1',t:'Both heating elements together',how:function(v){return v.volts===230?'Across the two element terminals that aren\'t joined by the short link between the elements. They\'re in series, so this reads both.':'Across the two terminals of one element. They\'re wired in parallel, so the meter sees both at once.'},type:'range',fix:'Far from the expected value suggests a damaged element, a loose terminal, or a reading through another path. The rating plate includes the pump, so a few percent high is normal.'},
+      {id:'c2',t:'Element terminal ↔ boiler body',how:'Either terminal.',type:'open',fix:'An element is leaking to the boiler. Don\'t power it: the elements are part of the boiler, so it needs replacing.'},
+      {id:'c3',t:'Boiler thermal fuse, across it',how:function(v){return 'Across its two ends on the boiler: the stock 184 °C one-shot fuse'+(v.path==='CW'?', or the optional 185 °C resettable fuse if you fitted one':'')+'.'},type:'low',fix:'Open: a one-shot fuse has blown and needs replacing; a resettable one has tripped. Either way, find out why the boiler overheated before powering up.'},
+      {id:'c4',when:'CW|GCP|120',t:'Pump thermal fuse (110 °C), across it',how:'The small protector on the pump\'s neutral lead.',type:'low',fix:'An open pump fuse needs replacing before the pump will run. The official custom wiring guide lists a 120 °C KSD9700 as a substitute.'},
+      {id:'c5',t:'Pump coil',how:'Across the pump\'s two terminals, leads off. Ulka pumps have a diode in series, so measure with the probes one way, then swapped, and enter the lower reading. OL one way is normal; press OL only if it reads OL both ways.',type:'coil',tags:['Leads off','Both ways'],fix:'OL both ways means an open coil or fuse; near zero means a shorted coil.'},
+      {id:'c6',t:'Valve coil',how:'Across its two coil spades, leads off. Record the value.',type:'coil',tags:['Leads off'],fix:'OL means an open coil; near zero means a shorted coil.'},
+      {id:'c7',t:'Thermocouple loop',how:'Across its two wires, unclamped from J4. A few ohms is normal.',type:'tc',tags:['J4 unclamped'],fix:'OL means a broken thermocouple or lead.'},
+      {id:'c8',t:'Pump and valve leads back on',how:'Every lead you took off for c5 and c6 goes back on the spade it came from, as the wiring page shows. The path checks in section e prove most of them; this tick is for the rest.',type:'check'}
+    ]},
+    {id:'d',name:'Shorts',intro:'With the power switch ON (still unplugged), mains must not reach earth or the 5 V side.',items:[
+      {id:'d1',t:'Inlet L ↔ inlet earth',how:'Highest Ω range.',type:'open',tags:['Power ON'],fix:'Line touches earth somewhere. Look for a bare spade or crushed insulation against the frame.'},
+      {id:'d2',t:'Inlet N ↔ inlet earth',how:'Highest Ω range.',type:'open',tags:['Power ON'],fix:'Neutral touches earth somewhere.'},
+      {id:'d3',t:'Inlet L ↔ J7 GND (5 V side)',how:'Highest Ω range, brew and steam off. Section f repeats this pin by pin in both switch positions.',type:'open',tags:['Power ON','Brew OFF','Steam OFF'],fix:'Mains reaches the 5 V side. Don\'t power it. Check the switch spades, where mains and low-voltage wires sit side by side.'},
+      {id:'d4',t:'Inlet N ↔ J7 GND (5 V side)',how:'Highest Ω range, brew and steam off.',type:'open',tags:['Power ON','Brew OFF','Steam OFF'],fix:'Mains reaches the 5 V side. Don\'t power it.'},
+      {id:'d5',t:'PCB J12 spade ↔ inlet earth',how:'The pump output, checked directly because the pump\'s diode can hide a fault on this side.',type:'open',fix:'The pump output or its wiring touches earth.'},
+      {id:'d6',t:'PCB J13 spade ↔ inlet earth',how:'The valve output.',type:'open',fix:'The valve output or its wiring touches earth.'},
+      {id:'d7',t:'Inlet L ↔ inlet N',how:'May read OL, or a high value that climbs as the PCB\'s supply charges.',type:'notshort',tags:['Power ON'],fix:'Under 100 Ω means a short, or the elements bypassing the SSR: a reading near the heater resistance shown under Heater power means the SSR is passing current or the elements are wired around it. Find it before plugging in.'}
+    ]},
+    {id:'e',name:'Path continuity',intro:function(v){return v.path==='CW'?'Each mains path is whole. In custom wiring the power switch breaks line only; neutral stays connected.':v.fam==='GCP'?'Each mains path is whole. The Pro\'s stock power switch breaks line and neutral, and the PCB\'s line comes from after the boiler\'s thermal fuse.':'Each mains path is whole. The Classic\'s power switch breaks line only, and its boiler thermal fuse sits in the neutral feed to the whole machine.'},items:[
+      /* custom wiring */
+      {id:'e1',when:'CW',t:'Inlet L ↔ PCB J11 spade',how:function(v){return joinp([ids(v,[/^Socket L/]),'the power switch',ids(v,[/^Power sw (4|P\(7-8\)) → SSR load R/]),'the SSR\'s line-side screw',ids(v,[/^SSR load R → J11/])])},type:'low',tags:['Power ON'],fix:'Break in the line path. Check each spade and the shared fork on the SSR\'s line-side screw.'},
+      {id:'e2',when:'CW',t:'Inlet L ↔ PCB J11 spade, switch off',how:'Same probes, power switch off. Should now be open.',type:'open',tags:['Power OFF'],fix:'The power switch isn\'t breaking line. Check which spades the inlet and the SSR wires sit on.'},
+      {id:'e3',when:'CW',t:'Inlet N ↔ PCB J10 spade',how:function(v){return v.fam==='GCP'?joinp([ids(v,[/^Socket N → Pump fuse spade/]),'the spade joined to the pump fuse lead',ids(v,[/^Pump fuse spade → J10/])]):joinp([ids(v,[/^Socket N → J10/])])},type:'low',fix:'Break in the PCB\'s neutral. Check the spades at the inlet and on J10.'},
+      {id:'e4',when:'CW',t:'SSR load-side screw ↔ element terminal on the fuse side',how:function(v){var r=ids(v,[/^SSR load L → Reset fuse/]);return 'Through the boiler\'s 184 °C thermal fuse: '+joinp([ids(v,[/^SSR load L → Fuse/]),'the fuse',ids(v,[/^Fuse left →/])])+(r?' With the optional resettable fuse instead: '+joinp([r,'the resettable fuse',ids(v,[/^Reset fuse left →/])]):'')},type:'low',fix:'Open means the thermal fuse has blown or tripped, or a crimp at its ends is bad. A blown one-shot fuse, or a tripped resettable one, means the boiler overheated at some point, so find out why before replacing or resetting it.'},
+      {id:'e5',when:'CW',t:'Inlet N ↔ element terminal on the neutral side',how:function(v){return joinp([ids(v,[/^BN2 element splice → Socket N/]),'the element splice',ids(v,[/^Element (TR|BR) → BN2/])])},type:'low',fix:'Break in the elements\' neutral. Check the element splice and the stock element leads.'},
+      {id:'e6',when:'CW',t:'PCB J13 ↔ valve coil spade',how:function(v){return joinp([ids(v,[/^J13 3 →/])])},type:'low',fix:'Check the valve wire and its spades.'},
+      {id:'e7',when:'CW',t:'PCB J12 ↔ pump terminal',how:function(v){return joinp([ids(v,[/^J12 P →/])])},type:'low',fix:'Check the pump wire and its spades.'},
+      {id:'e8',when:'CW',t:'Valve\'s other spade ↔ inlet N',how:function(v){return 'The valve\'s neutral side: '+joinp([ids(v,[/^BN2 element splice → Valve N/]),'the element splice',ids(v,[/^BN2 element splice → Socket N/])])},type:'low',fix:'The valve has no neutral. Check its neutral spade and the element splice.'},
+      {id:'e9',when:'CW',t:'Pump\'s other terminal ↔ inlet N',how:function(v){return 'The pump\'s neutral side, through its thermal fuse: '+ids(v,[/^Pump N → Pump fuse/,/^Pump fuse → Pump N/,/^Pump fuse spade → Pump fuse/,/^Pump fuse → Pump fuse spade/,/^Socket N → Pump fuse spade/,/^Valve N → Pump fuse spade/])+'. It also proves the lead that came off for c5 is back on.'},type:'low',fix:'Check the pump\'s neutral lead, its thermal fuse and the spade joined to the fuse lead.'},
+      /* stock integration, Pro family */
+      {id:'e11',when:'SI GCP',t:'Inlet L ↔ PCB J11 spade',how:'The power switch, the boiler\'s 184 °C thermal fuse, B4 and wire L.',type:'low',tags:['Power ON'],fix:'Check the power switch spades, that the thermal fuse hasn\'t blown, and the B4-to-L joint.'},
+      {id:'e12',when:'SI GCP',t:'Inlet L ↔ PCB J11 spade, switch off',how:'Same probes, power switch off. Should now be open.',type:'open',tags:['Power OFF'],fix:'The power switch isn\'t breaking line. Check the switch\'s spades against the stock wiring.'},
+      {id:'e13',when:'SI GCP',t:'Inlet N ↔ PCB J10 spade',how:'The power switch, the pump\'s 110 °C thermal fuse, Pa and wire N.',type:'low',tags:['Power ON'],fix:'Check the piggyback on Pa, the pump\'s thermal fuse and wire N.'},
+      {id:'e14',when:'SI GCP',t:'Inlet N ↔ PCB J10 spade, switch off',how:'The Pro\'s stock power switch breaks neutral too. Should now be open.',type:'open',tags:['Power OFF'],fix:'Neutral isn\'t switched. Check the power switch\'s spades against the stock wiring.'},
+      {id:'e15',when:'SI GCP',t:'Inlet N ↔ the SSR screw with wire Sb',how:'Sb, Bb, the J jumper, Ba and the stock neutral wiring: the path the brew thermostat used to close.',type:'low',tags:['Power ON'],fix:'Check J on Ba and Bb, and Sb at both ends.'},
+      {id:'e16',when:'SI GCP',t:'Inlet L ↔ element terminal on the fuse side',how:'Through the power switch and the 184 °C thermal fuse. As drawn, the SSR sits on the elements\' neutral side, so these terminals are live whenever the machine is on.',type:'low',tags:['Power ON'],fix:'Check the thermal fuse and the stock wires to the elements.'},
+      {id:'e17',when:'SI GCP',t:'PCB J13 ↔ valve coil spade on Pb\'s wire',how:'Wire 3, Pb, and Pb\'s stock wire on to the valve.',type:'low',fix:'Check wire 3 on Pb, and Pb\'s stock wire to the valve.'},
+      {id:'e18',when:'SI GCP',t:'PCB J12 ↔ the pump terminal Pb came off',how:'Wire P.',type:'low',fix:'Check wire P on the pump.'},
+      {id:'e19',when:'SI GCP',t:'Valve\'s orange wire ↔ inlet N',how:'The valve returns to neutral through steam switch spades 3 and 2, so it can only open with steam off.',type:'low',tags:['Power ON','Steam OFF'],fix:'Check the orange wire and steam switch spades 2 and 3, and that the steam switch is off.'},
+      /* stock integration, original Classic */
+      {id:'e21',when:'SI GC',t:'Inlet L ↔ PCB J11 spade',how:function(v){return v.volts===230?'The power switch, the wire through parked connector 3, and P1-2 plugged onto wire L.':'The power switch, its P(7-8) spade, and P1-2 plugged onto wire L.'},type:'low',tags:['Power ON'],fix:function(v){return 'Check P1-2 on wire L'+(v.volts===230?' and parked connector 3, which must still hold both its wires.':'.')}},
+      {id:'e22',when:'SI GC',t:'Inlet L ↔ PCB J11 spade, switch off',how:'Same probes, power switch off. Should now be open.',type:'open',tags:['Power OFF'],fix:'The power switch isn\'t breaking line.'},
+      {id:'e23',when:'SI GC',t:'Inlet N ↔ PCB J10 spade',how:function(v){return v.volts===230?'The boiler\'s 184 °C thermal fuse, connector F and wire N.':'The boiler\'s 184 °C thermal fuse, connector F, the pump\'s 110 °C thermal fuse, Pa and wire N.'},type:'low',fix:'Open: a thermal fuse may have blown, or a connector is loose. On the Classic the boiler fuse is in the neutral feed to the whole machine.'},
+      {id:'e24',when:'SI GC',t:'Inlet L ↔ the SSR screw with wire Sb',how:function(v){return v.volts===230?'The power switch, Ba, the J jumper, Bb and Sb.':'The power switch, parked connector 3 (both wires still joined), Ba, the J jumper, Bb and Sb.'},type:'low',tags:['Power ON'],fix:'Check J on Ba and Bb, Sb at both ends, and on 120 V parked connector 3.'},
+      {id:'e25',when:'SI GC',t:function(v){return v.volts===230?'Inlet N ↔ top-right element terminal':'Inlet N ↔ bottom-left element terminal'},how:function(v){return v.volts===230?'Through the boiler\'s 184 °C thermal fuse, which feeds that terminal directly.':'Through the boiler\'s 184 °C thermal fuse, connector F, the valve\'s right spade and the power switch\'s spade 8: the long way round, so it also proves both wires on the valve\'s right spade are back on.'},type:'low',fix:'Check the thermal fuse and the stock wires from it to the elements, connector F and the valve\'s right spade.'},
+      {id:'e26',when:'SI GC',t:function(v){return 'PCB J13 ↔ valve coil spade on the '+(v.volts===230?'light blue':'orange')+' wire'},how:'Wire 3, Pb, and the steam switch\'s P(5-6) and 6: the valve\'s feed runs through the steam switch.',type:'low',tags:['Steam OFF'],fix:'Check wire 3 on Pb and the steam switch spades P(5-6) and 6, with the steam switch off.'},
+      {id:'e27',when:'SI GC',t:'PCB J12 ↔ the pump terminal Pb came off',how:'Wire P.',type:'low',fix:'Check wire P on the pump.'},
+      {id:'e28',when:'SI GC',t:'Valve\'s right spade ↔ inlet N',how:'The valve\'s neutral side: its right spade holds two wires, one to connector F and one to the power switch\'s spade 8, and F returns through the boiler\'s 184 °C thermal fuse. This proves the F wire went back on after c6.',type:'low',fix:'Check both wires on the valve\'s right spade and connector F at the pump.'}
+    ]},
+    {id:'f',name:'Low-voltage inputs',intro:'Unplug the J7 and J9 plugs from the PCB and probe the plug pins, so the board itself isn\'t in the reading.',items:[
+      {id:'f1',t:'Brew ON: J7 B ↔ J7 GND',how:function(v){return 'Through the brew switch and '+(v.fam==='GC'?'the ground jumper between the switch commons.':'the ground wire on its spade 2.')},type:'low',tags:['Brew ON','Plugs off'],fix:'Check the B wire, the brew switch spades and the ground wires.'},
+      {id:'f2',t:'Brew OFF: J7 B ↔ J7 GND',how:'',type:'open',tags:['Brew OFF','Plugs off'],fix:'Signal and ground sit on spades that are always connected. Compare the spade numbers with the wiring page.'},
+      {id:'f3',t:'Steam ON: J7 S ↔ J7 GND',how:'Through the steam switch and the ground jumper.',type:'low',tags:['Steam ON','Plugs off'],fix:'Check the S wire, the steam switch spades and the ground jumper.'},
+      {id:'f4',t:'Steam OFF: J7 S ↔ J7 GND',how:'',type:'open',tags:['Steam OFF','Plugs off'],fix:'Signal and ground are on the wrong spades. Compare them with the wiring page.'},
+      {id:'f5',t:'J9 R1 pin ↔ SSR + terminal',how:'The SSR control wire.',type:'low',tags:['Plugs off'],fix:'R1 must go to the SSR\'s + control terminal.'},
+      {id:'f6',t:'J9 GND pin ↔ SSR − terminal',how:'',type:'low',tags:['Plugs off'],fix:'GND must go to the SSR\'s − control terminal.'},
+      {id:'f7',t:'Each J7 pin ↔ chassis',how:'B, S and GND against bare metal. Enter the lowest reading.',type:'open',tags:['Plugs off'],fix:'A low-voltage wire touches the frame. Find the pinch.'},
+      {id:'f8',t:'Each J7 pin ↔ inlet L, then inlet N, brew and steam on',how:function(v){return (v.path==='SI'?'The brew and steam switches carry mains on some spades and the signals on others. ':'The power switch carries mains right beside the signal switches. ')+'This catches a signal wire on a mains spade. Six readings; enter the lowest.'},type:'open',tags:['Power ON','Brew ON','Steam ON','Plugs off'],fix:'A low-voltage wire sits on a mains spade. Don\'t power it until it\'s moved.'},
+      {id:'f9',t:'Each J7 pin ↔ inlet L, then inlet N, brew and steam off',how:'The same six readings with both switches off; enter the lowest. A signal wire on the wrong throw of a switch only meets mains in one position, so this catches what f8 can\'t.',type:'open',tags:['Power ON','Brew OFF','Steam OFF','Plugs off'],fix:'A low-voltage wire meets mains with the switches off: it\'s probably on the wrong throw. Compare the spade numbers with the wiring page.'}
+    ]},
+    {id:'g',name:'Look and pull',intro:'The checks a meter can\'t do.',items:[
+      {id:'g1',t:'Every crimp on or beside the boiler is bare, under silicone sleeve',how:'No nylon-insulated spade within reach of the boiler or the valve: the official guide rates nylon at 105 °C and warns that pre-insulated spade insulation melts on the boiler.',type:'check'},
+      {id:'g2',t:'Terminals with two wires use parts sized for two',how:'SV2 forks, two-wire spades and BN2 splices where the cut list says so. Never two wires in a red spade.',type:'check'},
+      {id:'g3',t:'Every crimp survives a firm tug',how:'Redo any that move.',type:'check'},
+      {id:'g4',t:'SSR: fork terminals on all four screws, screws tight',how:function(v){return 'Mounted on the back wall with an M4 (or 8-32) screw, washer and nut.'+(v.fam==='GCP'?' On the Pro family, leave room above it for the funnel piece and its screw.':'')},type:'check'},
+      {id:'g5',when:'SI',t:'Brew thermostat replaced by J; steam thermostat disconnected',how:'Both wires moved off each thermostat. The steam thermostat can stay in place, unplugged.',type:'check'},
+      {id:'g6',when:'CW',t:'Boiler thermal fuse in the heater line, pump fuse in the pump\'s path',how:'Or the optional resettable fuse in the steam thermostat\'s place, if you fitted it.',type:'check'},
+      {id:'g7',when:'SI',t:'Parked connectors insulated and tied down',how:function(v){return v.fam==='GCP'?'S5 stays live: insulate its end and tie it where it can\'t touch anything.':'1, 2, 3 and P3-4 all stay live. Insulate each one and tie them down. '+(v.volts===230?'3 keeps both its wires joined.':'2 and 3 keep both their wires joined.')},type:'check'},
+      {id:'g8',when:'SI GCP EVO|E24',t:'Switch connectors out of the combined block, each insulated and labeled',how:'The official machine-specific guide: self-fusing silicone tape or 6 mm silicone heat shrink on each, labeled with an oil-based marker.',type:'check'},
+      {id:'g9',when:'GCP 230',t:'The power switch stays on by itself',how:'Eco-board machines need the official power switch mod: one spring out so the rocker latches.',type:'check'},
+      {id:'g10',t:'J10 N, J11 L, J12 P and J13 3 match the wiring page',how:'Spades pushed fully home on the PCB.',type:'check'},
+      {id:'g11',t:'Nothing but 200 °C silicone wire touches the boiler or steam wand',how:'Mains wires on the left of the enclosure, above the thermocouple wire; low-voltage wires and sensors on the right, as the stock integration guide suggests.',type:'check'},
+      {id:'g12',t:'Thermocouple finger tight, lead free to rotate',how:'Ungrounded M4 type in the brew thermostat\'s hole, threads coated with thermal paste rated for at least 180 °C, lead routed around the front of the boiler.',type:'check'},
+      {id:'g13',t:'Screen cable sleeved where it passes the back vent',how:'An unshrunk length of heat shrink stops the sharp vent edge cutting the soft silicone jacket.',type:'check'},
+      {id:'g14',t:'No stray strands or bare metal anywhere',how:'Every splice and spade covered.',type:'check'},
+      {id:'g15',t:'Pressure sensor plumbing snug and dry',how:'Tubes cut square and fully inserted (clamped, on the Pro\'s braided hose). The sensor seals on its small O-ring pressed flush in the fitting: hand tight, plus a quarter turn at most. It sits below the T and doesn\'t touch the housing. The real leak test comes under pressure.',type:'check'},
+      {id:'g16',t:'Someone else traced the wiring against the wiring page',how:'A second set of eyes, wire by wire.',type:'check'},
+      {id:'g17',t:'Everything plugged back in',how:'J4 thermocouple reclamped with the same + and − as on the bench, then J7 and J9. Recheck J9 R1 to SSR + and GND to SSR − with the plug in.',type:'check'},
+      {id:'g18',t:'Stop at once if the temperature falls while heating',how:'At first power-on the reading must rise while the boiler heats. If it falls, the thermocouple is reversed and the controller may keep heating. Switch off, unplug, and swap the J4 wires.',type:'check'}
+    ]},
+    {id:'h',name:'Covers on',intro:'After the screen is mounted and the funnel and cup warmer are back on (runbook Phase 5), still unplugged. Closing up is where earth wires get left off and harness wires get pinched.',items:[
+      {id:'h1',t:'Cup warmer and funnel earth wires reconnected',how:'Before each part goes back on, as the official screen guide reminds you.',type:'check'},
+      {id:'h2',t:'Inlet earth pin ↔ cup warmer plate',how:'A bare spot on the plate itself, away from its screws.',type:'low',fix:'The top plate isn\'t earthed. Lift it and check its earth wires.'},
+      {id:'h3',t:'Inlet L ↔ inlet earth',how:'Highest Ω range, power switch on.',type:'open',tags:['Power ON'],fix:'Line touches earth since the covers went on: a wire is pinched or a spade is touching the case. Open it up and find it.'},
+      {id:'h4',t:'Inlet N ↔ inlet earth',how:'Highest Ω range, power switch on. Probes one way, then swapped; enter the lower reading. The pump\'s diode can hide a pinched pump lead in one direction.',type:'open',tags:['Power ON','Both ways'],fix:'Neutral touches earth since the covers went on. Open it up and find the pinched wire.'},
+      {id:'h5',t:'Inlet earth pin ↔ ST-Link GND pin',how:'The ST-Link stuck to the back is wired to the PCB\'s 5 V ground; if yours isn\'t fitted, use the GND pin on the screen\'s connector. This catches a screen or sensor cable pinched against the case.',type:'open',fix:'The 5 V side touches earth since the covers went on. Open it up and find the pinched cable.'},
+      {id:'h6',t:'Inlet L, then inlet N ↔ ST-Link GND pin',how:'Highest Ω range, power switch on. Two readings, both open; enter the lower one.',type:'open',tags:['Power ON'],fix:'Mains reaches the 5 V side since the covers went on. Don\'t plug in: open it up and find the pinched wire.'}
+    ]}
+  ];
+  var ITEMS={};SECTIONS.forEach(function(s){s.items.forEach(function(i){ITEMS[i.id]=i})});
+  /* which schematic the checks follow: the reader's, unless they pick another here */
+  var override=null;
+  function mineV(){return variantFor(GM()&&GM().get())}
+  function curKey(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;return VARS[run().vk]?run().vk:ORDERV[0]}
+  function V(){return VARS[curKey()]}
+  function okWhen(when,v){
+    if(!when)return true;
+    var p=GM()&&GM().get(),model=p&&p.model;
+    return when.split(' ').every(function(tok){
+      return tok.split('|').some(function(a){
+        if(a==='SI'||a==='CW')return v.path===a;
+        if(a==='GC'||a==='GCP')return v.fam===a;
+        if(a==='120'||a==='230')return String(v.volts)===a;
+        return !model||model===a;
+      });
+    });
+  }
+  function vis(it){return okWhen(it.when,V())}
+  function val(x){return typeof x==='function'?x(V()):x}
+  var UNITS={'Ω':1,'kΩ':1e3,'MΩ':1e6};
+  var KEY='gaggia-power-on-checks-v2';
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function num(v){return (typeof v==='number'&&isFinite(v)&&v>=0)?v:null}
+  function today(){var d=new Date();return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+  function newId(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+
+  /* ---------- state ---------- */
+  function blankRun(n,prev){return {id:newId(),label:'Run '+n,created:today(),leads:prev?prev.leads:null,watts:prev?prev.watts:null,volts:prev?prev.volts:null,vk:prev?prev.vk:'',vals:{},notes:''}}
+  function defaults(){var r=blankRun(1);return {runs:[r],cur:r.id,updatedAt:0}}
+  function normalize(s){
+    if(!s||typeof s!=='object'||!Array.isArray(s.runs)||!s.runs.length)return defaults();
+    var out={runs:[],cur:'',updatedAt:typeof s.updatedAt==='number'?s.updatedAt:0};
+    s.runs.slice(0,40).forEach(function(r,i){
+      if(!r||typeof r!=='object')return;
+      var o={id:typeof r.id==='string'&&/^r[a-z0-9]+$/.test(r.id)?r.id:newId(),label:typeof r.label==='string'?r.label.slice(0,40):'Run '+(i+1),created:typeof r.created==='string'?r.created.slice(0,40):'',leads:num(r.leads),watts:num(r.watts),volts:num(r.volts),vk:typeof r.vk==='string'&&VARS[r.vk]?r.vk:'',vals:{},notes:typeof r.notes==='string'?r.notes.slice(0,4000):''};
+      if(r.vals&&typeof r.vals==='object')Object.keys(r.vals).forEach(function(k){
+        if(!ITEMS[k])return;var v=r.vals[k];if(!v||typeof v!=='object')return;
+        var x={};if(num(v.v)!=null)x.v=num(v.v);if(UNITS[v.u])x.u=v.u;if(v.ol===true)x.ol=true;if(v.m==='pass'||v.m==='fail')x.m=v.m;
+        o.vals[k]=x;
+      });
+      out.runs.push(o);
+    });
+    if(!out.runs.length)return defaults();
+    out.cur=out.runs.some(function(r){return r.id===s.cur})?s.cur:out.runs[out.runs.length-1].id;
+    return out;
+  }
+  function run(){for(var i=0;i<state.runs.length;i++)if(state.runs[i].id===state.cur)return state.runs[i];return state.runs[0]}
+
+  /* ---------- evaluation ---------- */
+  function profVolts(){var m=window.GaggiaMachine,p=m&&m.get();return p&&p.volts?p.volts:V().volts}
+  function expectedR(r){var w=r.watts,v=r.volts||profVolts();return (w&&v)?(v*v/w):null}
+  function outlet(){var m=window.GaggiaMachine;return m?m.text('outlet'):'GFCI-protected outlet (an RCD outside North America)'}
+  function plineHtml(it,r){
+    var v=r.vals[it.id]||{},res=result(it,r);
+    if(it.type==='check')return v.m?('<b>'+(v.m==='pass'?'✓ Pass':'✗ Fail')+'</b>'):'<span class="pbx"></span> Pass <span class="pbx"></span> Fail';
+    var read=v.ol?'OL':(v.v!=null?(v.v+' '+(v.u||'Ω')):'');
+    return read?('Reading: <b>'+esc(read)+'</b>'+(res?' · <b>'+(res==='pass'?'Pass':'Fail')+'</b>':'')):'Reading: <span class="pblank"></span> <span class="pbx"></span> Pass <span class="pbx"></span> Fail';
+  }
+  function expText(it,r){
+    switch(it.type){
+      case 'low':return 'Expect under 1 Ω';
+      case 'open':return 'Expect OL (open)';
+      case 'notshort':return 'Expect OL or over 100 Ω';
+      case 'range':var e=expectedR(r);return e?('Expect about '+e.toFixed(1)+' Ω (±15%)'):'Enter the heater power above';
+      case 'coil':return 'Expect a steady value, not OL or 0';
+      case 'tc':return 'Expect a few Ω, not OL';
+      default:return '';
+    }
+  }
+  function result(it,r){
+    var v=r.vals[it.id]||{};
+    if(it.type==='check')return v.m||null;
+    if(v.ol){return (it.type==='open'||it.type==='notshort')?'pass':'fail'}
+    if(v.v==null)return null;
+    var ohm=v.v*(UNITS[v.u]||1),leads=r.leads||0,net=Math.max(0,ohm-leads);
+    switch(it.type){
+      case 'low':return net<=1?'pass':'fail';
+      case 'open':return ohm>=1e6?'pass':'fail';
+      case 'notshort':return ohm>=100?'pass':'fail';
+      case 'range':var e=expectedR(r);if(!e)return null;return Math.abs(net-e)<=e*0.15?'pass':'fail';
+      case 'coil':return (net>=1&&net<=1e5)?'pass':'fail';
+      case 'tc':return (net<1000)?'pass':'fail';
+    }
+    return null;
+  }
+
+  /* ---------- render ---------- */
+  function itemHtml(it,r){
+    var v=r.vals[it.id]||{},res=result(it,r);
+    var tags=(it.tags||[]).map(function(t){return '<span class="tag'+(/ON$/.test(t)?' on':'')+'">'+esc(t)+'</span>'}).join('');
+    var side='';
+    if(it.type==='check'){
+      side='<button type="button" class="pf" data-pf="'+it.id+'" data-v="pass" aria-pressed="'+(v.m==='pass')+'">Pass</button><button type="button" class="pf" data-pf="'+it.id+'" data-v="fail" aria-pressed="'+(v.m==='fail')+'">Fail</button>';
+    }else{
+      var u=v.u||'Ω';
+      side='<span class="read"><label class="vh" for="v-'+it.id+'">Reading for '+esc(val(it.t))+'</label><input id="v-'+it.id+'" data-v="'+it.id+'" type="number" inputmode="decimal" min="0" step="any" placeholder="—" value="'+(v.v!=null&&!v.ol?v.v:'')+'"'+(v.ol?' disabled':'')+'>'+
+        '<label class="vh" for="u-'+it.id+'">Unit</label><select id="u-'+it.id+'" data-u="'+it.id+'"'+(v.ol?' disabled':'')+'>'+Object.keys(UNITS).map(function(k){return '<option'+(k===u?' selected':'')+'>'+k+'</option>'}).join('')+'</select></span>'+
+        '<button type="button" class="olbtn" data-ol="'+it.id+'" aria-pressed="'+(!!v.ol)+'">OL</button>'+
+        '<span class="res '+(res||'')+'" data-res="'+it.id+'">'+(res==='pass'?'Pass':res==='fail'?'Fail':'—')+'</span>';
+    }
+    return '<div class="item" id="'+it.id+'" data-item="'+it.id+'" data-r="'+(res||'')+'">'+
+      '<div class="i-main"><div class="i-title"><span class="cid">'+it.id+'</span>'+esc(val(it.t))+'</div>'+(val(it.how)?'<p class="i-how">'+esc(val(it.how))+'</p>':'')+
+      '<div class="i-tags">'+tags+(it.type!=='check'?'<span class="exp" data-exp="'+it.id+'">'+esc(expText(it,r))+'</span>':'')+'</div></div>'+
+      '<div class="i-side">'+side+'</div>'+
+      '<div class="pline print-only" data-pline="'+it.id+'">'+plineHtml(it,r)+'</div>'+
+      '<p class="fix" data-fix="'+it.id+'"'+(res==='fail'&&it.fix?'':' hidden')+'>'+esc(val(it.fix)||'')+'</p></div>';
+  }
+  function renderAll(){
+    var r=run();
+    $('runs').innerHTML=state.runs.map(function(x){return '<button type="button" class="runchip" data-run="'+x.id+'" aria-pressed="'+(x.id===r.id)+'">'+esc(x.label)+(x.created?', '+esc(x.created):'')+'</button>'}).join(' ');
+    $('delrun').hidden=state.runs.length<2;
+    $('leads').value=r.leads!=null?r.leads:'';
+    $('watts').value=r.watts!=null?r.watts:'';
+    $('volts').value=r.volts!=null?r.volts:'';
+    $('notes').value=r.notes||'';
+    var vk=curKey(),mine=mineV(),p=GM()&&GM().get();
+    switcher($('vsel'),vk,function(k){override=k===mine?null:k;run().vk=k;changed();renderAll()});
+    var noSI=p&&p.path==='SI'&&mine&&VARS[mine].path==='CW';
+    $('vnote').textContent=mine?(vk===mine?'The checks for your Gaggia\'s schematic. Pick another to compare.':'Showing the checks for '+vlabel(vk)+'. The dot marks yours.')+(noSI?' There\'s no official stock-integration drawing for a 230 V Pro-family machine, so yours is custom wiring.':''):
+      'Set your model, voltage and install path in the top bar and the checks follow your schematic. Until then, pick one here.';
+    $('sections').innerHTML=SECTIONS.map(function(s){
+      var its=s.items.filter(vis);if(!its.length)return '';
+      return '<section class="sec" aria-labelledby="h-'+s.id+'"><div class="sec-h"><h2 id="h-'+s.id+'">'+esc(s.name)+'</h2><span class="sum" data-ssum="'+s.id+'"></span></div><p class="sec-intro">'+esc(val(s.intro))+'</p>'+its.map(function(it){return itemHtml(it,r)}).join('')+'</section>';
+    }).join('');
+    update();
+  }
+  function update(){
+    var r=run(),p=0,f=0,t=0;
+    SECTIONS.forEach(function(s){
+      var sp=0,its=s.items.filter(vis);
+      its.forEach(function(it){
+        t++;var res=result(it,r);
+        if(res==='pass'){p++;sp++}else if(res==='fail')f++;
+        var row=document.querySelector('[data-item="'+it.id+'"]');if(!row)return;
+        row.setAttribute('data-r',res||'');
+        var rs=row.querySelector('[data-res]');if(rs){rs.className='res '+(res||'');rs.textContent=res==='pass'?'Pass':res==='fail'?'Fail':'—'}
+        var fx=row.querySelector('[data-fix]');if(fx)fx.hidden=!(res==='fail'&&it.fix);
+        var ex=row.querySelector('[data-exp]');if(ex)ex.textContent=expText(it,r);
+        var pl=row.querySelector('[data-pline]');if(pl)pl.innerHTML=plineHtml(it,r);
+      });
+      var ss=document.querySelector('[data-ssum="'+s.id+'"]');if(ss)ss.textContent=sp+' of '+its.length;
+    });
+    var left=t-p-f;
+    $('c-pass').textContent=p;$('c-fail').textContent=f;$('c-left').textContent=left;
+    var g=$('gate');g.className='gate '+(f?'failed':(left?(p?'going':''):'ready'));
+    $('g-t').textContent=f?'Not ready to plug in':(left?(p?'Keep going':'Not started'):'Ready for first power-on');
+    $('g-s').textContent=f?(f+' check'+(f===1?' failed':'s failed')+'. Fix each one, then recheck it.'):(left?(left+' check'+(left===1?'':'s')+' still to do, all unplugged.'):'Every check passed, covers on. Plug into a '+outlet()+' and carry on with Phase 5 of the runbook.');
+    $('bar').innerHTML=[[p,'var(--good)'],[f,'var(--bad)']].map(function(x){return x[0]?'<span style="flex-grow:'+x[0]+';background:'+x[1]+'"></span>':''}).join('')+(left?'<span style="flex-grow:'+left+';background:transparent"></span>':'');
+    var e=expectedR(r);$('watts-s').textContent=e?('Expected heater resistance: about '+e.toFixed(1)+' Ω'+(r.volts?'':' at '+profVolts()+' V')+'.'):'Sets the expected heater resistance. Gaggia\'s service manual gives 1350 W for the 120 V Pro family and 1200 W for 230 V.';
+    var pv=profVolts();$('volts').placeholder=pv?String(pv):'120/230';
+    var pf=$('print-for');if(pf){pf.textContent='For '+vlabel(curKey())+'. Run: '+run().label+(run().created?', '+run().created:'')+'. Checked by: ______________'}
+  }
+  window.addEventListener('gaggia-machine',function(){override=null;renderAll()});
+
+  /* ---------- persistence ---------- */
+  var state=defaults(),dbRef=null,mode='local',readOnly=false,saveTimer=null,chain=Promise.resolve();
+  function loadLocal(){try{var s=localStorage.getItem(KEY);return s?normalize(JSON.parse(s)):null}catch(e){return null}}
+  function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+  function setStatus(kind){
+    var txt={loading:'Loading',local:'Saved on this device',saving:'Saving',saved:'Saved',readonly:'View only: changes stay on this screen',full:'Storage is full: changes stay on this device'}[kind]||'';
+    $('status-text').textContent=txt;$('status').classList.toggle('ok',kind==='saved');
+  }
+  function writeOnce(body){return dbRef.set(body).catch(function(e){if(e&&e.code==='unavailable')return new Promise(function(r){setTimeout(r,700+Math.random()*900)}).then(function(){return dbRef.set(body)});throw e})}
+  function onWriteError(e){
+    if(e&&e.code==='quota_exceeded'){setStatus('full');return}
+    if(e&&(e.code==='invalid_argument'||e.code==='not_granted'||e.code==='revoked'||e.code==='capability_disabled'||e.code==='capability_removed')){readOnly=true;setStatus('readonly');return}
+    setStatus('local');
+  }
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    if(mode!=='db'){setStatus('local');return}
+    if(readOnly){setStatus('readonly');return}
+    setStatus('saving');
+    saveTimer=setTimeout(function(){var body=JSON.parse(JSON.stringify(state));chain=chain.then(function(){return writeOnce(body)}).then(function(){if(!readOnly)setStatus('saved')}).catch(onWriteError)},700);
+  }
+  function changed(){state.updatedAt=Date.now();saveLocal();update();scheduleSave()}
+  function setVal(id,patch){var r=run(),cur=Object.assign({},r.vals[id]||{},patch);Object.keys(cur).forEach(function(k){if(cur[k]==null||cur[k]===false)delete cur[k]});if(Object.keys(cur).length)r.vals[id]=cur;else delete r.vals[id];changed()}
+  function connect(){
+    var p;
+    try{p=(window.claude&&typeof window.claude.use==='function')?window.claude.use('db'):Promise.resolve(null)}catch(e){p=Promise.resolve(null)}
+    Promise.resolve(p).then(function(db){
+      if(!db){mode='local';setStatus('local');return}
+      dbRef=db.doc('checks/state-v2');mode='db';
+      return dbRef.get().then(function(snap){
+        if(snap.exists){var remote=normalize(snap.data());if(remote.updatedAt>=state.updatedAt){state=remote;saveLocal();renderAll();setStatus('saved')}else scheduleSave()}
+        else if(state.updatedAt>0)scheduleSave();else setStatus('saved');
+      }).catch(function(e){if(e&&e.code==='unavailable'){mode='local';setStatus('local')}else onWriteError(e)});
+    }).catch(function(){mode='local';setStatus('local')});
+  }
+
+  /* ---------- events ---------- */
+  var sec=$('sections');
+  sec.addEventListener('input',function(e){
+    var id=e.target.getAttribute('data-v');if(!id)return;
+    var t=e.target.value;if(t===''){setVal(id,{v:null});return}
+    var n=Number(t);if(!isFinite(n)||n<0)return;setVal(id,{v:n,ol:null});
+  });
+  sec.addEventListener('change',function(e){var id=e.target.getAttribute('data-u');if(id)setVal(id,{u:e.target.value})});
+  sec.addEventListener('click',function(e){
+    var b=e.target.closest('[data-ol]');
+    if(b){var id=b.getAttribute('data-ol'),on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));
+      var inp=$('v-'+id),u=$('u-'+id);if(inp){inp.disabled=on;if(on)inp.value=''}if(u)u.disabled=on;
+      setVal(id,on?{ol:true,v:null}:{ol:null});return}
+    var pf=e.target.closest('[data-pf]');
+    if(pf){var pid=pf.getAttribute('data-pf'),val=pf.getAttribute('data-v'),cur=(run().vals[pid]||{}).m,next=cur===val?null:val;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-pf="'+pid+'"]'),function(x){x.setAttribute('aria-pressed',String(x.getAttribute('data-v')===next))});
+      setVal(pid,{m:next})}
+  });
+  function setupNum(id,key){$(id).addEventListener('input',function(){var t=this.value,r=run();if(t===''){r[key]=null}else{var n=Number(t);if(!isFinite(n)||n<0)return;r[key]=n}changed()})}
+  setupNum('leads','leads');setupNum('watts','watts');setupNum('volts','volts');
+  $('notes').addEventListener('input',function(){run().notes=this.value.slice(0,4000);state.updatedAt=Date.now();saveLocal();scheduleSave()});
+  $('runs').addEventListener('click',function(e){var b=e.target.closest('[data-run]');if(!b)return;state.cur=b.getAttribute('data-run');state.updatedAt=Date.now();saveLocal();renderAll();scheduleSave()});
+  $('newrun').addEventListener('click',function(){var r=blankRun(state.runs.length+1,run());state.runs.push(r);state.cur=r.id;state.updatedAt=Date.now();saveLocal();renderAll();scheduleSave()});
+  var delArm=null;
+  $('delrun').addEventListener('click',function(){
+    var b=this;if(state.runs.length<2)return;
+    if(!delArm){b.textContent='Tap again to delete';delArm=setTimeout(function(){delArm=null;b.textContent='Delete this run'},4000);return}
+    clearTimeout(delArm);delArm=null;b.textContent='Delete this run';
+    var id=state.cur;state.runs=state.runs.filter(function(x){return x.id!==id});state.cur=state.runs[state.runs.length-1].id;
+    state.updatedAt=Date.now();saveLocal();renderAll();scheduleSave();
+  });
+
+  state=loadLocal()||defaults();
+  renderAll();setStatus('loading');
+  function jump(){var h=(location.hash||'').slice(1).toLowerCase();if(!ITEMS[h])return;var el=$(h);if(!el)return;el.scrollIntoView({block:'center'});el.classList.add('hit');setTimeout(function(){el.classList.remove('hit')},2600)}
+  window.addEventListener('hashchange',jump);jump();
+  connect();
+})();
+</script>
