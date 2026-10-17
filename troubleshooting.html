@@ -90,7 +90,7 @@
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
 /* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
-[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+[data-when][hidden],[data-showall][hidden],.mnote[hidden],[data-when][display="none"]{display:none!important}
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
@@ -105,6 +105,7 @@
      eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
      opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
@@ -146,7 +147,7 @@
     /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
     if(p.volts===120||p.model==='GC')return false;
     if(!p.model||p.volts!==230)return null;
-    return p.eco;
+    return p.eco==null?null:!!p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
   function wpathOf(p){
@@ -178,6 +179,7 @@
       /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
       if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
       if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
+      if(c.k==='siok')return !(prof.model&&prof.model!=='GC'&&prof.volts===230);
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -199,11 +201,19 @@
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
       if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
+      if(c.k==='siok')return prof.model==='GC'||prof.volts===120||(!!prof.model&&!!prof.volts);
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
       return true;
     })(c);
+  }
+  /* an element's text without the parts that don't apply to the picked machine */
+  function vtext(el){
+    if(!el)return '';
+    var c=el.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('[data-when]'),function(x){if(!matches(x.getAttribute('data-when')))x.remove()});
+    return c.textContent.replace(/\s+/g,' ').trim();
   }
   function txt(x){
     if(x==null)return '';
@@ -240,7 +250,12 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){
+      var hide=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall');
+      /* inside a drawing, hidden doesn't apply, so SVG elements get display="none" instead */
+      if(window.SVGElement&&el instanceof SVGElement){if(hide)el.setAttribute('display','none');else el.removeAttribute('display')}
+      else el.hidden=hide;
+    });
     /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
     Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
       var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
@@ -346,7 +361,7 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -538,7 +553,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      check:['Switch off and unplug.','Rerun [d7]: with the switch on, L to N must not read near the heater\'s resistance.','Check the SSR\'s load wires against the wiring page.'],src:'Meter checks'},
     {c:'heat',d:1,s:'The boiler\'s thermal fuse blew',
      causes:['A reversed or loose thermocouple, or an SSR stuck on, let the boiler overheat.','The boiler heated dry: after it\'s been drained, fill it before it heats.','Flashing an older STM32F411 board (PCB v2 to v3.1) with the machine powered: some switch the heater on while the programmer is connected.'],
-     check:['Find the cause before fitting a new one: the stock fuse is one-shot. If you fitted the optional resettable fuse in custom wiring, it trips instead; find the cause before resetting it.','Never bridge it.','Recheck the thermocouple direction on the bench, and rerun [d7].'],src:'Official PCB upgrade and flashing guides, Whole Latte Love'},
+     check:['Find the cause before fitting a new one: the stock fuse is one-shot.',{t:'If you fitted the optional resettable fuse in custom wiring, it trips instead; find the cause before resetting it.',w:'!wpath:SI'},'Never bridge it.','Recheck the thermocouple direction on the bench, and rerun [d7].'],src:'Official PCB upgrade and flashing guides, Whole Latte Love'},
     {c:'heat',s:'The temperature swings or overshoots in normal use',
      causes:['Settings changed from the defaults: the Gen 3 manual recommends them for the Classic and the Pro family.','Poor contact at the thermocouple: no paste, or not finger tight.'],
      check:['Put Settings, Boiler back on the defaults.','Refit the thermocouple with fresh paste rated for 180 °C or more.','Change Temperature Offset only against a real group-head measurement.'],src:'Official Gen 3 manual'},
@@ -549,27 +564,28 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      causes:['Pump vibration through the sensor, or the sensor touching the housing.','Sensor wires bundled with mains.'],
      check:['Mount the sensor low in the machine, below the T and off metal; a wrap of foam or a fixing to the frame helps.','Route its wires on the right of the case, away from mains.'],src:'Official stock integration guide'},
     {c:'pressure',s:'Pressure never reaches the target, or Test OPV peaks below 10.5 bar',
-     causes:[{t:'A 9 bar OPV: stock on US Evo Pros and E24s, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'unset:model,volts'},
+     causes:[{t:'A 9 bar OPV: stock on US Evo Pros and E24s, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'unset:model'},
+       {t:'A 9 bar OPV: stock on US machines, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model;unset:volts;model:EVO,E24'},
        {t:'The stock 9 bar OPV, not raised to 10 to 12 bar yet. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model,volts;opv9'},
-       {t:'A 9 bar spring from a past owner\'s swap. Gaggiuino can\'t tell when the valve opens, so shots fall short.',w:'set:model,volts;!opv9;fam:GCP'},
-       {t:'The valve turned down: the original Classic\'s metal OPV adjusts under its cap, and owners often set it to 9 bar. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model,volts;fam:GC'},
+       {t:'A 9 bar spring from a past owner\'s swap. Gaggiuino can\'t tell when the valve opens, so shots fall short.',w:'set:model;model:GCP'},{t:'A 9 bar spring from a past owner\'s swap. Gaggiuino can\'t tell when the valve opens, so shots fall short.',w:'set:model,volts;model:EVO,E24;volts:230'},
+       {t:'The valve turned down: the original Classic\'s metal OPV adjusts under its cap, and owners often set it to 9 bar. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model;fam:GC'},
        'The blank basket or group gasket not sealing.'],
      check:[{t:'On the Pro family, raise it to 10 to 12 bar: a 12 bar spring, or three or four M3 washers behind the old one. Add a washer if it still peaks low.',w:'fam:GCP'},{t:'On the original Classic, turn the valve up: cap off (17 mm), then the 5 mm hex inside, a little at a time, rerunning [UT] Test OPV until it peaks at 10.5 to 13 bar.',w:'fam:GC'},'Reseat the basket and gasket and rerun [UT] Test OPV.'],src:'Official machine-specific guide and startup steps'},
     {c:'pressure',s:'Test OPV peaks above 13 bar',
-     causes:[{t:'An older Classic\'s metal valve set high: owners report about 14 bar from the factory.',w:'fam:GC'},{t:'A stiffer spring fitted to a Pro-family valve.',w:'fam:GCP'}],
-     check:[{t:'The old Classic\'s valve adjusts: cap off (17 mm), then the 5 mm hex inside. Turn it down a little at a time and rerun [UT] Test OPV.',w:'fam:GC'},{t:'On the Pro family, fit a 12 bar spring.',w:'fam:GCP'}],src:'Official startup steps, Coffee Forums'},
+     causes:[{t:'An older Classic\'s metal valve set high: owners report about 14 bar from the factory.',w:'fam:GC'},{t:'Too many washers, or too stiff a spring, added behind the 9 bar valve.',w:'set:model,volts;opv9'},{t:'The stock spring: reviewers have measured Classic Pros at 12 to 14 bar, above Gaggia\'s 11 bar figure.',w:'fam:GCP;!model:EVO,E24'},{t:'Washers or a stiffer spring added by a past owner.',w:'fam:GCP;!opv9'}],
+     check:[{t:'The old Classic\'s valve adjusts: cap off (17 mm), then the 5 mm hex inside. Turn it down a little at a time and rerun [UT] Test OPV.',w:'fam:GC'},{t:'On the Pro family, take out a washer at a time and rerun [UT] Test OPV. If it\'s a stock spring with no washers and still peaks above 13 bar, ask in your help thread before changing it.',w:'fam:GCP'}],src:'Official startup steps, Coffee Forums'},
     {c:'pressure',s:'The pump doesn\'t run',
-     causes:['The brew input isn\'t reaching J7 B.','An open pump thermal fuse.','J12 or the pump wire not connected.'],
-     check:['Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.','Gen 3\'s Maintenance page can run the pump on its own, which splits wiring faults from settings.'],src:'Meter checks, official Gen 3 docs'},
+     causes:['The brew input isn\'t reaching J7 B.',{t:'An open pump thermal fuse.',w:'!fam:GC'},{t:'An open pump thermal fuse.',w:'set:model;fam:GC;!volts:230'},{t:'An open pump thermal fuse, if yours has one: the 230 V Classic\'s stock-integration drawing shows none.',w:'set:model,volts;fam:GC;volts:230'},'J12 or the pump wire not connected.'],
+     check:[{t:'Rerun [f1], [f2] and [c5], plus [c4] where your schematic has the pump fuse, then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'unset:model'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model;fam:GCP'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model;fam:GC;!volts:230'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model,volts,path;fam:GC;volts:230;path:CW'},{t:'Rerun [f1], [f2] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model,volts;fam:GC;volts:230;!path:CW'},'Gen 3\'s Maintenance page can run the pump on its own, which splits wiring faults from settings.'],src:'Meter checks, official Gen 3 docs'},
     {c:'pressure',s:'The pump runs but no water reaches the group',
-     causes:['Tank empty, or its intake out of the water.','An air lock.','The 3-way valve not opening: J13, its wire or the coil. In stock integration the valve\'s circuit still runs through the steam switch, so steam must be off.'],
-     check:['Prime it: open the steam knob and run Flush until water flows steadily from the wand.','Turn steam off, then rerun [c6] and the valve checks under path continuity.'],src:'Meter checks, Whole Latte Love'},
+     causes:['Tank empty, or its intake out of the water.','An air lock.',{t:'The 3-way valve not opening: J13, its wire or the coil. In stock integration the valve\'s circuit still runs through the steam switch, so steam must be off.',w:'!wpath:CW'},{t:'The 3-way valve not opening: J13, its wire or the coil.',w:'set:path;path:CW'},{t:'The 3-way valve not opening: J13, its wire or the coil.',w:'set:path,model,volts;path:SI;wpath:CW'}],
+     check:['Prime it: open the steam knob and run Flush until water flows steadily from the wand.',{t:'Turn steam off, then rerun [c6] and the valve checks under path continuity.',w:'!wpath:CW'},{t:'Rerun [c6] and the valve checks under path continuity.',w:'set:path;path:CW'},{t:'Rerun [c6] and the valve checks under path continuity.',w:'set:path,model,volts;path:SI;wpath:CW'}],src:'Meter checks, Whole Latte Love'},
     {c:'pressure',s:'Wet pucks, and no whoosh into the drip tray after a shot',
      causes:['The 3-way valve jammed open with scale or debris.'],
      check:['Strip and descale the valve, or replace it. Whole Latte Love\'s guide covers both.'],src:'Whole Latte Love, Coffee Forums'},
     {c:'pressure',s:'Leaks at the T-fitting, tap block or sensor',
-     causes:['Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.',{t:'The Pro\'s braided hose not clamped over the middle of the barb.',w:'fam:GCP'},'The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
-     check:['Unplug and let it cool before touching fittings.','Recut the tube square and reseat it; a rubber glove helps your grip.','Sensor hand tight, plus a quarter turn at most.'],src:'Official stock integration and custom wiring guides'},
+     causes:[{t:'The braided hose not clamped over the middle of the barb, or the clamp not tight.',w:'set:model;fam:GCP'},{t:'Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.',w:'fam:GC'},{t:'On the Pro family, the braided hose not clamped over the middle of the barb.',w:'unset:model'},'The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
+     check:['Unplug and let it cool before touching fittings.',{t:'Recut the tube square and reseat it; a rubber glove helps your grip.',w:'fam:GC'},{t:'Reseat the hose over the barb and clamp it over the middle.',w:'fam:GCP'},'Sensor hand tight, plus a quarter turn at most.'],src:'Official stock integration and custom wiring guides'},
     {c:'switch',s:'A switch does nothing',
      causes:['Signal and ground on the wrong spades.','A break in the ground jumper between the switches.'],
      check:['Rerun [f1] to [f4] with the plugs off the PCB.','Gen 3\'s Maintenance page shows the raw brew and steam pin levels as you flip each switch.'],src:'Official schematics, official Gen 3 docs'},
@@ -623,6 +639,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
       else if(k==='eco')out.push(v[0]==='yes'?'Eco board':'No Eco board');
       else if(k==='opv9')out.push('US Evo Pro, E24');
       else if(k==='ground')out.push('120 V Classic');
+      else if(k==='siok')out.push('Classic or 120 V Pro family');
       else if(k==='path'||k==='wpath')out.push(v[0]==='SI'?'Stock wiring':'Custom wiring');
     });
     return out.join(' · ');

@@ -90,7 +90,7 @@
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
 /* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
-[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+[data-when][hidden],[data-showall][hidden],.mnote[hidden],[data-when][display="none"]{display:none!important}
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
@@ -105,6 +105,7 @@
      eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
      opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
@@ -146,7 +147,7 @@
     /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
     if(p.volts===120||p.model==='GC')return false;
     if(!p.model||p.volts!==230)return null;
-    return p.eco;
+    return p.eco==null?null:!!p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
   function wpathOf(p){
@@ -178,6 +179,7 @@
       /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
       if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
       if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
+      if(c.k==='siok')return !(prof.model&&prof.model!=='GC'&&prof.volts===230);
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -199,11 +201,19 @@
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
       if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
+      if(c.k==='siok')return prof.model==='GC'||prof.volts===120||(!!prof.model&&!!prof.volts);
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
       return true;
     })(c);
+  }
+  /* an element's text without the parts that don't apply to the picked machine */
+  function vtext(el){
+    if(!el)return '';
+    var c=el.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('[data-when]'),function(x){if(!matches(x.getAttribute('data-when')))x.remove()});
+    return c.textContent.replace(/\s+/g,' ').trim();
   }
   function txt(x){
     if(x==null)return '';
@@ -240,7 +250,12 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){
+      var hide=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall');
+      /* inside a drawing, hidden doesn't apply, so SVG elements get display="none" instead */
+      if(window.SVGElement&&el instanceof SVGElement){if(hide)el.setAttribute('display','none');else el.removeAttribute('display')}
+      else el.hidden=hide;
+    });
     /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
     Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
       var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
@@ -346,7 +361,7 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -618,30 +633,31 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 .lad-t output{font:600 15px var(--f-mono);min-width:7ch;text-align:right}
 .lad-fig{overflow-x:auto;padding:6px 8px}
 .lad-fig svg{display:block;width:100%;min-width:640px;height:auto}
+.lad-note{margin:0;padding:10px 16px 0;font-size:14.5px;color:var(--muted)}
 .lad .swipe-hint{margin:0;padding:0 16px 10px}
 .lad-status{margin:0;padding:10px 16px 14px;border-top:1px solid var(--line);font-size:15px}
 .lad-status b{font-weight:600}
-#lad-svg .lt{font:700 15px var(--f-mono);fill:var(--ink)}
-#lad-svg .lc{font:500 11.5px var(--f-mono);fill:var(--muted)}
-#lad-svg .lc.dim{fill:var(--accent-ink)}
-#lad-svg .w{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
-#lad-svg .w.live{stroke:var(--w-l);stroke-dasharray:8 8}
-#lad-svg .w.h.live{stroke:var(--w-h)}
-#lad-svg .w.n.live{stroke:var(--w-n)}
-#lad-svg .node{fill:var(--muted)}
-#lad-svg .tm{fill:var(--surface);stroke:var(--ink);stroke-width:1.6}
-#lad-svg .blade{stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;transition:transform .15s}
-#lad-svg .swi.th .tm{stroke:var(--accent-ink)}
-#lad-svg .link{stroke:var(--muted);stroke-width:1.4;stroke-dasharray:3 4}
-#lad-svg .ld circle,#lad-svg .ld rect,#lad-svg .ld polygon{fill:var(--surface);stroke:var(--ink);stroke-width:1.8}
-#lad-svg .ld path,#lad-svg .ld line{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
-#lad-svg .ld.on.lamp circle{fill:#3FBF6A;stroke:#2D7A4C}
-#lad-svg .ld.on.lamp.ht circle{fill:#F2A33A;stroke:#965300}
-#lad-svg .ld.on.el path{stroke:#FF8A2A;filter:drop-shadow(0 0 4px #FF8A2A)}
-#lad-svg .ld.on.coil path{stroke:var(--accent)}
-#lad-svg .ld.blown line{stroke:var(--bad)}
-#lad-svg .earth line{stroke:var(--w-e);stroke-width:2}
-@media (prefers-reduced-motion:reduce){#lad-svg .w.live{stroke-dasharray:none}}
+#lad-svg .lt,#lad-svg-gc .lt{font:700 15px var(--f-mono);fill:var(--ink)}
+#lad-svg .lc,#lad-svg-gc .lc{font:500 11.5px var(--f-mono);fill:var(--muted)}
+#lad-svg .lc.dim,#lad-svg-gc .lc.dim{fill:var(--accent-ink)}
+#lad-svg .w,#lad-svg-gc .w{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+#lad-svg .w.live,#lad-svg-gc .w.live{stroke:var(--w-l);stroke-dasharray:8 8}
+#lad-svg .w.h.live,#lad-svg-gc .w.h.live{stroke:var(--w-h)}
+#lad-svg .w.n.live,#lad-svg-gc .w.n.live{stroke:var(--w-n)}
+#lad-svg .node,#lad-svg-gc .node{fill:var(--muted)}
+#lad-svg .tm,#lad-svg-gc .tm{fill:var(--surface);stroke:var(--ink);stroke-width:1.6}
+#lad-svg .blade,#lad-svg-gc .blade{stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;transition:transform .15s}
+#lad-svg .swi.th .tm,#lad-svg-gc .swi.th .tm{stroke:var(--accent-ink)}
+#lad-svg .link,#lad-svg-gc .link{stroke:var(--muted);stroke-width:1.4;stroke-dasharray:3 4}
+#lad-svg .ld circle,#lad-svg-gc .ld circle,#lad-svg .ld rect,#lad-svg-gc .ld rect,#lad-svg .ld polygon,#lad-svg-gc .ld polygon{fill:var(--surface);stroke:var(--ink);stroke-width:1.8}
+#lad-svg .ld path,#lad-svg-gc .ld path,#lad-svg .ld line,#lad-svg-gc .ld line{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
+#lad-svg .ld.on.lamp circle,#lad-svg-gc .ld.on.lamp circle{fill:#3FBF6A;stroke:#2D7A4C}
+#lad-svg .ld.on.lamp.ht circle,#lad-svg-gc .ld.on.lamp.ht circle{fill:#F2A33A;stroke:#965300}
+#lad-svg .ld.on.el path,#lad-svg-gc .ld.on.el path{stroke:#FF8A2A;filter:drop-shadow(0 0 4px #FF8A2A)}
+#lad-svg .ld.on.coil path,#lad-svg-gc .ld.on.coil path{stroke:var(--accent)}
+#lad-svg .ld.blown line,#lad-svg-gc .ld.blown line{stroke:var(--bad)}
+#lad-svg .earth line,#lad-svg-gc .earth line{stroke:var(--w-e);stroke-width:2}
+@media (prefers-reduced-motion:reduce),@media (prefers-reduced-motion:reduce){#lad-svg .__X__w.live{stroke-dasharray:none}}
 
 /* Layout: plate header; the x-ray machine map with mode buttons and a part panel; the stock circuit you can switch;
    then every part as a card (some with a moving figure); one shot start to finish; sources. */
@@ -704,9 +720,9 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 
 <div class="wrap">
   <header class="top">
-    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Learn</b></span><span>Gaggia Classic Pro</span><span>stock machine</span><span class="rivet" aria-hidden="true"></span></div>
+    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Learn</b></span><span id="lg-plate">Gaggia Classic Pro</span><span>stock machine</span><span class="rivet" aria-hidden="true"></span></div>
     <h1>How the Gaggia Works</h1>
-    <p class="lede">Every part of the stock machine, what it does and how it does it, before Gaggiuino changes anything. Pick a mode to watch the water and the heat move, tap a number for any part, then flip the switches on the circuit to see what powers what. Drawn from the Classic Pro; where the original Classic differs, the part says so.</p>
+    <p class="lede">Every part of the stock machine, what it does and how it does it, before Gaggiuino changes anything. Pick a mode to watch the water and the heat move, tap a number for any part, then flip the switches on the circuit to see what powers what. <span data-when="unset:model">Drawn from the Classic Pro; where the original Classic differs, the part says so. Pick your model in Your Gaggia and the page shows yours.</span><span data-when="set:model">Shown for your <span id="lg-name">Gaggia</span>.</span></p>
   </header>
 
     <section class="block" id="map" aria-labelledby="h-map">
@@ -722,11 +738,11 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <p class="modecap" id="modecap" aria-live="polite"></p>
     <div hidden>
       <span id="cap-off">Cord in, power switch off. Nothing has power, so the water just sits in the tank and the boiler.</span>
-      <span id="cap-heat">Power on. The elements heat the boiler until the brew thermostat opens, then wait for it to cool a little and close again. The brew lamp is a ready lamp: it lights while the thermostat is open, so it's out while the elements heat.</span>
+      <span id="cap-heat">Power on. The elements heat the boiler until the brew thermostat opens, then wait for it to cool a little and close again. <span data-when="!fam:GC">The brew lamp is a ready lamp: it lights while the thermostat is open, so it's out while the elements heat.</span><span data-when="set:model;fam:GC">The ready lamp lights while a thermostat is open, so it's out while the elements heat.</span></span>
       <span id="cap-brew">Brew switch on. The pump pulls water from the tank and pushes it into the boiler, and the 3-way valve opens so hot water flows from the boiler into the group and through the coffee. Whatever the puck won't take above the over-pressure valve's setting goes back to the tank.</span>
       <span id="cap-stop">Brew switch off. The pump stops and the 3-way valve flips: the pressure left above the puck vents down its drain tube into the drip tray.</span>
-      <span id="cap-water">Brew and steam switches on together, with the steam knob open. The pump runs, but the steam switch has cut the 3-way valve's return, so the valve stays shut and the water pushes through the boiler and out of the wand.</span>
-      <span id="cap-steam">Steam switch on, then the knob. The steam switch shorts out the brew thermostat, so the elements keep going until the steam thermostat opens, well above boiling, and the steam lamp lights. The knob lets steam out of the top of the boiler through the wand.</span>
+      <span id="cap-water">Brew and steam switches on together, with the steam knob open. The pump runs, but the steam switch has cut the 3-way valve's <span data-when="!fam:GC">return</span><span data-when="set:model;fam:GC">feed</span>, so the valve stays shut and the water pushes through the boiler and out of the wand.</span>
+      <span id="cap-steam">Steam switch on, then the knob. The steam switch shorts out the brew thermostat, so the elements keep going until the steam thermostat opens, well above boiling, and the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp lights. The knob lets steam out of the top of the boiler through the wand.</span>
     </div>
     <div class="map">
       <div class="stage"><svg id="cut" class="cut" viewBox="24 44 926 510" role="img" aria-labelledby="cut-t">
@@ -757,8 +773,10 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
   <!-- pipes (static) -->
   <g class="pipes">
     <path id="pp-intake" d="M690,418 V476 Q690,488 678,488 H552 Q540,488 540,476 V470"/>
-    <path id="pp-opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V160"/>
-    <path id="pp-pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412"/>
+    <path id="pp-opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V160" data-when="!fam:GC"/>
+    <path id="pp-pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="!fam:GC"/>
+    <path id="pp-opvret-gc" d="M471,312 V128 Q471,116 483,116 H660 V160" data-when="set:model;fam:GC"/>
+    <path id="pp-pumpout-gc" d="M540,336 V318 Q540,306 528,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="set:model;fam:GC"/>
     <path id="pp-steam" d="M384,168 V122 Q384,110 372,110 H232 Q220,110 220,122 V150"/>
     <path id="pp-drain" d="M440,330 V512"/>
   </g>
@@ -774,13 +792,23 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <rect x="566" y="444" width="10" height="16" rx="2" class="pfuse"/>
   </g>
   <g id="p-opv" class="part">
-    <rect x="512" y="292" width="56" height="44" rx="6" class="opv"/>
-    <path d="M528,302 h24 M528,310 h24 M528,318 h24 M528,326 h24" class="spring2"/>
+    <!-- Pro family: a black valve on top of the pump, returning to the tank -->
+    <g data-when="!fam:GC">
+      <rect x="512" y="292" width="56" height="44" rx="6" class="opv"/>
+      <path d="M528,302 h24 M528,310 h24 M528,318 h24 M528,326 h24" class="spring2"/>
+    </g>
+    <!-- original Classic: a metal valve on the line into the group, with an adjusting cap -->
+    <g data-when="set:model;fam:GC">
+      <rect x="530" y="324" width="20" height="14" rx="3" class="nipple"/>
+      <rect x="459" y="310" width="24" height="30" rx="4" fill="url(#cut-chrome)" class="chrome-s"/>
+      <rect x="464" y="303" width="14" height="8" rx="2" fill="url(#cut-chrome)" class="chrome-s"/>
+      <path d="M463,318 h16 M463,324 h16 M463,330 h16" class="spring2"/>
+    </g>
   </g>
 
-  <!-- boiler: aluminum, with an element on each side; the near one is drawn -->
+  <!-- boiler: aluminum (lead-free brass on the E24; learn-gaggia.js recolors it), with an element on each side; the near one is drawn -->
   <g id="p-boiler" class="part">
-    <rect x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-alu)" class="alu-s"/>
+    <rect id="boilerbody" x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-alu)" class="alu-s"/>
     <rect x="250" y="178" width="150" height="112" rx="12" class="boilerwater"/>
     <rect id="heatglow" x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-glow)" opacity="0"/>
   </g>
@@ -796,7 +824,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 
   <!-- group body under the boiler, inlet connector and 3-way valve behind it, portafilter -->
   <g id="p-group" class="part">
-    <path d="M262,300 H388 V346 Q388,352 382,352 H268 Q262,352 262,346 Z" fill="url(#cut-chrome)" class="chrome-s"/>
+    <path id="groupbody" d="M262,300 H388 V346 Q388,352 382,352 H268 Q262,352 262,346 Z" fill="url(#cut-chrome)" class="chrome-s"/>
     <line x1="270" y1="352" x2="380" y2="352" class="screen"/>
     <rect x="388" y="332" width="24" height="20" rx="3" fill="url(#cut-brass)" class="brass-s"/>
   </g>
@@ -830,7 +858,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <rect x="170" y="100" width="22" height="22" rx="4" class="sw" id="sw-pwr"/>
     <rect x="170" y="130" width="22" height="22" rx="4" class="sw" id="sw-brew"/>
     <rect x="170" y="160" width="22" height="22" rx="4" class="sw" id="sw-steam"/>
-    <circle cx="181" cy="200" r="5" class="lmp" id="cl-pwr"/><circle cx="181" cy="218" r="5" class="lmp" id="cl-brew"/><circle cx="181" cy="236" r="5" class="lmp" id="cl-steam"/>
+    <circle cx="181" cy="200" r="5" class="lmp" id="cl-pwr"/><circle cx="181" cy="218" r="5" class="lmp" id="cl-brew"/><circle cx="181" cy="236" r="5" class="lmp" id="cl-steam" data-when="!fam:GC"/>
   </g>
   <g id="p-inlet" class="part">
     <rect x="796" y="462" width="22" height="40" rx="4" class="inlet"/>
@@ -841,8 +869,10 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
   <g class="flows">
     <path class="flow water" data-f="intake" d="M690,420 V476 Q690,488 678,488 H552 Q540,488 540,476 V470"/>
     <path class="flow water" data-f="pump" d="M540,470 V336"/>
-    <path class="flow water thin" data-f="opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V214"/>
-    <path class="flow water" data-f="pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412"/>
+    <path class="flow water thin" data-f="opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V214" data-when="!fam:GC"/>
+    <path class="flow water thin" data-f="opvret" d="M471,312 V128 Q471,116 483,116 H660 V214" data-when="set:model;fam:GC"/>
+    <path class="flow water" data-f="pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="!fam:GC"/>
+    <path class="flow water" data-f="pumpout" d="M540,336 V318 Q540,306 528,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="set:model;fam:GC"/>
     <path class="flow water" data-f="boilerin" d="M400,342 V290"/>
     <path class="flow water" data-f="boiler" d="M384,240 H404 Q416,240 416,252 V300 H432 V312"/>
     <path class="flow water" data-f="togroup" d="M424,318 Q424,326 416,326 H330 V352"/>
@@ -883,31 +913,32 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
           </div>
           <div class="row">
             <span class="lamp pw" id="lp-pwr"><i></i>power lamp</span>
-            <span class="lamp ht" id="lp-brew"><i></i>brew ready</span>
-            <span class="lamp ht" id="lp-steam"><i></i>steam ready</span>
+            <span class="lamp ht" id="lp-brew"><i></i><span data-when="!fam:GC">brew ready</span><span data-when="set:model;fam:GC">ready lamp</span></span>
+            <span class="lamp ht" id="lp-steam" data-when="!fam:GC"><i></i>steam ready</span>
           </div>
         </div>
         <div class="pinfo" id="pinfo" aria-live="polite"></div>
       </div>
     </div>
-    <p class="fine" style="margin-top:10px">A Classic Pro, simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate; the older Classic has its over-pressure valve on the group instead of the pump.</p>
+    <p class="fine" style="margin-top:10px"><span data-when="unset:model">A Classic Pro, simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate; the older Classic has its over-pressure valve on the group instead of the pump.</span><span data-when="set:model;fam:GCP">Simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate.</span><span data-when="set:model;fam:GC">Simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate. Your Classic's lamps sit inside the switch housing: a power lamp and one ready lamp.</span></p>
   </section>
 
   <section class="block" id="circuit" aria-labelledby="h-circuit">
     <div class="sec-h"><h2 id="h-circuit">The circuit</h2><span class="sum">switch it yourself</span></div>
     <div class="circ">
       <div class="prose">
-        <p>Every load in the stock Classic Pro sits on its own path from line to neutral, and every path runs through a switch or a thermostat. Nothing is computed: if a path is closed end to end, that part runs. The diagram is drawn as a ladder, with line down the left, neutral down the right, and one rung per load.</p>
-        <p>Three details surprise people. The thermostats sit on the elements' neutral side, after them. The brew and steam lamps aren't heating lamps: each is wired across its thermostat, so it lights when that thermostat opens, which means ready. And the 184 °C thermal fuse feeds everything except the power lamp, so a blown fuse leaves the power lamp lit and nothing else working.</p>
+        <p>Every load in the stock <span data-when="!fam:GC;!model:EVO,E24">Classic Pro</span><span data-when="set:model;model:EVO">Evo Pro, wired like the Classic Pro,</span><span data-when="set:model;model:E24">E24, wired like the Classic Pro,</span><span data-when="set:model;fam:GC">Classic</span> sits on its own path from line to neutral, and every path runs through a switch or a thermostat. Nothing is computed: if a path is closed end to end, that part runs. The diagram is drawn as a ladder, with line down the left, neutral down the right, and one rung per load.</p>
+        <p data-when="!fam:GC">Three details surprise people. The thermostats sit on the elements' neutral side, after them. The brew and steam lamps aren't heating lamps: each is wired across its thermostat, so it lights when that thermostat opens, which means ready. And the 184 °C thermal fuse feeds everything except the power lamp, so a blown fuse leaves the power lamp lit and nothing else working.</p>
+        <p data-when="set:model;fam:GC">Three details surprise people. The power switch breaks the line only, and the thermostats sit on the line side, ahead of the elements. There's one ready lamp, not a heating lamp: it's wired across both thermostats, so it lights whenever heating stops, for brewing or steam. And the 184 °C thermal fuse is in the neutral feed to the whole machine, so a blown fuse leaves everything dark, the power lamp too.</p>
         <h3>Try it</h3>
         <ul>
-          <li>Turn on Power and let it run: the elements heat until the brew thermostat opens, and the brew lamp lights each time it does.</li>
-          <li>Turn on Brew: the pump runs, and the 3-way valve opens because its return through the steam switch is closed.</li>
+          <li>Turn on Power and let it run: the elements heat until the brew thermostat opens, and the <span data-when="!fam:GC">brew</span><span data-when="set:model;fam:GC">ready</span> lamp lights each time it does.</li>
+          <li>Turn on Brew: the pump runs, and the 3-way valve opens because its <span data-when="!fam:GC">return</span><span data-when="set:model;fam:GC">feed</span> through the steam switch is closed.</li>
           <li>Add Steam: that's hot water mode. The pump keeps running, the valve shuts, and the heater carries on to the steam thermostat.</li>
-          <li>Steam alone: it shorts out the brew thermostat, so heating carries on until the steam thermostat opens at 145 °C and the steam lamp lights.</li>
-          <li>Drag the temperature past 184 °C: the fuse melts and only the power lamp stays lit until a new one is fitted.</li>
+          <li>Steam alone: it shorts out the brew thermostat, so heating carries on until the steam thermostat opens at 145 °C and the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp lights.</li>
+          <li>Drag the temperature past 184 °C: the fuse melts and <span data-when="!fam:GC">only the power lamp stays lit</span><span data-when="set:model;fam:GC">everything goes dark</span> until a new one is fitted.</li>
         </ul>
-        <p class="gg"><b>With Gaggiuino</b>, the brew and steam switches stop switching these rungs and signal the PCB at low voltage instead, and both thermostats leave the elements' circuit: the thermocouple and the SSR take over. With custom wiring that's all the two switches carry; with stock wiring integration, some of their other spades stay on mains. The power switch, the thermal fuse, the pump's protector and the earth stay. <a href="how-gaggiuino-works.html#blocks">See what changes</a>.</p>
+        <p class="gg"><b>With Gaggiuino</b>, the brew and steam switches stop switching these rungs and signal the PCB at low voltage instead, and both thermostats leave the elements' circuit: the thermocouple and the SSR take over. With custom wiring that's all the two switches carry; with stock wiring integration, some of their other spades stay on mains. The power switch, the thermal fuse, the pump's protector<span data-when="set:model;fam:GC;!volts:120"> if yours has one</span> and the earth stay. <a href="how-gaggiuino-works.html#blocks">See what changes</a>.</p>
       </div>
       <div class="lad" id="lad">
   <div class="lad-ctl" role="group" aria-label="Switches and boiler temperature">
@@ -919,7 +950,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <button type="button" class="btn" id="lad-reset" hidden>Fit a new fuse</button>
   </div>
   <div class="lad-fig scroll">
-    <svg viewBox="0 0 900 486" id="lad-svg" role="img" aria-labelledby="lad-t">
+    <svg viewBox="0 0 900 486" id="lad-svg" role="img" aria-labelledby="lad-t" data-when="!fam:GC">
       <title id="lad-t">Ladder diagram of the stock Gaggia Classic Pro circuit at 120 V: line on the left rail, neutral on the right, one rung per load. The power switch breaks both. The power lamp sits across the switched supply, ahead of the 184 °C thermal fuse that feeds everything else. The elements run through the steam thermostat and then the brew thermostat to neutral, with the steam lamp across the steam thermostat, the brew lamp across the brew thermostat, and one pole of the steam switch around the brew thermostat. The brew switch feeds the pump, through its thermal protector, and the 3-way valve, whose return runs through the steam switch's other pole.</title>
       <!-- supply and power switch -->
       <text x="90" y="18" class="lt" text-anchor="middle">L</text><text x="810" y="18" class="lt" text-anchor="middle">N</text>
@@ -998,17 +1029,92 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <g class="swi" id="c-steamA" transform="translate(640 392)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
       <text x="662" y="414" class="lc" text-anchor="middle">steam switch, other pole:</text><text x="662" y="427" class="lc" text-anchor="middle">closed with steam off</text>
       <path id="s-r4c" class="w n" d="M684,392 H810"/>
-      <path d="M662,292 V382" class="link" fill="none"/>
+      <path d="M662,310 V382" class="link" fill="none"/>
       <!-- earth -->
       <g class="earth" transform="translate(120 462)"><line x1="0" y1="-12" x2="0" y2="0"/><line x1="-12" y1="0" x2="12" y2="0"/><line x1="-8" y1="5" x2="8" y2="5"/><line x1="-4" y1="10" x2="4" y2="10"/></g>
       <text x="142" y="468" class="lc">earth goes to the frame, cup tray, valve body and boiler, not to any rung</text>
     </svg>
+    <svg viewBox="0 0 900 486" id="lad-svg-gc" class="lad-svg" role="img" aria-labelledby="lad-t-gc" data-when="set:model;fam:GC">
+      <title id="lad-t-gc">Ladder diagram of the stock original Gaggia Classic circuit, drawn from Gaggia's 120 V diagram: line on the left rail, neutral on the right, one rung per load. The power switch breaks the line only, and the 184 °C thermal fuse sits in the neutral feed to the whole machine. The power lamp sits across the supply. The brew thermostat and then the steam thermostat feed the elements from the line side, with one pole of the steam switch around the brew thermostat and a single ready lamp across both thermostats. The brew switch feeds the pump, through its thermal protector, and the 3-way valve, whose feed runs through the steam switch's other pole.</title>
+      <!-- supply: the power switch breaks line only; the thermal fuse is in the neutral feed to everything -->
+      <text x="90" y="18" class="lt" text-anchor="middle">L</text><text x="810" y="18" class="lt" text-anchor="middle">N</text>
+      <path id="s-ginL" class="w" d="M90,24 V40"/><path id="s-ginN" class="w n up" d="M810,24 V40"/>
+      <g class="swi" id="c-gpwr" transform="translate(90 40)"><circle r="3.5" class="tm"/><circle cy="26" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="0" y2="26"/></g>
+      <text x="104" y="57" class="lc">power switch, line only</text>
+      <g class="ld fuse vert" id="c-gfuse" transform="translate(810 40)"><rect x="-8" y="0" width="16" height="36" rx="3"/><line x1="0" y1="0" x2="0" y2="36"/></g>
+      <text x="796" y="54" class="lc" text-anchor="end">thermal fuse, in the neutral</text><text x="796" y="67" class="lc dim" text-anchor="end" id="lab-gfuse"></text>
+      <path id="s-grailL" class="w" d="M90,66 V340"/><path id="s-grailN" class="w n up" d="M810,76 V410"/>
+
+      <!-- rung 1: power lamp across the supply, after the fuse -->
+      <path id="s-g1a" class="w" d="M90,100 H436"/><path id="s-g1b" class="w n" d="M464,100 H810"/>
+      <g class="ld lamp" id="c-glamp1" transform="translate(450 100)"><circle r="12"/><path d="M-8,-8 L8,8 M8,-8 L-8,8"/></g>
+      <text x="450" y="126" class="lc" text-anchor="middle">power lamp</text>
+
+      <!-- rung 2: brew thermostat, then steam thermostat, on the line side of the elements -->
+      <path id="s-g2a" class="w" d="M90,214 H200"/>
+      <circle cx="200" cy="214" r="3" class="node"/>
+      <path id="s-g2a2" class="w" d="M200,214 H240"/>
+      <g class="swi th" id="c-gbrewt" transform="translate(240 214)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="262" y="236" class="lc" text-anchor="middle">brew thermostat</text><text x="262" y="249" class="lc dim" text-anchor="middle" id="lab-gbrew"></text>
+      <path id="s-g2b" class="w" d="M284,214 H330"/>
+      <circle cx="330" cy="214" r="3" class="node"/>
+      <path id="s-g2c" class="w" d="M330,214 H380"/>
+      <g class="swi th" id="c-gsteamt" transform="translate(380 214)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="402" y="236" class="lc" text-anchor="middle">steam thermostat</text><text x="402" y="249" class="lc dim" text-anchor="middle" id="lab-gsteam"></text>
+      <path id="s-g2d" class="w" d="M424,214 H480"/>
+      <circle cx="480" cy="214" r="3" class="node"/>
+      <path id="s-g2e" class="w" d="M480,214 H540"/>
+      <g class="ld el" id="c-gel" transform="translate(540 214)"><path d="M0,0 l8,-10 l10,20 l10,-20 l10,20 l10,-20 l10,20 l10,-20 l10,20 l10,-20 l8,10"/></g>
+      <text x="593" y="242" class="lc" text-anchor="middle">elements</text>
+      <path id="s-g2f" class="w n" d="M646,214 H810"/>
+      <!-- one ready lamp across both thermostats -->
+      <path id="s-gr1" class="w" d="M200,214 V168 H328"/>
+      <g class="ld lamp ht" id="c-gready" transform="translate(340 168)"><circle r="12"/><path d="M-8,-8 L8,8 M8,-8 L-8,8"/></g>
+      <text x="340" y="150" class="lc" text-anchor="middle">ready lamp</text>
+      <path id="s-gr2" class="w" d="M352,168 H480 V214"/>
+      <!-- steam switch, one pole: shorts out the brew thermostat when steam is on -->
+      <path id="s-gby1" class="w" d="M200,214 V276 H240"/>
+      <g class="swi" id="c-gsteamB" transform="translate(240 276)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="262" y="298" class="lc" text-anchor="middle">steam switch</text>
+      <path id="s-gby2" class="w" d="M284,276 H330 V214"/>
+
+      <!-- rung 3: brew switch, then the pump with its diode and thermal protector -->
+      <path id="s-g3a" class="w" d="M90,340 H120"/>
+      <g class="swi" id="c-gbrew" transform="translate(120 340)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="142" y="362" class="lc" text-anchor="middle">brew switch</text>
+      <path id="s-g3b" class="w" d="M164,340 H200"/>
+      <circle cx="200" cy="340" r="3" class="node"/>
+      <path id="s-g3c" class="w" d="M200,340 H380"/>
+      <g class="ld diode" id="c-gdiode" transform="translate(380 340)"><polygon points="0,-9 0,9 16,0"/><line x1="16" y1="-9" x2="16" y2="9"/></g>
+      <text x="388" y="322" class="lc" text-anchor="middle">diode</text>
+      <path id="s-g3d" class="w" d="M396,340 H426"/>
+      <g class="ld coil" id="c-gpump" transform="translate(426 340)"><path d="M0,0 c6,-14 14,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0"/></g>
+      <text x="466" y="368" class="lc" text-anchor="middle">pump coil</text>
+      <path id="s-g3e" class="w n" d="M506,340 H560"/>
+      <g class="ld fuse" id="c-gpfuse" transform="translate(560 340)"><rect x="0" y="-8" width="36" height="16" rx="3"/><line x1="0" y1="0" x2="36" y2="0"/></g>
+      <text x="578" y="368" class="lc" text-anchor="middle">pump protector</text>
+      <path id="s-g3f" class="w n" d="M596,340 H810"/>
+      <!-- rung 4: the valve coil hangs off the brew switch, fed through the steam switch's other pole -->
+      <path id="s-g4a" class="w" d="M200,340 V410 H240"/>
+      <g class="swi" id="c-gsteamA" transform="translate(240 410)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="262" y="432" class="lc" text-anchor="middle">steam switch, other pole:</text><text x="262" y="445" class="lc" text-anchor="middle">closed with steam off</text>
+      <path id="s-g4b" class="w" d="M284,410 H380"/>
+      <g class="ld coil" id="c-gsol" transform="translate(380 410)"><path d="M0,0 c6,-14 14,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0"/></g>
+      <text x="420" y="436" class="lc" text-anchor="middle">3-way valve coil</text>
+      <path id="s-g4c" class="w n" d="M460,410 H810"/>
+      <path d="M262,304 V400" class="link" fill="none"/>
+      <!-- earth -->
+      <g class="earth" transform="translate(470 462)"><line x1="0" y1="-12" x2="0" y2="0"/><line x1="-12" y1="0" x2="12" y2="0"/><line x1="-8" y1="5" x2="8" y2="5"/><line x1="-4" y1="10" x2="4" y2="10"/></g>
+      <text x="492" y="468" class="lc">earth, where fitted, goes to the frame and boiler</text>
+    </svg>
   </div>
+  <p class="lad-note" data-when="set:model;fam:GC">Drawn from Gaggia's diagram for the 120 V Classic (17800009). The 230 V Classic's stock-integration drawing has the same switches, lamps, thermostats and fuse, with its elements in series and no pump protector drawn.</p>
+  <p class="lad-note" data-when="eco:yes"><span data-when="set:eco">Your Eco-board machine feeds</span><span data-when="unset:eco">On 230 V Pro-family machines with the Eco board, the board feeds</span> this circuit<span data-when="set:eco"> through the board</span>: the power button is a spring-return switch the board reads, and the board holds the supply on and cuts it after 20 idle minutes. The board's circuit isn't published, so it's drawn here as a plain power switch.</p>
   <p class="lad-status" id="lad-status" aria-live="polite"></p>
 </div>
 
     </div>
-    <p class="fine" style="margin-top:10px">Redrawn from Gaggia's 2018 wiring diagram for the 120 V Classic Pro, as reproduced in Gaggiuino's and GaggiMate's archived drawings. The thermostats' opening points are Gaggia's and the closing points are illustrative. The two elements are drawn as one; they're in parallel at 120 V and in series at 230 V. Eco-board machines feed the switched line and neutral from the board, and the original Classic is wired differently: a single-pole power switch, the fuse in the neutral feed to the whole machine, and the thermostats on the line side. Trace your own machine before you cut anything.</p>
+    <p class="fine" style="margin-top:10px"><span data-when="!fam:GC">Redrawn from Gaggia's 2018 wiring diagram for the 120 V Classic Pro, as reproduced in Gaggiuino's and GaggiMate's archived drawings.<span data-when="set:model;model:EVO"> The Evo has no drawing of its own; Gaggiuino's docs treat it as Classic Pro wiring.</span><span data-when="set:model;model:E24"> The E24 has no drawing of its own; Gaggiuino's docs treat it as Classic Pro wiring.</span></span><span data-when="set:model;fam:GC">Redrawn from Gaggia's diagram 17800009 for the 120 V Classic, as reproduced in Gaggiuino's archived stock integration drawing.</span> The thermostats' opening points are Gaggia's and the closing points are illustrative. The two elements are drawn as one; <span data-when="unset:volts">they're in parallel at 120 V and in series at 230 V</span><span data-when="set:volts;volts:120">on your 120 V machine they're in parallel</span><span data-when="set:volts;volts:230">on your 230 V machine they're in series</span>.<span data-when="unset:model;!volts:120"> Eco-board machines feed the switched line and neutral from the board.</span><span data-when="unset:model"> The original Classic is wired differently: a single-pole power switch, the fuse in the neutral feed to the whole machine, the thermostats on the line side, and one ready lamp. Pick your model in Your Gaggia to see its own circuit.</span> Trace your own machine before you cut anything.</p>
   </section>
 
   <section class="block" id="parts" aria-labelledby="h-parts">
@@ -1027,11 +1133,11 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <article class="pc" id="part-pump" data-no="2">
         <div class="ph"><span class="no">2</span><h3>Vibratory pump</h3></div>
         <div class="txt">
-          <p class="sum">An Ulka vibratory pump, the EP5 on 230 V machines and the EAP5 or EFP5 on 120 V ones, standing upright at the back. A coil yanks a piston against a spring once per mains cycle, and check valves turn that buzz into one-way flow.</p>
+          <p class="sum">An Ulka vibratory pump, <span data-when="unset:volts;!model:E24">the EP5 on 230 V machines and the EAP5 or EFP5 on 120 V ones</span><span data-when="set:volts;volts:120;!model:E24,EVO">an EAP5 or EFP5 on your 120 V machine</span><span data-when="set:model,volts;model:EVO;volts:120">an EFP5 on your 120 V Evo</span><span data-when="set:volts;volts:230;!model:E24">an EP5 on your 230 V machine</span><span data-when="set:model;model:E24">a 15 bar unit on the E24, whose exact model Gaggia doesn't publish</span>, standing upright at the back. A coil yanks a piston against a spring once per mains cycle, and check valves turn that buzz into one-way flow.</p>
           <h4>How it works</h4>
-          <p>Inside is an iron piston in a tube, with a coil wound around the outside and a spring behind it. A diode in the pump lets only one half of each mains cycle through the coil, so each cycle gives one pulse: the coil pulls the piston against the spring, then the spring pushes it back. Check valves only let water move toward the boiler, so every stroke shoves a little water forward. That's why it buzzes at mains frequency, 60 strokes a second on 60 Hz mains and 50 on 50 Hz.</p>
-          <p>It's rated for 15 bar, well past brewing pressure, so something has to cap it: that's the over-pressure valve on top. A small thermal protector clipped into a pocket on the pump cuts its neutral if the coil overheats; the official drawings mark it 110 °C.</p>
-          <p class="gg"><b>In a Gaggiuino build:</b> kept. The PCB drives it from J12 and chooses how many mains cycles reach it, which is how it controls pressure and flow. The protector stays in its path.</p>
+          <p>Inside is an iron piston in a tube, with a coil wound around the outside and a spring behind it. A diode in the pump lets only one half of each mains cycle through the coil, so each cycle gives one pulse: the coil pulls the piston against the spring, then the spring pushes it back. Check valves only let water move toward the boiler, so every stroke shoves a little water forward. That's why it buzzes at mains frequency, <span data-when="unset:volts">60 strokes a second on 60 Hz mains and 50 on 50 Hz</span><span data-when="set:volts;volts:120">60 strokes a second on your 60 Hz mains</span><span data-when="set:volts;volts:230">50 strokes a second on 50 Hz mains</span>.</p>
+          <p>It's rated for 15 bar, well past brewing pressure, so something has to cap it: that's the over-pressure valve<span data-when="unset:model">, on top of the pump on the Pro family and on the group's inlet on the original Classic</span><span data-when="set:model;fam:GCP"> on top</span><span data-when="set:model;fam:GC">, on the group's inlet on your Classic</span>. <span data-when="unset:model">A small thermal protector clipped into a pocket on the pump cuts its neutral if the coil overheats; the official drawings mark it 110 °C, apart from the 230 V Classic's stock-integration drawing, which shows none.</span><span data-when="set:model;model:GCP">A small thermal protector clipped into a pocket on the pump cuts its neutral if the coil overheats; the official drawings mark it 110 °C.</span><span data-when="set:model;model:EVO,E24">The official drawings, which treat yours as Classic Pro wiring, show a small 110 °C thermal protector clipped into a pocket on the pump, cutting its neutral if the coil overheats.</span><span data-when="set:model,volts;fam:GC;volts:120">A small thermal protector clipped into a pocket on the pump cuts its neutral if the coil overheats; the official drawings mark it 110 °C.</span><span data-when="set:model;fam:GC;unset:volts">The official drawings show a 110 °C thermal protector clipped into a pocket on the pump, cutting its neutral if the coil overheats, though the 230 V Classic's stock-integration drawing doesn't.</span><span data-when="set:model,volts;fam:GC;volts:230">The official custom wiring drawings show a 110 °C thermal protector clipped into a pocket on the pump, but the 230 V Classic's stock-integration drawing doesn't, so check yours.</span></p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept. The PCB drives it from J12 and chooses how many mains cycles reach it, which is how it controls pressure and flow.<span data-when="set:model;fam:GCP"> The protector stays in its path.</span><span data-when="unset:model"> The protector, where fitted, stays in its path.</span><span data-when="set:model,volts;fam:GC;volts:120"> The protector stays in its path.</span><span data-when="set:model;fam:GC;!volts:120"> If yours has a protector, it stays in its path.</span></p>
         </div>
         <!-- PUMP: one AC cycle per stroke, slowed down -->
 <figure class="mini" id="mini-pump">
@@ -1055,18 +1161,19 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <text x="170" y="114" class="cap" text-anchor="middle">coil pulls the piston, spring pushes back</text>
     </g>
   </svg>
-  <figcaption>Slowed down about a hundred times. The real pump strokes once per mains cycle, 60 times a second in North America and 50 in most other places.</figcaption>
+  <figcaption>Slowed down about a hundred times. The real pump strokes once per mains cycle,<span data-when="unset:volts"> 60 times a second in North America and 50 in most other places.</span><span data-when="set:volts;volts:120"> 60 times a second on your 60 Hz mains.</span><span data-when="set:volts;volts:230"> 50 times a second on 50 Hz mains, which most 230 V countries use.</span></figcaption>
 </figure>
       </article>
 
       <article class="pc" id="part-opv" data-no="3">
         <div class="ph"><span class="no">3</span><h3>Over-pressure valve (OPV)</h3></div>
         <div class="txt">
-          <p class="sum">A spring-loaded valve between the pump and the boiler. When the pressure passes its setting it opens and sends the extra water back to the tank, so the pressure can't climb any further.</p>
+          <p class="sum">A spring-loaded valve between the pump and the boiler<span data-when="set:model;fam:GC">, bolted to the group's inlet on your Classic</span><span data-when="set:model;fam:GCP">, on top of the pump on the Pro family</span>. When the pressure passes its setting it opens and sends the extra water back to the tank, so the pressure can't climb any further.</p>
           <h4>How it works</h4>
           <p>A seal is held against a seat by a spring. Water pressure pushes the other way; when it beats the spring, the seal lifts and water escapes down the return tube. The more the pump pushes past the setting, the further it opens, so the line pressure stays close to the setting.</p>
-          <p>On the Pro family it's a black valve screwed onto the top of the pump. Gaggia specifies 11 bar, though reviewers have measured 12 to 14, and US Evo Pros and E24s ship with a 9 bar valve. The original Classic has a metal valve bolted to the group's inlet instead, adjustable with a hex key under its cap.</p>
-          <p class="gg"><b>In a Gaggiuino build:</b> kept, and it matters more. Gaggiuino can't tell when it starts to open, so it wants it at least 1 bar above the highest pressure you'll profile: the [UT] Test OPV utility should peak at 10.5 to 13 bar. A 9 bar valve has to go up with a stiffer spring or washers.</p>
+          <p data-when="!fam:GC"><span data-when="unset:model">On the Pro family it's</span><span data-when="set:model;!model:E24">It's</span><span data-when="set:model;model:E24">Gaggia doesn't describe the E24's valve; as on the rest of the Pro family, expect</span> a black valve screwed onto the top of the pump, returning to the tank.<span data-when="unset:model"> Gaggia specifies 11 bar for the Classic Pro, though reviewers have measured 12 to 14, and US Evo Pros and E24s ship with a 9 bar valve.</span><span data-when="set:model;model:GCP"> Gaggia specifies 11 bar, though reviewers have measured 12 to 14.</span><span data-when="set:model,volts;opv9"> Yours, a US <span data-when="model:EVO">Evo Pro</span><span data-when="model:E24">E24</span>, ships with a 9 bar valve<span data-when="model:EVO"> (Whole Latte Love's parts list calls it 8 bar)</span>.</span><span data-when="set:model;unset:volts;model:EVO"> US Evo Pros ship with a 9 bar valve; for Evos sold elsewhere, Whole Latte Love's parts list gives 11 bar.</span><span data-when="set:model;unset:volts;model:E24"> US E24s ship with a 9 bar valve; Gaggia gives no figure for 230 V ones.</span><span data-when="set:model,volts;model:EVO;volts:230"> For Evos sold outside North America, Whole Latte Love's parts list gives 11 bar.</span><span data-when="set:model,volts;model:E24;volts:230"> Gaggia gives no figure for the 230 V E24's valve, so the OPV test is how you'll know yours.</span><span data-when="set:model;model:GCP"> Owners sometimes swap in a 9 bar spring, so check a used one.</span><span data-when="set:model,volts;model:EVO,E24;volts:230"> Owners sometimes swap in a 9 bar spring, so check a used one.</span></p>
+          <p data-when="!fam:GCP"><span data-when="unset:model">The original Classic has a metal valve bolted to the group's inlet instead, adjustable with a hex key under its cap.</span><span data-when="set:model;fam:GC">Yours is a metal valve bolted to the group's inlet beside the 3-way valve, adjustable with a 5 mm hex key under its 17 mm cap. Owners report about 14 bar from the factory, set high for pods, and past owners often turned it down, so check it.</span></p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept, and it matters more. Gaggiuino can't tell when it starts to open, so it wants it at least 1 bar above the highest pressure you'll profile: the [UT] Test OPV utility should peak at 10.5 to 13 bar.<span data-when="unset:model"> A 9 bar valve, as on US Evos and E24s, has to go up with a stiffer spring or washers.</span><span data-when="set:model,volts;opv9"> Your 9 bar valve has to go up, with a stiffer spring or washers.</span><span data-when="set:model;fam:GCP;!opv9"> If yours peaks outside that range, the fix is a different spring or washers.</span><span data-when="set:model;fam:GC"> On your Classic you set it with the adjuster.</span></p>
         </div>
         <!-- OPV: caps the pressure -->
 <figure class="mini" id="mini-opv">
@@ -1083,17 +1190,17 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <text x="10" y="176" class="cap">from pump</text><text x="350" y="176" class="cap" text-anchor="end">to boiler</text><text x="344" y="30" class="cap" text-anchor="end">back to the tank</text>
     <g transform="translate(70 76)"><circle r="40" class="gauge"/><path d="M-30,18 A34,34 0 1,1 30,18" class="gscale"/><line class="needle" x1="0" y1="0" x2="0" y2="-30"/><text y="28" class="cap" text-anchor="middle" id="opv-g">6 bar</text></g>
   </svg>
-  <figcaption>Illustrative setting of 11 bar. Above the setting the valve opens and the pressure stays put; turn the adjuster to move the setting.</figcaption>
+  <figcaption><span data-when="unset:model">Illustrative setting of 11 bar.</span><span data-when="set:model;fam:GC">Set at about 14 bar, where the Classic ships, for pods.</span><span data-when="set:model;model:GCP">Set at 11 bar, Gaggia's specification for the Classic Pro.</span><span data-when="set:model;model:EVO,E24;!opv9">Illustrative setting of 11 bar.</span><span data-when="set:model,volts;opv9">Set at 9 bar, as your machine ships.</span> Above the setting the valve opens and the pressure stays put.<span data-when="unset:model"> On the original Classic you move the setting with the adjuster under its cap; on the Pro family it takes a different spring or washers behind it.</span><span data-when="set:model;fam:GC"> On your Classic you move the setting with the adjuster under its cap.</span><span data-when="set:model;fam:GCP"> On the Pro family it takes a different spring or washers behind it.</span></figcaption>
 </figure>
       </article>
 
       <article class="pc nofig" id="part-boiler" data-no="4">
         <div class="ph"><span class="no">4</span><h3>Boiler</h3></div>
         <div class="txt">
-          <p class="sum">A small aluminum boiler, 80 to 100 ml depending on the source, sitting on the brass group body with an O-ring between them; four screws from under the frame hold the pair together. It heats the water for shots and makes the steam.</p>
+          <p class="sum"><span data-when="unset:model">A small aluminum boiler (lead-free brass on the E24), roughly 75 to 110 ml depending on the source,</span><span data-when="set:model;model:GC">A small aluminum boiler, 75 to 105 ml depending on the source,</span><span data-when="set:model;model:GCP">A small uncoated aluminum boiler, 75 to 105 ml depending on the source,</span><span data-when="set:model;model:EVO">A small aluminum boiler, about 105 ml by CoffeeGeek's figure, with a coating inside on the 2023 machines,</span><span data-when="set:model;model:E24">A small lead-free brass boiler, just over 100 ml, over two and a half times the weight of the aluminum one it replaced,</span> sitting on the brass group body with an O-ring between them; four screws from under the frame hold the pair together. It heats the water for shots and makes the steam.</p>
           <h4>How it works</h4>
           <p>The pump pushes water in through an inlet connector on the group body; hot water leaves for the group through the 3-way valve, and a pipe from the top feeds the steam valve. The brew thermostat screws into its side and the steam thermostat into its top. It's small, so it heats quickly.</p>
-          <p>For brewing the brew thermostat holds it a little above 100 °C; the boiler is sealed, so the water stays liquid. For steam it's heated well past boiling, and the pressure that builds pushes steam out of the wand. The 2023 Evo's boiler has a non-stick coating, and the E24's is lead-free brass.</p>
+          <p>For brewing the brew thermostat holds it a little above 100 °C; the boiler is sealed, so the water stays liquid. For steam it's heated well past boiling, and the pressure that builds pushes steam out of the wand.<span data-when="unset:model"> The 2023 Evo's boiler has a coating inside, and the E24's is lead-free brass.</span><span data-when="set:model;model:EVO"> On some 2023 Evos the coating flaked ("Boilergate"); Gaggia blamed how it was applied, and later Evos reportedly went back to uncoated aluminum. A used one is worth a look inside: dark flakes in the water mean a failing coating.</span><span data-when="set:model;model:E24"> Brass holds more heat than aluminum, so it swings less once hot, but takes longer to get there: about 90 seconds to brew-ready in Whole Latte Love's test, against about 70 for the Evo Pro.</span></p>
           <p class="gg"><b>In a Gaggiuino build:</b> kept as it is. The thermocouple screws into the brew thermostat's M4 hole in its side.</p>
         </div>
       </article>
@@ -1101,9 +1208,9 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <article class="pc nofig" id="part-element" data-no="5">
         <div class="ph"><span class="no">5</span><h3>Heating elements</h3></div>
         <div class="txt">
-          <p class="sum">Two elements, one on each side of the boiler, outside the water. They're wired in parallel on 120 V machines and in series on 230 V ones, so the same boiler serves 120 V and 230 V machines.</p>
+          <p class="sum"><span data-when="!model:E24">Two elements, one on each side of the boiler, outside the water.</span><span data-when="set:model;model:E24">Two elements outside the water, wired as on the Classic Pro in Gaggiuino's docs; how they sit on the E24's brass boiler isn't documented.</span> <span data-when="unset:volts">They're wired in parallel on 120 V machines and in series on 230 V ones.</span><span data-when="set:volts;volts:120">On your 120 V machine they're wired in parallel.</span><span data-when="set:volts;volts:230">On your 230 V machine they're wired in series, joined by a jumper.</span></p>
           <h4>How it works</h4>
-          <p>Each is a resistance wire in a sheath, on or off with nothing in between. Power is voltage squared divided by resistance: from Gaggia's rating of 1350 W at 120 V and 1200 W at 230 V, the pair works out to about 11 Ω on a 120 V machine and about 44 Ω on a 230 V one, each element about 21 to 22 Ω. The power-on checks compare your meter with the figure from your rating plate.</p>
+          <p>Each is a resistance wire in a sheath, on or off with nothing in between. Power is voltage squared divided by resistance: <span data-when="unset:model">from Gaggia's rating of 1350 W at 120 V and 1200 W at 230 V for the Classic Pro, the pair works out to about 10.7 Ω on a 120 V machine and about 44 Ω on a 230 V one, each element about 21 to 22 Ω. A 1425 W label includes the 55 W pump.</span><span data-when="set:model;unset:volts;fam:GC">a 120 V Classic's 1425 W label includes the 55 W pump, so its heater is about 1370 W and the pair about 10.5 Ω; 230 V Classics were rated 1425 W, then 1300 W, then 1200 W, so about 37 to 44 Ω.</span><span data-when="set:model;unset:volts;model:GCP,E24">Gaggia rates the <span data-when="model:GCP">Classic Pro</span><span data-when="model:E24">E24</span> at 1350 W on 120 V and 1200 W on 230 V, so the pair works out to about 10.7 Ω or about 44 Ω, each element about 21 to 22 Ω.</span><span data-when="set:model;unset:volts;model:EVO">the 120 V Evo's 1425 W label includes the pump, and CoffeeGeek puts its heater at about 1375 W, so the pair works out to about 10.5 Ω; retailers list the 230 V Evo at 1200 W, about 44 Ω.</span><span data-when="set:model,volts;model:GCP,E24;volts:120">Gaggia rates the <span data-when="model:GCP">Classic Pro</span><span data-when="model:E24">E24</span> at 1350 W on 120 V, so the pair works out to about 10.7 Ω, each element about 21 Ω.</span><span data-when="set:model,volts;model:GC;volts:120">your label's 1425 W includes the 55 W pump; the heater is about 1370 W, so the pair works out to about 10.5 Ω, each element about 21 Ω.</span><span data-when="set:model,volts;model:EVO;volts:120">your label's 1425 W includes the pump; CoffeeGeek puts the heater at about 1375 W, so the pair works out to about 10.5 Ω, each element about 21 Ω.</span><span data-when="set:model,volts;model:GCP;volts:230">Gaggia rates the 230 V Classic Pro at 1200 W (1300 W at 240 V in the UK), so the pair works out to about 44 Ω, each element about 22 Ω.</span><span data-when="set:model,volts;model:E24;volts:230">Gaggia rates the 230 V E24 at 1200 W, so the pair works out to about 44 Ω, each element about 22 Ω.</span><span data-when="set:model,volts;model:EVO;volts:230">retailers list the 230 V Evo at 1200 W, so the pair works out to about 44 Ω, each element about 22 Ω.</span><span data-when="set:model,volts;fam:GC;volts:230">230 V Classics were rated 1425 W, then 1300 W, then 1200 W over the years, so the pair works out to about 37 to 44 Ω depending on yours.</span> The power-on checks compare your meter with the figure from your rating plate.</p>
           <p>Gaggia's parts lists sell the boiler only as a complete assembly, elements included.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> kept, now switched by the SSR. The 184 °C thermal fuse stays in their supply.</p>
         </div>
@@ -1114,8 +1221,8 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
         <div class="txt">
           <p class="sum">A 107 °C brew thermostat screwed into the side of the boiler, a 145 °C steam thermostat in its top, and a 184 °C one-shot thermal fuse. The thermostats switch the elements straight on and off.</p>
           <h4>How it works</h4>
-          <p>Each thermostat holds a bimetal disc that snaps over at its set temperature and pushes a pair of contacts apart; as it cools a few degrees it snaps back and they close. That gap is why the boiler temperature swings. On the Pro both sit on the elements' neutral side, in series, and the steam switch shorts out the brew thermostat so heating carries on to the steam one.</p>
-          <p>The fuse can't reset: once it melts, that path stays open until it's replaced. On the original Classic it sits in the neutral feed to the whole machine, with the thermostats on the line side instead.</p>
+          <p>Each thermostat holds a bimetal disc that snaps over at its set temperature and pushes a pair of contacts apart; as it cools a few degrees it snaps back and they close. That gap is why the boiler temperature swings. <span data-when="!fam:GC">On the Pro family both sit on the elements' neutral side, in series,</span><span data-when="set:model;fam:GC">On your Classic both sit on the line side, ahead of the elements, in series,</span> and the steam switch shorts out the brew thermostat so heating carries on to the steam one.</p>
+          <p>The fuse can't reset: once it melts, that path stays open until it's replaced.<span data-when="unset:model"> On the Pro it's in the switched line and feeds everything but the power lamp; on the original Classic it sits in the neutral feed to the whole machine, with the thermostats on the line side instead.</span><span data-when="set:model;fam:GCP"> It's in the switched line, after the power lamp, so it feeds everything else.</span><span data-when="set:model;fam:GC"> On your Classic it sits in the neutral feed to the whole machine, so when it goes everything goes dark, the power lamp too.</span></p>
           <p class="gg"><b>In a Gaggiuino build:</b> both thermostats leave the circuit: the thermocouple goes in the brew thermostat's hole and the SSR does the switching. The fuse stays as the safety cut-out.</p>
         </div>
         <!-- THERMOSTAT: bimetal and the swing it causes -->
@@ -1150,9 +1257,9 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
         <div class="txt">
           <p class="sum">An electrically worked valve between the boiler and the group. Powered, it lets boiler water through to the group. Unpowered, it shuts the boiler off and opens the group to a drain tube into the drip tray.</p>
           <h4>How it works</h4>
-          <p>A coil pulls a plunger that seals one port or the other. In the stock circuit it gets power with the brew switch, and its return to neutral runs through the steam switch, so it can only open with steam off. That's what makes hot water mode work: brew and steam together run the pump with the valve shut.</p>
-          <p>The 2015 Classic, the "V2", has no 3-way valve at all.</p>
-          <p class="gg"><b>In a Gaggiuino build:</b> kept. The PCB opens it from J13, and Gaggiuino depends on it for pressure release and flushing, which is why the V2 can't be converted.</p>
+          <p>A coil pulls a plunger that seals one port or the other. In the stock circuit it gets power with the brew switch, and <span data-when="!fam:GC">its return to neutral runs</span><span data-when="set:model;fam:GC">its feed from the brew switch runs</span> through the steam switch, so it can only open with steam off. That's what makes hot water mode work: brew and steam together run the pump with the valve shut.</p>
+          <p data-when="!fam:GCP;!volts:120">The 230 V Classic sold from 2015 to 2018, the "V2", has no 3-way valve at all.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept. The PCB opens it from J13, and Gaggiuino depends on it for pressure release and flushing<span data-when="!fam:GCP;!volts:120">, which is why the V2 can't be converted</span>.</p>
         </div>
         <!-- SOLENOID VALVE: two states -->
 <figure class="mini" id="mini-sol">
@@ -1174,10 +1281,10 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <article class="pc" id="part-group" data-no="8">
         <div class="ph"><span class="no">8</span><h3>Group head</h3></div>
         <div class="txt">
-          <p class="sum">The brass group body under the boiler, chromed on the Classic and Classic Pro and plain lead-free brass on the Evo, with the dispersion block and shower screen that spread water over the puck.</p>
+          <p class="sum"><span data-when="unset:model">The brass group body under the boiler, chromed on the Classic and Classic Pro and plain lead-free brass, inside a stainless surround, on the Evo and E24,</span><span data-when="set:model;model:GC,GCP">The chrome-plated brass group body under the boiler,</span><span data-when="set:model;model:EVO,E24">The group body under the boiler, plain lead-free brass inside a polished stainless surround,</span> with the dispersion block and shower screen that spread water over the puck.</p>
           <h4>How it works</h4>
-          <p>Water from the 3-way valve spreads through the dispersion block and rains through the shower screen onto the coffee. The group sits right under the boiler, so it warms with it.</p>
-          <p class="gg"><b>In a Gaggiuino build:</b> unchanged. The optional pressure tap block clamps between the group and its inlet connector.</p>
+          <p>Water from the 3-way valve spreads through the dispersion block and rains through the shower screen onto the coffee. The group sits right under the boiler, so it warms with it.<span data-when="set:model;model:GC"> The Classic's dispersion plate is aluminum.</span><span data-when="set:model;model:EVO,E24"> The dispersion plate is stainless.</span></p>
+          <p class="gg"><b>In a Gaggiuino build:</b> unchanged. The optional pressure tap block clamps between the group and its <span data-when="!fam:GC">inlet connector</span><span data-when="set:model;fam:GC">metal OPV</span>.</p>
         </div>
         <!-- GROUP: what's under the boiler -->
 <figure class="mini" id="mini-group">
@@ -1213,9 +1320,9 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <article class="pc nofig" id="part-pf" data-no="9">
         <div class="ph"><span class="no">9</span><h3>Portafilter</h3></div>
         <div class="txt">
-          <p class="sum">A commercial-size 58 mm portafilter: chromed brass on the Classic and Classic Pro, stainless on the Evo Pro and E24.</p>
+          <p class="sum">A commercial-size 58 mm portafilter<span data-when="unset:model">: chromed brass on the Classic and Classic Pro, stainless on the Evo and E24</span><span data-when="set:model;model:GC,GCP"> in chrome-plated brass</span><span data-when="set:model;model:EVO,E24"> in stainless steel</span>.</p>
           <h4>How it works</h4>
-          <p>It locks into the group against a rubber gasket, 8.5 mm thick on the Classic and Classic Pro. The basket holds the coffee, and the spouts split the shot into one or two cups.</p>
+          <p>It locks into the group against a rubber gasket<span data-when="unset:model">, 8.5 mm thick on the Classic and Classic Pro</span><span data-when="set:model;model:GC,GCP">, 8.5 mm thick</span>. The basket holds the coffee, and the spouts split the shot into one or two cups.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> unchanged. You'll want a blank basket for the OPV test and backflushing.</p>
         </div>
       </article>
@@ -1223,7 +1330,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <article class="pc nofig" id="part-wand" data-no="10">
         <div class="ph"><span class="no">10</span><h3>Steam valve and wand</h3></div>
         <div class="txt">
-          <p class="sum">A valve fed from the top of the boiler, opened by the knob on the right side, and the wand it feeds. Older Classics have a Pannarello frother; the Pro family has a commercial-style wand with a two-hole tip.</p>
+          <p class="sum">A valve fed from the top of the boiler, opened by the knob on the right side, and the wand it feeds.<span data-when="unset:model"> The original Classic has a Pannarello frother; the Pro family has a commercial-style wand with a two-hole tip.</span><span data-when="set:model;fam:GC"> Your Classic's is a Pannarello: a plastic sleeve over a steam tube with a one-hole tip, which draws in air and froths for you.</span><span data-when="set:model;fam:GCP"> A commercial-style stainless wand with a two-hole tip, which swings side to side but has no ball joint<span data-when="model:E24">, and an insulated grip</span>.</span></p>
           <h4>How it works</h4>
           <p>With the steam switch on, the boiler heats well past boiling and the knob lets the steam out. For hot water, the brew and steam switches go on together with the knob open: the pump pushes water through the boiler and out of the wand.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> kept. Hot water is still brew and steam together, and the steam temperature now comes from a setting instead of the steam thermostat.</p>
@@ -1243,20 +1350,21 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <article class="pc nofig" id="part-panel" data-no="12">
         <div class="ph"><span class="no">12</span><h3>Switches and lamps</h3></div>
         <div class="txt">
-          <p class="sum">On the Pro family, three rockers (power, brew and steam) with three red lamps below them: power, brew ready and steam ready. The original Classic has all three switches in one housing with the lamps inside.</p>
+          <p class="sum"><span data-when="!fam:GC"><span data-when="unset:model">On the Pro family, three</span><span data-when="set:model">Three</span> rockers (power, brew and steam) and three lamps: power, brew ready and steam ready.<span data-when="set:model;model:EVO,E24"> On most of these machines the switches' connectors sit in one combined, shielded block.</span></span><span data-when="unset:model"> The original Classic has all three switches in one housing with the lamps inside.</span><span data-when="set:model;fam:GC">Three switches (power, brew and steam) in one molded housing, with two lamps inside it: a power lamp and a ready lamp.</span></p>
           <h4>How it works</h4>
-          <p>The Pro's power switch breaks line and neutral; the brew and steam switches carry mains straight to the pump, the valve and the thermostats. The brew and steam lamps are ready lamps, wired across their thermostats, so each lights when its thermostat opens. On Eco-board machines the power button springs back and works through the board, which holds the machine on and switches it off after 20 idle minutes. The board's circuit isn't published, so treat the button's wires as mains.</p>
-          <p class="gg"><b>In a Gaggiuino build:</b> brew and steam signal the PCB through J7 at low voltage. With custom wiring that's all they carry; with stock wiring integration some of their other spades stay on mains, so treat the back of every switch as live. The power switch stays on mains. The steam lamp becomes a boiler lamp, lit while the boiler isn't heating, and the brew lamp goes dark.</p>
+          <p data-when="!fam:GC"><span data-when="unset:model">The Pro's power switch</span><span data-when="set:model">The power switch</span> breaks line and neutral; the brew and steam switches carry mains straight to the pump, the valve and the thermostats. The brew and steam lamps are ready lamps, wired across their thermostats, so each lights when its thermostat opens.<span data-when="eco:yes"> On Eco-board machines the power button springs back and works through the board, which holds the machine on and switches it off after 20 idle minutes. The board's circuit isn't published, so treat the button's wires as mains.</span></p>
+          <p data-when="set:model;fam:GC">The power switch breaks the line only; the brew and steam switches carry mains straight to the pump, the valve and the thermostats. The ready lamp is wired across both thermostats, so it lights whenever heating stops, at brew temperature or, with steam on, at steam temperature.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> brew and steam signal the PCB through J7 at low voltage.<span data-when="unset:path"> With custom wiring that's all they carry; with stock wiring integration some of their other spades stay on mains, so treat the back of every switch as live.</span><span data-when="set:path;path:CW"> With custom wiring that's all they carry.</span><span data-when="set:path,model,volts;path:SI;wpath:CW"> With custom wiring that's all they carry.</span><span data-when="set:path;wpath:SI"> With stock wiring integration some of their other spades stay on mains, so treat the back of every switch as live.</span> The power switch stays on mains.<span data-when="!fam:GC"> <span data-when="unset:model">On the Pro family the</span><span data-when="set:model">The</span> steam lamp becomes a boiler lamp, lit while the boiler isn't heating, and the brew lamp goes dark.</span><span data-when="unset:model"> On the original Classic, </span><span data-when="set:model;fam:GC"> On your Classic, </span><span data-when="!fam:GCP"><span data-when="!wpath:CW">stock integration leaves the internal boiler lamp dark</span><span data-when="unset:path">; </span><span data-when="!wpath:SI">custom wiring turns the power lamp into the boiler lamp</span>.</span></p>
         </div>
       </article>
 
       <article class="pc nofig" id="part-inlet" data-no="13">
         <div class="ph"><span class="no">13</span><h3>Power inlet</h3></div>
         <div class="txt">
-          <p class="sum">An IEC C14 socket with an earthed three-wire cord on the Pro family. Most US Classics before 2019 have a two-pin cord and no earth.</p>
+          <p class="sum"><span data-when="unset:model">An IEC C14 socket with an earthed three-wire cord on the Pro family. Most US Classics before 2019 have a two-pin cord and no earth.</span><span data-when="set:model;model:GCP,EVO">An IEC C14 socket with an earthed three-wire cord.</span><span data-when="set:model;model:E24">Gaggia doesn't document the E24's inlet separately; expect the Classic Pro's IEC C14 socket and earthed three-wire cord, and check yours has the earth pin.</span><span data-when="set:model,volts;ground">Most US Classics, likely yours, have a two-pin cord and no earth.</span><span data-when="set:model,volts;fam:GC;volts:230">An earthed three-wire cord: 230 V Classics have the chassis earth that US ones lack.</span><span data-when="set:model;fam:GC;unset:volts"> Most US Classics have a two-pin cord and no earth; 230 V ones are earthed.</span></p>
           <h4>How it works</h4>
-          <p>Line goes to the power switch (on the Pro, neutral does too), or on Eco-board machines to the board. Earth goes to the frame, the cup tray, the valve body and the boiler.</p>
-          <p class="gg"><b>In a Gaggiuino build:</b> kept. A two-pin Classic gets the official grounding retrofit first, and the machine should run from a GFCI or RCD outlet.</p>
+          <p>Line goes to the power switch<span data-when="unset:model"> (on the Pro family, neutral does too)</span><span data-when="set:model;fam:GCP"> (and so does neutral)</span><span data-when="eco:yes">, or on Eco-board machines to the board</span>. Earth<span data-when="!fam:GCP">, where there is one,</span> goes to the frame, the cup tray, the valve body and the boiler.</p>
+          <p class="gg"><b>In a Gaggiuino build:</b> kept.<span data-when="ground"> A two-pin Classic gets the official grounding retrofit first.</span> The machine should run from a <span data-mtext="outlet">GFCI- or RCD-protected outlet</span>.</p>
         </div>
       </article>
 
@@ -1266,13 +1374,13 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
   <section class="block" id="shot" aria-labelledby="h-shot">
     <div class="sec-h"><h2 id="h-shot">A stock shot, start to finish</h2></div>
     <ol class="seq">
-      <li><span><b>Switch on.</b> The elements heat with the brew lamp out, and the small boiler warms the brass group under it.</span></li>
-      <li><span><b>The brew thermostat opens</b> and the brew lamp lights, but heat already in the elements keeps the water rising for a while: overshoot.</span></li>
+      <li><span><b>Switch on.</b> The elements heat with the <span data-when="!fam:GC">brew</span><span data-when="set:model;fam:GC">ready</span> lamp out, and the small boiler warms the brass group under it.</span></li>
+      <li><span><b>The brew thermostat opens</b> and the <span data-when="!fam:GC">brew</span><span data-when="set:model;fam:GC">ready</span> lamp lights, but heat already in the elements keeps the water rising for a while: overshoot.</span></li>
       <li><span><b>It cools several degrees, the thermostat closes,</b> the lamp goes out, and the cycle repeats for as long as the machine is on. The water temperature at any moment depends on where you are in that cycle.</span></li>
       <li><span><b>Owners temperature-surf:</b> flush some water, then time the shot from a lamp change, to land at the same point in the swing every time.</span></li>
       <li><span><b>Brew switch on.</b> The pump and the 3-way valve run; pressure builds against the puck, up to the over-pressure valve's setting at most.</span></li>
       <li><span><b>Brew switch off.</b> The valve vents the group to the drip tray, so the puck is left drier and the portafilter comes off without spraying.</span></li>
-      <li><span><b>For milk,</b> switch on steam and wait for the steam lamp, purge the wand, then steam. Afterward, bring the boiler back down by running water through the group, with no portafilter, before the next shot.</span></li>
+      <li><span><b>For milk,</b> switch on steam and wait for the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp, purge the wand, then steam. Afterward, bring the boiler back down by running water through the group, with no portafilter, before the next shot.</span></li>
     </ol>
     <p class="fine" style="margin-top:10px">Gaggiuino replaces steps 2 to 4 with a temperature that holds still, and step 5 with a pressure or flow profile.</p>
   </section>
@@ -1311,6 +1419,13 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis(es[0].isIntersecting)}).observe(el);else vis(true);
   }
 
+  /* ---------- your Gaggia ---------- */
+  function GM(){return window.GaggiaMachine||null}
+  function prof(){var m=GM();return (m&&m.get())||{}}
+  function vt(el){var m=GM();return m&&m.vtext?m.vtext(el):(el?el.textContent:'')}
+  /* the original Classic has a power lamp and one ready lamp, across both thermostats */
+  function isGC(){return prof().model==='GC'}
+
   /* ---------- machine map: modes ---------- */
   var cut=$('cut');
   var MODES={
@@ -1333,7 +1448,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     $('puffs').classList.toggle('on',!!M.puffs);
     ['pwr','brew','steam'].forEach(function(k){var on=M.sw.indexOf(k)>=0;$('sw-'+k).classList.toggle('on',on);var r=$('rk-'+k);if(r)r.classList.toggle('on',on)});
     $('lp-pwr').classList.toggle('on',!!M.pwr);$('cl-pwr').classList.toggle('on',!!M.pwr);
-    $('modecap').textContent=$('cap-'+m).textContent;
+    $('modecap').textContent=vt($('cap-'+m));
     if(cycT){clearInterval(cycT);cycT=null}
     if(M.heat==='cycle'){heatOn=true;applyHeat();cycT=setInterval(function(){heatOn=!heatOn;applyHeat()},2600)}
     else{heatOn=!!M.heat;applyHeat()}
@@ -1344,6 +1459,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     $('element').classList.toggle('hot',heatOn);
     $('heatglow').setAttribute('opacity',heatOn?'.55':'0');
     var b=M.ready==='brew'&&!heatOn,s=M.ready==='steam'&&!heatOn;
+    if(isGC()){b=(M.ready==='brew'||M.ready==='steam')&&!heatOn;s=false}
     $('lp-brew').classList.toggle('on',b);$('cl-brew').classList.toggle('on',b);
     $('lp-steam').classList.toggle('on',s);$('cl-steam').classList.toggle('on',s);
   }
@@ -1359,8 +1475,8 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     var card=id&&$('part-'+id),box=$('pinfo');
     qa('.plist .chip').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-part')===id))});
     if(!card){box.innerHTML='<p class="hint">Tap a number to see what that part does.</p>';return}
-    var no=card.getAttribute('data-no'),name=card.querySelector('h3').textContent,sum=card.querySelector('.sum').textContent,gg=card.querySelector('.gg');
-    box.innerHTML='<h3><span class="no">'+no+'</span>'+esc(name)+'</h3><p>'+esc(sum)+'</p>'+(gg?'<p class="gg">'+esc(gg.textContent)+'</p>':'')+'<a href="#part-'+id+'">How it works</a>';
+    var no=card.getAttribute('data-no'),name=vt(card.querySelector('h3')),sum=vt(card.querySelector('.sum')),gg=card.querySelector('.gg');
+    box.innerHTML='<h3><span class="no">'+no+'</span>'+esc(name)+'</h3><p>'+esc(sum)+'</p>'+(gg?'<p class="gg">'+esc(vt(gg))+'</p>':'')+'<a href="#part-'+id+'">How it works</a>';
     if(scrollIt&&window.innerWidth<900)box.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'});
   }
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -1378,7 +1494,24 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     });
     stage.parentNode.insertBefore(pl,stage.nextSibling);
   })();
-  setMode('heat');pick(null);
+  /* materials and layout that differ by model: the E24's boiler is lead-free brass, the Evo's and E24's groups are
+     plain brass, and the original Classic's OPV sits on the line into the group instead of on the pump */
+  var NAMES={GC:'original Gaggia Classic',GCP:'Gaggia Classic Pro',EVO:'Gaggia Classic Evo',E24:'Gaggia Classic E24'};
+  function adaptMachine(){
+    var p=prof(),md=p.model,gm=GM();
+    $('boilerbody').setAttribute('fill',md==='E24'?'url(#cut-brass)':'url(#cut-alu)');
+    $('groupbody').setAttribute('fill',md==='EVO'||md==='E24'?'url(#cut-brass)':'url(#cut-chrome)');
+    var hot=cut.querySelector('.hot[data-part="opv"]'),c=hot.querySelector('circle'),t=hot.querySelector('text'),x=md==='GC'?508:540,y=md==='GC'?330:266;
+    c.setAttribute('cx',x);c.setAttribute('cy',y);t.setAttribute('x',x);t.setAttribute('y',y+5);
+    var nm=md?NAMES[md]:'Gaggia Classic Pro';
+    var boiler=md==='E24'?'the lead-free brass boiler':md==='EVO'?'the aluminum boiler':'the aluminum boiler';
+    $('cut-t').textContent='Side x-ray of a stock '+nm+', simplified: the tank and its filling funnel at the back, the pump standing upright'+(md==='GC'?', its outlet running to the metal over-pressure valve on the line into the group':' with the over-pressure valve on top')+', '+boiler+' at the front with an element on its side, the thermostats and thermal fuse on it, the group body under it with the 3-way valve behind, and the steam valve and wand at the front';
+    var pl=$('lg-plate');if(pl)pl.textContent=md?(gm&&gm.name()?'Gaggia '+gm.name():nm):'Gaggia Classic Pro';
+    var ln=$('lg-name');if(ln)ln.textContent=md?(md==='GC'?'original Gaggia Classic':'Gaggia '+(gm&&gm.name()?gm.name():nm)):'Gaggia';
+    setMode(mode);pick(sel);
+  }
+  window.addEventListener('gaggia-machine',adaptMachine);
+  setMode('heat');pick(null);adaptMachine();
 
   /* ---------- thermostat figure: a simple boiler that heats while the contacts are closed ---------- */
   (function(){
@@ -1427,6 +1560,9 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
   (function(){
     var r=$('opv-r');if(!r)return;
     var fig=$('mini-opv'),SET=11,main=fig.querySelector('.sflow.main'),ret=fig.querySelector('.sflow.ret'),plug=fig.querySelector('.opvplug'),needle=fig.querySelector('.needle');
+    /* US Evo Pros and E24s ship at 9 bar, the original Classic at about 14; Gaggia's figure for the Classic Pro is 11 */
+    function setFor(){var m=GM();SET=m&&m.matches('opv9')&&m.decided('opv9')?9:(prof().model==='GC'?14:11)}
+    window.addEventListener('gaggia-machine',function(){setFor();upd()});setFor();
     function upd(){
       var want=Number(r.value),p=Math.min(want,SET),open=want>SET;
       $('opv-o').textContent=want+' bar';$('opv-g').textContent=p.toFixed(p%1?1:0)+' bar';
@@ -1439,19 +1575,26 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 
   /* ---------- the circuit ---------- */
   (function(){
-  var svg=document.getElementById('lad-svg');if(!svg)return;
+  var svgPro=document.getElementById('lad-svg');if(!svgPro)return;
+  var svgGC=document.getElementById('lad-svg-gc');
   function $(id){return document.getElementById(id)}
+  /* the original Classic is wired differently, so it gets its own ladder (lad-svg-gc) once Your Gaggia says Classic */
+  function isGC(){var m=window.GaggiaMachine,p=m&&m.get();return !!(svgGC&&p&&p.model==='GC')}
+  var svg=svgPro;
   var S={pwr:false,brew:false,steam:false},T=25,blown=false,brewClosed=true,steamClosed=true,run=false,timer=null,lastStatus='';
   /* opening points are Gaggia's; the closing points are illustrative */
   var BREW_OPEN=107,BREW_CLOSE=97,STEAM_OPEN=145,STEAM_CLOSE=135,FUSE=184;
-  $('lab-brew').textContent='opens at '+BREW_OPEN+' °C';$('lab-steam').textContent='opens at '+STEAM_OPEN+' °C';
+  ['lab-brew','lab-gbrew'].forEach(function(i){if($(i))$(i).textContent='opens at '+BREW_OPEN+' °C'});
+  ['lab-steam','lab-gsteam'].forEach(function(i){if($(i))$(i).textContent='opens at '+STEAM_OPEN+' °C'});
   function blade(id,closed){var b=$(id).querySelector('.blade');b.setAttribute('transform',closed?'':'rotate(-28)')}
   function liveSet(ids,on){ids.forEach(function(i){var e=$('s-'+i);if(e&&on)e.classList.add('live')})}
   function update(){
+    var gc=isGC();svg=gc?svgGC:svgPro;
     /* thermostats follow the temperature, with a gap between opening and closing; the fuse melts once and stays open */
     if(T>=BREW_OPEN)brewClosed=false;else if(T<=BREW_CLOSE)brewClosed=true;
     if(T>=STEAM_OPEN)steamClosed=false;else if(T<=STEAM_CLOSE)steamClosed=true;
     if(T>=FUSE)blown=true;
+    if(gc)return updateGC();
     var mains=S.pwr,fed=mains&&!blown;
     /* the neutral side: the steam thermostat, then the brew thermostat or the steam switch around it */
     var tbToN=brewClosed||S.steam;
@@ -1496,29 +1639,66 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       if(sol)parts.push('<b>3-way valve open</b> to the group: its return runs through the steam switch, closed with steam off.');
       else if(pump)parts.push('The 3-way valve stays shut, because the steam switch has opened its return. That’s hot water mode: water leaves through the wand.');
     }
+    return finish(parts,{heat:heat,pump:pump,sol:sol});
+  }
+  /* the original Classic: line-only power switch, the fuse in the neutral feed to everything, the thermostats on the
+     line side, and one ready lamp across both thermostats (Gaggia drawing 17800009) */
+  function updateGC(){
+    var fed=S.pwr&&!blown;
+    var tPath=steamClosed&&(brewClosed||S.steam);
+    var heat=fed&&tPath,ready=fed&&!tPath,pump=fed&&S.brew,sol=pump&&!S.steam;
+    Array.prototype.forEach.call(svgGC.querySelectorAll('.w'),function(w){w.classList.remove('live')});
+    liveSet(['ginL','grailL','ginN','grailN','g1a','g1b'],fed);
+    liveSet(['g2a','g2c','g2d','g2e','g2f'],heat);
+    liveSet(['g2a2','g2b'],heat&&brewClosed);
+    liveSet(['gby1','gby2'],heat&&S.steam);
+    liveSet(['g2a','gr1','gr2','g2e','g2f'],ready);
+    liveSet(['g3a','g3b','g3c','g3d','g3e','g3f'],pump);
+    liveSet(['g3a','g3b','g4a','g4b','g4c'],sol);
+    blade('c-gpwr',S.pwr);blade('c-gbrewt',brewClosed);blade('c-gsteamt',steamClosed);
+    blade('c-gsteamB',S.steam);blade('c-gsteamA',!S.steam);blade('c-gbrew',S.brew);
+    $('c-gfuse').classList.toggle('blown',blown);
+    $('c-glamp1').classList.toggle('on',fed);$('c-gel').classList.toggle('on',heat);$('c-gready').classList.toggle('on',ready);
+    $('c-gpump').classList.toggle('on',pump);$('c-gsol').classList.toggle('on',sol);
+    $('lab-gfuse').textContent=blown?'melted: fit a new one':'melts at '+FUSE+' °C';
+    $('lad-reset').hidden=!blown;
+    var parts=[];
+    if(!S.pwr)parts.push('Power is off, so nothing has a path from line to neutral.');
+    else if(blown)parts.push('<b>The thermal fuse has melted.</b> It sits in the neutral feed to the whole machine, so everything goes dark, the power lamp too. It’s one-shot, so it has to be replaced, and the overheating found.');
+    else{
+      if(heat)parts.push('<b>Elements heating:</b> the steam thermostat is closed, and so is '+(S.steam?'the steam switch, which shorts out the brew thermostat':'the brew thermostat')+'. The ready lamp is shorted out, so it’s dark.');
+      else if(!steamClosed)parts.push('<b>Elements off:</b> the steam thermostat has opened, so the ready lamp lights'+(S.steam?': steam is ready.':'.'));
+      else parts.push('<b>Elements off:</b> the brew thermostat has opened, so the ready lamp lights: ready to brew.'+(S.steam?'':' Switch on steam to keep heating.'));
+      if(pump)parts.push('<b>Pump running</b> through the brew switch.');
+      if(sol)parts.push('<b>3-way valve open</b> to the group: it’s fed through the steam switch, closed with steam off.');
+      else if(pump)parts.push('The 3-way valve stays shut, because the steam switch has opened its feed. That’s hot water mode: water leaves through the wand.');
+    }
+    return finish(parts,{heat:heat,pump:pump,sol:sol});
+  }
+  function finish(parts,res){
     var html=parts.join(' ');if(html!==lastStatus){lastStatus=html;$('lad-status').innerHTML=html}
     $('lad-tv').textContent=Math.round(T)+' °C';if(!dragT)$('lad-temp').value=String(T.toFixed(1));
     Array.prototype.forEach.call(document.querySelectorAll('[data-lsw]'),function(b){b.setAttribute('aria-pressed',String(S[b.getAttribute('data-lsw')]))});
     kick();
-    return {heat:heat,pump:pump,sol:sol};
+    return res;
   }
   /* ---------- current flowing ----------
      Every live wire's dashes move at one speed, timed from one clock, and each wire starts its pattern where the
      wire feeding it left off, so the flow runs on through junctions and never restarts. Rows run left to right;
      the neutral wires drawn upward carry it back to the plug. */
   var FV=30,FP=16,RM=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches),seen=true,raf=0;
-  var wires=Array.prototype.map.call(svg.querySelectorAll('.w'),function(w){
-    var a=w.getPointAtLength(0);
-    return {el:w,d0:(w.id==='s-inL'||w.id==='s-railL0'||w.id==='s-railL')?a.y:a.x,up:w.classList.contains('up')};
-  });
+  /* a drawing hidden with display="none" can't measure its paths, so each wire's start is read when it's first needed */
+  var VERT=['s-inL','s-railL0','s-railL','s-ginL','s-grailL'];
+  var wires=Array.prototype.map.call(document.querySelectorAll('#lad-svg .w,#lad-svg-gc .w'),function(w){return {el:w,d0:null,up:w.classList.contains('up')}});
+  function d0(w){if(w.d0===null){try{var a=w.el.getPointAtLength(0);w.d0=VERT.indexOf(w.el.id)>=0?a.y:a.x}catch(e){return 0}}return w.d0}
   function flow(ms){
     raf=0;var t=ms/1000,any=false;
     for(var i=0;i<wires.length;i++){var w=wires[i];if(!w.el.classList.contains('live'))continue;any=true;
-      w.el.style.strokeDashoffset=(w.up?(FV*t)%FP:((w.d0-FV*t)%FP+FP)%FP).toFixed(2)}
+      w.el.style.strokeDashoffset=(w.up?(FV*t)%FP:((d0(w)-FV*t)%FP+FP)%FP).toFixed(2)}
     if(any&&seen)raf=requestAnimationFrame(flow);
   }
   function kick(){if(!RM&&seen&&!raf)raf=requestAnimationFrame(flow)}
-  if('IntersectionObserver' in window)new IntersectionObserver(function(es){seen=es[0].isIntersecting;kick()}).observe(svg);
+  if('IntersectionObserver' in window)new IntersectionObserver(function(es){seen=es[0].isIntersecting;kick()}).observe($('lad'));
   Array.prototype.forEach.call(document.querySelectorAll('[data-lsw]'),function(b){
     b.addEventListener('click',function(){var k=b.getAttribute('data-lsw');S[k]=!S[k];update()});
   });
@@ -1542,6 +1722,8 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     if(timer){cancelAnimationFrame(timer);timer=null}
     if(run){st=update();last=0;timer=requestAnimationFrame(tick)}
   });
+  /* picking another machine swaps the drawing; switches, temperature and fuse carry over */
+  window.addEventListener('gaggia-machine',function(){lastStatus='';update()});
   update();
 })();
 

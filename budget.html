@@ -90,7 +90,7 @@
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
 /* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
-[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+[data-when][hidden],[data-showall][hidden],.mnote[hidden],[data-when][display="none"]{display:none!important}
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
@@ -105,6 +105,7 @@
      eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
      opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
@@ -146,7 +147,7 @@
     /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
     if(p.volts===120||p.model==='GC')return false;
     if(!p.model||p.volts!==230)return null;
-    return p.eco;
+    return p.eco==null?null:!!p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
   function wpathOf(p){
@@ -178,6 +179,7 @@
       /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
       if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
       if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
+      if(c.k==='siok')return !(prof.model&&prof.model!=='GC'&&prof.volts===230);
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -199,11 +201,19 @@
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
       if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
+      if(c.k==='siok')return prof.model==='GC'||prof.volts===120||(!!prof.model&&!!prof.volts);
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
       return true;
     })(c);
+  }
+  /* an element's text without the parts that don't apply to the picked machine */
+  function vtext(el){
+    if(!el)return '';
+    var c=el.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('[data-when]'),function(x){if(!matches(x.getAttribute('data-when')))x.remove()});
+    return c.textContent.replace(/\s+/g,' ').trim();
   }
   function txt(x){
     if(x==null)return '';
@@ -240,7 +250,12 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){
+      var hide=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall');
+      /* inside a drawing, hidden doesn't apply, so SVG elements get display="none" instead */
+      if(window.SVGElement&&el instanceof SVGElement){if(hide)el.setAttribute('display','none');else el.removeAttribute('display')}
+      else el.hidden=hide;
+    });
     /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
     Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
       var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
@@ -346,7 +361,7 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -575,8 +590,8 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
 <script>
 (function(){
   var MACHINES=[
-    {id:'used',name:'Used Classic Pro or Classic',lo:250,hi:425,note:'Working Classic Pros were listed at about $300 to $425 on eBay in October 2026, plus $8 to $70 shipping, and older Classics from about $220. Those are asking prices. Not the 2015 V2, which has no 3-way valve. Take the used Gaggia check when you go look.',src:[['eBay listings','https://www.ebay.com/b/Gaggia-Classic/38252/bn_7023274426']]},
-    {id:'new',name:'New Classic Pro E24',lo:499,hi:549,note:['Whole Latte Love had the stainless E24 at $499 and Gaggia North America at $549 ($599 in colors).',['US machines ship with a 9 bar valve that has to go up to 10 to 12 bar; that line is under Gaggiuino parts.','volts:120']],src:[['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24'],['Gaggia NA','https://www.gaggia-na.com/products/gaggia-classic-pro']]}
+    {id:'used',name:'Used Classic Pro or Classic',lo:250,hi:425,note:[['Working Classic Pros were listed at about $300 to $425 on eBay in October 2026, plus $8 to $70 shipping, and older Classics from about $220. Those are asking prices. Not the 2015 V2, which has no 3-way valve.','unset:model'],['Working Classic Pros were listed at about $300 to $425 on eBay in October 2026, plus $8 to $70 shipping. Those are asking prices.','set:model;model:GCP'],['Used Evo Pros turn up less often than Classic Pros, so this range borrows theirs: working Classic Pros were listed at about $300 to $425 on eBay in October 2026. Whole Latte Love\'s refurbished Evo Pro was $381 when it was last in stock.','set:model;model:EVO'],['Used E24s are still scarce, so this range borrows the Classic Pro\'s: about $300 to $425 on eBay in October 2026. A new one is $499 to $549 in the US, so a used one should come in under that.','set:model;model:E24'],['Older Classics were listed from about $220 on eBay in October 2026, plus shipping. Those are asking prices. Not the 2015 V2, which has no 3-way valve.','set:model;fam:GC'],'Take the used Gaggia check when you go look.'],src:[['eBay listings','https://www.ebay.com/b/Gaggia-Classic/38252/bn_7023274426']]},
+    {id:'new',name:'New Classic Pro E24',lo:499,hi:549,note:['Whole Latte Love had the stainless E24 at $499 and Gaggia North America at $549 ($599 in colors).',['Those are US prices for the 120 V machine; check your local retailers for a 230 V one.','set:volts;volts:230'],['US machines ship with a 9 bar valve that has to go up to 10 to 12 bar; that line is under Gaggiuino parts.','volts:120']],src:[['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24'],['Gaggia NA','https://www.gaggia-na.com/products/gaggia-classic-pro']]}
   ];
   var LINES=[
     /* the kit's price, note and link follow the supplier picked above it (see SUPPLIERS) */

@@ -90,7 +90,7 @@
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
 /* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
-[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+[data-when][hidden],[data-showall][hidden],.mnote[hidden],[data-when][display="none"]{display:none!important}
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
@@ -105,6 +105,7 @@
      eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
      opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
@@ -146,7 +147,7 @@
     /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
     if(p.volts===120||p.model==='GC')return false;
     if(!p.model||p.volts!==230)return null;
-    return p.eco;
+    return p.eco==null?null:!!p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
   function wpathOf(p){
@@ -178,6 +179,7 @@
       /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
       if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
       if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
+      if(c.k==='siok')return !(prof.model&&prof.model!=='GC'&&prof.volts===230);
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -199,11 +201,19 @@
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
       if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
+      if(c.k==='siok')return prof.model==='GC'||prof.volts===120||(!!prof.model&&!!prof.volts);
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
       return true;
     })(c);
+  }
+  /* an element's text without the parts that don't apply to the picked machine */
+  function vtext(el){
+    if(!el)return '';
+    var c=el.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('[data-when]'),function(x){if(!matches(x.getAttribute('data-when')))x.remove()});
+    return c.textContent.replace(/\s+/g,' ').trim();
   }
   function txt(x){
     if(x==null)return '';
@@ -240,7 +250,12 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){
+      var hide=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall');
+      /* inside a drawing, hidden doesn't apply, so SVG elements get display="none" instead */
+      if(window.SVGElement&&el instanceof SVGElement){if(hide)el.setAttribute('display','none');else el.removeAttribute('display')}
+      else el.hidden=hide;
+    });
     /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
     Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
       var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
@@ -346,7 +361,7 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -618,30 +633,31 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 .lad-t output{font:600 15px var(--f-mono);min-width:7ch;text-align:right}
 .lad-fig{overflow-x:auto;padding:6px 8px}
 .lad-fig svg{display:block;width:100%;min-width:640px;height:auto}
+.lad-note{margin:0;padding:10px 16px 0;font-size:14.5px;color:var(--muted)}
 .lad .swipe-hint{margin:0;padding:0 16px 10px}
 .lad-status{margin:0;padding:10px 16px 14px;border-top:1px solid var(--line);font-size:15px}
 .lad-status b{font-weight:600}
-#lad-svg .lt{font:700 15px var(--f-mono);fill:var(--ink)}
-#lad-svg .lc{font:500 11.5px var(--f-mono);fill:var(--muted)}
-#lad-svg .lc.dim{fill:var(--accent-ink)}
-#lad-svg .w{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
-#lad-svg .w.live{stroke:var(--w-l);stroke-dasharray:8 8}
-#lad-svg .w.h.live{stroke:var(--w-h)}
-#lad-svg .w.n.live{stroke:var(--w-n)}
-#lad-svg .node{fill:var(--muted)}
-#lad-svg .tm{fill:var(--surface);stroke:var(--ink);stroke-width:1.6}
-#lad-svg .blade{stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;transition:transform .15s}
-#lad-svg .swi.th .tm{stroke:var(--accent-ink)}
-#lad-svg .link{stroke:var(--muted);stroke-width:1.4;stroke-dasharray:3 4}
-#lad-svg .ld circle,#lad-svg .ld rect,#lad-svg .ld polygon{fill:var(--surface);stroke:var(--ink);stroke-width:1.8}
-#lad-svg .ld path,#lad-svg .ld line{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
-#lad-svg .ld.on.lamp circle{fill:#3FBF6A;stroke:#2D7A4C}
-#lad-svg .ld.on.lamp.ht circle{fill:#F2A33A;stroke:#965300}
-#lad-svg .ld.on.el path{stroke:#FF8A2A;filter:drop-shadow(0 0 4px #FF8A2A)}
-#lad-svg .ld.on.coil path{stroke:var(--accent)}
-#lad-svg .ld.blown line{stroke:var(--bad)}
-#lad-svg .earth line{stroke:var(--w-e);stroke-width:2}
-@media (prefers-reduced-motion:reduce){#lad-svg .w.live{stroke-dasharray:none}}
+#lad-svg .lt,#lad-svg-gc .lt{font:700 15px var(--f-mono);fill:var(--ink)}
+#lad-svg .lc,#lad-svg-gc .lc{font:500 11.5px var(--f-mono);fill:var(--muted)}
+#lad-svg .lc.dim,#lad-svg-gc .lc.dim{fill:var(--accent-ink)}
+#lad-svg .w,#lad-svg-gc .w{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+#lad-svg .w.live,#lad-svg-gc .w.live{stroke:var(--w-l);stroke-dasharray:8 8}
+#lad-svg .w.h.live,#lad-svg-gc .w.h.live{stroke:var(--w-h)}
+#lad-svg .w.n.live,#lad-svg-gc .w.n.live{stroke:var(--w-n)}
+#lad-svg .node,#lad-svg-gc .node{fill:var(--muted)}
+#lad-svg .tm,#lad-svg-gc .tm{fill:var(--surface);stroke:var(--ink);stroke-width:1.6}
+#lad-svg .blade,#lad-svg-gc .blade{stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;transition:transform .15s}
+#lad-svg .swi.th .tm,#lad-svg-gc .swi.th .tm{stroke:var(--accent-ink)}
+#lad-svg .link,#lad-svg-gc .link{stroke:var(--muted);stroke-width:1.4;stroke-dasharray:3 4}
+#lad-svg .ld circle,#lad-svg-gc .ld circle,#lad-svg .ld rect,#lad-svg-gc .ld rect,#lad-svg .ld polygon,#lad-svg-gc .ld polygon{fill:var(--surface);stroke:var(--ink);stroke-width:1.8}
+#lad-svg .ld path,#lad-svg-gc .ld path,#lad-svg .ld line,#lad-svg-gc .ld line{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
+#lad-svg .ld.on.lamp circle,#lad-svg-gc .ld.on.lamp circle{fill:#3FBF6A;stroke:#2D7A4C}
+#lad-svg .ld.on.lamp.ht circle,#lad-svg-gc .ld.on.lamp.ht circle{fill:#F2A33A;stroke:#965300}
+#lad-svg .ld.on.el path,#lad-svg-gc .ld.on.el path{stroke:#FF8A2A;filter:drop-shadow(0 0 4px #FF8A2A)}
+#lad-svg .ld.on.coil path,#lad-svg-gc .ld.on.coil path{stroke:var(--accent)}
+#lad-svg .ld.blown line,#lad-svg-gc .ld.blown line{stroke:var(--bad)}
+#lad-svg .earth line,#lad-svg-gc .earth line{stroke:var(--w-e);stroke-width:2}
+@media (prefers-reduced-motion:reduce),@media (prefers-reduced-motion:reduce){#lad-svg .__X__w.live{stroke-dasharray:none}}
 
 /* figures on the Gaggiuino page */
 .gfig{margin:0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
@@ -788,8 +804,8 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <div class="lead2">
       <div class="prose">
         <p>On a stock Gaggia the switches and thermostats do the controlling themselves: each one sits in a mains wire and either completes a load's circuit or breaks it. Gaggiuino moves every decision into one place.</p>
-        <p>The brew and steam switches stop switching loads and become signals to the PCB. (With stock wiring integration, some of their other spades still carry mains.) A thermocouple and a pressure sensor report what's happening. The PCB reads all of it many times a second and decides what the elements, pump and 3-way valve should do, switching the pump and valve itself and the elements through a solid-state relay. The screen shows it and takes your settings.</p>
-        <p class="gg"><b>What stays:</b> the power switch still breaks mains, the boiler's thermal fuse (184 °C on the official schematics) stays in circuit, so does the pump's thermal fuse, and earth is bonded exactly as before. None of those depend on software.</p>
+        <p>The brew and steam switches stop switching loads and become signals to the PCB.<span data-when="!wpath:CW"> (With stock wiring integration, some of their other spades still carry mains.)</span> A thermocouple and a pressure sensor report what's happening. The PCB reads all of it many times a second and decides what the elements, pump and 3-way valve should do, switching the pump and valve itself and the elements through a solid-state relay. The screen shows it and takes your settings.</p>
+        <p class="gg"><b>What stays:</b> the power switch still breaks mains, the boiler's thermal fuse (184 °C on the official schematics) stays in circuit<span data-when="!fam:GC">, so does the pump's thermal fuse</span><span data-when="set:model;fam:GC;!volts:230">, so does the pump's thermal fuse</span><span data-when="set:model,volts;fam:GC;volts:230">, so does the pump's thermal fuse if yours has one</span>, <span data-when="set:model;fam:GCP">and earth is bonded exactly as before</span><span data-when="unset:model;set:volts;volts:230">and earth is bonded exactly as before</span><span data-when="unset:model;!volts:230">and earth is bonded as before, which on a two-pin US Classic means after the grounding retrofit</span><span data-when="set:model,volts;fam:GC;volts:230">and earth is bonded exactly as before</span><span data-when="set:model;fam:GC;unset:volts">and earth is bonded as before, which on a two-pin US Classic means after the grounding retrofit</span><span data-when="set:model,volts;ground">and the earth the grounding retrofit adds stays bonded to the metal</span>. None of those depend on software.</p>
       </div>
       <figure class="gfig" id="g-blocks">
   <div class="mini-ctl" role="group" aria-label="Which machine"><button type="button" class="tgl" data-arch="stock" aria-pressed="false"><i></i>Stock Gaggia</button><button type="button" class="tgl" data-arch="gg" aria-pressed="true"><i></i>With Gaggiuino</button></div>
@@ -925,10 +941,10 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <article class="pc" id="ssr">
       <div class="ph"><h3>Solid-state relay (SSR)</h3><span class="where">screwed to the back wall</span></div>
       <div class="prose">
-        <p>The switch for the elements. It's an SSR-40DA: a relay controlled by 3 to 32 V DC that switches AC, with no moving contacts. J9 R1 feeds its + input and J9 GND its −. Its two load screws sit in the elements' supply: on stock wiring integration they take the wires that went to the steam thermostat.</p>
+        <p>The switch for the elements. It's an SSR-40DA: a relay controlled by 3 to 32 V DC that switches AC, with no moving contacts. J9 R1 feeds its + input and J9 GND its −. Its two load screws sit in the elements' supply<span data-when="!wpath:CW">: on stock wiring integration they take the wires that went to the steam thermostat</span><span data-when="set:path;path:CW">, on two runs of the new harness</span><span data-when="set:path,model,volts;path:SI;wpath:CW">, on two runs of the new harness</span>.</p>
         <h3>How it works</h3>
         <p>The input current lights an LED inside the relay. On the other side of an insulating gap, a light-sensitive switch sees it and fires a triac, a semiconductor switch for AC, which carries the elements' current. The PCB and mains only meet through light, which is what keeps the low-voltage side isolated. A zero-cross SSR only turns on where the mains wave crosses zero, and a triac lets go at the next zero, so the elements switch cleanly in whole half-cycles.</p>
-        <p>While it conducts it drops up to 1.6 V, which at an espresso machine's heater current turns up to about 18 W into heat on a 120 V machine, or about 8 W on a 230 V one, so it needs to sit flat on metal. Fork spades on all four screws, as the official schematics draw them, and buy from a known seller: counterfeit SSR-40DAs with undersized triacs are common.</p>
+        <p>While it conducts it drops up to 1.6 V, which at an espresso machine's heater current turns up to <span data-when="unset:volts">about 18 W into heat on a 120 V machine, or about 8 W on a 230 V one</span><span data-when="set:volts;volts:120">about 18 W into heat on your 120 V machine</span><span data-when="set:volts;volts:230;!fam:GC">about 8 W into heat on your 230 V machine</span><span data-when="set:model,volts;fam:GC;volts:230">about 8 to 10 W into heat on your 230 V Classic, depending on its rating</span>, so it needs to sit flat on metal. Fork spades on all four screws, as the official schematics draw them, and buy from a known seller: counterfeit SSR-40DAs with undersized triacs are common.</p>
       </div>
       <figure class="gfig" id="g-ssr">
   <svg viewBox="0 0 360 292" role="img" aria-label="Inside a solid-state relay. A small DC signal from the PCB lights an LED inside the relay; the light triggers a triac on the mains side, which switches the elements. The two sides only meet through light, so the PCB stays isolated from mains. Below, the mains wave with the switched part highlighted: zero-cross relays turn on and off only where the wave crosses zero.">
@@ -985,7 +1001,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
         <p>A 0 to 1.2 MPa (0 to 12 bar) pressure transducer with a 1/4" thread, powered from 5 V. It's what lets Gaggiuino profile pressure: the PCB reads it continuously and adjusts the pump to follow the curve.</p>
         <h3>How it works</h3>
         <p>Water pressure bends a thin metal diaphragm. Strain gauges on the diaphragm change resistance as it flexes, and electronics in the sensor body turn that into a voltage on the signal pin: 0.5 V at 0 bar, rising evenly to 4.5 V at 12 bar. The ADS1015 on the PCB converts that voltage to a number.</p>
-        <p>On a Gaggia it goes on a T-fitting cut into the line from the pump to the boiler, or on a pressure tap block clamped between the group and its inlet fitting. Either way it seals on an O-ring, not its thread: the small flat O-ring goes flush into the fitting first, because many fittings are too short for the sensor's own base O-ring to seal, then the sensor goes in hand tight plus at most a quarter turn. On a T-fitting, [UT] Tube Fill pushes the air out of its line.</p>
+        <p>On a Gaggia it goes on a T-fitting cut into the line from the pump to the boiler<span data-when="set:model;fam:GC"> (a push-to-connect T in the Classic's PTFE tube)</span><span data-when="set:model;fam:GCP"> (a barbed T in the Pro's braided hose, with clamps)</span>, or on a pressure tap block clamped between the group and its <span data-when="!fam:GC">inlet fitting</span><span data-when="set:model;fam:GC">metal OPV</span>. Either way it seals on an O-ring, not its thread: the small flat O-ring goes flush into the fitting first, because many fittings are too short for the sensor's own base O-ring to seal, then the sensor goes in hand tight plus at most a quarter turn. On a T-fitting, [UT] Tube Fill pushes the air out of its line.</p>
       </div>
       <figure class="gfig" id="g-xdcr">
   <div class="mini-ctl"><label class="mini-note" for="px-r">Pressure</label><input type="range" id="px-r" min="0" max="12" step="0.5" value="9"><output id="px-o">9 bar</output></div>
@@ -1017,9 +1033,9 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     </article>
 
     <article class="pc nofig" id="harness">
-      <div class="ph"><h3>The harness</h3><span class="where">stock wiring plus seven wires, or a new harness</span></div>
+      <div class="ph"><h3>The harness</h3><span class="where" data-when="unset:path">stock wiring plus seven wires, or a new harness</span><span class="where" data-when="set:path;wpath:SI">stock wiring plus seven wires</span><span class="where" data-when="set:path;path:CW">a new harness</span><span class="where" data-when="set:path,model,volts;path:SI;wpath:CW">a new harness</span></div>
       <div class="prose">
-        <p>The official guide gives the Gaggia two ways in. Stock wiring integration keeps the machine's own harness and adds seven short wires: a jumper in place of the brew thermostat, two to the SSR in place of the steam thermostat, and line, neutral, pump and valve wires to the PCB. Custom wiring replaces the harness with new 18 AWG silicone wire, reusing the stock components, following the official schematic for your model and voltage. Either way, mains wire near the boiler is silicone rated to 200 °C.</p>
+        <p><span data-when="unset:path">The official guide gives the Gaggia two ways in. </span><span data-when="!wpath:CW">Stock wiring integration keeps the machine's own harness and adds seven short wires: a jumper in place of the brew thermostat, two to the SSR in place of the steam thermostat, and line, neutral, pump and valve wires to the PCB. </span><span data-when="!wpath:SI;!path:SI">Custom wiring replaces the harness with new 18 AWG silicone wire, reusing the stock components, following the official schematic for your model and voltage. </span><span data-when="set:path,model,volts;path:SI;wpath:CW">There's no official stock-integration drawing for a 230 V Pro-family machine, so yours takes custom wiring: new 18 AWG silicone wire, reusing the stock components, following the official schematic for your model and voltage. </span><span data-when="set:path;path:SI;unset:model,volts;fam:GCP;!volts:120">A 230 V Pro-family machine takes custom wiring instead, as there's no official stock-integration drawing for it. </span><span data-when="unset:path">Either way, mains</span><span data-when="set:path">Mains</span> wire near the boiler is silicone rated to 200 °C.</p>
         <p>Mains runs on the left, low voltage on the right, kept apart, with nothing but silicone wire touching the boiler or steam wand. <a href="wiring.html">Wiring</a>, <a href="cut-list.html">cut list</a>, <a href="wire-labels.html">labels</a>.</p>
       </div>
     </article>
@@ -1030,7 +1046,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
         <p>The brew and steam rockers stay on the front panel, but the PCB now reads them. Each one, when on, connects a PCB input pin to the low-voltage ground: steam to J7 S and brew to J7 B, with the ground back to J7 GND. Brew and steam on together start hot water mode, as on the stock machine.</p>
         <h3>How it works</h3>
         <p>A 10 kΩ pull-up resistor on the board holds each input at 3.3 V. So an open switch reads high, which the firmware treats as off. Closing the switch ties the pin to ground and it reads low: on. That's why the power-on checks want under 1 Ω with a switch on and OL with it off.</p>
-        <p>Mains must never reach these wires: mains on an input pin destroys it, and wiring the pump around the PCB's pump output can short the triac that drives it. On stock wiring integration the guide clears one column of spades on each switch for the low-voltage wires.</p>
+        <p>Mains must never reach these wires: mains on an input pin destroys it, and wiring the pump around the PCB's pump output can short the triac that drives it. <span data-when="!wpath:CW">On stock wiring integration the guide clears one column of spades on each switch for the low-voltage wires.</span></p>
               </div>
       <figure class="gfig" id="g-input">
   <div class="mini-ctl"><button type="button" class="tgl" data-inp aria-pressed="false"><i></i>Brew switch</button><span class="mini-note" id="inp-note"></span></div>
@@ -1061,7 +1077,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
         <p>Two load cells on a printed base under the drip tray weigh the cup as the shot runs, so Gaggiuino can stop at a target weight and plot it live. Without them it still predicts the weight from the pump's flow; a Bluetooth scale is the other option.</p>
         <h3>How it works</h3>
         <p>A load cell is a metal bar with strain gauges glued to it, wired as a bridge. The weight of the cup bends the bar by a tiny amount and the bridge puts out a few millivolts at most. Each cell has its own HX711 channel, which amplifies and measures that very finely; the two share the clock line on J8 and each has its own data line, D1 and D2. The PCB adds the two, subtracts the tare and converts to grams after you calibrate with a known weight.</p>
-        <p>The official design is made for the Gaggia: 750 g cells in a printed base, with drip tray adapters for the Classic, the Pro (its tray's sides get trimmed) or a low-profile tray. Buy three or four cells; quality varies and they're easy to damage while preparing them.</p>
+        <p>The official design is made for the Gaggia: 750 g cells in a printed base, with drip tray adapters for <span data-when="unset:model">the Classic, the Pro (its tray's sides get trimmed) or a low-profile tray</span><span data-when="set:model;fam:GC">your Classic's tray (with four spacers) or a low-profile tray</span><span data-when="set:model;fam:GCP">your Pro-family tray (its sides get trimmed) or a low-profile tray</span>. Buy three or four cells; quality varies and they're easy to damage while preparing them.</p>
       </div>
       <figure class="gfig" id="g-scale">
   <div class="mini-ctl"><label class="mini-note" for="ls-r">In the cup</label><input type="range" id="ls-r" min="0" max="40" step="0.5" value="18"><output id="ls-o">18 g</output></div>
@@ -1105,7 +1121,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <div class="sec-h"><h2 id="h-ground">Why the low-voltage side floats</h2></div>
     <div class="lead2">
       <div class="prose">
-                <p>The machine's metal, the frame, boiler and valve bodies, is bonded to earth for safety. The PCB's 5 V side is deliberately left floating: its ground is not connected to earth anywhere. Everything that crosses between them does so without a wire: the board's sealed power supply module, three optocouplers on the board (for the zero-cross detector, the pump and the 3-way valve) and the SSR's light link. The board's own mains section is live whenever the machine is plugged in.</p>
+                <p>The machine's metal, the frame, boiler and valve bodies, is bonded to earth for safety.<span data-when="set:model,volts;ground"> On your Classic that earth comes from the grounding retrofit, so it goes in first.</span> The PCB's 5 V side is deliberately left floating: its ground is not connected to earth anywhere. Everything that crosses between them does so without a wire: the board's sealed power supply module, three optocouplers on the board (for the zero-cross detector, the pump and the 3-way valve) and the SSR's light link. The board's own mains section is live whenever the machine is plugged in.</p>
         <p>The reason is the thermocouple. Its tip is screwed into the earthed boiler, and the MAX31855 that reads it must never have its minus input tied to its ground; if it does, it reports a short to ground or reads wrong. An ungrounded thermocouple, with the junction insulated inside the probe, keeps the tip electrically off the boiler, and a floating 5 V side keeps the two from meeting some other way.</p>
         <p>So never bond the 5 V ground to earth, and watch for accidental paths: nothing on the low-voltage side should touch the chassis, including a metal screw through one of the board's mounting holes, and a desktop computer on the USB port, which is usually earthed, can make the connection for you. The power-on checks include an open-circuit test between earth and J7 GND.</p>
 

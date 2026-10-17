@@ -90,7 +90,7 @@
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
 /* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
-[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+[data-when][hidden],[data-showall][hidden],.mnote[hidden],[data-when][display="none"]{display:none!important}
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
@@ -105,6 +105,7 @@
      eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
      opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
@@ -146,7 +147,7 @@
     /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
     if(p.volts===120||p.model==='GC')return false;
     if(!p.model||p.volts!==230)return null;
-    return p.eco;
+    return p.eco==null?null:!!p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
   function wpathOf(p){
@@ -178,6 +179,7 @@
       /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
       if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
       if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
+      if(c.k==='siok')return !(prof.model&&prof.model!=='GC'&&prof.volts===230);
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -199,11 +201,19 @@
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
       if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
+      if(c.k==='siok')return prof.model==='GC'||prof.volts===120||(!!prof.model&&!!prof.volts);
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
       return true;
     })(c);
+  }
+  /* an element's text without the parts that don't apply to the picked machine */
+  function vtext(el){
+    if(!el)return '';
+    var c=el.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('[data-when]'),function(x){if(!matches(x.getAttribute('data-when')))x.remove()});
+    return c.textContent.replace(/\s+/g,' ').trim();
   }
   function txt(x){
     if(x==null)return '';
@@ -240,7 +250,12 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){
+      var hide=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall');
+      /* inside a drawing, hidden doesn't apply, so SVG elements get display="none" instead */
+      if(window.SVGElement&&el instanceof SVGElement){if(hide)el.setAttribute('display','none');else el.removeAttribute('display')}
+      else el.hidden=hide;
+    });
     /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
     Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
       var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
@@ -346,7 +361,7 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -731,11 +746,11 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'g8',when:'SI GCP EVO|E24',t:'Switch connectors out of the combined block, each insulated and labeled',how:'The official machine-specific guide: self-fusing silicone tape or 6 mm silicone heat shrink on each, labeled with an oil-based marker.',type:'check'},
       {id:'g9',when:'GCP 230 ECO',t:'The power switch stays on by itself',how:'Eco-board machines need the official power switch mod: one spring out so the rocker latches.',type:'check'},
       {id:'g10',t:'J10 N, J11 L, J12 P and J13 3 match the wiring page',how:'Spades pushed fully home on the PCB.',type:'check'},
-      {id:'g11',t:'Nothing but 200 °C silicone wire touches the boiler or steam wand',how:'Mains wires on the left of the enclosure, above the thermocouple wire; low-voltage wires and sensors on the right, as the stock integration guide suggests.',type:'check'},
+      {id:'g11',t:'Nothing but 200 °C silicone wire touches the boiler or steam wand',how:function(v){return 'Mains wires on the left of the enclosure, above the thermocouple wire; low-voltage wires and sensors on the right, as the '+(v.path==='SI'?'stock integration guide':'official guide')+' suggests.'},type:'check'},
       {id:'g12',t:'Thermocouple finger tight, lead free to rotate',how:'Ungrounded M4 type in the brew thermostat\'s hole, threads coated with thermal paste rated for at least 180 °C, lead routed around the front of the boiler.',type:'check'},
       {id:'g13',t:'Screen cable sleeved where it passes the back vent',how:'An unshrunk length of heat shrink stops the sharp vent edge cutting the soft silicone jacket.',type:'check'},
       {id:'g14',t:'No stray strands or bare metal anywhere',how:'Every splice and spade covered.',type:'check'},
-      {id:'g15',t:'Pressure sensor plumbing snug and dry',how:'Tubes cut square and fully inserted (clamped, on the Pro\'s braided hose). The sensor seals on its small O-ring pressed flush in the fitting: hand tight, plus a quarter turn at most. It sits below the T and doesn\'t touch the housing. The real leak test comes under pressure.',type:'check'},
+      {id:'g15',t:'Pressure sensor plumbing snug and dry',how:function(v){return (v.fam==='GC'?'PTFE tube cut square and fully inserted.':'Tubes cut square and fully inserted; on a T in the braided hose, clamps over the middle of each barb.')+' The sensor seals on its small O-ring pressed flush in the fitting: hand tight, plus a quarter turn at most. It sits below the T and doesn\'t touch the housing. The real leak test comes under pressure.'},type:'check'},
       {id:'g16',t:'Someone else traced the wiring against the wiring page',how:'A second set of eyes, wire by wire.',type:'check'},
       {id:'g17',t:'Everything plugged back in',how:'J4 thermocouple reclamped with the same + and − as on the bench, then J7 and J9. Recheck J9 R1 to SSR + and GND to SSR − with the plug in.',type:'check'},
       {id:'g18',t:'Stop at once if the temperature falls while heating',how:'At first power-on the reading must rise while the boiler heats. If it falls, the thermocouple is reversed and the controller may keep heating. Switch off, unplug, and swap the J4 wires.',type:'check'}
@@ -803,6 +818,21 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
 
   /* ---------- evaluation ---------- */
   function profVolts(){var m=window.GaggiaMachine,p=m&&m.get();return p&&p.volts?p.volts:V().volts}
+  /* what the rating plate should say for the reader's machine (Gaggia's service manual and E24 page; owners for the old Classic) */
+  function wattsHint(){
+    var m=window.GaggiaMachine,p=(m&&m.get())||{},v=p.volts,md=p.model;
+    if(md==='GC'&&v===120)return 'The label says 1425 W, but that includes the 55 W pump: enter 1370 W for the heater.';
+    if(md==='EVO'&&v===120)return 'The label says 1425 W, but that includes the pump: CoffeeGeek puts the heater at 1375 W.';
+    if(md&&v===120)return 'Gaggia rates the '+(md==='E24'?'E24':'Classic Pro')+' at 1350 W on 120 V.';
+    if(md==='GC'&&v===230)return '230 V Classics were rated 1425 W, 1300 W or 1200 W depending on the year: use your label.';
+    if(md==='GCP'&&v===230)return 'Gaggia rates the 230 V Classic Pro at 1200 W, or 1300 W on 240 V UK machines.';
+    if(md==='E24'&&v===230)return 'Gaggia rates the 230 V E24 at 1200 W.';
+    if(md==='EVO'&&v===230)return 'Retailers list the 230 V Evo at 1200 W: check your label.';
+    if(md==='GC')return 'A 120 V Classic\'s 1425 W label includes the 55 W pump, so enter 1370 W; 230 V Classics were rated 1425, 1300 or 1200 W, so use your label.';
+    if(md==='EVO')return 'A 120 V Evo\'s 1425 W label includes the pump: CoffeeGeek puts the heater at 1375 W. Retailers list the 230 V Evo at 1200 W.';
+    if(md)return 'Gaggia rates the '+(md==='E24'?'E24':'Classic Pro')+' at 1350 W on 120 V and 1200 W on 230 V. A 1425 W label includes the 55 W pump.';
+    return 'Gaggia\'s service manual gives 1350 W for the 120 V Classic Pro and 1200 W for 230 V. A 1425 W label includes the 55 W pump.';
+  }
   function expectedR(r){var w=r.watts,v=r.volts||profVolts();return (w&&v)?(v*v/w):null}
   function outlet(){var m=window.GaggiaMachine;return m?m.text('outlet'):'GFCI-protected outlet (an RCD outside North America)'}
   function plineHtml(it,r){
@@ -901,7 +931,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     $('g-t').textContent=f?'Not ready to plug in':(left?(p?'Keep going':'Not started'):'Ready for first power-on');
     $('g-s').textContent=f?(f+' check'+(f===1?' failed':'s failed')+'. Fix each one, then recheck it.'):(left?(left+' check'+(left===1?'':'s')+' still to do, all unplugged.'):'Every check passed, covers on. Plug into a '+outlet()+' and carry on with Phase 5 of the runbook.');
     $('bar').innerHTML=[[p,'var(--good)'],[f,'var(--bad)']].map(function(x){return x[0]?'<span style="flex-grow:'+x[0]+';background:'+x[1]+'"></span>':''}).join('')+(left?'<span style="flex-grow:'+left+';background:transparent"></span>':'');
-    var e=expectedR(r);$('watts-s').textContent=e?('Expected heater resistance: about '+e.toFixed(1)+' Ω'+(r.volts?'':' at '+profVolts()+' V')+'.'):'Sets the expected heater resistance. Gaggia\'s service manual gives 1350 W for the 120 V Pro family and 1200 W for 230 V.';
+    var e=expectedR(r);$('watts-s').textContent=e?('Expected heater resistance: about '+e.toFixed(1)+' Ω'+(r.volts?'':' at '+profVolts()+' V')+'.'+(r.watts>=1400&&profVolts()===120?' A 1425 W label includes the 55 W pump; try 1370 W for the heater.':'')):'Sets the expected heater resistance. '+wattsHint();
     var pv=profVolts();$('volts').placeholder=pv?String(pv):'120/230';
     var pf=$('print-for');if(pf){pf.textContent='For '+vlabel(curKey())+'. Run: '+run().label+(run().created?', '+run().created:'')+'. Checked by: ______________'}
   }
