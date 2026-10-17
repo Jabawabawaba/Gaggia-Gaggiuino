@@ -14,7 +14,7 @@
       <span id="cap-heat">Power on. The elements heat the boiler until the brew thermostat opens, then wait for it to cool a little and close again. <span data-when="!fam:GC">The brew lamp is a ready lamp: it lights while the thermostat is open, so it's out while the elements heat.</span><span data-when="set:model;fam:GC">The ready lamp lights while a thermostat is open, so it's out while the elements heat.</span></span>
       <span id="cap-brew">Brew switch on. The pump pulls water from the tank and pushes it into the boiler, and the 3-way valve opens so hot water flows from the boiler into the group and through the coffee. Whatever the puck won't take above the over-pressure valve's setting goes back to the tank.</span>
       <span id="cap-stop">Brew switch off. The pump stops and the 3-way valve flips: the pressure left above the puck vents down its drain tube into the drip tray.</span>
-      <span id="cap-water">Brew and steam switches on together, with the steam knob open. The pump runs, but the steam switch has cut the 3-way valve's return, so the valve stays shut and the water pushes through the boiler and out of the wand.</span>
+      <span id="cap-water">Brew and steam switches on together, with the steam knob open. The pump runs, but the steam switch has cut the 3-way valve's <span data-when="!fam:GC">return</span><span data-when="set:model;fam:GC">feed</span>, so the valve stays shut and the water pushes through the boiler and out of the wand.</span>
       <span id="cap-steam">Steam switch on, then the knob. The steam switch shorts out the brew thermostat, so the elements keep going until the steam thermostat opens, well above boiling, and the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp lights. The knob lets steam out of the top of the boiler through the wand.</span>
     </div>
     <div class="map">
@@ -49,7 +49,7 @@
         <h3>Try it</h3>
         <ul>
           <li>Turn on Power and let it run: the elements heat until the brew thermostat opens, and the <span data-when="!fam:GC">brew</span><span data-when="set:model;fam:GC">ready</span> lamp lights each time it does.</li>
-          <li>Turn on Brew: the pump runs, and the 3-way valve opens because its return through the steam switch is closed.</li>
+          <li>Turn on Brew: the pump runs, and the 3-way valve opens because its <span data-when="!fam:GC">return</span><span data-when="set:model;fam:GC">feed</span> through the steam switch is closed.</li>
           <li>Add Steam: that's hot water mode. The pump keeps running, the valve shuts, and the heater carries on to the steam thermostat.</li>
           <li>Steam alone: it shorts out the brew thermostat, so heating carries on until the steam thermostat opens at %%STEAM_OPEN%% °C and the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp lights.</li>
           <li>Drag the temperature past %%FUSE%% °C: the fuse melts and <span data-when="!fam:GC">only the power lamp stays lit</span><span data-when="set:model;fam:GC">everything goes dark</span> until a new one is fitted.</li>

@@ -9,6 +9,7 @@
      eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
      opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
@@ -50,7 +51,7 @@
     /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
     if(p.volts===120||p.model==='GC')return false;
     if(!p.model||p.volts!==230)return null;
-    return p.eco;
+    return p.eco==null?null:!!p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
   function wpathOf(p){
@@ -82,6 +83,7 @@
       /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
       if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
       if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
+      if(c.k==='siok')return !(prof.model&&prof.model!=='GC'&&prof.volts===230);
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -103,6 +105,7 @@
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
       if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
+      if(c.k==='siok')return prof.model==='GC'||prof.volts===120||(!!prof.model&&!!prof.volts);
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
