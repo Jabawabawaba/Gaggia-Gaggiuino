@@ -10,6 +10,13 @@
     if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis(es[0].isIntersecting)}).observe(el);else vis(true);
   }
 
+  /* ---------- your Gaggia ---------- */
+  function GM(){return window.GaggiaMachine||null}
+  function prof(){var m=GM();return (m&&m.get())||{}}
+  function vt(el){var m=GM();return m&&m.vtext?m.vtext(el):(el?el.textContent:'')}
+  /* the original Classic has a power lamp and one ready lamp, across both thermostats */
+  function isGC(){return prof().model==='GC'}
+
   /* ---------- machine map: modes ---------- */
   var cut=$('cut');
   var MODES={
@@ -32,7 +39,7 @@
     $('puffs').classList.toggle('on',!!M.puffs);
     ['pwr','brew','steam'].forEach(function(k){var on=M.sw.indexOf(k)>=0;$('sw-'+k).classList.toggle('on',on);var r=$('rk-'+k);if(r)r.classList.toggle('on',on)});
     $('lp-pwr').classList.toggle('on',!!M.pwr);$('cl-pwr').classList.toggle('on',!!M.pwr);
-    $('modecap').textContent=$('cap-'+m).textContent;
+    $('modecap').textContent=vt($('cap-'+m));
     if(cycT){clearInterval(cycT);cycT=null}
     if(M.heat==='cycle'){heatOn=true;applyHeat();cycT=setInterval(function(){heatOn=!heatOn;applyHeat()},2600)}
     else{heatOn=!!M.heat;applyHeat()}
@@ -43,6 +50,7 @@
     $('element').classList.toggle('hot',heatOn);
     $('heatglow').setAttribute('opacity',heatOn?'.55':'0');
     var b=M.ready==='brew'&&!heatOn,s=M.ready==='steam'&&!heatOn;
+    if(isGC()){b=(M.ready==='brew'||M.ready==='steam')&&!heatOn;s=false}
     $('lp-brew').classList.toggle('on',b);$('cl-brew').classList.toggle('on',b);
     $('lp-steam').classList.toggle('on',s);$('cl-steam').classList.toggle('on',s);
   }
@@ -58,8 +66,8 @@
     var card=id&&$('part-'+id),box=$('pinfo');
     qa('.plist .chip').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-part')===id))});
     if(!card){box.innerHTML='<p class="hint">Tap a number to see what that part does.</p>';return}
-    var no=card.getAttribute('data-no'),name=card.querySelector('h3').textContent,sum=card.querySelector('.sum').textContent,gg=card.querySelector('.gg');
-    box.innerHTML='<h3><span class="no">'+no+'</span>'+esc(name)+'</h3><p>'+esc(sum)+'</p>'+(gg?'<p class="gg">'+esc(gg.textContent)+'</p>':'')+'<a href="#part-'+id+'">How it works</a>';
+    var no=card.getAttribute('data-no'),name=vt(card.querySelector('h3')),sum=vt(card.querySelector('.sum')),gg=card.querySelector('.gg');
+    box.innerHTML='<h3><span class="no">'+no+'</span>'+esc(name)+'</h3><p>'+esc(sum)+'</p>'+(gg?'<p class="gg">'+esc(vt(gg))+'</p>':'')+'<a href="#part-'+id+'">How it works</a>';
     if(scrollIt&&window.innerWidth<900)box.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'});
   }
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -77,7 +85,24 @@
     });
     stage.parentNode.insertBefore(pl,stage.nextSibling);
   })();
-  setMode('heat');pick(null);
+  /* materials and layout that differ by model: the E24's boiler is lead-free brass, the Evo's and E24's groups are
+     plain brass, and the original Classic's OPV sits on the line into the group instead of on the pump */
+  var NAMES={GC:'original Gaggia Classic',GCP:'Gaggia Classic Pro',EVO:'Gaggia Classic Evo',E24:'Gaggia Classic E24'};
+  function adaptMachine(){
+    var p=prof(),md=p.model,gm=GM();
+    $('boilerbody').setAttribute('fill',md==='E24'?'url(#cut-brass)':'url(#cut-alu)');
+    $('groupbody').setAttribute('fill',md==='EVO'||md==='E24'?'url(#cut-brass)':'url(#cut-chrome)');
+    var hot=cut.querySelector('.hot[data-part="opv"]'),c=hot.querySelector('circle'),t=hot.querySelector('text'),x=md==='GC'?508:540,y=md==='GC'?330:266;
+    c.setAttribute('cx',x);c.setAttribute('cy',y);t.setAttribute('x',x);t.setAttribute('y',y+5);
+    var nm=md?NAMES[md]:'Gaggia Classic Pro';
+    var boiler=md==='E24'?'the lead-free brass boiler':md==='EVO'?'the aluminum boiler':'the aluminum boiler';
+    $('cut-t').textContent='Side x-ray of a stock '+nm+', simplified: the tank and its filling funnel at the back, the pump standing upright'+(md==='GC'?', its outlet running to the metal over-pressure valve on the line into the group':' with the over-pressure valve on top')+', '+boiler+' at the front with an element on its side, the thermostats and thermal fuse on it, the group body under it with the 3-way valve behind, and the steam valve and wand at the front';
+    var pl=$('lg-plate');if(pl)pl.textContent=md?(gm&&gm.name()?'Gaggia '+gm.name():nm):'Gaggia Classic Pro';
+    var ln=$('lg-name');if(ln)ln.textContent=md?(md==='GC'?'original Gaggia Classic':'Gaggia '+(gm&&gm.name()?gm.name():nm)):'Gaggia';
+    setMode(mode);pick(sel);
+  }
+  window.addEventListener('gaggia-machine',adaptMachine);
+  setMode('heat');pick(null);adaptMachine();
 
   /* ---------- thermostat figure: a simple boiler that heats while the contacts are closed ---------- */
   (function(){
@@ -126,6 +151,9 @@
   (function(){
     var r=$('opv-r');if(!r)return;
     var fig=$('mini-opv'),SET=11,main=fig.querySelector('.sflow.main'),ret=fig.querySelector('.sflow.ret'),plug=fig.querySelector('.opvplug'),needle=fig.querySelector('.needle');
+    /* US Evo Pros and E24s ship at 9 bar, the original Classic at about 14; Gaggia's figure for the Classic Pro is 11 */
+    function setFor(){var m=GM();SET=m&&m.matches('opv9')&&m.decided('opv9')?9:(prof().model==='GC'?14:11)}
+    window.addEventListener('gaggia-machine',function(){setFor();upd()});setFor();
     function upd(){
       var want=Number(r.value),p=Math.min(want,SET),open=want>SET;
       $('opv-o').textContent=want+' bar';$('opv-g').textContent=p.toFixed(p%1?1:0)+' bar';

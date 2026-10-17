@@ -9,6 +9,7 @@
       else if(k==='eco')out.push(v[0]==='yes'?'Eco board':'No Eco board');
       else if(k==='opv9')out.push('US Evo Pro, E24');
       else if(k==='ground')out.push('120 V Classic');
+      else if(k==='siok')out.push('Classic or 120 V Pro family');
       else if(k==='path'||k==='wpath')out.push(v[0]==='SI'?'Stock wiring':'Custom wiring');
     });
     return out.join(' · ');

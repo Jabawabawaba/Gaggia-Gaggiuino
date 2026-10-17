@@ -8,7 +8,7 @@
     <button type="button" class="btn" id="lad-reset" hidden>Fit a new fuse</button>
   </div>
   <div class="lad-fig scroll">
-    <svg viewBox="0 0 900 486" id="lad-svg" role="img" aria-labelledby="lad-t">
+    <svg viewBox="0 0 900 486" id="lad-svg" role="img" aria-labelledby="lad-t" data-when="!fam:GC">
       <title id="lad-t">Ladder diagram of the stock Gaggia Classic Pro circuit at 120 V: line on the left rail, neutral on the right, one rung per load. The power switch breaks both. The power lamp sits across the switched supply, ahead of the 184 °C thermal fuse that feeds everything else. The elements run through the steam thermostat and then the brew thermostat to neutral, with the steam lamp across the steam thermostat, the brew lamp across the brew thermostat, and one pole of the steam switch around the brew thermostat. The brew switch feeds the pump, through its thermal protector, and the 3-way valve, whose return runs through the steam switch's other pole.</title>
       <!-- supply and power switch -->
       <text x="90" y="18" class="lt" text-anchor="middle">L</text><text x="810" y="18" class="lt" text-anchor="middle">N</text>
@@ -87,11 +87,86 @@
       <g class="swi" id="c-steamA" transform="translate(640 392)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
       <text x="662" y="414" class="lc" text-anchor="middle">steam switch, other pole:</text><text x="662" y="427" class="lc" text-anchor="middle">closed with steam off</text>
       <path id="s-r4c" class="w n" d="M684,392 H810"/>
-      <path d="M662,292 V382" class="link" fill="none"/>
+      <path d="M662,310 V382" class="link" fill="none"/>
       <!-- earth -->
       <g class="earth" transform="translate(120 462)"><line x1="0" y1="-12" x2="0" y2="0"/><line x1="-12" y1="0" x2="12" y2="0"/><line x1="-8" y1="5" x2="8" y2="5"/><line x1="-4" y1="10" x2="4" y2="10"/></g>
       <text x="142" y="468" class="lc">earth goes to the frame, cup tray, valve body and boiler, not to any rung</text>
     </svg>
+    <svg viewBox="0 0 900 486" id="lad-svg-gc" class="lad-svg" role="img" aria-labelledby="lad-t-gc" data-when="set:model;fam:GC">
+      <title id="lad-t-gc">Ladder diagram of the stock original Gaggia Classic circuit, drawn from Gaggia's 120 V diagram: line on the left rail, neutral on the right, one rung per load. The power switch breaks the line only, and the 184 °C thermal fuse sits in the neutral feed to the whole machine. The power lamp sits across the supply. The brew thermostat and then the steam thermostat feed the elements from the line side, with one pole of the steam switch around the brew thermostat and a single ready lamp across both thermostats. The brew switch feeds the pump, through its thermal protector, and the 3-way valve, whose feed runs through the steam switch's other pole.</title>
+      <!-- supply: the power switch breaks line only; the thermal fuse is in the neutral feed to everything -->
+      <text x="90" y="18" class="lt" text-anchor="middle">L</text><text x="810" y="18" class="lt" text-anchor="middle">N</text>
+      <path id="s-ginL" class="w" d="M90,24 V40"/><path id="s-ginN" class="w n up" d="M810,24 V40"/>
+      <g class="swi" id="c-gpwr" transform="translate(90 40)"><circle r="3.5" class="tm"/><circle cy="26" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="0" y2="26"/></g>
+      <text x="104" y="57" class="lc">power switch, line only</text>
+      <g class="ld fuse vert" id="c-gfuse" transform="translate(810 40)"><rect x="-8" y="0" width="16" height="36" rx="3"/><line x1="0" y1="0" x2="0" y2="36"/></g>
+      <text x="796" y="54" class="lc" text-anchor="end">thermal fuse, in the neutral</text><text x="796" y="67" class="lc dim" text-anchor="end" id="lab-gfuse"></text>
+      <path id="s-grailL" class="w" d="M90,66 V340"/><path id="s-grailN" class="w n up" d="M810,76 V410"/>
+
+      <!-- rung 1: power lamp across the supply, after the fuse -->
+      <path id="s-g1a" class="w" d="M90,100 H436"/><path id="s-g1b" class="w n" d="M464,100 H810"/>
+      <g class="ld lamp" id="c-glamp1" transform="translate(450 100)"><circle r="12"/><path d="M-8,-8 L8,8 M8,-8 L-8,8"/></g>
+      <text x="450" y="126" class="lc" text-anchor="middle">power lamp</text>
+
+      <!-- rung 2: brew thermostat, then steam thermostat, on the line side of the elements -->
+      <path id="s-g2a" class="w" d="M90,214 H200"/>
+      <circle cx="200" cy="214" r="3" class="node"/>
+      <path id="s-g2a2" class="w" d="M200,214 H240"/>
+      <g class="swi th" id="c-gbrewt" transform="translate(240 214)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="262" y="236" class="lc" text-anchor="middle">brew thermostat</text><text x="262" y="249" class="lc dim" text-anchor="middle" id="lab-gbrew"></text>
+      <path id="s-g2b" class="w" d="M284,214 H330"/>
+      <circle cx="330" cy="214" r="3" class="node"/>
+      <path id="s-g2c" class="w" d="M330,214 H380"/>
+      <g class="swi th" id="c-gsteamt" transform="translate(380 214)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="402" y="236" class="lc" text-anchor="middle">steam thermostat</text><text x="402" y="249" class="lc dim" text-anchor="middle" id="lab-gsteam"></text>
+      <path id="s-g2d" class="w" d="M424,214 H480"/>
+      <circle cx="480" cy="214" r="3" class="node"/>
+      <path id="s-g2e" class="w" d="M480,214 H540"/>
+      <g class="ld el" id="c-gel" transform="translate(540 214)"><path d="M0,0 l8,-10 l10,20 l10,-20 l10,20 l10,-20 l10,20 l10,-20 l10,20 l10,-20 l8,10"/></g>
+      <text x="593" y="242" class="lc" text-anchor="middle">elements</text>
+      <path id="s-g2f" class="w n" d="M646,214 H810"/>
+      <!-- one ready lamp across both thermostats -->
+      <path id="s-gr1" class="w" d="M200,214 V168 H328"/>
+      <g class="ld lamp ht" id="c-gready" transform="translate(340 168)"><circle r="12"/><path d="M-8,-8 L8,8 M8,-8 L-8,8"/></g>
+      <text x="340" y="150" class="lc" text-anchor="middle">ready lamp</text>
+      <path id="s-gr2" class="w" d="M352,168 H480 V214"/>
+      <!-- steam switch, one pole: shorts out the brew thermostat when steam is on -->
+      <path id="s-gby1" class="w" d="M200,214 V276 H240"/>
+      <g class="swi" id="c-gsteamB" transform="translate(240 276)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="262" y="298" class="lc" text-anchor="middle">steam switch</text>
+      <path id="s-gby2" class="w" d="M284,276 H330 V214"/>
+
+      <!-- rung 3: brew switch, then the pump with its diode and thermal protector -->
+      <path id="s-g3a" class="w" d="M90,340 H120"/>
+      <g class="swi" id="c-gbrew" transform="translate(120 340)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="142" y="362" class="lc" text-anchor="middle">brew switch</text>
+      <path id="s-g3b" class="w" d="M164,340 H200"/>
+      <circle cx="200" cy="340" r="3" class="node"/>
+      <path id="s-g3c" class="w" d="M200,340 H380"/>
+      <g class="ld diode" id="c-gdiode" transform="translate(380 340)"><polygon points="0,-9 0,9 16,0"/><line x1="16" y1="-9" x2="16" y2="9"/></g>
+      <text x="388" y="322" class="lc" text-anchor="middle">diode</text>
+      <path id="s-g3d" class="w" d="M396,340 H426"/>
+      <g class="ld coil" id="c-gpump" transform="translate(426 340)"><path d="M0,0 c6,-14 14,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0"/></g>
+      <text x="466" y="368" class="lc" text-anchor="middle">pump coil</text>
+      <path id="s-g3e" class="w n" d="M506,340 H560"/>
+      <g class="ld fuse" id="c-gpfuse" transform="translate(560 340)"><rect x="0" y="-8" width="36" height="16" rx="3"/><line x1="0" y1="0" x2="36" y2="0"/></g>
+      <text x="578" y="368" class="lc" text-anchor="middle">pump protector</text>
+      <path id="s-g3f" class="w n" d="M596,340 H810"/>
+      <!-- rung 4: the valve coil hangs off the brew switch, fed through the steam switch's other pole -->
+      <path id="s-g4a" class="w" d="M200,340 V410 H240"/>
+      <g class="swi" id="c-gsteamA" transform="translate(240 410)"><circle r="3.5" class="tm"/><circle cx="44" r="3.5" class="tm"/><line class="blade" x1="0" y1="0" x2="44" y2="0"/></g>
+      <text x="262" y="432" class="lc" text-anchor="middle">steam switch, other pole:</text><text x="262" y="445" class="lc" text-anchor="middle">closed with steam off</text>
+      <path id="s-g4b" class="w" d="M284,410 H380"/>
+      <g class="ld coil" id="c-gsol" transform="translate(380 410)"><path d="M0,0 c6,-14 14,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0 c2,-14 10,-14 16,0"/></g>
+      <text x="420" y="436" class="lc" text-anchor="middle">3-way valve coil</text>
+      <path id="s-g4c" class="w n" d="M460,410 H810"/>
+      <path d="M262,304 V400" class="link" fill="none"/>
+      <!-- earth -->
+      <g class="earth" transform="translate(470 462)"><line x1="0" y1="-12" x2="0" y2="0"/><line x1="-12" y1="0" x2="12" y2="0"/><line x1="-8" y1="5" x2="8" y2="5"/><line x1="-4" y1="10" x2="4" y2="10"/></g>
+      <text x="492" y="468" class="lc">earth, where fitted, goes to the frame and boiler</text>
+    </svg>
   </div>
+  <p class="lad-note" data-when="set:model;fam:GC">Drawn from Gaggia's diagram for the 120 V Classic (17800009). The 230 V Classic's stock-integration drawing has the same switches, lamps, thermostats and fuse, with its elements in series and no pump protector drawn.</p>
+  <p class="lad-note" data-when="eco:yes"><span data-when="set:eco">Your Eco-board machine feeds</span><span data-when="unset:eco">On 230 V Pro-family machines with the Eco board, the board feeds</span> this circuit<span data-when="set:eco"> through the board</span>: the power button is a spring-return switch the board reads, and the board holds the supply on and cuts it after 20 idle minutes. The board's circuit isn't published, so it's drawn here as a plain power switch.</p>
   <p class="lad-status" id="lad-status" aria-live="polite"></p>
 </div>

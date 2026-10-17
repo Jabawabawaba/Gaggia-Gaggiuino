@@ -28,10 +28,10 @@
     <article class="pc" id="ssr">
       <div class="ph"><h3>Solid-state relay (SSR)</h3><span class="where">screwed to the back wall</span></div>
       <div class="prose">
-        <p>The switch for the elements. It's an SSR-40DA: a relay controlled by 3 to 32 V DC that switches AC, with no moving contacts. J9 R1 feeds its + input and J9 GND its −. Its two load screws sit in the elements' supply: on stock wiring integration they take the wires that went to the steam thermostat.</p>
+        <p>The switch for the elements. It's an SSR-40DA: a relay controlled by 3 to 32 V DC that switches AC, with no moving contacts. J9 R1 feeds its + input and J9 GND its −. Its two load screws sit in the elements' supply<span data-when="!wpath:CW">: on stock wiring integration they take the wires that went to the steam thermostat</span><span data-when="set:path;path:CW">, on two runs of the new harness</span><span data-when="set:path,model,volts;path:SI;wpath:CW">, on two runs of the new harness</span>.</p>
         <h3>How it works</h3>
         <p>The input current lights an LED inside the relay. On the other side of an insulating gap, a light-sensitive switch sees it and fires a triac, a semiconductor switch for AC, which carries the elements' current. The PCB and mains only meet through light, which is what keeps the low-voltage side isolated. A zero-cross SSR only turns on where the mains wave crosses zero, and a triac lets go at the next zero, so the elements switch cleanly in whole half-cycles.</p>
-        <p>While it conducts it drops up to 1.6 V, which at an espresso machine's heater current turns up to about 18 W into heat on a 120 V machine, or about 8 W on a 230 V one, so it needs to sit flat on metal. Fork spades on all four screws, as the official schematics draw them, and buy from a known seller: counterfeit SSR-40DAs with undersized triacs are common.</p>
+        <p>While it conducts it drops up to 1.6 V, which at an espresso machine's heater current turns up to <span data-when="unset:volts">about 18 W into heat on a 120 V machine, or about 8 W on a 230 V one</span><span data-when="set:volts;volts:120">about 18 W into heat on your 120 V machine</span><span data-when="set:volts;volts:230;!fam:GC">about 8 W into heat on your 230 V machine</span><span data-when="set:model,volts;fam:GC;volts:230">about 8 to 10 W into heat on your 230 V Classic, depending on its rating</span>, so it needs to sit flat on metal. Fork spades on all four screws, as the official schematics draw them, and buy from a known seller: counterfeit SSR-40DAs with undersized triacs are common.</p>
       </div>
       %%FIG:ssr%%
     </article>
@@ -53,7 +53,7 @@
         <p>A 0 to 1.2 MPa (0 to 12 bar) pressure transducer with a 1/4" thread, powered from 5 V. It's what lets Gaggiuino profile pressure: the PCB reads it continuously and adjusts the pump to follow the curve.</p>
         <h3>How it works</h3>
         <p>Water pressure bends a thin metal diaphragm. Strain gauges on the diaphragm change resistance as it flexes, and electronics in the sensor body turn that into a voltage on the signal pin: 0.5 V at 0 bar, rising evenly to 4.5 V at 12 bar. The ADS1015 on the PCB converts that voltage to a number.</p>
-        <p>On a Gaggia it goes on a T-fitting cut into the line from the pump to the boiler, or on a pressure tap block clamped between the group and its inlet fitting. Either way it seals on an O-ring, not its thread: the small flat O-ring goes flush into the fitting first, because many fittings are too short for the sensor's own base O-ring to seal, then the sensor goes in hand tight plus at most a quarter turn. On a T-fitting, [UT] Tube Fill pushes the air out of its line.</p>
+        <p>On a Gaggia it goes on a T-fitting cut into the line from the pump to the boiler<span data-when="set:model;fam:GC"> (a push-to-connect T in the Classic's PTFE tube)</span><span data-when="set:model;fam:GCP"> (a barbed T in the Pro's braided hose, with clamps)</span>, or on a pressure tap block clamped between the group and its <span data-when="!fam:GC">inlet fitting</span><span data-when="set:model;fam:GC">metal OPV</span>. Either way it seals on an O-ring, not its thread: the small flat O-ring goes flush into the fitting first, because many fittings are too short for the sensor's own base O-ring to seal, then the sensor goes in hand tight plus at most a quarter turn. On a T-fitting, [UT] Tube Fill pushes the air out of its line.</p>
       </div>
       %%FIG:xdcr%%
     </article>
@@ -67,9 +67,9 @@
     </article>
 
     <article class="pc nofig" id="harness">
-      <div class="ph"><h3>The harness</h3><span class="where">stock wiring plus seven wires, or a new harness</span></div>
+      <div class="ph"><h3>The harness</h3><span class="where" data-when="unset:path">stock wiring plus seven wires, or a new harness</span><span class="where" data-when="set:path;wpath:SI">stock wiring plus seven wires</span><span class="where" data-when="set:path;path:CW">a new harness</span><span class="where" data-when="set:path,model,volts;path:SI;wpath:CW">a new harness</span></div>
       <div class="prose">
-        <p>The official guide gives the Gaggia two ways in. Stock wiring integration keeps the machine's own harness and adds seven short wires: a jumper in place of the brew thermostat, two to the SSR in place of the steam thermostat, and line, neutral, pump and valve wires to the PCB. Custom wiring replaces the harness with new 18 AWG silicone wire, reusing the stock components, following the official schematic for your model and voltage. Either way, mains wire near the boiler is silicone rated to 200 °C.</p>
+        <p><span data-when="unset:path">The official guide gives the Gaggia two ways in. </span><span data-when="!wpath:CW">Stock wiring integration keeps the machine's own harness and adds seven short wires: a jumper in place of the brew thermostat, two to the SSR in place of the steam thermostat, and line, neutral, pump and valve wires to the PCB. </span><span data-when="!wpath:SI;!path:SI">Custom wiring replaces the harness with new 18 AWG silicone wire, reusing the stock components, following the official schematic for your model and voltage. </span><span data-when="set:path,model,volts;path:SI;wpath:CW">There's no official stock-integration drawing for a 230 V Pro-family machine, so yours takes custom wiring: new 18 AWG silicone wire, reusing the stock components, following the official schematic for your model and voltage. </span><span data-when="set:path;path:SI;unset:model,volts;fam:GCP;!volts:120">A 230 V Pro-family machine takes custom wiring instead, as there's no official stock-integration drawing for it. </span><span data-when="unset:path">Either way, mains</span><span data-when="set:path">Mains</span> wire near the boiler is silicone rated to 200 °C.</p>
         <p>Mains runs on the left, low voltage on the right, kept apart, with nothing but silicone wire touching the boiler or steam wand. <a href="wiring.html">Wiring</a>, <a href="cut-list.html">cut list</a>, <a href="wire-labels.html">labels</a>.</p>
       </div>
     </article>
@@ -80,7 +80,7 @@
         <p>The brew and steam rockers stay on the front panel, but the PCB now reads them. Each one, when on, connects a PCB input pin to the low-voltage ground: steam to J7 S and brew to J7 B, with the ground back to J7 GND. Brew and steam on together start hot water mode, as on the stock machine.</p>
         <h3>How it works</h3>
         <p>A 10 kΩ pull-up resistor on the board holds each input at 3.3 V. So an open switch reads high, which the firmware treats as off. Closing the switch ties the pin to ground and it reads low: on. That's why the power-on checks want under 1 Ω with a switch on and OL with it off.</p>
-        <p>Mains must never reach these wires: mains on an input pin destroys it, and wiring the pump around the PCB's pump output can short the triac that drives it. On stock wiring integration the guide clears one column of spades on each switch for the low-voltage wires.</p>
+        <p>Mains must never reach these wires: mains on an input pin destroys it, and wiring the pump around the PCB's pump output can short the triac that drives it. <span data-when="!wpath:CW">On stock wiring integration the guide clears one column of spades on each switch for the low-voltage wires.</span></p>
               </div>
       %%FIG:input%%
     </article>

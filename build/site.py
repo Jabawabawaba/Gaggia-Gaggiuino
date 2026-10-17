@@ -181,7 +181,7 @@ NAV_CSS = """
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
 /* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
-[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+[data-when][hidden],[data-showall][hidden],.mnote[hidden],[data-when][display="none"]{display:none!important}
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}

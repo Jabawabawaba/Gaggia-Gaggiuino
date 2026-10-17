@@ -204,7 +204,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
 (function(){
   var GROUPS=[
     {id:'machine',name:'Machine',parts:[
-      {id:'gaggia',name:'Gaggia Classic family machine',spec:'A Classic, Classic Pro, Evo Pro or E24: any with the 3-way valve, which rules out the 2015 V2. Used, about $250 to $425; new, the E24 from $499.',lo:250,hi:549,req:true,
+      {id:'gaggia',name:'Gaggia Classic family machine',spec:[['A Classic, Classic Pro, Evo Pro or E24: any with the 3-way valve, which rules out the 2015 V2. Used, about $250 to $425; new, the E24 from $499.','unset:model'],['A used one, about $250 to $425. Not the 2015 V2, which has no 3-way valve.','set:model;fam:GC'],['A used one, about $250 to $425.','set:model;model:GCP,EVO'],['Used, about $250 to $425 if you find one; new, $499 to $549.','set:model;model:E24']],lo:250,hi:549,ests:[[250,425,'set:model;!model:E24']],req:true,
         src:[['Used Gaggia check','used-checklist.html'],['Which Gaggia','which-gaggia.html'],['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24']]}
     ]},
     {id:'kit',name:'Gaggiuino electronics',parts:[
@@ -317,7 +317,11 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     out.updatedAt=typeof s.updatedAt==='number'?s.updatedAt:0;
     return out;
   }
+  /* a part can carry ests: [[lo, hi, when], ...]; the first that matches Your Gaggia replaces its lo and hi */
+  var BASE={};
+  function setEsts(){GROUPS.forEach(function(g){g.parts.forEach(function(p){if(!p.ests)return;if(!BASE[p.id])BASE[p.id]=[p.lo,p.hi];var e=p.ests.filter(function(x){return applies(x[2])})[0]||BASE[p.id];p.lo=e[0];p.hi=e[1]})})}
   function allParts(){
+    setEsts();
     var list=[];GROUPS.forEach(function(g){g.parts.forEach(function(p){if(applies(p.when))list.push(p)})});
     state.custom.forEach(function(c){list.push({id:c.id,name:c.name,lo:c.est,hi:c.est,req:false,def:'need',group:'custom',custom:true,src:c.url?[['Link',c.url]]:null})});
     return list;
@@ -383,6 +387,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     '</article>';
   }
   function renderAll(){
+    setEsts();
     var html='';
     GROUPS.forEach(function(g){
       var gp=g.parts.filter(function(p){return applies(p.when)});if(!gp.length)return;

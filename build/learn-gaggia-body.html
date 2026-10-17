@@ -11,11 +11,11 @@
     <p class="modecap" id="modecap" aria-live="polite"></p>
     <div hidden>
       <span id="cap-off">Cord in, power switch off. Nothing has power, so the water just sits in the tank and the boiler.</span>
-      <span id="cap-heat">Power on. The elements heat the boiler until the brew thermostat opens, then wait for it to cool a little and close again. The brew lamp is a ready lamp: it lights while the thermostat is open, so it's out while the elements heat.</span>
+      <span id="cap-heat">Power on. The elements heat the boiler until the brew thermostat opens, then wait for it to cool a little and close again. <span data-when="!fam:GC">The brew lamp is a ready lamp: it lights while the thermostat is open, so it's out while the elements heat.</span><span data-when="set:model;fam:GC">The ready lamp lights while a thermostat is open, so it's out while the elements heat.</span></span>
       <span id="cap-brew">Brew switch on. The pump pulls water from the tank and pushes it into the boiler, and the 3-way valve opens so hot water flows from the boiler into the group and through the coffee. Whatever the puck won't take above the over-pressure valve's setting goes back to the tank.</span>
       <span id="cap-stop">Brew switch off. The pump stops and the 3-way valve flips: the pressure left above the puck vents down its drain tube into the drip tray.</span>
-      <span id="cap-water">Brew and steam switches on together, with the steam knob open. The pump runs, but the steam switch has cut the 3-way valve's return, so the valve stays shut and the water pushes through the boiler and out of the wand.</span>
-      <span id="cap-steam">Steam switch on, then the knob. The steam switch shorts out the brew thermostat, so the elements keep going until the steam thermostat opens, well above boiling, and the steam lamp lights. The knob lets steam out of the top of the boiler through the wand.</span>
+      <span id="cap-water">Brew and steam switches on together, with the steam knob open. The pump runs, but the steam switch has cut the 3-way valve's <span data-when="!fam:GC">return</span><span data-when="set:model;fam:GC">feed</span>, so the valve stays shut and the water pushes through the boiler and out of the wand.</span>
+      <span id="cap-steam">Steam switch on, then the knob. The steam switch shorts out the brew thermostat, so the elements keep going until the steam thermostat opens, well above boiling, and the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp lights. The knob lets steam out of the top of the boiler through the wand.</span>
     </div>
     <div class="map">
       <div class="stage">%%INCLUDE:learn-cutaway.svg.html%%</div>
@@ -29,35 +29,36 @@
           </div>
           <div class="row">
             <span class="lamp pw" id="lp-pwr"><i></i>power lamp</span>
-            <span class="lamp ht" id="lp-brew"><i></i>brew ready</span>
-            <span class="lamp ht" id="lp-steam"><i></i>steam ready</span>
+            <span class="lamp ht" id="lp-brew"><i></i><span data-when="!fam:GC">brew ready</span><span data-when="set:model;fam:GC">ready lamp</span></span>
+            <span class="lamp ht" id="lp-steam" data-when="!fam:GC"><i></i>steam ready</span>
           </div>
         </div>
         <div class="pinfo" id="pinfo" aria-live="polite"></div>
       </div>
     </div>
-    <p class="fine" style="margin-top:10px">A Classic Pro, simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate; the older Classic has its over-pressure valve on the group instead of the pump.</p>
+    <p class="fine" style="margin-top:10px"><span data-when="unset:model">A Classic Pro, simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate; the older Classic has its over-pressure valve on the group instead of the pump.</span><span data-when="set:model;fam:GCP">Simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate.</span><span data-when="set:model;fam:GC">Simplified. Gaggia doesn't publish a layout drawing, so the positions are approximate. Your Classic's lamps sit inside the switch housing: a power lamp and one ready lamp.</span></p>
   </section>
 
   <section class="block" id="circuit" aria-labelledby="h-circuit">
     <div class="sec-h"><h2 id="h-circuit">The circuit</h2><span class="sum">switch it yourself</span></div>
     <div class="circ">
       <div class="prose">
-        <p>Every load in the stock Classic Pro sits on its own path from line to neutral, and every path runs through a switch or a thermostat. Nothing is computed: if a path is closed end to end, that part runs. The diagram is drawn as a ladder, with line down the left, neutral down the right, and one rung per load.</p>
-        <p>Three details surprise people. The thermostats sit on the elements' neutral side, after them. The brew and steam lamps aren't heating lamps: each is wired across its thermostat, so it lights when that thermostat opens, which means ready. And the 184 °C thermal fuse feeds everything except the power lamp, so a blown fuse leaves the power lamp lit and nothing else working.</p>
+        <p>Every load in the stock <span data-when="!fam:GC;!model:EVO,E24">Classic Pro</span><span data-when="set:model;model:EVO">Evo Pro, wired like the Classic Pro,</span><span data-when="set:model;model:E24">E24, wired like the Classic Pro,</span><span data-when="set:model;fam:GC">Classic</span> sits on its own path from line to neutral, and every path runs through a switch or a thermostat. Nothing is computed: if a path is closed end to end, that part runs. The diagram is drawn as a ladder, with line down the left, neutral down the right, and one rung per load.</p>
+        <p data-when="!fam:GC">Three details surprise people. The thermostats sit on the elements' neutral side, after them. The brew and steam lamps aren't heating lamps: each is wired across its thermostat, so it lights when that thermostat opens, which means ready. And the 184 °C thermal fuse feeds everything except the power lamp, so a blown fuse leaves the power lamp lit and nothing else working.</p>
+        <p data-when="set:model;fam:GC">Three details surprise people. The power switch breaks the line only, and the thermostats sit on the line side, ahead of the elements. There's one ready lamp, not a heating lamp: it's wired across both thermostats, so it lights whenever heating stops, for brewing or steam. And the 184 °C thermal fuse is in the neutral feed to the whole machine, so a blown fuse leaves everything dark, the power lamp too.</p>
         <h3>Try it</h3>
         <ul>
-          <li>Turn on Power and let it run: the elements heat until the brew thermostat opens, and the brew lamp lights each time it does.</li>
-          <li>Turn on Brew: the pump runs, and the 3-way valve opens because its return through the steam switch is closed.</li>
+          <li>Turn on Power and let it run: the elements heat until the brew thermostat opens, and the <span data-when="!fam:GC">brew</span><span data-when="set:model;fam:GC">ready</span> lamp lights each time it does.</li>
+          <li>Turn on Brew: the pump runs, and the 3-way valve opens because its <span data-when="!fam:GC">return</span><span data-when="set:model;fam:GC">feed</span> through the steam switch is closed.</li>
           <li>Add Steam: that's hot water mode. The pump keeps running, the valve shuts, and the heater carries on to the steam thermostat.</li>
-          <li>Steam alone: it shorts out the brew thermostat, so heating carries on until the steam thermostat opens at %%STEAM_OPEN%% °C and the steam lamp lights.</li>
-          <li>Drag the temperature past %%FUSE%% °C: the fuse melts and only the power lamp stays lit until a new one is fitted.</li>
+          <li>Steam alone: it shorts out the brew thermostat, so heating carries on until the steam thermostat opens at %%STEAM_OPEN%% °C and the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp lights.</li>
+          <li>Drag the temperature past %%FUSE%% °C: the fuse melts and <span data-when="!fam:GC">only the power lamp stays lit</span><span data-when="set:model;fam:GC">everything goes dark</span> until a new one is fitted.</li>
         </ul>
-        <p class="gg"><b>With Gaggiuino</b>, the brew and steam switches stop switching these rungs and signal the PCB at low voltage instead, and both thermostats leave the elements' circuit: the thermocouple and the SSR take over. With custom wiring that's all the two switches carry; with stock wiring integration, some of their other spades stay on mains. The power switch, the thermal fuse, the pump's protector and the earth stay. <a href="how-gaggiuino-works.html#blocks">See what changes</a>.</p>
+        <p class="gg"><b>With Gaggiuino</b>, the brew and steam switches stop switching these rungs and signal the PCB at low voltage instead, and both thermostats leave the elements' circuit: the thermocouple and the SSR take over. With custom wiring that's all the two switches carry; with stock wiring integration, some of their other spades stay on mains. The power switch, the thermal fuse, the pump's protector<span data-when="set:model;fam:GC;!volts:120"> if yours has one</span> and the earth stay. <a href="how-gaggiuino-works.html#blocks">See what changes</a>.</p>
       </div>
       %%INCLUDE:learn-ladder.html%%
     </div>
-    <p class="fine" style="margin-top:10px">Redrawn from Gaggia's 2018 wiring diagram for the 120 V Classic Pro, as reproduced in Gaggiuino's and GaggiMate's archived drawings. The thermostats' opening points are Gaggia's and the closing points are illustrative. The two elements are drawn as one; they're in parallel at 120 V and in series at 230 V. Eco-board machines feed the switched line and neutral from the board, and the original Classic is wired differently: a single-pole power switch, the fuse in the neutral feed to the whole machine, and the thermostats on the line side. Trace your own machine before you cut anything.</p>
+    <p class="fine" style="margin-top:10px"><span data-when="!fam:GC">Redrawn from Gaggia's 2018 wiring diagram for the 120 V Classic Pro, as reproduced in Gaggiuino's and GaggiMate's archived drawings.<span data-when="set:model;model:EVO"> The Evo has no drawing of its own; Gaggiuino's docs treat it as Classic Pro wiring.</span><span data-when="set:model;model:E24"> The E24 has no drawing of its own; Gaggiuino's docs treat it as Classic Pro wiring.</span></span><span data-when="set:model;fam:GC">Redrawn from Gaggia's diagram 17800009 for the 120 V Classic, as reproduced in Gaggiuino's archived stock integration drawing.</span> The thermostats' opening points are Gaggia's and the closing points are illustrative. The two elements are drawn as one; <span data-when="unset:volts">they're in parallel at 120 V and in series at 230 V</span><span data-when="set:volts;volts:120">on your 120 V machine they're in parallel</span><span data-when="set:volts;volts:230">on your 230 V machine they're in series</span>.<span data-when="unset:model;!volts:120"> Eco-board machines feed the switched line and neutral from the board.</span><span data-when="unset:model"> The original Classic is wired differently: a single-pole power switch, the fuse in the neutral feed to the whole machine, the thermostats on the line side, and one ready lamp. Pick your model in Your Gaggia to see its own circuit.</span> Trace your own machine before you cut anything.</p>
   </section>
 
   <section class="block" id="parts" aria-labelledby="h-parts">
@@ -70,13 +71,13 @@
   <section class="block" id="shot" aria-labelledby="h-shot">
     <div class="sec-h"><h2 id="h-shot">A stock shot, start to finish</h2></div>
     <ol class="seq">
-      <li><span><b>Switch on.</b> The elements heat with the brew lamp out, and the small boiler warms the brass group under it.</span></li>
-      <li><span><b>The brew thermostat opens</b> and the brew lamp lights, but heat already in the elements keeps the water rising for a while: overshoot.</span></li>
+      <li><span><b>Switch on.</b> The elements heat with the <span data-when="!fam:GC">brew</span><span data-when="set:model;fam:GC">ready</span> lamp out, and the small boiler warms the brass group under it.</span></li>
+      <li><span><b>The brew thermostat opens</b> and the <span data-when="!fam:GC">brew</span><span data-when="set:model;fam:GC">ready</span> lamp lights, but heat already in the elements keeps the water rising for a while: overshoot.</span></li>
       <li><span><b>It cools several degrees, the thermostat closes,</b> the lamp goes out, and the cycle repeats for as long as the machine is on. The water temperature at any moment depends on where you are in that cycle.</span></li>
       <li><span><b>Owners temperature-surf:</b> flush some water, then time the shot from a lamp change, to land at the same point in the swing every time.</span></li>
       <li><span><b>Brew switch on.</b> The pump and the 3-way valve run; pressure builds against the puck, up to the over-pressure valve's setting at most.</span></li>
       <li><span><b>Brew switch off.</b> The valve vents the group to the drip tray, so the puck is left drier and the portafilter comes off without spraying.</span></li>
-      <li><span><b>For milk,</b> switch on steam and wait for the steam lamp, purge the wand, then steam. Afterward, bring the boiler back down by running water through the group, with no portafilter, before the next shot.</span></li>
+      <li><span><b>For milk,</b> switch on steam and wait for the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp, purge the wand, then steam. Afterward, bring the boiler back down by running water through the group, with no portafilter, before the next shot.</span></li>
     </ol>
     <p class="fine" style="margin-top:10px">Gaggiuino replaces steps 2 to 4 with a temperature that holds still, and step 5 with a pressure or flow profile.</p>
   </section>
