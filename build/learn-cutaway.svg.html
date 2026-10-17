@@ -26,8 +26,10 @@
   <!-- pipes (static) -->
   <g class="pipes">
     <path id="pp-intake" d="M690,418 V476 Q690,488 678,488 H552 Q540,488 540,476 V470"/>
-    <path id="pp-opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V160"/>
-    <path id="pp-pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412"/>
+    <path id="pp-opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V160" data-when="!fam:GC"/>
+    <path id="pp-pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="!fam:GC"/>
+    <path id="pp-opvret-gc" d="M471,312 V128 Q471,116 483,116 H660 V160" data-when="set:model;fam:GC"/>
+    <path id="pp-pumpout-gc" d="M540,336 V318 Q540,306 528,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="set:model;fam:GC"/>
     <path id="pp-steam" d="M384,168 V122 Q384,110 372,110 H232 Q220,110 220,122 V150"/>
     <path id="pp-drain" d="M440,330 V512"/>
   </g>
@@ -43,13 +45,23 @@
     <rect x="566" y="444" width="10" height="16" rx="2" class="pfuse"/>
   </g>
   <g id="p-opv" class="part">
-    <rect x="512" y="292" width="56" height="44" rx="6" class="opv"/>
-    <path d="M528,302 h24 M528,310 h24 M528,318 h24 M528,326 h24" class="spring2"/>
+    <!-- Pro family: a black valve on top of the pump, returning to the tank -->
+    <g data-when="!fam:GC">
+      <rect x="512" y="292" width="56" height="44" rx="6" class="opv"/>
+      <path d="M528,302 h24 M528,310 h24 M528,318 h24 M528,326 h24" class="spring2"/>
+    </g>
+    <!-- original Classic: a metal valve on the line into the group, with an adjusting cap -->
+    <g data-when="set:model;fam:GC">
+      <rect x="530" y="324" width="20" height="14" rx="3" class="nipple"/>
+      <rect x="459" y="310" width="24" height="30" rx="4" fill="url(#cut-chrome)" class="chrome-s"/>
+      <rect x="464" y="303" width="14" height="8" rx="2" fill="url(#cut-chrome)" class="chrome-s"/>
+      <path d="M463,318 h16 M463,324 h16 M463,330 h16" class="spring2"/>
+    </g>
   </g>
 
-  <!-- boiler: aluminum, with an element on each side; the near one is drawn -->
+  <!-- boiler: aluminum (lead-free brass on the E24; learn-gaggia.js recolors it), with an element on each side; the near one is drawn -->
   <g id="p-boiler" class="part">
-    <rect x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-alu)" class="alu-s"/>
+    <rect id="boilerbody" x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-alu)" class="alu-s"/>
     <rect x="250" y="178" width="150" height="112" rx="12" class="boilerwater"/>
     <rect id="heatglow" x="240" y="168" width="170" height="132" rx="18" fill="url(#cut-glow)" opacity="0"/>
   </g>
@@ -65,7 +77,7 @@
 
   <!-- group body under the boiler, inlet connector and 3-way valve behind it, portafilter -->
   <g id="p-group" class="part">
-    <path d="M262,300 H388 V346 Q388,352 382,352 H268 Q262,352 262,346 Z" fill="url(#cut-chrome)" class="chrome-s"/>
+    <path id="groupbody" d="M262,300 H388 V346 Q388,352 382,352 H268 Q262,352 262,346 Z" fill="url(#cut-chrome)" class="chrome-s"/>
     <line x1="270" y1="352" x2="380" y2="352" class="screen"/>
     <rect x="388" y="332" width="24" height="20" rx="3" fill="url(#cut-brass)" class="brass-s"/>
   </g>
@@ -99,7 +111,7 @@
     <rect x="170" y="100" width="22" height="22" rx="4" class="sw" id="sw-pwr"/>
     <rect x="170" y="130" width="22" height="22" rx="4" class="sw" id="sw-brew"/>
     <rect x="170" y="160" width="22" height="22" rx="4" class="sw" id="sw-steam"/>
-    <circle cx="181" cy="200" r="5" class="lmp" id="cl-pwr"/><circle cx="181" cy="218" r="5" class="lmp" id="cl-brew"/><circle cx="181" cy="236" r="5" class="lmp" id="cl-steam"/>
+    <circle cx="181" cy="200" r="5" class="lmp" id="cl-pwr"/><circle cx="181" cy="218" r="5" class="lmp" id="cl-brew"/><circle cx="181" cy="236" r="5" class="lmp" id="cl-steam" data-when="!fam:GC"/>
   </g>
   <g id="p-inlet" class="part">
     <rect x="796" y="462" width="22" height="40" rx="4" class="inlet"/>
@@ -110,8 +122,10 @@
   <g class="flows">
     <path class="flow water" data-f="intake" d="M690,420 V476 Q690,488 678,488 H552 Q540,488 540,476 V470"/>
     <path class="flow water" data-f="pump" d="M540,470 V336"/>
-    <path class="flow water thin" data-f="opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V214"/>
-    <path class="flow water" data-f="pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412"/>
+    <path class="flow water thin" data-f="opvret" d="M568,300 H584 Q596,300 596,288 V128 Q596,116 608,116 H660 V214" data-when="!fam:GC"/>
+    <path class="flow water thin" data-f="opvret" d="M471,312 V128 Q471,116 483,116 H660 V214" data-when="set:model;fam:GC"/>
+    <path class="flow water" data-f="pumpout" d="M512,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="!fam:GC"/>
+    <path class="flow water" data-f="pumpout" d="M540,336 V318 Q540,306 528,306 H482 Q470,306 470,318 V330 Q470,342 458,342 H412" data-when="set:model;fam:GC"/>
     <path class="flow water" data-f="boilerin" d="M400,342 V290"/>
     <path class="flow water" data-f="boiler" d="M384,240 H404 Q416,240 416,252 V300 H432 V312"/>
     <path class="flow water" data-f="togroup" d="M424,318 Q424,326 416,326 H330 V352"/>

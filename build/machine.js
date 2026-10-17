@@ -109,6 +109,13 @@
       return true;
     })(c);
   }
+  /* an element's text without the parts that don't apply to the picked machine */
+  function vtext(el){
+    if(!el)return '';
+    var c=el.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('[data-when]'),function(x){if(!matches(x.getAttribute('data-when')))x.remove()});
+    return c.textContent.replace(/\s+/g,' ').trim();
+  }
   function txt(x){
     if(x==null)return '';
     if(!Array.isArray(x))return String(x);
@@ -144,7 +151,12 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){
+      var hide=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall');
+      /* inside a drawing, hidden doesn't apply, so SVG elements get display="none" instead */
+      if(window.SVGElement&&el instanceof SVGElement){if(hide)el.setAttribute('display','none');else el.removeAttribute('display')}
+      else el.hidden=hide;
+    });
     /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
     Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
       var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
@@ -250,6 +262,6 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();

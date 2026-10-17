@@ -4,7 +4,7 @@
         <p>Two load cells on a printed base under the drip tray weigh the cup as the shot runs, so Gaggiuino can stop at a target weight and plot it live. Without them it still predicts the weight from the pump's flow; a Bluetooth scale is the other option.</p>
         <h3>How it works</h3>
         <p>A load cell is a metal bar with strain gauges glued to it, wired as a bridge. The weight of the cup bends the bar by a tiny amount and the bridge puts out a few millivolts at most. Each cell has its own HX711 channel, which amplifies and measures that very finely; the two share the clock line on J8 and each has its own data line, D1 and D2. The PCB adds the two, subtracts the tare and converts to grams after you calibrate with a known weight.</p>
-        <p>The official design is made for the Gaggia: 750 g cells in a printed base, with drip tray adapters for the Classic, the Pro (its tray's sides get trimmed) or a low-profile tray. Buy three or four cells; quality varies and they're easy to damage while preparing them.</p>
+        <p>The official design is made for the Gaggia: 750 g cells in a printed base, with drip tray adapters for <span data-when="unset:model">the Classic, the Pro (its tray's sides get trimmed) or a low-profile tray</span><span data-when="set:model;fam:GC">your Classic's tray (with four spacers) or a low-profile tray</span><span data-when="set:model;fam:GCP">your Pro-family tray (its sides get trimmed) or a low-profile tray</span>. Buy three or four cells; quality varies and they're easy to damage while preparing them.</p>
       </div>
       %%FIG:scale%%
     </article>
