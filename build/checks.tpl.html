@@ -391,6 +391,15 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
 
   /* ---------- evaluation ---------- */
   function profVolts(){var m=window.GaggiaMachine,p=m&&m.get();return p&&p.volts?p.volts:V().volts}
+  /* what the rating plate should say for the reader's machine (Gaggia's service manual and E24 page; owners for the old Classic) */
+  function wattsHint(){
+    var m=window.GaggiaMachine,p=(m&&m.get())||{},v=p.volts,md=p.model;
+    if(md&&v===120&&(md==='GC'||md==='EVO'))return 'The label says 1425 W, but that includes the 55 W pump: enter 1370 W for the heater.';
+    if(md&&v===120)return 'Gaggia rates the '+(md==='E24'?'E24':'Classic Pro')+' at 1350 W on 120 V.';
+    if(md==='GC'&&v===230)return '230 V Classics were rated 1425 W, 1300 W or 1200 W depending on the year: use your label.';
+    if(md&&v===230)return 'Gaggia rates the 230 V Pro family at 1200 W, or 1300 W on 240 V UK machines.';
+    return 'Gaggia\'s service manual gives 1350 W for the 120 V Pro family and 1200 W for 230 V. A 1425 W label includes the 55 W pump.';
+  }
   function expectedR(r){var w=r.watts,v=r.volts||profVolts();return (w&&v)?(v*v/w):null}
   function outlet(){var m=window.GaggiaMachine;return m?m.text('outlet'):'GFCI-protected outlet (an RCD outside North America)'}
   function plineHtml(it,r){
@@ -489,7 +498,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     $('g-t').textContent=f?'Not ready to plug in':(left?(p?'Keep going':'Not started'):'Ready for first power-on');
     $('g-s').textContent=f?(f+' check'+(f===1?' failed':'s failed')+'. Fix each one, then recheck it.'):(left?(left+' check'+(left===1?'':'s')+' still to do, all unplugged.'):'Every check passed, covers on. Plug into a '+outlet()+' and carry on with Phase 5 of the runbook.');
     $('bar').innerHTML=[[p,'var(--good)'],[f,'var(--bad)']].map(function(x){return x[0]?'<span style="flex-grow:'+x[0]+';background:'+x[1]+'"></span>':''}).join('')+(left?'<span style="flex-grow:'+left+';background:transparent"></span>':'');
-    var e=expectedR(r);$('watts-s').textContent=e?('Expected heater resistance: about '+e.toFixed(1)+' Ω'+(r.volts?'':' at '+profVolts()+' V')+'.'):'Sets the expected heater resistance. Gaggia\'s service manual gives 1350 W for the 120 V Pro family and 1200 W for 230 V.';
+    var e=expectedR(r);$('watts-s').textContent=e?('Expected heater resistance: about '+e.toFixed(1)+' Ω'+(r.volts?'':' at '+profVolts()+' V')+'.'+(r.watts>=1400&&profVolts()===120?' A 1425 W label includes the 55 W pump; try 1370 W for the heater.':'')):'Sets the expected heater resistance. '+wattsHint();
     var pv=profVolts();$('volts').placeholder=pv?String(pv):'120/230';
     var pf=$('print-for');if(pf){pf.textContent='For '+vlabel(curKey())+'. Run: '+run().label+(run().created?', '+run().created:'')+'. Checked by: ______________'}
   }

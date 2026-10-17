@@ -151,8 +151,8 @@
   (function(){
     var r=$('opv-r');if(!r)return;
     var fig=$('mini-opv'),SET=11,main=fig.querySelector('.sflow.main'),ret=fig.querySelector('.sflow.ret'),plug=fig.querySelector('.opvplug'),needle=fig.querySelector('.needle');
-    /* US Evo Pros and E24s ship at 9 bar; Gaggia's figure for the rest of the Pro family is 11 */
-    function setFor(){var m=GM();SET=m&&m.matches('opv9')&&m.decided('opv9')?9:11}
+    /* US Evo Pros and E24s ship at 9 bar, the original Classic at about 14; Gaggia's figure for the Classic Pro is 11 */
+    function setFor(){var m=GM();SET=m&&m.matches('opv9')&&m.decided('opv9')?9:(prof().model==='GC'?14:11)}
     window.addEventListener('gaggia-machine',function(){setFor();upd()});setFor();
     function upd(){
       var want=Number(r.value),p=Math.min(want,SET),open=want>SET;

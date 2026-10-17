@@ -5,7 +5,7 @@
       <div class="prose">
         <p>On a stock Gaggia the switches and thermostats do the controlling themselves: each one sits in a mains wire and either completes a load's circuit or breaks it. Gaggiuino moves every decision into one place.</p>
         <p>The brew and steam switches stop switching loads and become signals to the PCB.<span data-when="!wpath:CW"> (With stock wiring integration, some of their other spades still carry mains.)</span> A thermocouple and a pressure sensor report what's happening. The PCB reads all of it many times a second and decides what the elements, pump and 3-way valve should do, switching the pump and valve itself and the elements through a solid-state relay. The screen shows it and takes your settings.</p>
-        <p class="gg"><b>What stays:</b> the power switch still breaks mains, the boiler's thermal fuse (184 °C on the official schematics) stays in circuit, so does the pump's thermal fuse, and earth is bonded exactly as before. None of those depend on software.</p>
+        <p class="gg"><b>What stays:</b> the power switch still breaks mains, the boiler's thermal fuse (184 °C on the official schematics) stays in circuit<span data-when="!fam:GC">, so does the pump's thermal fuse</span><span data-when="set:model;fam:GC;!volts:230">, so does the pump's thermal fuse</span><span data-when="set:model,volts;fam:GC;volts:230">, so does the pump's thermal fuse if yours has one</span>, <span data-when="!ground">and earth is bonded exactly as before</span><span data-when="set:model,volts;ground">and the earth the grounding retrofit adds stays bonded to the metal</span>. None of those depend on software.</p>
       </div>
       %%FIG:blocks%%
     </div>
