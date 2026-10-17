@@ -130,7 +130,7 @@
   function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
-  function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;return st.cur&&VARS[st.cur]?st.cur:ORDERV[0]}
+  function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;var n=nearestFor(GM()&&GM().get(),st.cur);if(n)return n;return st.cur&&VARS[st.cur]?st.cur:ORDERV[0]}
   function bag(o,k){if(!o[k]||typeof o[k]!=='object')o[k]={};return o[k]}
   function activeRuns(v){
     var hasOpt=v.runs.some(function(r){return r.opt}),repl={};

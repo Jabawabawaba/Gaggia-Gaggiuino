@@ -142,9 +142,10 @@
   var prof=read();
   /* Eco board: true, false, or null when it isn't known yet */
   function ecoOf(p){
-    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
-    if(p.volts===120)return false;
-    if(p.volts!==230)return null;
+    if(!p)return null;
+    /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
+    if(p.volts===120||p.model==='GC')return false;
+    if(!p.model||p.volts!==230)return null;
     return p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
@@ -174,8 +175,9 @@
       if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
       if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
       if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
-      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
-      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
+      if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
+      if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -195,7 +197,8 @@
       if(c.k==='model'||c.k==='fam')return !!prof.model;
       if(c.k==='volts')return !!prof.volts;
       if(c.k==='eco')return ecoOf(prof)!==null;
-      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
+      if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
@@ -604,6 +607,17 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     if(!VARS[k]&&path==='si')k='cw-'+fam+'-'+v;
     return VARS[k]?k:null;
   }
+  /* with only part of the profile set (say model and voltage, no install path), open on the closest schematic:
+     same family and voltage, stock wiring first; a schematic the reader picked before stays if it still fits */
+  function nearestFor(p,prev){
+    if(!p)return null;
+    var fam=p.model?(p.model==='GC'?'GC':'GCP'):null;
+    function ok(k){var v=VARS[k];return (!fam||v.fam===fam)&&(!p.volts||v.volts===p.volts)&&(!p.path||v.path===p.path||(p.path==='SI'&&v.path==='CW'))}
+    if(!fam&&!p.volts)return null;
+    if(prev&&VARS[prev]&&ok(prev))return prev;
+    for(var i=0;i<ORDERV.length;i++)if(ok(ORDERV[i]))return ORDERV[i];
+    return null;
+  }
   function famName(f){return f==='GC'||f==='gc'?'Classic':'Pro family'}
   function vlabel(k){var v=VARS[k];return (v.path==='SI'?'Stock wiring':'Custom wiring')+', '+famName(v.fam)+' '+v.volts+' V'}
   /* the switcher: data-wv buttons; picking one doesn't change the reader's saved Gaggia unless they ask */
@@ -715,7 +729,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'g6',when:'CW',t:'Boiler thermal fuse in the heater line, pump fuse in the pump\'s path',how:'Or the optional resettable fuse in the steam thermostat\'s place, if you fitted it.',type:'check'},
       {id:'g7',when:'SI',t:'Parked connectors insulated and tied down',how:function(v){return v.fam==='GCP'?'S5 stays live: insulate its end and tie it where it can\'t touch anything.':'1, 2, 3 and P3-4 all stay live. Insulate each one and tie them down. '+(v.volts===230?'3 keeps both its wires joined.':'2 and 3 keep both their wires joined.')},type:'check'},
       {id:'g8',when:'SI GCP EVO|E24',t:'Switch connectors out of the combined block, each insulated and labeled',how:'The official machine-specific guide: self-fusing silicone tape or 6 mm silicone heat shrink on each, labeled with an oil-based marker.',type:'check'},
-      {id:'g9',when:'GCP 230',t:'The power switch stays on by itself',how:'Eco-board machines need the official power switch mod: one spring out so the rocker latches.',type:'check'},
+      {id:'g9',when:'GCP 230 ECO',t:'The power switch stays on by itself',how:'Eco-board machines need the official power switch mod: one spring out so the rocker latches.',type:'check'},
       {id:'g10',t:'J10 N, J11 L, J12 P and J13 3 match the wiring page',how:'Spades pushed fully home on the PCB.',type:'check'},
       {id:'g11',t:'Nothing but 200 °C silicone wire touches the boiler or steam wand',how:'Mains wires on the left of the enclosure, above the thermocouple wire; low-voltage wires and sensors on the right, as the stock integration guide suggests.',type:'check'},
       {id:'g12',t:'Thermocouple finger tight, lead free to rotate',how:'Ungrounded M4 type in the brew thermostat\'s hole, threads coated with thermal paste rated for at least 180 °C, lead routed around the front of the boiler.',type:'check'},
@@ -739,7 +753,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   /* which schematic the checks follow: the reader's, unless they pick another here */
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
-  function curKey(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;return VARS[run().vk]?run().vk:ORDERV[0]}
+  function curKey(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;var n=nearestFor(GM()&&GM().get(),run().vk);if(n)return n;return VARS[run().vk]?run().vk:ORDERV[0]}
   function V(){return VARS[curKey()]}
   function okWhen(when,v){
     if(!when)return true;
@@ -749,6 +763,8 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
         if(a==='SI'||a==='CW')return v.path===a;
         if(a==='GC'||a==='GCP')return v.fam===a;
         if(a==='120'||a==='230')return String(v.volts)===a;
+        /* ECO: hidden once Your Gaggia says there's no Eco board */
+        if(a==='ECO'){var e=GM()&&GM().eco&&GM().eco();return e!==false}
         return !model||model===a;
       });
     });

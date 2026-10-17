@@ -142,9 +142,10 @@
   var prof=read();
   /* Eco board: true, false, or null when it isn't known yet */
   function ecoOf(p){
-    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
-    if(p.volts===120)return false;
-    if(p.volts!==230)return null;
+    if(!p)return null;
+    /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
+    if(p.volts===120||p.model==='GC')return false;
+    if(!p.model||p.volts!==230)return null;
     return p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
@@ -174,8 +175,9 @@
       if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
       if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
       if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
-      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
-      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
+      if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
+      if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -195,7 +197,8 @@
       if(c.k==='model'||c.k==='fam')return !!prof.model;
       if(c.k==='volts')return !!prof.volts;
       if(c.k==='eco')return ecoOf(prof)!==null;
-      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
+      if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
@@ -611,7 +614,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
       {id:'hwscales',name:'Hardware scales',spec:'Load cells under the drip tray, read by a dual HX711 board. Follow the official scales guide for the load cells and mounts.',lo:45,hi:95,req:false,def:'skip',
         src:[['Official guide','https://gaggiuino.github.io/#/accessories/hw-scales']],
         subs:[['board','Dual scales board: DIY-EFI\'s comes without load cells, Peak Coffee\'s with two or four 750 g cells',[['DIY-EFI, £18 before VAT','https://diy-efi.co.uk/product/gaggiuino-dual-scales'],['Peak Coffee, $68 or $88','https://www.peakcoffee.cc/product/dualscaleboard-soldered-load-cells/']]],['cells','Two to four 750 g load cells, if the board came without them'],['base','Scale base, printed',[['Hudson, $10','https://gaggiuino.hudsoncreativegroup.com/Store/Product/35']]],
-          ['tray',['Drip tray adapter for your tray',['(the Pro\'s tray gets its sides trimmed)','fam:GCP'],['and 4 spacers','fam:GC']],[['Pro family adapters, $5','https://gaggiuino.hudsoncreativegroup.com/Store/Product/36','fam:GCP'],['Classic adapter, $14','https://gaggiuino.hudsoncreativegroup.com/Store/Product/25','fam:GC'],['Spacers, $1.50','https://gaggiuino.hudsoncreativegroup.com/Store/Product/31','fam:GC']]],['mag','Magnets, 5 x 2 mm, and M3 screws']]},
+          ['tray',['Drip tray adapter for your tray',['(on the Pro family the tray\'s sides get trimmed; the Classic\'s adapter takes 4 spacers)','unset:model'],['(the Pro\'s tray gets its sides trimmed)','set:model;fam:GCP'],['and 4 spacers','set:model;fam:GC']],[['Pro family adapters, $5','https://gaggiuino.hudsoncreativegroup.com/Store/Product/36','fam:GCP'],['Classic adapter, $14','https://gaggiuino.hudsoncreativegroup.com/Store/Product/25','fam:GC'],['Spacers, $1.50','https://gaggiuino.hudsoncreativegroup.com/Store/Product/31','fam:GC']]],['mag','Magnets, 5 x 2 mm, and M3 screws']]},
       {id:'tof',name:'Water tank sensor',spec:'The ToFnLED board reads the tank level and lights the tank. It mounts above the tank on magnets.',lo:33,hi:40,req:false,def:'skip',
         src:[['Official guide','https://gaggiuino.github.io/#/accessories/tofnled']],
         subs:[['board','ToFnLED board. Peak Coffee\'s comes with its cable and T-fitting',[['DIY-EFI, £25 before VAT','https://diy-efi.co.uk/product/gaggiuino-tofnled'],['Peak Coffee, $38 kit add-on','https://www.peakcoffee.cc/product/gaggiuino-v4-kit/']]],
@@ -802,7 +805,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     })});
     var nm=m.name();$('plate-m').textContent=nm?'Gaggia '+nm:'Gaggia Classic family';
     var bits=[];if(lines)bits.push(lines+' line'+(lines===1?'':'s'));if(inner)bits.push(inner+' part'+(inner===1?'':'s')+' inside other lines');
-    el.innerHTML=prof?('Showing the parts for your Gaggia: <b>'+esc(m.label())+'</b>.'+(bits.length?' '+esc(bits.join(' and '))+(lines+inner===1?' that doesn\'t apply to it is hidden.':' that don\'t apply to it are hidden.'):'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
+    el.innerHTML=prof?('Showing the parts for your Gaggia: <b>'+esc(m.label())+'</b>.'+(bits.length?' '+esc(bits.join(' and '))+(lines+inner===1?' that doesn\'t apply to it is hidden.':' that don\'t apply to it are hidden.'):'')+(m.get().path==='SI'&&m.wpath()==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine, so these are the custom wiring parts.':'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
       :'Set Your Gaggia and this list drops the parts your machine doesn\'t need. <button class="linkbtn" type="button" data-openm>Set it</button>';
     el.hidden=false;
   }

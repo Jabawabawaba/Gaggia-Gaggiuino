@@ -17,6 +17,17 @@
     if(!VARS[k]&&path==='si')k='cw-'+fam+'-'+v;
     return VARS[k]?k:null;
   }
+  /* with only part of the profile set (say model and voltage, no install path), open on the closest schematic:
+     same family and voltage, stock wiring first; a schematic the reader picked before stays if it still fits */
+  function nearestFor(p,prev){
+    if(!p)return null;
+    var fam=p.model?(p.model==='GC'?'GC':'GCP'):null;
+    function ok(k){var v=VARS[k];return (!fam||v.fam===fam)&&(!p.volts||v.volts===p.volts)&&(!p.path||v.path===p.path||(p.path==='SI'&&v.path==='CW'))}
+    if(!fam&&!p.volts)return null;
+    if(prev&&VARS[prev]&&ok(prev))return prev;
+    for(var i=0;i<ORDERV.length;i++)if(ok(ORDERV[i]))return ORDERV[i];
+    return null;
+  }
   function famName(f){return f==='GC'||f==='gc'?'Classic':'Pro family'}
   function vlabel(k){var v=VARS[k];return (v.path==='SI'?'Stock wiring':'Custom wiring')+', '+famName(v.fam)+' '+v.volts+' V'}
   /* the switcher: data-wv buttons; picking one doesn't change the reader's saved Gaggia unless they ask */

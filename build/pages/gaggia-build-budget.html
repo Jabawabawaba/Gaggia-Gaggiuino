@@ -226,7 +226,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
 (function(){
   var MACHINES=[
     {id:'used',name:'Used Classic Pro or Classic',lo:250,hi:425,note:'Working Classic Pros were listed at about $300 to $425 on eBay in October 2026, plus $8 to $70 shipping, and older Classics from about $220. Those are asking prices. Not the 2015 V2, which has no 3-way valve. Take the used Gaggia check when you go look.',src:[['eBay listings','https://www.ebay.com/b/Gaggia-Classic/38252/bn_7023274426']]},
-    {id:'new',name:'New Classic Pro E24',lo:499,hi:549,note:'Whole Latte Love had the stainless E24 at $499 and Gaggia North America at $549 ($599 in colors). US machines ship with a 9 bar valve that has to go up to 10 to 12 bar; that line is under Gaggiuino parts.',src:[['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24'],['Gaggia NA','https://www.gaggia-na.com/products/gaggia-classic-pro']]}
+    {id:'new',name:'New Classic Pro E24',lo:499,hi:549,note:['Whole Latte Love had the stainless E24 at $499 and Gaggia North America at $549 ($599 in colors).',['US machines ship with a 9 bar valve that has to go up to 10 to 12 bar; that line is under Gaggiuino parts.','volts:120']],src:[['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24'],['Gaggia NA','https://www.gaggia-na.com/products/gaggia-classic-pro']]}
   ];
   var LINES=[
     /* the kit's price, note and link follow the supplier picked above it (see SUPPLIERS) */
@@ -320,7 +320,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
       '<span class="dot" aria-hidden="true"></span>'+
       '<span class="cname">'+esc(name==='machine'?machineName(item):item.name)+'</span>'+
       '<span class="camt" data-amt="'+item.id+'"></span>'+
-      '<span class="cnote">'+esc(item.note)+'</span>'+
+      '<span class="cnote">'+esc(T(item.note))+'</span>'+
       srcHtml(item.src)+
     '</label>';
   }
@@ -357,7 +357,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     var el=$('mnote'),m=GM();if(!el||!m)return;
     var prof=m.get(),gone=LINES.filter(function(l){return !applies(l.when)}).length+(MACHINES.length-machineList().length);
     var nm=m.name();$('plate-m').innerHTML='<b>'+esc(nm?'Gaggia '+nm:'Gaggia Classic family')+'</b>';
-    el.innerHTML=prof?('Showing the costs for your Gaggia: <b>'+esc(m.label())+'</b>.'+(gone?' '+gone+(gone===1?' option that doesn\'t apply to it is hidden.':' options that don\'t apply to it are hidden.'):'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
+    el.innerHTML=prof?('Showing the costs for your Gaggia: <b>'+esc(m.label())+'</b>.'+(gone?' '+gone+(gone===1?' option that doesn\'t apply to it is hidden.':' options that don\'t apply to it are hidden.'):'')+(m.get().path==='SI'&&m.wpath()==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine, so these are the custom wiring costs.':'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
       :'Set Your Gaggia and the budget drops what your machine doesn\'t need and adds what it does. <button class="linkbtn" type="button" data-openm>Set it</button>';
     el.hidden=false;
   }

@@ -172,7 +172,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   function $(id){return document.getElementById(id)}
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
-  function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;return prefs.cur&&VARS[prefs.cur]?prefs.cur:ORDERV[0]}
+  function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;var n=nearestFor(GM()&&GM().get(),prefs.cur);if(n)return n;return prefs.cur&&VARS[prefs.cur]?prefs.cur:ORDERV[0]}
   function v(){return VARS[pick()]}
   function runsFor(V){
     var useOpt=prefs.groups.opt&&V.runs.some(function(r){return r.opt}),repl={};

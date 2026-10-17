@@ -317,7 +317,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'g6',when:'CW',t:'Boiler thermal fuse in the heater line, pump fuse in the pump\'s path',how:'Or the optional resettable fuse in the steam thermostat\'s place, if you fitted it.',type:'check'},
       {id:'g7',when:'SI',t:'Parked connectors insulated and tied down',how:function(v){return v.fam==='GCP'?'S5 stays live: insulate its end and tie it where it can\'t touch anything.':'1, 2, 3 and P3-4 all stay live. Insulate each one and tie them down. '+(v.volts===230?'3 keeps both its wires joined.':'2 and 3 keep both their wires joined.')},type:'check'},
       {id:'g8',when:'SI GCP EVO|E24',t:'Switch connectors out of the combined block, each insulated and labeled',how:'The official machine-specific guide: self-fusing silicone tape or 6 mm silicone heat shrink on each, labeled with an oil-based marker.',type:'check'},
-      {id:'g9',when:'GCP 230',t:'The power switch stays on by itself',how:'Eco-board machines need the official power switch mod: one spring out so the rocker latches.',type:'check'},
+      {id:'g9',when:'GCP 230 ECO',t:'The power switch stays on by itself',how:'Eco-board machines need the official power switch mod: one spring out so the rocker latches.',type:'check'},
       {id:'g10',t:'J10 N, J11 L, J12 P and J13 3 match the wiring page',how:'Spades pushed fully home on the PCB.',type:'check'},
       {id:'g11',t:'Nothing but 200 °C silicone wire touches the boiler or steam wand',how:'Mains wires on the left of the enclosure, above the thermocouple wire; low-voltage wires and sensors on the right, as the stock integration guide suggests.',type:'check'},
       {id:'g12',t:'Thermocouple finger tight, lead free to rotate',how:'Ungrounded M4 type in the brew thermostat\'s hole, threads coated with thermal paste rated for at least 180 °C, lead routed around the front of the boiler.',type:'check'},
@@ -341,7 +341,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   /* which schematic the checks follow: the reader's, unless they pick another here */
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
-  function curKey(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;return VARS[run().vk]?run().vk:ORDERV[0]}
+  function curKey(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;var n=nearestFor(GM()&&GM().get(),run().vk);if(n)return n;return VARS[run().vk]?run().vk:ORDERV[0]}
   function V(){return VARS[curKey()]}
   function okWhen(when,v){
     if(!when)return true;
@@ -351,6 +351,8 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
         if(a==='SI'||a==='CW')return v.path===a;
         if(a==='GC'||a==='GCP')return v.fam===a;
         if(a==='120'||a==='230')return String(v.volts)===a;
+        /* ECO: hidden once Your Gaggia says there's no Eco board */
+        if(a==='ECO'){var e=GM()&&GM().eco&&GM().eco();return e!==false}
         return !model||model===a;
       });
     });

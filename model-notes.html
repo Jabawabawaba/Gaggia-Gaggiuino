@@ -142,9 +142,10 @@
   var prof=read();
   /* Eco board: true, false, or null when it isn't known yet */
   function ecoOf(p){
-    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
-    if(p.volts===120)return false;
-    if(p.volts!==230)return null;
+    if(!p)return null;
+    /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
+    if(p.volts===120||p.model==='GC')return false;
+    if(!p.model||p.volts!==230)return null;
     return p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
@@ -174,8 +175,9 @@
       if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
       if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
       if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
-      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
-      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
+      if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
+      if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -195,7 +197,8 @@
       if(c.k==='model'||c.k==='fam')return !!prof.model;
       if(c.k==='volts')return !!prof.volts;
       if(c.k==='eco')return ecoOf(prof)!==null;
-      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
+      if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
@@ -452,7 +455,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <h1>What each Gaggia changes for the build</h1>
   </header>
   <article class="doc">
-<p class="model-note"><span data-when="unset:model">Set Your Gaggia and this page keeps only the notes for your model.</span><span data-when="set:model">Showing the notes for your model.</span> <button type="button" class="showall-btn" data-showall="doc-models" hidden></button></p><div id="doc-models"><p>The official Gaggiuino guide is written for the Gaggia Classic family, so every supported model has an official install path. What changes from one model to the next is small but easy to miss: grounding, the over-pressure valve, the Eco board, the switch connectors and how the pressure sensor taps in. This page collects those differences in one place. Sources are marked <strong>[Official]</strong> (gaggiuino.github.io, read October 2026 at commit acc4258 of the docs repo), <strong>[Gaggia]</strong> (Gaggia's 2018 service manual, its factory wiring diagrams and parts lists) or <strong>[Owners]</strong> (retailers, Coffee Forums and Coffeeblog). See <a href="which-gaggia.html"><code>which-gaggia.html</code></a> to identify your machine.</p>
+<p class="model-note"><span data-when="unset:model">Pick your model in Your Gaggia and this page keeps only the notes for it.</span><span data-when="set:model">Showing the notes for your model.</span> <button type="button" class="showall-btn" data-showall="doc-models" hidden></button></p><div id="doc-models"><p>The official Gaggiuino guide is written for the Gaggia Classic family, so every supported model has an official install path. What changes from one model to the next is small but easy to miss: grounding, the over-pressure valve, the Eco board, the switch connectors and how the pressure sensor taps in. This page collects those differences in one place. Sources are marked <strong>[Official]</strong> (gaggiuino.github.io, read October 2026 at commit acc4258 of the docs repo), <strong>[Gaggia]</strong> (Gaggia's 2018 service manual, its factory wiring diagrams and parts lists) or <strong>[Owners]</strong> (retailers, Coffee Forums and Coffeeblog). See <a href="which-gaggia.html"><code>which-gaggia.html</code></a> to identify your machine.</p>
 <h2>The models at a glance</h2>
 <div class="tablewrap"><table><thead><tr><th>Model</th><th>Years</th><th>Label</th><th>What it needs</th></tr></thead><tbody><tr><td>Classic, 120 V</td><td>1991 to 2018</td><td>SIN035, RI9303</td><td>The grounding retrofit if it still has a two-pin cord</td></tr><tr><td>Classic, 230 V</td><td>1991 to 2014</td><td>SIN035, RI9303</td><td>Nothing extra</td></tr><tr><td>Classic 2015 / V2</td><td>2015 to 2018</td><td>SIN035U, RI9403</td><td>Not supported: no 3-way valve</td></tr><tr><td>Classic Pro, 120 V</td><td>2019 to 2022</td><td>SIN035R, RI9380</td><td>Nothing extra</td></tr><tr><td>Classic Pro, 230 V without Eco board</td><td>2019 to 2022</td><td>SIN035R, RI9380</td><td>Nothing extra; uncommon</td></tr><tr><td>Classic Pro Eco, 230 V</td><td>2019 to 2022</td><td>SIN035UR, RI9480</td><td>Power switch mod; custom wiring recommended</td></tr><tr><td>Evo Pro and E24, 120 V</td><td>2023 on</td><td>SIN035R, RI9380</td><td>OPV raised to 10 to 12 bar; combined connectors insulated for stock integration</td></tr><tr><td>Evo and E24, 230 V</td><td>2023 on</td><td>SIN035UR, RI9481</td><td>Power switch mod; custom wiring recommended</td></tr></tbody></table></div>
 <p><strong>[Official]</strong> The table follows the compatibility table in the docs. The docs group the machines as the Gaggia Classic (GC) and the Gaggia Classic Pro (GCP), which "generally includes the Pro, Eco, Evo, and E24 models", and the Discord help channels split the same way: #install-help-gc and #install-help-gcp.</p>
@@ -494,7 +497,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 </li>
 <li><strong>Lamps.</strong> The steam lamp becomes a boiler lamp, lit while the boiler isn't heating. The brew lamp stays dark. <strong>[Official]</strong>
 </li>
-<li><strong>OPV.</strong> A black valve on top of the pump that returns to the tank. Gaggia's specification is 11 bar (+1, −0.5), inside the 10 to 12 bar Gaggiuino wants; reviewers report 12 to 14. Owners often swap in 9 bar springs, so test it. <strong>[Gaggia]</strong>, <strong>[Owners]</strong>
+<li><strong>OPV.</strong> A black valve on top of the pump that returns to the tank. Gaggia's specification is 11 bar (+1, −0.5), inside the 10 to 12 bar Gaggiuino wants; reviewers report 12 to 14. Owners often swap in 9 bar springs, so test it. US Evo Pros and E24s ship with a 9 bar valve instead (below). <strong>[Gaggia]</strong>, <strong>[Owners]</strong>
 </li>
 <li><strong>Pressure sensor.</strong> Cut the braided pump hose about 65 mm above the boiler connection, fit a barbed 6 mm T with a clamp on each tube, and run 200 to 250 mm of hose to the sensor, clamped at each end. The docs' hose is the Saeco OEM braided tube, Gaggia part 996530009505. Or fit the pressure tap block. <strong>[Official]</strong>
 </li>

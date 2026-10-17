@@ -65,7 +65,7 @@ def model_sections(body):
         out.append(part)
     if not tagged:
         return body
-    note = ('<p class="model-note"><span data-when="unset:model">Set Your Gaggia and this page keeps only the notes for your model.</span>'
+    note = ('<p class="model-note"><span data-when="unset:model">Pick your model in Your Gaggia and this page keeps only the notes for it.</span>'
             '<span data-when="set:model">Showing the notes for your model.</span> '
             '<button type="button" class="showall-btn" data-showall="doc-models" hidden></button></p>')
     return note + '<div id="doc-models">' + "".join(out) + "</div>"

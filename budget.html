@@ -142,9 +142,10 @@
   var prof=read();
   /* Eco board: true, false, or null when it isn't known yet */
   function ecoOf(p){
-    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
-    if(p.volts===120)return false;
-    if(p.volts!==230)return null;
+    if(!p)return null;
+    /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
+    if(p.volts===120||p.model==='GC')return false;
+    if(!p.model||p.volts!==230)return null;
     return p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
@@ -174,8 +175,9 @@
       if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
       if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
       if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
-      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
-      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
+      if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
+      if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -195,7 +197,8 @@
       if(c.k==='model'||c.k==='fam')return !!prof.model;
       if(c.k==='volts')return !!prof.volts;
       if(c.k==='eco')return ecoOf(prof)!==null;
-      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
+      if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
@@ -573,7 +576,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
 (function(){
   var MACHINES=[
     {id:'used',name:'Used Classic Pro or Classic',lo:250,hi:425,note:'Working Classic Pros were listed at about $300 to $425 on eBay in October 2026, plus $8 to $70 shipping, and older Classics from about $220. Those are asking prices. Not the 2015 V2, which has no 3-way valve. Take the used Gaggia check when you go look.',src:[['eBay listings','https://www.ebay.com/b/Gaggia-Classic/38252/bn_7023274426']]},
-    {id:'new',name:'New Classic Pro E24',lo:499,hi:549,note:'Whole Latte Love had the stainless E24 at $499 and Gaggia North America at $549 ($599 in colors). US machines ship with a 9 bar valve that has to go up to 10 to 12 bar; that line is under Gaggiuino parts.',src:[['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24'],['Gaggia NA','https://www.gaggia-na.com/products/gaggia-classic-pro']]}
+    {id:'new',name:'New Classic Pro E24',lo:499,hi:549,note:['Whole Latte Love had the stainless E24 at $499 and Gaggia North America at $549 ($599 in colors).',['US machines ship with a 9 bar valve that has to go up to 10 to 12 bar; that line is under Gaggiuino parts.','volts:120']],src:[['Whole Latte Love','https://www.wholelattelove.com/collections/gaggia/products/gaggia-classic-e24'],['Gaggia NA','https://www.gaggia-na.com/products/gaggia-classic-pro']]}
   ];
   var LINES=[
     /* the kit's price, note and link follow the supplier picked above it (see SUPPLIERS) */
@@ -667,7 +670,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
       '<span class="dot" aria-hidden="true"></span>'+
       '<span class="cname">'+esc(name==='machine'?machineName(item):item.name)+'</span>'+
       '<span class="camt" data-amt="'+item.id+'"></span>'+
-      '<span class="cnote">'+esc(item.note)+'</span>'+
+      '<span class="cnote">'+esc(T(item.note))+'</span>'+
       srcHtml(item.src)+
     '</label>';
   }
@@ -704,7 +707,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     var el=$('mnote'),m=GM();if(!el||!m)return;
     var prof=m.get(),gone=LINES.filter(function(l){return !applies(l.when)}).length+(MACHINES.length-machineList().length);
     var nm=m.name();$('plate-m').innerHTML='<b>'+esc(nm?'Gaggia '+nm:'Gaggia Classic family')+'</b>';
-    el.innerHTML=prof?('Showing the costs for your Gaggia: <b>'+esc(m.label())+'</b>.'+(gone?' '+gone+(gone===1?' option that doesn\'t apply to it is hidden.':' options that don\'t apply to it are hidden.'):'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
+    el.innerHTML=prof?('Showing the costs for your Gaggia: <b>'+esc(m.label())+'</b>.'+(gone?' '+gone+(gone===1?' option that doesn\'t apply to it is hidden.':' options that don\'t apply to it are hidden.'):'')+(m.get().path==='SI'&&m.wpath()==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine, so these are the custom wiring costs.':'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
       :'Set Your Gaggia and the budget drops what your machine doesn\'t need and adds what it does. <button class="linkbtn" type="button" data-openm>Set it</button>';
     el.hidden=false;
   }

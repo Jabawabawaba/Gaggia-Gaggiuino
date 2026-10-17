@@ -142,9 +142,10 @@
   var prof=read();
   /* Eco board: true, false, or null when it isn't known yet */
   function ecoOf(p){
-    if(!p||!p.model||p.model==='GC')return p&&p.model==='GC'?false:null;
-    if(p.volts===120)return false;
-    if(p.volts!==230)return null;
+    if(!p)return null;
+    /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
+    if(p.volts===120||p.model==='GC')return false;
+    if(!p.model||p.volts!==230)return null;
     return p.eco;
   }
   /* the wiring the pages actually use (see wpath above); null until an install path is picked */
@@ -174,8 +175,9 @@
       if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
       if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
       if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
-      if(c.k==='opv9'){if(!prof.model)return true;return (prof.model==='EVO'||prof.model==='E24')&&prof.volts!==230}
-      if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
+      /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
+      if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
+      if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
@@ -195,7 +197,8 @@
       if(c.k==='model'||c.k==='fam')return !!prof.model;
       if(c.k==='volts')return !!prof.volts;
       if(c.k==='eco')return ecoOf(prof)!==null;
-      if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
+      if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
+      if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
@@ -540,6 +543,17 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     if(!VARS[k]&&path==='si')k='cw-'+fam+'-'+v;
     return VARS[k]?k:null;
   }
+  /* with only part of the profile set (say model and voltage, no install path), open on the closest schematic:
+     same family and voltage, stock wiring first; a schematic the reader picked before stays if it still fits */
+  function nearestFor(p,prev){
+    if(!p)return null;
+    var fam=p.model?(p.model==='GC'?'GC':'GCP'):null;
+    function ok(k){var v=VARS[k];return (!fam||v.fam===fam)&&(!p.volts||v.volts===p.volts)&&(!p.path||v.path===p.path||(p.path==='SI'&&v.path==='CW'))}
+    if(!fam&&!p.volts)return null;
+    if(prev&&VARS[prev]&&ok(prev))return prev;
+    for(var i=0;i<ORDERV.length;i++)if(ok(ORDERV[i]))return ORDERV[i];
+    return null;
+  }
   function famName(f){return f==='GC'||f==='gc'?'Classic':'Pro family'}
   function vlabel(k){var v=VARS[k];return (v.path==='SI'?'Stock wiring':'Custom wiring')+', '+famName(v.fam)+' '+v.volts+' V'}
   /* the switcher: data-wv buttons; picking one doesn't change the reader's saved Gaggia unless they ask */
@@ -562,14 +576,14 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   function save(){try{localStorage.setItem(KEY,JSON.stringify({view:view,opt:showOpt,cur:cur}))}catch(e){}}
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
-  function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;return cur&&VARS[cur]?cur:ORDERV[0]}
+  function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;var n=nearestFor(GM()&&GM().get(),cur);if(n)return n;return cur&&VARS[cur]?cur:ORDERV[0]}
   function render(){
     var active=pick(),v=VARS[active],mine=mineV(),p=GM()&&GM().get();
     switcher($('vsel'),active,function(k){override=k===mine?null:k;cur=k;save();render()});
     var noSI=p&&p.path==='SI'&&mine&&VARS[mine].path==='CW';
     $('vnote').textContent=mine?(active===mine?'Showing the schematic for your Gaggia. Pick another to compare.':'Showing '+vlabel(active)+'. The dot marks yours.')+(noSI?' There\'s no official stock-integration drawing for a 230 V Pro-family machine (the guide recommends custom wiring with the Eco board), so yours is the custom wiring schematic.':''):
       'Set your model, voltage and install path in the top bar and this page opens on your schematic. Until then, pick one here.';
-    $('off').innerHTML='<span class="k">Official</span><p><a href="'+esc(v.schematic)+'" target="_blank" rel="noopener">'+esc(vlabel(active))+' schematic</a> (opens the full-size drawing on GitHub) and the <a href="'+(v.path==='SI'?'https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration':'https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring')+'" target="_blank" rel="noopener">'+(v.path==='SI'?'stock wiring integration':'custom wiring')+' guide</a>.'+(v.path==='CW'&&v.volts===230&&v.fam==='GCP'?' 230 V Pro-family machines with the Eco board also need the power switch mod.':'')+'</p>';
+    $('off').innerHTML='<span class="k">Official</span><p><a href="'+esc(v.schematic)+'" target="_blank" rel="noopener">'+esc(vlabel(active))+' schematic</a> (opens the full-size drawing on GitHub) and the <a href="'+(v.path==='SI'?'https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration':'https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring')+'" target="_blank" rel="noopener">'+(v.path==='SI'?'stock wiring integration':'custom wiring')+' guide</a>.'+(v.path==='CW'&&v.volts===230&&v.fam==='GCP'&&!(GM()&&GM().eco&&GM().eco()===false&&active===mine)?' 230 V Pro-family machines with the Eco board also need the power switch mod.':'')+'</p>';
     if(v.path==='SI'){$('views').innerHTML='';renderSI(v);return}
     $('views').innerHTML='<div class="chips"><button type="button" class="chip" data-view="runs" aria-pressed="'+(view==='runs')+'">By run</button><button type="button" class="chip" data-view="terms" aria-pressed="'+(view==='terms')+'">By terminal</button></div>'+
       (v.runs.some(function(r){return r.opt})?'<label style="display:inline-flex;align-items:center;gap:8px;font-size:15px"><input type="checkbox" id="opt"'+(showOpt?' checked':'')+'> Optional resettable fuse runs</label>':'');
