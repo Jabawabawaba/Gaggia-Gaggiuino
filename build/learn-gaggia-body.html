@@ -54,7 +54,7 @@
           <li>Steam alone: it shorts out the brew thermostat, so heating carries on until the steam thermostat opens at %%STEAM_OPEN%% °C and the <span data-when="!fam:GC">steam</span><span data-when="set:model;fam:GC">ready</span> lamp lights.</li>
           <li>Drag the temperature past %%FUSE%% °C: the fuse melts and <span data-when="!fam:GC">only the power lamp stays lit</span><span data-when="set:model;fam:GC">everything goes dark</span> until a new one is fitted.</li>
         </ul>
-        <p class="gg"><b>With Gaggiuino</b>, the brew and steam switches stop switching these rungs and signal the PCB at low voltage instead, and both thermostats leave the elements' circuit: the thermocouple and the SSR take over. With custom wiring that's all the two switches carry; with stock wiring integration, some of their other spades stay on mains. The power switch, the thermal fuse, the pump's protector and the earth stay. <a href="how-gaggiuino-works.html#blocks">See what changes</a>.</p>
+        <p class="gg"><b>With Gaggiuino</b>, the brew and steam switches stop switching these rungs and signal the PCB at low voltage instead, and both thermostats leave the elements' circuit: the thermocouple and the SSR take over. With custom wiring that's all the two switches carry; with stock wiring integration, some of their other spades stay on mains. The power switch, the thermal fuse, the pump's protector<span data-when="set:model;fam:GC;!volts:120"> if yours has one</span> and the earth stay. <a href="how-gaggiuino-works.html#blocks">See what changes</a>.</p>
       </div>
       %%INCLUDE:learn-ladder.html%%
     </div>
