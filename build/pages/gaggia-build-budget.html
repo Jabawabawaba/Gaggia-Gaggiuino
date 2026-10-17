@@ -53,6 +53,8 @@ button{font:inherit;color:inherit}
 .plate b{color:var(--ink);font-weight:600}
 h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
 .lede{margin:0;color:var(--muted);max-width:62ch;font-size:17px}
+.mnote{margin:12px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;line-height:1.45;max-width:68ch}
+.mnote .linkbtn{margin-left:4px;padding:0;font-size:15px}
 
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:32px;align-items:start}
 
@@ -149,11 +151,12 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
   <header class="top">
     <div class="plate" aria-label="Build spec">
       <span class="rivet" aria-hidden="true"></span>
-      <span><b>Gaggia Classic family</b></span><span>Gaggiuino Gen 3</span><span>PCB v4</span><span>US prices</span>
+      <span id="plate-m"><b>Gaggia Classic family</b></span><span>Gaggiuino Gen 3</span><span>PCB v4</span><span>US prices</span>
       <span class="rivet" aria-hidden="true"></span>
     </div>
     <h1>Gaggia Build Budget</h1>
     <p class="lede">Pick a machine, where the kit comes from and the extras you want; the total updates as you go. When you get a real quote, tap <em>Set price</em> on that line and the estimate becomes your number.</p>
+    <p class="mnote" id="mnote" hidden></p>
   </header>
 
   <div class="layout">
@@ -230,11 +233,11 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     {id:'kit',cat:'parts',name:'Gaggiuino kit',req:true,by:{
       diyefi:{sub:'DIY-EFI 4.3" Gen 3 kit',lo:212,hi:254,note:'£160 before VAT (about $212), £192 with it, on October 16, with only 7 Gen 3 screens left and backorders taken: V4 PCB, the 4.3" ESP32-S3 screen the official docs describe, low-voltage cables, pressure sensor, M4 thermocouple, SSR, ST-Link and the CNC pressure tap block. No mains wiring. DIY-EFI\'s Gen 3.5 kit (£175 before VAT) has a newer screen the official docs don\'t cover yet. US shipping isn\'t published.',src:[['DIY-EFI','https://diy-efi.co.uk/product/gaggiuino-classic-kit-v4-gen3']]},
       peak:{sub:'Peak Coffee Gen 3 4.3" kit',lo:307,hi:307,note:'$248, plus what its checkout added on October 16: 10% tax, a 5.5% card fee, $11 insurance against loss only and $10 handling. US shipping was $68 more, and the first production batch needed about 3 weeks. Adds a resettable 185 °C fuse and mains cables for stock wiring, but they\'re 22 AWG where the official parts list says 18. Not an approved supplier since October 2025, and the docs say the Gen 3 screen must come from one. No warranty or refunds.',src:[['Peak Coffee','https://www.peakcoffee.cc/product/gaggiuino-v4-kit/']]}}},
-    {id:'hv',cat:'parts',name:'Mains wire and connectors',lo:30,hi:60,req:true,note:'18 AWG 200 °C silicone wire (red, black and white for stock integration; seven colors for custom wiring), spades, fork terminals and piggyback spades or butt splices. The cut list totals exactly what your schematic needs. About $50 from US sellers on October 16 (links on the parts tracker); less from AliExpress.',src:[['Official BOM','https://gaggiuino.github.io/#/?id=bill-of-materials']]},
+    {id:'hv',cat:'parts',name:'Mains wire and connectors',lo:30,hi:60,req:true,note:[['Stock integration: 18 AWG 200 °C silicone wire in red, black and white, spades, fork terminals and a piggyback spade.','wpath:SI'],['Custom wiring: 18 AWG 200 °C silicone wire in seven colors, spades, fork terminals and butt splices.','wpath:CW'],'The cut list totals exactly what your schematic needs. About $50 from US sellers on October 16 (links on the parts tracker); less from AliExpress.'],src:[['Official BOM','https://gaggiuino.github.io/#/?id=bill-of-materials']]},
     {id:'insul',cat:'parts',name:'Silicone tape or heat shrink, thermal paste',lo:15,hi:30,req:true,note:'Self-fusing silicone tape or silicone heat shrink over every crimp near the boiler, and thermal paste rated for 180 °C or more if the old paste has dried out.'},
     {id:'prints',cat:'parts',name:'Printed housings',sub:'Hudson Creative Group',lo:24,hi:35,req:true,note:'PCB housing $8, the Gen 3 screen housing $12, and a front ($4) or funnel ($15) screen mount. Screws and magnets aren\'t included.',src:[['Hudson','https://gaggiuino.hudsoncreativegroup.com/']]},
-    {id:'opv',cat:'parts',name:'12 bar OPV spring or M3 washers',lo:3,hi:15,req:false,def:false,note:'US Evo Pro and E24: the 9 bar valve has to go up to 10 to 12 bar, with a new spring or three or four stainless M3 washers behind the old one.',src:[['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=_10-12-bar-opv']]},
-    {id:'ground',cat:'parts',name:'Grounding retrofit',lo:15,hi:30,req:false,def:false,note:'120 V original Classic with a two-pin cord: a C14 three-pin inlet, a right-angle cord and green 18 AWG wire, per the official guide. Rough prices.',src:[['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=grounding']]},
+    {id:'opv',when:'opv9',wtag:'US Evo Pro and E24',cat:'parts',name:'12 bar OPV spring or M3 washers',lo:3,hi:15,req:false,def:false,note:'US Evo Pro and E24: the 9 bar valve has to go up to 10 to 12 bar, with a new spring or three or four stainless M3 washers behind the old one.',src:[['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=_10-12-bar-opv']]},
+    {id:'ground',when:'ground',wtag:'120 V Classic',cat:'parts',name:'Grounding retrofit',lo:15,hi:30,req:false,def:false,note:'120 V original Classic with a two-pin cord: a C14 three-pin inlet, a right-angle cord and green 18 AWG wire, per the official guide. Rough prices.',src:[['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=grounding']]},
     {id:'sd',cat:'parts',name:'MicroSD card',lo:5,hi:10,req:false,def:true,note:'1 to 8 GB, FAT32. Turns on shot history.'},
     {id:'meter',cat:'tools',name:'Multimeter',lo:25,hi:45,req:true,note:'Needed for the power-on checks before the cord goes near the wall. A basic auto-ranging meter is enough.'},
     {id:'crimper',cat:'tools',name:'Open-barrel crimper',lo:20,hi:35,req:false,def:true,note:'For the bare spades and splices near the boiler. Turn this off if yours is already the open-barrel kind.'},
@@ -262,6 +265,18 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     return '<div class="src">Price from '+src.map(function(s){return '<a href="'+esc(s[1])+'" target="_blank" rel="noopener">'+esc(s[0])+'</a>'}).join(' · ')+'</div>';
   }
   function byId(list,id){for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}return null}
+  /* Your Gaggia: lines that don't apply to the picked machine are left out; a line that's decided to apply is required */
+  function GM(){return window.GaggiaMachine||null}
+  function applies(when){var m=GM();return !when||!m||m.matches(when)}
+  function T(x){var m=GM();if(m)return m.txt(x);return Array.isArray(x)?x.map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' '):(x==null?'':String(x))}
+  function mine(l){var m=GM();return !!(l.when&&m&&m.decided(l.when)&&m.matches(l.when))}
+  function needed(l){return l.req||mine(l)}
+  function shownLines(cat){return LINES.filter(function(l){return applies(l.when)&&(!cat||l.cat===cat)})}
+  function isOn(l){return applies(l.when)&&(needed(l)||!!state.on[l.id])}
+  /* a new machine means a new E24; once another model is picked, only the used option fits */
+  function machineList(){var m=GM(),p=m&&m.get();var md=p&&p.model;return MACHINES.filter(function(x){return x.id!=='new'||!md||md==='E24'})}
+  function mId(){return byId(machineList(),state.machine)?state.machine:'used'}
+  function machineName(x){var m=GM(),nm=m&&m.name();if(!nm)return x.name;return (x.id==='new'?'New ':'Used ')+nm}
 
   function defaults(){
     var on={};LINES.forEach(function(l){if(!l.req)on[l.id]=!!l.def});
@@ -286,10 +301,10 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
   }
   function compute(machineId,sup){
     var t={machine:{lo:0,hi:0},parts:{lo:0,hi:0},tools:{lo:0,hi:0},extras:{lo:0,hi:0}};
-    var mp=priceOf(byId(MACHINES,machineId||state.machine));
+    var mp=priceOf(byId(MACHINES,machineId||mId()));
     t.machine.lo+=mp.lo;t.machine.hi+=mp.hi;
     LINES.forEach(function(l){
-      if(l.req||state.on[l.id]){var p=priceOf(l,sup);t[l.cat].lo+=p.lo;t[l.cat].hi+=p.hi}
+      if(isOn(l)){var p=priceOf(l,sup);t[l.cat].lo+=p.lo;t[l.cat].hi+=p.hi}
     });
     var sp=priceOf(byId(SCALES,state.scale));
     t.extras.lo+=sp.lo;t.extras.hi+=sp.hi;
@@ -303,22 +318,22 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     return '<label class="choice" data-id="'+item.id+'">'+
       '<input type="radio" name="'+name+'" value="'+item.id+'" id="opt-'+item.id+'">'+
       '<span class="dot" aria-hidden="true"></span>'+
-      '<span class="cname">'+esc(item.name)+'</span>'+
+      '<span class="cname">'+esc(name==='machine'?machineName(item):item.name)+'</span>'+
       '<span class="camt" data-amt="'+item.id+'"></span>'+
       '<span class="cnote">'+esc(item.note)+'</span>'+
       srcHtml(item.src)+
     '</label>';
   }
   function lineHtml(l){
-    var tick=l.req
+    var tick=needed(l)
       ? '<span class="fixed" title="Required" style="color:var(--muted)">'+CHECK+'</span>'
       : '<input type="checkbox" id="on-'+l.id+'" aria-describedby="note-'+l.id+'">';
-    var nameInner=l.req?esc(l.name):'<label for="on-'+l.id+'">'+esc(l.name)+'</label>';
+    var nameInner=needed(l)?esc(l.name):'<label for="on-'+l.id+'">'+esc(l.name)+'</label>';
     return '<div class="line" data-line="'+l.id+'">'+
       '<div class="tick">'+tick+'</div>'+
       '<div class="lbody">'+
-        '<div class="lname">'+nameInner+(cur(l).sub?'<span class="sub">'+esc(cur(l).sub)+'</span>':'')+(l.req?'<span class="tag">Required</span>':'')+'</div>'+
-        '<p class="note" id="note-'+l.id+'">'+esc(cur(l).note)+'</p>'+srcHtml(cur(l).src)+
+        '<div class="lname">'+nameInner+(cur(l).sub?'<span class="sub">'+esc(cur(l).sub)+'</span>':'')+(l.req?'<span class="tag">Required</span>':mine(l)?'<span class="tag">Needed on yours</span>':l.when&&l.wtag?'<span class="tag">'+esc(l.wtag)+' only</span>':'')+'</div>'+
+        '<p class="note" id="note-'+l.id+'">'+esc(T(cur(l).note))+'</p>'+srcHtml(cur(l).src)+
       '</div>'+
       '<div class="lprice"><span class="amt" data-amt="'+l.id+'"></span><span class="own" data-own="'+l.id+'" hidden>Your price</span>'+
         '<button class="linkbtn" type="button" data-edit="'+l.id+'">Set price</button></div>'+
@@ -330,26 +345,37 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     '</div>';
   }
   function renderStatic(){
-    $('machines').innerHTML=MACHINES.map(function(m){return choiceHtml('machine',m)}).join('');
+    $('machines').innerHTML=machineList().map(function(m){return choiceHtml('machine',m)}).join('');
     $('scales').innerHTML=SCALES.map(function(s){return choiceHtml('scale',s)}).join('');
     $('suppliers').innerHTML=SUPPLIERS.map(function(s){return choiceHtml('supplier',s)}).join('');
     ['parts','tools','extras'].forEach(function(cat){
-      $('lines-'+cat).innerHTML=LINES.filter(function(l){return l.cat===cat}).map(lineHtml).join('');
+      $('lines-'+cat).innerHTML=shownLines(cat).map(lineHtml).join('');
     });
+    machineNote();
   }
+  function machineNote(){
+    var el=$('mnote'),m=GM();if(!el||!m)return;
+    var prof=m.get(),gone=LINES.filter(function(l){return !applies(l.when)}).length+(MACHINES.length-machineList().length);
+    var nm=m.name();$('plate-m').innerHTML='<b>'+esc(nm?'Gaggia '+nm:'Gaggia Classic family')+'</b>';
+    el.innerHTML=prof?('Showing the costs for your Gaggia: <b>'+esc(m.label())+'</b>.'+(gone?' '+gone+(gone===1?' option that doesn\'t apply to it is hidden.':' options that don\'t apply to it are hidden.'):'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
+      :'Set Your Gaggia and the budget drops what your machine doesn\'t need and adds what it does. <button class="linkbtn" type="button" data-openm>Set it</button>';
+    el.hidden=false;
+  }
+  function bindLines(){shownLines().forEach(function(l){bindMoney($('price-'+l.id),function(){return l.id})})}
+  function rebuild(){renderStatic();bindLines();syncControls();render()}
 
   /* ---------- sync controls from state ---------- */
   var openOverrides={};
   function syncControls(){
-    MACHINES.forEach(function(m){$('opt-'+m.id).checked=(state.machine===m.id)});
+    machineList().forEach(function(m){$('opt-'+m.id).checked=(mId()===m.id)});
     SCALES.forEach(function(s){$('opt-'+s.id).checked=(state.scale===s.id)});
     SUPPLIERS.forEach(function(s){$('opt-'+s.id).checked=(state.supplier===s.id)});
-    LINES.forEach(function(l){
-      if(!l.req) $('on-'+l.id).checked=!!state.on[l.id];
+    shownLines().forEach(function(l){
+      if(!needed(l)) $('on-'+l.id).checked=!!state.on[l.id];
       var inp=$('price-'+l.id),v=state.price[l.id];
       if(document.activeElement!==inp) inp.value=(typeof v==='number')?String(v):'';
     });
-    var mi=$('machine-price'),mv=state.price[state.machine];
+    var mi=$('machine-price'),mv=state.price[mId()];
     if(document.activeElement!==mi) mi.value=(typeof mv==='number')?String(mv):'';
     var si=$('scale-price'),sv=state.price[state.scale];
     if(document.activeElement!==si) si.value=(typeof sv==='number')?String(sv):'';
@@ -359,17 +385,17 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
   function render(){
     document.querySelectorAll('.choice').forEach(function(el){
       var id=el.getAttribute('data-id');
-      el.classList.toggle('on',id===state.machine||id===state.scale||id===state.supplier);
+      el.classList.toggle('on',id===mId()||id===state.scale||id===state.supplier);
     });
-    MACHINES.concat(SCALES).forEach(function(it){
+    machineList().concat(SCALES).forEach(function(it){
       var p=priceOf(it),el=document.querySelector('[data-amt="'+it.id+'"]');
       el.textContent=(it.lo===0&&it.hi===0&&!p.own)?'No added cost':(p.own?fmt(p.lo)+' (your price)':rng(p.lo,p.hi));
     });
     /* each supplier card shows what the PCB and screen cost from it */
     SUPPLIERS.forEach(function(s){var c=cur(byId(LINES,'kit'),s.id);
       document.querySelector('[data-amt="'+s.id+'"]').textContent='Kit '+rng(c.lo,c.hi)});
-    LINES.forEach(function(l){
-      var p=priceOf(l),active=l.req||!!state.on[l.id];
+    shownLines().forEach(function(l){
+      var p=priceOf(l),active=isOn(l);
       document.querySelector('[data-amt="'+l.id+'"]').textContent=rng(p.lo,p.hi);
       document.querySelector('[data-own="'+l.id+'"]').hidden=!p.own;
       document.querySelector('[data-line="'+l.id+'"]').classList.toggle('off',!active);
@@ -377,9 +403,8 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
       document.querySelector('[data-ov="'+l.id+'"]').hidden=!showOv;
       document.querySelector('[data-edit="'+l.id+'"]').hidden=showOv;
     });
-    var m=byId(MACHINES,state.machine);
-    $('machine-price-label').textContent=(state.machine==='used'?'Found a used one? Its price':'Found a better price on a new one?');
-    $('machine-clear').hidden=(typeof state.price[state.machine]!=='number');
+    $('machine-price-label').textContent=(mId()==='used'?'Found a used one? Its price':'Found a better price on a new one?');
+    $('machine-clear').hidden=(typeof state.price[mId()]!=='number');
     var sc=byId(SCALES,state.scale);
     $('scale-found').hidden=(state.scale==='scale-none');
     $('scale-price-label').textContent='Price you found for the '+sc.name.toLowerCase();
@@ -399,18 +424,18 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
       return '<li><span class="sw" style="background:var(--c-'+c[0]+')"></span><span>'+c[1]+'</span><span class="v">'+((v.lo===0&&v.hi===0)?'$0':rng(v.lo,v.hi))+'</span></li>';
     }).join('');
 
-    var other=state.machine==='used'?'new':'used';
+    var other=mId()==='used'?'new':'used',hasOther=!!byId(machineList(),other);
     var ro=compute(other);
     var otherSup=state.supplier==='peak'?'diyefi':'peak',rs=compute(null,otherSup);
     var side={lo:r.all.lo-r.cats.machine.lo,hi:r.all.hi-r.cats.machine.hi};
     var owns=Object.keys(state.price).filter(function(k){
       if(k===other) return false;
       if(byId(SCALES,k)) return k===state.scale;
-      var l=byId(LINES,k); if(l) return l.req||!!state.on[l.id];
-      return k===state.machine;
+      var l=byId(LINES,k); if(l) return isOn(l);
+      return k===mId();
     }).length;
     $('compare').innerHTML=
-      '<div class="cmp"><span>Same build with '+(other==='new'?'a new E24':'a used machine')+'</span><b>'+rng(ro.all.lo,ro.all.hi)+'</b></div>'+
+      (hasOther?'<div class="cmp"><span>Same build with '+(other==='new'?'a new E24':'a used machine')+'</span><b>'+rng(ro.all.lo,ro.all.hi)+'</b></div>':'')+
       '<div class="cmp"><span>The kit from '+(otherSup==='peak'?'Peak Coffee':'DIY-EFI')+' instead</span><b>'+rng(rs.all.lo,rs.all.hi)+'</b></div>'+
       '<div class="cmp"><span>Everything except the machine</span><b>'+rng(side.lo,side.hi)+'</b></div>'+
       (owns?'<p class="fine">Includes '+owns+' price'+(owns===1?'':'s')+' you entered.</p>':'');
@@ -481,15 +506,17 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     });
   }
 
-  renderStatic();
   state=loadLocal()||defaults();
+  renderStatic();bindLines();
   syncControls();render();setStatus('loading');
+  window.addEventListener('gaggia-machine',rebuild);
+  document.addEventListener('click',function(e){if(e.target.closest('[data-openm]')){var m=GM();if(m)m.openPanel()}});
 
   document.addEventListener('change',function(e){
     var t=e.target;
     if(t.name==='machine'){state.machine=t.value;syncControls();changed()}
     else if(t.name==='scale'){state.scale=t.value;syncControls();changed()}
-    else if(t.name==='supplier'){state.supplier=t.value;$('lines-parts').innerHTML=LINES.filter(function(l){return l.cat==='parts'}).map(lineHtml).join('');LINES.forEach(function(l){if(l.cat==='parts')bindMoney($('price-'+l.id),function(){return l.id})});syncControls();changed()}
+    else if(t.name==='supplier'){state.supplier=t.value;$('lines-parts').innerHTML=shownLines('parts').map(lineHtml).join('');shownLines('parts').forEach(function(l){bindMoney($('price-'+l.id),function(){return l.id})});syncControls();changed()}
     else if(t.id&&t.id.indexOf('on-')===0){state.on[t.id.slice(3)]=t.checked;changed()}
   });
   document.addEventListener('click',function(e){
@@ -498,10 +525,9 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     var cl=e.target.closest('[data-clear]');
     if(cl){var cid=cl.getAttribute('data-clear');delete state.price[cid];openOverrides[cid]=false;$('price-'+cid).value='';changed();return}
   });
-  LINES.forEach(function(l){bindMoney($('price-'+l.id),function(){return l.id})});
-  bindMoney($('machine-price'),function(){return state.machine});
+  bindMoney($('machine-price'),function(){return mId()});
   bindMoney($('scale-price'),function(){return state.scale});
-  $('machine-clear').addEventListener('click',function(){delete state.price[state.machine];$('machine-price').value='';changed()});
+  $('machine-clear').addEventListener('click',function(){delete state.price[mId()];$('machine-price').value='';changed()});
   $('scale-clear').addEventListener('click',function(){delete state.price[state.scale];$('scale-price').value='';changed()});
 
   var armTimer=null,resetBtn=$('reset');

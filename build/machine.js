@@ -12,7 +12,13 @@
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
-   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording. */
+     set:model,volts,path   true only once every named field is picked (for wording that replaces a combined version)
+     unset:model,volts,path true while any named field is still open (for the combined version itself)
+     !key:...               the opposite of key:..., but only once that field is decided (e.g. !opv9: a known machine without the 9 bar OPV)
+   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording.
+   Inside an element with class m-showall, data-when never hides anything: that's the "Show all models" view.
+   txt(x) turns text into what applies: a plain string as is, or a list of segments, each a string (always kept)
+   or [text, when] (kept only when the condition matches), joined with spaces. */
 (function(){
   var KEY='gaggia-machine-v1',MODELS=['GC','GCP','EVO','E24'];
   var NAMES={GC:'Classic',GCP:'Classic Pro',EVO:'Classic Evo',E24:'Classic E24'};
@@ -60,8 +66,14 @@
   }
   /* true unless the profile rules the element out; unknown fields never rule anything out */
   function matches(when){
-    if(!when||!prof)return true;
-    return conds(when).every(function(c){
+    if(!when)return true;
+    if(!prof)return conds(when).every(function(c){return c.k!=='set'});
+    return conds(when).every(one);
+  }
+  /* one condition; "!key" is true when the field is decided and the condition doesn't hold, and never hides while it's open */
+  function one(c){
+    if(c.k.charAt(0)==='!'){var inner={k:c.k.slice(1),vals:c.vals};return !decidedOne(inner)||!one(inner)}
+    return (function(c){
       if(c.k==='model')return !prof.model||c.vals.indexOf(prof.model)>=0;
       if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
       if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
@@ -70,21 +82,34 @@
       if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
+      if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
+      if(c.k==='unset')return c.vals.some(function(f){return !prof[f]});
       return true;
-    });
+    })(c);
   }
   /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
   function decided(when){
     if(!prof)return false;
-    return conds(when).every(function(c){
+    return conds(when).every(decidedOne);
+  }
+  function decidedOne(c){
+    if(!prof)return false;
+    if(c.k.charAt(0)==='!')return decidedOne({k:c.k.slice(1),vals:c.vals});
+    return (function(c){
       if(c.k==='model'||c.k==='fam')return !!prof.model;
       if(c.k==='volts')return !!prof.volts;
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
+      if(c.k==='set'||c.k==='unset')return true;
       return true;
-    });
+    })(c);
+  }
+  function txt(x){
+    if(x==null)return '';
+    if(!Array.isArray(x))return String(x);
+    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ');
   }
   function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
   function label(p){
@@ -116,7 +141,20 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
+    Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
+      var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
+      /* count what the switch would bring back, not the pieces inside something that's already counted */
+      var n=Array.prototype.filter.call(t.querySelectorAll('[data-when]'),function(el){
+        if(matches(el.getAttribute('data-when')))return false;
+        for(var a=el.parentElement;a&&a!==t;a=a.parentElement){if(a.hasAttribute('data-when')&&!matches(a.getAttribute('data-when')))return false}
+        return true;
+      }).length;
+      b.hidden=!n;var on=t.classList.contains('m-showall');
+      b.setAttribute('aria-pressed',String(on));
+      b.textContent=on?'Show only your Gaggia':'Show all models ('+n+' more)';
+    });
     Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
     var l=document.getElementById('mchip-l');
     if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
@@ -184,6 +222,11 @@
         set(p);
       });
     });
+    document.addEventListener('click',function(e){
+      var b=e.target.closest('[data-showall]');if(!b)return;
+      var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
+      t.classList.toggle('m-showall');apply();
+    });
     var inViewer=typeof window.claude!=='undefined';
     var pb=document.querySelectorAll('[data-print]');
     if(!inViewer)Array.prototype.forEach.call(pb,function(b){b.hidden=false;b.addEventListener('click',function(){window.print()})});
@@ -198,6 +241,12 @@
       else if(!over&&h)h.remove();
     });
   }
-  window.GaggiaMachine={get:function(){return prof},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  function openPanel(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    if(!chip||!pan)return;
+    try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
+    if(pan.hidden)chip.click();
+  }
+  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();

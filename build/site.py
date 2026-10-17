@@ -41,11 +41,42 @@ PAGES = [
 DOCS = [("docs-gaggia-models.md", "model-notes.html", "What each Gaggia changes for the build")]
 
 
+# Model notes: each model's section shows only for that model once Your Gaggia is set (machine.js), with the
+# others one tap away. Headings not listed here (the overview table, install path, shared notes, sources) always show.
+MODEL_SECTIONS = {
+    "Classic (": "fam:GC",
+    "Classic Pro family": "fam:GCP",
+    "Eco board": "fam:GCP;eco:yes",
+    "Evo Pro and E24": "model:EVO,E24",
+}
+
+
+def model_sections(body):
+    # a bullet starting {when:...} shows only for the machines that matches (machine.js conditions)
+    body = re.sub(r"<li>\s*\{when:([^}]+)\}\s*", r'<li data-when="\1">', body)
+    parts = re.split(r"(?=<h2[ >])", body)
+    out, tagged = [], False
+    for part in parts:
+        m = re.match(r"<h2[^>]*>(.*?)</h2>", part, re.S)
+        when = next((w for k, w in MODEL_SECTIONS.items() if m and re.sub("<[^>]+>", "", m.group(1)).startswith(k)), None)
+        if when:
+            tagged = True
+            part = f'<section class="model-sec" data-when="{when}">{part}</section>'
+        out.append(part)
+    if not tagged:
+        return body
+    note = ('<p class="model-note"><span data-when="unset:model">Set Your Gaggia and this page keeps only the notes for your model.</span>'
+            '<span data-when="set:model">Showing the notes for your model.</span> '
+            '<button type="button" class="showall-btn" data-showall="doc-models" hidden></button></p>')
+    return note + '<div id="doc-models">' + "".join(out) + "</div>"
+
+
 def render_doc(src, kind):
     import html as H
     import md2html
     md2html.PAGES = {p[2] for p in PAGES} | {"index.html"} | {d[1] for d in DOCS}
     title, body = md2html.title_and_body(open(os.path.join(HERE, src)).read())
+    body = model_sections(body)
     s = open(os.path.join(HERE, "doc.tpl.html")).read()
     s = s.replace("%%DOC_TITLE%%", H.escape(title)).replace("%%DOC_KIND%%", H.escape(kind)).replace("%%DOC_BODY%%", body)
     return s.replace("%%BASECSS%%", open(os.path.join(HERE, "base.css")).read())
@@ -149,6 +180,11 @@ NAV_CSS = """
 }
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
+/* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
+[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+.showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
+.showall-btn:hover{border-color:var(--accent,#B8650A)}
+.showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
 </style>"""
 
 
@@ -365,7 +401,9 @@ def main():
         s = open(os.path.join(HERE, "site-" + f)).read().replace("%%SITE_URL%%", SITE_URL or "(site url)").replace("%%REPO_URL%%", REPO_URL or "(repo url)").replace("%%NCHECKS%%", str(n_checks())).replace("%%GL_N%%", str(__import__("gen_glossary").E.__len__()))
         open(os.path.join(OUT, f), "w").write(s)
     for f in ("gaggia-models.md",):
-        shutil.copy(os.path.join(HERE, "docs-" + f), os.path.join(OUT, "docs", f))
+        # the {when:...} markers only steer the site page (model_sections); the Markdown copy reads without them
+        md = re.sub(r"\{when:[^}]+\}\s*", "", open(os.path.join(HERE, "docs-" + f)).read())
+        open(os.path.join(OUT, "docs", f), "w").write(md)
     open(os.path.join(OUT, ".nojekyll"), "w").write("")
     if os.path.isdir(os.path.join(HERE, "img")):
         shutil.copytree(os.path.join(HERE, "img"), os.path.join(OUT, "img"))

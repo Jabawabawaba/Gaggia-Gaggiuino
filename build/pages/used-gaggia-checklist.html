@@ -53,6 +53,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 h1{font:700 clamp(36px,8vw,54px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
 h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;margin:0}
 .lede{margin:0;color:var(--muted);max-width:60ch;font-size:17px}
+.mnote{margin:12px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;line-height:1.45;max-width:68ch}
+.mnote .linkbtn{margin-left:4px;padding:0;font-size:15px}
 .toprow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 
 .status{font:500 12px var(--f-mono);color:var(--muted);display:inline-flex;align-items:center;gap:7px}
@@ -191,6 +193,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     </div>
     <h1>Used Gaggia Check</h1>
     <p class="lede">One entry per machine you look at. Send the questions before you go, run the machine in person, then compare. Gaggiuino replaces the control, so what you're really buying is the boiler, pump, valve, group and case.</p>
+    <p class="mnote" id="mnote" hidden></p>
   </header>
 
   <section id="list-view">
@@ -240,7 +243,9 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   var SECTIONS=[
     {id:'ask',title:'Ask before you go',intro:'Message the seller first. A wrong answer on the first two saves you the trip.',items:[
       {id:'ask-label',t:'Can you send a photo of the rating label?',w:'It\'s under the machine. The type code settles the model: SIN035U is the 2015 V2, which has no 3-way valve and can\'t take Gaggiuino. "New Classic" in a listing can mean either the V2 or the 2019 Pro.',sev:'deal'},
-      {id:'ask-voltage',t:'Is it a 120 V US machine?',w:'A 230 V import won\'t run on US mains. The label shows it.',sev:'deal'},
+      {id:'ask-voltage',t:'Is it a 120 V US machine?',w:'A 230 V import won\'t run on US mains. The label shows it.',sev:'deal',
+        v230:{t:'Is it a 230 V machine?',w:'A 120 V import from North America won\'t run on 230 V mains. The label shows it.'},
+        vnone:{t:'Is it built for your mains voltage?',w:'120 V machines are for North America and 230 V ones for most other countries; one won\'t run on the other. The label shows it.'}},
       {id:'ask-model',t:'Which model is it, and when was it bought?',w:'Put the answer in the model field above. On recent machines the first four digits of the serial are the year and week.',sev:'note'},
       {id:'ask-descale',t:'How often was it descaled, and with what water?',w:'Heavy scale clogs the 3-way valve and the line to the pressure sensor, and Gaggiuino relies on both.',sev:'haggle'},
       {id:'ask-mods',t:'Any mods: a PID, a different OPV spring, a new steam wand?',w:'A PID comes out during the install; a Pt100 sensor from a PID kit can\'t be reused, since Gaggiuino needs a K-type thermocouple. A 9 bar OPV spring has to go back up to 10 to 12 bar.',sev:'note'},
@@ -248,9 +253,10 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
       {id:'ask-warm',t:'Can it be filled and warmed up before you arrive?',w:'You need it hot to test steam, and a cold machine can hide leaks.',sev:'note'}
     ]},
     {id:'look',title:'Look it over',items:[
-      {id:'look-label',t:'Label: not SIN035U, and 120 V 60 Hz',w:'Check the label itself, not the listing.',sev:'deal'},
+      {id:'look-label',t:'Label: not SIN035U, and 120 V 60 Hz',w:'Check the label itself, not the listing.',sev:'deal',
+        v230:{t:'Label: not SIN035U, and 220 to 240 V'},vnone:{t:'Label: not SIN035U, and your mains voltage'}},
       {id:'look-vent',t:'A tube runs from the valve into the drip tray',w:'That\'s the 3-way valve\'s vent. No tube means the 2015 V2.',sev:'deal'},
-      {id:'look-cord',t:'Earthed three-prong inlet and cord',w:'Classic Pros, Evos and E24s have one. Most US Classics before 2019 have a two-pin cord and need the official grounding retrofit, about $15 to $30 in parts.',sev:'haggle'},
+      {id:'look-cord',lm:['','GC'],v230:{hide:true},t:'Earthed three-prong inlet and cord',w:'Classic Pros, Evos and E24s have one. Most US Classics before 2019 have a two-pin cord and need the official grounding retrofit, about $15 to $30 in parts.',sev:'haggle'},
       {id:'look-case',t:'No rust or heavy dents on the case and frame',w:'Rust around the base often means water has been escaping. Look under the tank area too: one owners\' history says the earliest cases were mild steel, which rusts.',sev:'haggle'},
       {id:'look-parts',t:'Portafilter, baskets and drip tray included',w:'They cost extra to replace, so price any missing ones into your offer.',sev:'haggle'}
     ]},
@@ -266,13 +272,15 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     ]},
     {id:'leak',title:'Look inside',intro:'Only lift the top cover with the machine unplugged and cooled down, and only if the seller is fine with it.',items:[
       {id:'leak-boiler',t:'No water or mineral trails where the boiler meets the group',w:'Trails mean the boiler seal leaks: tighten the screws, then reseal. Pitting or cracks in the boiler itself mean a new one.',sev:'deal'},
-      {id:'leak-flakes',t:'2023 Evo: no dark flakes in the water',w:'Run hot water from the wand into a white cup with the tip off. Flakes that keep coming mean the boiler\'s coating is failing; Gaggia replaced some with uncoated ones.',sev:'haggle'},
+      {id:'leak-flakes',lm:['','EVO'],t:'2023 Evo: no dark flakes in the water',w:'Run hot water from the wand into a white cup with the tip off. Flakes that keep coming mean the boiler\'s coating is failing; Gaggia replaced some with uncoated ones.',sev:'haggle'},
       {id:'leak-scale',t:'No heavy crust on the boiler or the valve',w:'Visible scale outside usually means more inside.',sev:'haggle'},
       {id:'leak-wiring',t:'No melted or browned wiring near the boiler',w:'A sign of past overheating. Find out what failed before you trust the rest.',sev:'haggle'},
       {id:'leak-added',t:'Anything added inside (PID, relays, extra wiring) is noted',w:'Useful to know before you plan the teardown.',sev:'note'}
     ]},
     {id:'home',title:'At home, with a multimeter',intro:'After you buy it, with the machine unplugged. These confirm the boiler before you start the build.',items:[
-      {id:'home-ohms',t:'Heater reads about 10 to 11 ohms',w:'Both elements together on a 120 V machine, worked out from 1350 to 1425 W. The power-on checks work out your exact value from the rating plate.',sev:'note'},
+      {id:'home-ohms',t:'Heater reads about 10 to 11 ohms',w:'Both elements together on a 120 V machine, worked out from 1350 to 1425 W. The power-on checks work out your exact value from the rating plate.',sev:'note',
+        v230:{t:'Heater reads about 37 to 44 ohms',w:'Both elements together on a 230 V machine, where they\'re in series, worked out from 1200 to 1425 W. The power-on checks work out your exact value from the rating plate.'},
+        vnone:{t:'Heater reads about 10 to 11 ohms (120 V) or 37 to 44 ohms (230 V)',w:'Both elements together, worked out from the rated power. The power-on checks work out your exact value from the rating plate.'}},
       {id:'home-short',t:'No continuity from either element terminal to the boiler body',w:'The elements are part of the boiler, so a leaking one means a new boiler.',sev:'deal'},
       {id:'home-fuse',t:'The 184 °C thermal fuse reads closed',w:'It stays in the Gaggiuino install. It\'s one-shot and cheap to replace, but find out why it blew.',sev:'haggle'}
     ]}
@@ -281,6 +289,11 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   var VERDICTS=[['undecided','Undecided'],['buy','Buy it'],['offer','Make an offer'],['walk','Walk away']];
   var VERSIONS=[['','Not sure yet'],['GC','Classic (1991 to 2018)'],['V2','Classic 2015 / V2 (no 3-way valve)'],['GCP','Classic Pro (2019 to 2022)'],['EVO','Evo Pro (2023 to 2024)'],['E24','E24 (2024 on)']];
   var ALL=[];SECTIONS.forEach(function(s){s.items.forEach(function(i){ALL.push(i)})});
+  function volts(){var g=window.GaggiaMachine,p=g&&g.get();return p&&p.volts?p.volts:null}
+  /* an item's wording for your mains voltage: v230 for 230 V, vnone while the voltage isn't set, the base text for 120 V */
+  function V(i){var v=volts(),o=v===230?i.v230:v?null:i.vnone;return {t:(o&&o.t)||i.t,w:(o&&o.w)||i.w,hide:!!(o&&o.hide)}}
+  /* lm: the listing models a check applies to ('' = not sure yet) */
+  function itemsFor(m,list){return (list||ALL).filter(function(i){return !V(i).hide&&(!i.lm||i.lm.indexOf(m.version||'')>=0||!m.version)})}
   var BUILD_LO=325,BUILD_HI=455;
   var KEY='used-gaggia-checklist-v1';
 
@@ -317,8 +330,8 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     };
   }
   function tally(m){
-    var t={ok:0,issue:0,skip:0,deal:0,total:ALL.length};
-    ALL.forEach(function(i){var s=m.checks[i.id];if(s)t[s]++;if(s==='issue'&&i.sev==='deal')t.deal++});
+    var its=itemsFor(m),t={ok:0,issue:0,skip:0,deal:0,total:its.length};
+    its.forEach(function(i){var s=m.checks[i.id];if(s)t[s]++;if(s==='issue'&&i.sev==='deal')t.deal++});
     t.done=t.ok+t.issue+t.skip;return t;
   }
   function priceVerdict(a){
@@ -440,10 +453,10 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     }).join('')+'</div>';
   }
   function itemHtml(item,m){
-    var st=m.checks[item.id]||'',note=m.notes[item.id]||'';
+    var st=m.checks[item.id]||'',note=m.notes[item.id]||'',vx=V(item);
     return '<div class="item" data-item="'+item.id+'" data-state="'+st+'">'+
-      '<div class="ihead"><div class="ititle">'+esc(item.t)+'</div><span class="sev '+item.sev+'">'+SEV[item.sev]+'</span></div>'+
-      '<p class="iwhy">'+esc(item.w)+'</p>'+
+      '<div class="ihead"><div class="ititle">'+esc(vx.t)+'</div><span class="sev '+item.sev+'">'+SEV[item.sev]+'</span></div>'+
+      '<p class="iwhy">'+esc(vx.w)+'</p>'+
       '<div class="irow">'+segHtml(item,st)+'<button class="linkbtn" type="button" data-addnote="'+item.id+'"'+(note?' hidden':'')+'>Add note</button></div>'+
       '<textarea class="textarea" id="n-'+item.id+'" data-note="'+item.id+'" rows="2" placeholder="What you saw or heard"'+(note?'':' hidden')+' aria-label="Note for: '+esc(item.t)+'">'+esc(note)+'</textarea>'+
     '</div>';
@@ -479,7 +492,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
       html+='<section class="sec" aria-labelledby="s-'+s.id+'">'+
         '<div class="sec-h"><h2 id="s-'+s.id+'">'+esc(s.title)+'</h2><span class="n" data-secn="'+s.id+'"></span></div>'+
         (s.intro?'<p class="sec-intro">'+esc(s.intro)+'</p>':'')+
-        s.items.map(function(i){return itemHtml(i,m)}).join('')+
+        itemsFor(m,s.items).map(function(i){return itemHtml(i,m)}).join('')+
       '</section>';
     });
     html+='<section class="verdict" aria-labelledby="v-h">'+
@@ -500,7 +513,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     var m=docs[currentId];if(!m)return;
     var a=m.asking,pv=priceVerdict(a),mk=$('g-marker');
     if(a!=null){mk.hidden=false;mk.style.left=gpos(a)+'%'}else mk.hidden=true;
-    var pm=$('p-msg');pm.textContent=pv.msg;pm.className='pmsg '+pv.cls;
+    var pm=$('p-msg');pm.textContent=pv.msg+(volts()===230?' These are US prices, in dollars.':'');pm.className='pmsg '+pv.cls;
     var tot='';
     if(a!=null)tot+='<span>Build total at this price</span><b>'+fmt(a+BUILD_LO)+' – '+fmt(a+BUILD_HI)+'</b>';
     if(m.offer!=null)tot+='<span style="flex-basis:100%;height:0"></span><span>At your offer</span><b>'+fmt(m.offer+BUILD_LO)+' – '+fmt(m.offer+BUILD_HI)+'</b>';
@@ -515,8 +528,8 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
       ((t.total-t.done)?'<span style="flex-grow:'+(t.total-t.done)+';background:transparent"></span>':'');
     $('ptext').innerHTML='<span>'+t.done+' of '+t.total+' checked</span><span>'+t.ok+' OK</span><span>'+t.issue+' problem'+(t.issue===1?'':'s')+'</span>'+(t.deal?'<span class="bad">'+t.deal+' deal-breaker'+(t.deal===1?'':'s')+'</span>':'');
     SECTIONS.forEach(function(s){
-      var d=s.items.filter(function(i){return m.checks[i.id]}).length;
-      var el=document.querySelector('[data-secn="'+s.id+'"]');if(el)el.textContent=d+' / '+s.items.length;
+      var its=itemsFor(m,s.items),d=its.filter(function(i){return m.checks[i.id]}).length;
+      var el=document.querySelector('[data-secn="'+s.id+'"]');if(el)el.textContent=d+' / '+its.length;
     });
   }
 
@@ -559,7 +572,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   });
   detail.addEventListener('change',function(e){
     var m=docs[currentId];if(!m)return;var t=e.target;
-    if(t.id==='f-version')m.version=t.value;
+    if(t.id==='f-version'){m.version=t.value;touch();var y=window.scrollY;renderDetail();window.scrollTo(0,y);renderList();return}
     else if(t.id==='f-seen')m.seen=t.value;
     else if(t.name==='verdict')m.verdict=t.value;
     else if(t.name&&t.name.indexOf('c-')===0){
@@ -592,6 +605,16 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   });
 
   renderList();setStatus('loading');
+  function machineNote(){
+    var el=$('mnote'),g=window.GaggiaMachine;if(!el||!g)return;
+    var v=volts();
+    el.innerHTML=v?('Checks follow your Gaggia\'s mains: <b>'+v+' V</b>. Set each listing\'s model and the checks that don\'t apply to it drop out. <button class="linkbtn" type="button" data-openm>Change</button>')
+      :'Set Your Gaggia\'s mains voltage and the checks use it. Set each listing\'s model and the checks that don\'t apply to it drop out. <button class="linkbtn" type="button" data-openm>Set it</button>';
+    el.hidden=false;
+  }
+  document.addEventListener('click',function(e){if(e.target.closest('[data-openm]')){var g=window.GaggiaMachine;if(g)g.openPanel()}});
+  window.addEventListener('gaggia-machine',function(){machineNote();renderList();if(currentId&&!$('detail-view').hidden){var y=window.scrollY;renderDetail();window.scrollTo(0,y)}});
+  machineNote();
   connect();
 })();
 </script>

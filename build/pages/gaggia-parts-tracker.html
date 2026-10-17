@@ -125,6 +125,8 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
 .subs .lks .lk{white-space:normal}
 .subs .lk{font-size:13px;white-space:nowrap}
 .subs li.got label{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.mnote{margin:12px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;line-height:1.45;max-width:68ch}
+.mnote .linkbtn{margin-left:4px;padding:0;font-size:15px}
 .flabel{font:600 11px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .textarea,.input{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:9px 11px;font-size:15px;line-height:1.45}
 .textarea{min-height:64px;resize:vertical}
@@ -158,11 +160,12 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   <header class="top">
     <div class="plate" aria-label="Build spec">
       <span class="rivet" aria-hidden="true"></span>
-      <span><b>Bill of materials</b></span><span>Gaggia Classic family</span><span>Gaggiuino Gen 3</span><span>PCB v4</span>
+      <span><b>Bill of materials</b></span><span id="plate-m">Gaggia Classic family</span><span>Gaggiuino Gen 3</span><span>PCB v4</span>
       <span class="rivet" aria-hidden="true"></span>
     </div>
     <h1>Gaggia Parts Tracker</h1>
     <p class="lede">Every part for the build. Set each one's status as you buy it, enter what you actually paid, and tick off the pieces inside each line as they arrive. Estimates match the <a href="budget.html">budget</a>.</p>
+    <p class="mnote" id="mnote" hidden></p>
   </header>
 
   <section class="readouts" aria-label="Summary">
@@ -213,32 +216,38 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
         src:[['SparkFun 1 GB, $5.50','https://www.sparkfun.com/microsd-card-1gb-class-4.html']]}
     ]},
     {id:'gaggia-parts',name:'Wiring and install parts',parts:[
-      {id:'wire',name:'18 AWG silicone wire',spec:'200 °C silicone. Stock integration: 1 m each of red, black and white is plenty. Custom wiring: 1 m each of black, white, red, orange, blue, yellow and green, with 2 m of white on 120 V or 2 m of blue on 230 V, so you can follow the schematic\'s colors. The cut list gives your exact lengths. Peak Coffee\'s kit includes stock-wiring cables, but in 22 AWG; the official parts list calls for 18, so make yours from this wire.',lo:15,hi:30,req:true,
+      {id:'wire',name:'18 AWG silicone wire',spec:['200 °C silicone.',
+        ['Stock integration: 1 m each of red, black and white is plenty.','wpath:SI'],
+        ['Custom wiring: 1 m each of black, white, red, orange, blue, yellow and green, with 2 m of white on 120 V or 2 m of blue on 230 V, so you can follow the schematic\'s colors.','wpath:CW;unset:volts'],
+        ['Custom wiring: 1 m each of black, white, red, orange, blue, yellow and green, with 2 m of white, so you can follow the schematic\'s colors.','wpath:CW;set:volts;volts:120'],
+        ['Custom wiring: 1 m each of black, white, red, orange, blue, yellow and green, with 2 m of blue, so you can follow the schematic\'s colors.','wpath:CW;set:volts;volts:230'],
+        'The cut list gives your exact lengths.',
+        ['Peak Coffee\'s kit includes the seven stock-wiring cables, but in 22 AWG. The official parts list calls for 18, which matters most on the three that carry the heater\'s current (J, Sa and Sb, all red), so make at least those from this wire.','wpath:SI']],lo:15,hi:30,req:true,
         src:[['Cut list','cut-list.html'],['Newegg, 6 colors x 5 m, $19.78','https://www.newegg.com/p/0HZ-01Z5-00015'],['AliExpress (official BOM link)','https://www.aliexpress.com/item/2255800441309579.html']]},
       {id:'conn',name:'Connectors and insulation',spec:'Everything that joins the wiring. The cut list counts each part for your schematic. US prices checked October 16, 2026; the AliExpress links are the official parts list\'s and cost less but take weeks.',lo:25,hi:50,req:true,
         subs:[['spades','6.3 mm (0.250") spades, insulated, for anything away from the boiler: red, for 22 to 18 AWG',[['Home Depot, female, 15 for $4.91','https://www.homedepot.com/p/202523072'],['AliExpress, male and female','https://www.aliexpress.com/item/1005002765359666.html']]],
           ['bare','Open-barrel 6.3 mm spades for the boiler and valve: the guide warns that insulated spades melt there',[['Crimp Supply, female, 50 for $7.20','https://crimpsupply.com/22-18-ga-0-250-wd-female-quick-disconnect-terminals.html'],['Male, 50 for $8.30','https://crimpsupply.com/22-18-ga-0-250-wd-male-quick-disconnect-terminals.html'],['AliExpress','https://www.aliexpress.com/item/3256801761334075.html']]],
-          ['fork','Fork terminals for the SSR: SV1.25-5 (red, #10 stud), plus SV2-5 for custom wiring',[['Home Depot, 10 for $3.10','https://www.homedepot.com/p/205846632'],['AliExpress','https://www.aliexpress.com/item/3256805357612913.html']]],
-          ['pig','Piggyback spade, for N at the pump (stock integration)',[['Crimp Supply, 25 for $15.85','https://crimpsupply.com/0-250-wd-piggy-back-terminals-with-22-18-ga-connection.html'],['AliExpress','https://www.aliexpress.com/item/32800326782.html']]],
-          ['bn','BN1.25 and BN2 bare butt splices (custom wiring)',[['AliExpress','https://www.aliexpress.com/item/3256801144001097.html']]],
-          ['tape','Self-fusing silicone tape, or 4 to 6 mm silicone heat shrink. Evo and E24 need it for the combined connectors',[['Ace, Rescue Tape 1" x 12 ft, $11.99','https://www.acehardware.com/departments/plumbing/solvents-and-cements/plumbers-putty-and-sealers/4389433'],['AliExpress','https://www.aliexpress.com/item/3256805094022385.html']]],
+          ['fork',['Fork terminals for the SSR: SV1.25-5 (red, #10 stud)',['and SV2-5 for custom wiring','wpath:CW']],[['Home Depot, 10 for $3.10','https://www.homedepot.com/p/205846632'],['AliExpress','https://www.aliexpress.com/item/3256805357612913.html']]],
+          ['pig','Piggyback spade, for N at the pump (stock integration)',[['Crimp Supply, 25 for $15.85','https://crimpsupply.com/0-250-wd-piggy-back-terminals-with-22-18-ga-connection.html'],['AliExpress','https://www.aliexpress.com/item/32800326782.html']],'wpath:SI'],
+          ['bn','BN1.25 and BN2 bare butt splices (custom wiring)',[['AliExpress','https://www.aliexpress.com/item/3256801144001097.html']],'wpath:CW'],
+          ['tape',['Self-fusing silicone tape, or 4 to 6 mm silicone heat shrink.',['Evo and E24 need it for the combined connector block.','model:EVO,E24']],[['Ace, Rescue Tape 1" x 12 ft, $11.99','https://www.acehardware.com/departments/plumbing/solvents-and-cements/plumbers-putty-and-sealers/4389433'],['AliExpress','https://www.aliexpress.com/item/3256805094022385.html']]],
           ['ssrhw','SSR screw, washer and nut: M4x10, or an 8-32 set from a hardware store',[['AliExpress','https://www.aliexpress.com/item/2255801137435920.html']]]]},
       {id:'paste',name:'Thermal paste rated 180 °C or more',spec:'Only if the paste on the brew thermostat has dried out. The official guide lists Thermal Grizzly Kryonaut, Noctua NT-H2, SYY-157 and GELID GC-Extreme.',lo:5,hi:15,req:false,def:'need',
         src:[['Newegg, Kryonaut 1 g, $9.99','https://www.newegg.com/p/13C-003E-00004']]},
-      {id:'opv',name:'12 bar OPV spring or M3 washers',spec:'US Evo Pro and E24 only: their 9 bar valve has to go up to 10 to 12 bar. A 12 bar spring, or three or four stainless M3 washers (6.9 to 7.1 mm across, 0.5 to 0.8 mm thick) behind the old spring. Washers are the cheap route: four of the 0.5 mm ones, and test with [UT] Test OPV after the install.',lo:3,hi:15,req:false,def:'skip',
+      {id:'opv',when:'opv9',wtag:'US Evo Pro and E24',name:'12 bar OPV spring or M3 washers',spec:'US Evo Pro and E24 only: their 9 bar valve has to go up to 10 to 12 bar. A 12 bar spring, or three or four stainless M3 washers (6.9 to 7.1 mm across, 0.5 to 0.8 mm thick) behind the old spring. Washers are the cheap route: four of the 0.5 mm ones, and test with [UT] Test OPV after the install.',lo:3,hi:15,req:false,def:'skip',
         src:[['Bolt Depot, M3 washers, 5¢ each','https://boltdepot.com/Product-Details?product=4513'],['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=_10-12-bar-opv']]},
-      {id:'ground',name:'Grounding retrofit',spec:'120 V original Classic with a two-pin cord only, per the official guide.',lo:15,hi:30,req:false,def:'skip',
+      {id:'ground',when:'ground',wtag:'120 V Classic',name:'Grounding retrofit',spec:'120 V original Classic with a two-pin cord only, per the official guide.',lo:15,hi:30,req:false,def:'skip',
         src:[['Official guide','https://gaggiuino.github.io/#/guides/machine-specific-guide?id=grounding']],
         subs:[['inlet','C14 three-pin panel inlet: Schurter 6100.4312 or 6100.4315','https://www.digikey.com/en/products/detail/schurter-inc/6100-4312/640562'],['cord','Right-angle 5-15P to C13 cord, 14 to 16 gauge','https://www.digikey.com/en/products/detail/qualtek/313010-01/183386'],['green','0.4 m or more of green 16 to 18 AWG silicone wire','https://www.aliexpress.com/item/2255800441309579.html']]},
-      {id:'tfit',name:'Or: T-fitting parts instead of the tap block',spec:'Only if you\'d rather tap the pump line than fit the kit\'s pressure tap block. Classic: a push-to-connect T in the PTFE tube. Pro family: a barbed T in the braided hose, about 65 mm above the boiler, with clamps.',req:false,def:'skip',
-        subs:[['gc','Classic: PE/6 mm T, PLF 6-02 fitting, 4x6 mm PTFE tube','https://www.aliexpress.com/item/1005003750203358.html'],['gcp','Pro family: 6 mm barbed T, 6 mm barb to 1/4" fitting, clamps, Saeco braided hose 996530009505','https://www.wholelattelove.com/products/ga-16000380-reinforced-silicone-tube-5x9-mm']]}
+      {id:'tfit',name:'Or: T-fitting parts instead of the tap block',spec:['Only if you\'d rather tap the pump line than fit the kit\'s pressure tap block.',['Classic: a push-to-connect T in the PTFE tube.','fam:GC'],['Pro family: a barbed T in the braided hose, about 65 mm above the boiler, with clamps.','fam:GCP']],req:false,def:'skip',
+        subs:[['gc','Classic: PE/6 mm T, PLF 6-02 fitting, 4x6 mm PTFE tube','https://www.aliexpress.com/item/1005003750203358.html','fam:GC'],['gcp','Pro family: 6 mm barbed T, 6 mm barb to 1/4" fitting, clamps, Saeco braided hose 996530009505','https://www.wholelattelove.com/products/ga-16000380-reinforced-silicone-tube-5x9-mm','fam:GCP']]}
     ]},
     {id:'prints',name:'Printed parts',parts:[
       {id:'prints',name:'Housings and screen mount',spec:'From Hudson Creative Group, printed to order in the US and shipped in 3 to 5 days, so it can wait until the kit is close. Black PETG is the base price; other colors add $2 a part. Check which screen your kit ships before ordering its housing. Shipping is quoted at checkout. Prices checked October 16, 2026.',lo:24,hi:35,req:true,
         src:[['Hudson Creative Group','https://gaggiuino.hudsoncreativegroup.com/']],
         subs:[['pcbh','PCB v4 / v3.1 housing',[['Hudson, $8','https://gaggiuino.hudsoncreativegroup.com/Store/Product/57']]],
           ['scrh','4.3" screen housing: the combo for the Gen 3 (ESP32-S3) screen, or the P4 housing for a Gen 3.5 screen',[['Gen 3 combo, $12','https://gaggiuino.hudsoncreativegroup.com/Store/Product/58'],['Gen 3.5 (P4), $8','https://gaggiuino.hudsoncreativegroup.com/Store/Product/78']]],
-          ['mount','Screen mount: front mount, or a funnel mount combo in the Classic or Pro family version',[['Front, $4','https://gaggiuino.hudsoncreativegroup.com/Store/Product/62'],['Funnel, Pro family, $15','https://gaggiuino.hudsoncreativegroup.com/Store/Product/67'],['Funnel, Classic, $15','https://gaggiuino.hudsoncreativegroup.com/Store/Product/66']]],
+          ['mount',['Screen mount: front mount, or a funnel mount combo',['in the Classic or Pro family version','unset:model'],['for the Pro family','set:model;fam:GCP'],['for the Classic','set:model;fam:GC']],[['Front, $4','https://gaggiuino.hudsoncreativegroup.com/Store/Product/62'],['Funnel, Pro family, $15','https://gaggiuino.hudsoncreativegroup.com/Store/Product/67','fam:GCP'],['Funnel, Classic, $15','https://gaggiuino.hudsoncreativegroup.com/Store/Product/66','fam:GC']]],
           ['hw','Mount hardware. Front mount: 6 magnets, 20 x 10 x 3 mm, super glue and 20 mm Kapton tape. Funnel mount: 3 M3x30 cap screws, 5 M3 washers, 5 split lock washers, 2 nylock nuts and an M3 heat-set insert',[['K&J, 3/4 x 3/8 x 1/8 in magnets, $1.62 each','https://www.kjmagnetics.com/bc62-neodymium-block-magnet'],['Kapton tape, $3.95','https://protosupplies.com/product/polyimide-kapton-tape-20mm-x-33yds/'],['Ace, super glue, $4.99','https://www.acehardware.com/p/1018270']]]]}
     ]},
     {id:'tools',name:'Tools',parts:[
@@ -254,7 +263,8 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
         src:[['Supported scales','https://github.com/Zer0-bit/esp-arduino-ble-scales'],['Bookoo','https://bookoocoffee.com/']]},
       {id:'hwscales',name:'Hardware scales',spec:'Load cells under the drip tray, read by a dual HX711 board. Follow the official scales guide for the load cells and mounts.',lo:45,hi:95,req:false,def:'skip',
         src:[['Official guide','https://gaggiuino.github.io/#/accessories/hw-scales']],
-        subs:[['board','Dual scales board: DIY-EFI (£18 before VAT, no load cells), or Peak Coffee\'s with two or four 750 g cells ($68 or $88)','https://diy-efi.co.uk/product/gaggiuino-dual-scales'],['cells','Two to four 750 g load cells, if the board came without them'],['base','Scale base, printed ($10 at Hudson)','https://gaggiuino.hudsoncreativegroup.com/Store/Product/35'],['mag','Magnets, 5 x 2 mm, and M3 screws']]},
+        subs:[['board','Dual scales board: DIY-EFI\'s comes without load cells, Peak Coffee\'s with two or four 750 g cells',[['DIY-EFI, £18 before VAT','https://diy-efi.co.uk/product/gaggiuino-dual-scales'],['Peak Coffee, $68 or $88','https://www.peakcoffee.cc/product/dualscaleboard-soldered-load-cells/']]],['cells','Two to four 750 g load cells, if the board came without them'],['base','Scale base, printed',[['Hudson, $10','https://gaggiuino.hudsoncreativegroup.com/Store/Product/35']]],
+          ['tray',['Drip tray adapter for your tray',['(the Pro\'s tray gets its sides trimmed)','fam:GCP'],['and 4 spacers','fam:GC']],[['Pro family adapters, $5','https://gaggiuino.hudsoncreativegroup.com/Store/Product/36','fam:GCP'],['Classic adapter, $14','https://gaggiuino.hudsoncreativegroup.com/Store/Product/25','fam:GC'],['Spacers, $1.50','https://gaggiuino.hudsoncreativegroup.com/Store/Product/31','fam:GC']]],['mag','Magnets, 5 x 2 mm, and M3 screws']]},
       {id:'tof',name:'Water tank sensor',spec:'The ToFnLED board reads the tank level and lights the tank. It mounts above the tank on magnets.',lo:33,hi:40,req:false,def:'skip',
         src:[['Official guide','https://gaggiuino.github.io/#/accessories/tofnled']],
         subs:[['board','ToFnLED board. Peak Coffee\'s comes with its cable and T-fitting',[['DIY-EFI, £25 before VAT','https://diy-efi.co.uk/product/gaggiuino-tofnled'],['Peak Coffee, $38 kit add-on','https://www.peakcoffee.cc/product/gaggiuino-v4-kit/']]],
@@ -263,6 +273,12 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
           ['mag','2 disc magnets, 5 x 1 mm, and super glue',[['K&J, 3/16 x 1/32 in discs, 10 for $1.32','https://www.kjmagnetics.com/d301-neodymium-disc-magnet']]]]}
     ]}
   ];
+  /* the parts for the machine picked in Your Gaggia: a line, a part inside it or a link can carry a condition
+     (see machine.js); text can be a list of segments that each carry one */
+  function GM(){return window.GaggiaMachine||null}
+  function applies(when){var m=GM();return !when||!m||m.matches(when)}
+  function T(x){var m=GM();if(m)return m.txt(x);return Array.isArray(x)?x.map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' '):(x==null?'':String(x))}
+  function subsOf(p){return (p.subs||[]).filter(function(sb){return applies(sb[3])})}
   var STATUSES=[['need','To buy'],['ordered','Ordered'],['received','Received'],['have','Already have'],['skip','Not getting']];
   var FILTERS=[['all','All'],['need','To buy'],['ordered','On order'],['done','In hand'],['skip','Not getting']];
   var KEY='gaggia-parts-tracker-v1';
@@ -302,11 +318,12 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     return out;
   }
   function allParts(){
-    var list=[];GROUPS.forEach(function(g){g.parts.forEach(function(p){list.push(p)})});
+    var list=[];GROUPS.forEach(function(g){g.parts.forEach(function(p){if(applies(p.when))list.push(p)})});
     state.custom.forEach(function(c){list.push({id:c.id,name:c.name,lo:c.est,hi:c.est,req:false,def:'need',group:'custom',custom:true,src:c.url?[['Link',c.url]]:null})});
     return list;
   }
-  function ps(p){var s=state.parts[p.id]||{};return {status:s.status||(p.req?'need':(p.def||'need')),paid:num(s.paid),note:s.note||'',got:s.got||{}}}
+  function defStatus(p){var m=GM();if(p.req)return 'need';if(p.when&&m&&m.decided(p.when)&&m.matches(p.when))return 'need';return p.def||'need'}
+  function ps(p){var s=state.parts[p.id]||{};return {status:s.status||defStatus(p),paid:num(s.paid),note:s.note||'',got:s.got||{}}}
   function hasEst(p){return typeof p.lo==='number'&&typeof p.hi==='number'}
 
   function compute(){
@@ -334,22 +351,25 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   function subLinks(x){
     if(!x)return '';
     if(typeof x==='string')x=[['Link',x]];
+    x=x.filter(function(l){return applies(l[2])});if(!x.length)return '';
     return '<span class="lks">'+x.map(function(l){return '<a class="lk" href="'+esc(l[1])+'" target="_blank" rel="noopener">'+esc(l[0])+'</a>'}).join('')+'</span>';
   }
   function partHtml(p){
     var s=ps(p);
-    var tags=(p.req?'':'<span class="tag">'+(p.custom?'Added':'Optional')+'</span>');
+    var m=GM(),mine=p.when&&m&&m.decided(p.when)&&m.matches(p.when);
+    var tags=p.req?'':'<span class="tag">'+(p.custom?'Added':mine?'Needed on yours':p.when&&p.wtag?esc(p.wtag)+' only':'Optional')+'</span>';
     var src=(p.src&&p.src.length)?'<div class="src">'+p.src.map(function(x){return '<a href="'+esc(x[1])+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join(' · ')+'</div>':'';
     var opts=STATUSES.map(function(o){return '<option value="'+o[0]+'"'+(s.status===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('');
     var subs='';
-    if(p.subs&&p.subs.length){
-      subs='<div><div class="flabel" style="margin-bottom:4px">'+esc(p.subTitle||'Parts in this line')+'</div><ul class="subs">'+p.subs.map(function(sb){
+    var sl=subsOf(p);
+    if(sl.length){
+      subs='<div><div class="flabel" style="margin-bottom:4px">'+esc(p.subTitle||'Parts in this line')+'</div><ul class="subs">'+sl.map(function(sb){
         var key=p.id+'__'+sb[0],got=!!s.got[sb[0]];
-        return '<li class="'+(got?'got':'')+'"><input type="checkbox" id="g-'+key+'" data-got="'+p.id+'" data-sub="'+sb[0]+'"'+(got?' checked':'')+'><div class="sb"><label for="g-'+key+'">'+esc(sb[1])+'</label>'+subLinks(sb[2])+'</div></li>';
+        return '<li class="'+(got?'got':'')+'"><input type="checkbox" id="g-'+key+'" data-got="'+p.id+'" data-sub="'+sb[0]+'"'+(got?' checked':'')+'><div class="sb"><label for="g-'+key+'">'+esc(T(sb[1]))+'</label>'+subLinks(sb[2])+'</div></li>';
       }).join('')+'</ul></div>';
     }
     return '<article class="part" data-part="'+p.id+'" data-status="'+s.status+'">'+
-      '<div class="p-main"><div class="p-title"><h3>'+esc(p.name)+'</h3>'+tags+'</div>'+(p.spec?'<p class="p-spec">'+esc(p.spec)+'</p>':'')+src+'</div>'+
+      '<div class="p-main"><div class="p-title"><h3>'+esc(p.name)+'</h3>'+tags+'</div>'+(p.spec?'<p class="p-spec">'+esc(T(p.spec))+'</p>':'')+src+'</div>'+
       '<div class="p-side">'+
         '<label class="vh" for="st-'+p.id+'">Status for '+esc(p.name)+'</label>'+
         '<span class="pillwrap"><select class="pill" id="st-'+p.id+'" data-st="'+p.id+'">'+opts+'</select></span>'+
@@ -365,7 +385,8 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   function renderAll(){
     var html='';
     GROUPS.forEach(function(g){
-      html+='<section class="group" data-group="'+g.id+'" aria-labelledby="h-'+g.id+'"><div class="group-h"><h2 id="h-'+g.id+'">'+esc(g.name)+'</h2><span class="sum" data-gsum="'+g.id+'"></span></div>'+g.parts.map(partHtml).join('')+'</section>';
+      var gp=g.parts.filter(function(p){return applies(p.when)});if(!gp.length)return;
+      html+='<section class="group" data-group="'+g.id+'" aria-labelledby="h-'+g.id+'"><div class="group-h"><h2 id="h-'+g.id+'">'+esc(g.name)+'</h2><span class="sum" data-gsum="'+g.id+'"></span></div>'+gp.map(partHtml).join('')+'</section>';
     });
     if(state.custom.length){
       var cparts=allParts().filter(function(p){return p.custom});
@@ -373,11 +394,13 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     }
     html+='<p class="empty-filter" id="empty-filter" hidden>Nothing in this view.</p>';
     $('groups').innerHTML=html;
+    machineNote();
     update();
   }
   function moreSummary(p){
     var s=ps(p),bits=[];
-    if(p.subs&&p.subs.length){var n=p.subs.filter(function(sb){return s.got[sb[0]]}).length;bits.push(n+' of '+p.subs.length+' parts in hand')}
+    var sl=subsOf(p);
+    if(sl.length){var n=sl.filter(function(sb){return s.got[sb[0]]}).length;bits.push(n+' of '+sl.length+' parts in hand')}
     bits.push(s.note?'Has a note':'Add a note');
     return bits.join(' · ');
   }
@@ -422,6 +445,22 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
       return '<button type="button" class="fchip" data-filter="'+f[0]+'" aria-pressed="'+(filter===f[0])+'">'+f[1]+' <span class="n">'+fc[f[0]]+'</span></button>';
     }).join('');
   }
+
+  function machineNote(){
+    var el=$('mnote'),m=GM();if(!el||!m)return;
+    var prof=m.get(),lines=0,inner=0;
+    GROUPS.forEach(function(g){g.parts.forEach(function(p){
+      if(!applies(p.when)){lines++;return}
+      (p.subs||[]).forEach(function(sb){if(!applies(sb[3]))inner++});
+    })});
+    var nm=m.name();$('plate-m').textContent=nm?'Gaggia '+nm:'Gaggia Classic family';
+    var bits=[];if(lines)bits.push(lines+' line'+(lines===1?'':'s'));if(inner)bits.push(inner+' part'+(inner===1?'':'s')+' inside other lines');
+    el.innerHTML=prof?('Showing the parts for your Gaggia: <b>'+esc(m.label())+'</b>.'+(bits.length?' '+esc(bits.join(' and '))+(lines+inner===1?' that doesn\'t apply to it is hidden.':' that don\'t apply to it are hidden.'):'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
+      :'Set Your Gaggia and this list drops the parts your machine doesn\'t need. <button class="linkbtn" type="button" data-openm>Set it</button>';
+    el.hidden=false;
+  }
+  document.addEventListener('click',function(e){if(e.target.closest('[data-openm]')){var m=GM();if(m)m.openPanel()}});
+  window.addEventListener('gaggia-machine',function(){renderAll()});
 
   /* ---------- persistence ---------- */
   var state=defaults(),dbRef=null,mode='local',readOnly=false,saveTimer=null,chain=Promise.resolve();

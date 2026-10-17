@@ -4,6 +4,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 %%BASECSS%%
+/* "Troubleshooting" is one long word: shrink it on phones so it never runs off the screen */
+@media (max-width:480px){h1{font-size:clamp(28px,8.2vw,38px)}}
 /* Layout: plate header and the unplug rule, a search box with category chips, then symptom cards. Each card: the symptom, an "unplug first" flag where it matters, likely causes in order, and what to check, with links to check IDs. */
 .vtag{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted);margin-left:8px;vertical-align:2px}
 .find{display:grid;gap:12px;margin-bottom:8px}
@@ -61,7 +63,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
 
   <section class="block" aria-labelledby="h-more">
     <div class="sec-h"><h2 id="h-more">Still stuck</h2></div>
-    <p class="fine" style="font-size:15.5px;color:var(--ink)">Open one help thread on the Gaggiuino Discord, in #install-help-gc for a Classic or #install-help-gcp for a Pro, Eco, Evo or E24, titled with your name, machine and control system, for example [yourname][GCP][PCBv4]. Include the code on your rating label, your voltage and install path, the firmware build numbers from Settings, About, and which power-on checks pass. Photos of the wiring, the SSR and the switch backs answer most questions.</p>
+    <p class="fine" style="font-size:15.5px;color:var(--ink)">Open one help thread on the Gaggiuino Discord, in <span data-when="unset:model">#install-help-gc for a Classic or #install-help-gcp for a Pro, Eco, Evo or E24</span><span data-when="set:model;fam:GC">#install-help-gc</span><span data-when="set:model;fam:GCP">#install-help-gcp</span>, titled with your name, machine and control system, for example [yourname][GCP][PCBv4]. Include the code on your rating label, your voltage and install path, the firmware build numbers from Settings, About, and which power-on checks pass. Photos of the wiring, the SSR and the switch backs answer most questions.</p>
   </section>
 </div>
 
@@ -73,7 +75,9 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      causes:['Line or neutral touching earth: a bare spade, or a wire pinched against the frame.','An element leaking to the boiler.','Water on the wiring, often from a leak at the pump, the boiler seal or the steam valve.'],
      check:['Leave it unplugged; don\'t keep resetting the breaker.','With the covers on, rerun [h3] and [h4]. Then open it up and rerun [d1], [d2], [d5], [d6] and [c2].','Look for wet or crushed insulation near the boiler, the valve, the pump and under the drip tray.'],src:'Official grounding guide, meter checks, Whole Latte Love'},
     {c:'power',s:'Nothing happens when you switch on',
-     causes:['No supply getting through the power switch: inlet leads loose or on the wrong spades.','With stock integration, the boiler\'s thermal fuse has blown: on the Classic it sits in the neutral feed to the whole machine, and on the Pro the PCB\'s line comes from after it. In custom wiring it only feeds the heater, so it can\'t cause this.','The cord or the outlet.'],
+     causes:['No supply getting through the power switch: inlet leads loose or on the wrong spades.',{t:'With stock integration, the boiler\'s thermal fuse has blown: on the Classic it sits in the neutral feed to the whole machine, and on the Pro the PCB\'s line comes from after it. In custom wiring it only feeds the heater, so it can\'t cause this.',w:'unset:model,path'},
+       {t:'The boiler\'s thermal fuse has blown: with stock integration on the Classic it sits in the neutral feed to the whole machine.',w:'set:model,path;fam:GC;wpath:SI'},
+       {t:'The boiler\'s thermal fuse has blown: with stock integration on the Pro family, the PCB\'s line comes from after it.',w:'set:model,path;fam:GCP;wpath:SI'},'The cord or the outlet.'],
      check:['Unplugged, rerun the path continuity checks on the power-on checks page.','Rerun [c3] across the fuse. A blown fuse means the boiler overheated, so find out why before replacing it.','Try the cord on another appliance.'],src:'Meter checks, the official schematics'},
     {c:'power',w:'eco:yes',s:'The power button won\'t stay on',
      causes:['The Eco board\'s button springs back unless the power switch mod is done.'],
@@ -121,7 +125,10 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      causes:['Pump vibration through the sensor, or the sensor touching the housing.','Sensor wires bundled with mains.'],
      check:['Mount the sensor low in the machine, below the T and off metal; a wrap of foam or a fixing to the frame helps.','Route its wires on the right of the case, away from mains.'],src:'Official stock integration guide'},
     {c:'pressure',s:'Pressure never reaches the target, or Test OPV peaks below 10.5 bar',
-     causes:['A 9 bar OPV: stock on US Evo Pros and E24s, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.','The blank basket or group gasket not sealing.'],
+     causes:[{t:'A 9 bar OPV: stock on US Evo Pros and E24s, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'unset:model,volts'},
+       {t:'The stock 9 bar OPV, not raised to 10 to 12 bar yet. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model,volts;opv9'},
+       {t:'A 9 bar spring from a past owner\'s swap. Gaggiuino can\'t tell when the valve opens, so shots fall short.',w:'set:model,volts;!opv9'},
+       'The blank basket or group gasket not sealing.'],
      check:['Raise it to 10 to 12 bar: a 12 bar spring, or three or four M3 washers behind the old one. Add a washer if it still peaks low.','Reseat the basket and gasket and rerun [UT] Test OPV.'],src:'Official machine-specific guide and startup steps'},
     {c:'pressure',s:'Test OPV peaks above 13 bar',
      causes:['An older Classic\'s metal valve set high: owners report about 14 bar from the factory.','A stiffer spring fitted to a Pro-family valve.'],
@@ -136,7 +143,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      causes:['The 3-way valve jammed open with scale or debris.'],
      check:['Strip and descale the valve, or replace it. Whole Latte Love\'s guide covers both.'],src:'Whole Latte Love, Coffee Forums'},
     {c:'pressure',s:'Leaks at the T-fitting, tap block or sensor',
-     causes:['Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.','The Pro\'s braided hose not clamped over the middle of the barb.','The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
+     causes:['Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.',{t:'The Pro\'s braided hose not clamped over the middle of the barb.',w:'fam:GCP'},'The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
      check:['Unplug and let it cool before touching fittings.','Recut the tube square and reseat it; a rubber glove helps your grip.','Sensor hand tight, plus a quarter turn at most.'],src:'Official stock integration and custom wiring guides'},
     {c:'switch',s:'A switch does nothing',
      causes:['Signal and ground on the wrong spades.','A break in the ground jumper between the switches.'],
@@ -171,6 +178,8 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function M(){return window.GaggiaMachine||null}
   function fill(t){var m=M();return String(t).replace(/\{gfci\}/g,m?m.text('gfci'):'GFCI or RCD')}
+  /* a cause or check can be {t, w}: it shows only when Your Gaggia matches w */
+  function applying(a){var m=M();return (a||[]).filter(function(x){return !(x&&x.w)||!m||m.matches(x.w)}).map(function(x){return x&&x.t!=null?x.t:x})}
   function refs(t){
     return esc(fill(t)).replace(/\[([A-Za-z0-9]+)\]/g,function(_,id){
       if(CHECKREF.test(id))return '<a class="ref" href="power-on-checks.html#'+id+'">'+id+'</a>';
@@ -184,7 +193,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
     var m=M();if(t.w&&m&&!m.matches(t.w))return false;
     if(cat!=='all'&&t.c!==cat)return false;
     if(!q)return true;
-    var hay=(t.s+' '+t.causes.join(' ')+' '+t.check.join(' ')).replace(/\{gfci\}/g,'GFCI RCD breaker').toLowerCase();
+    var hay=(t.s+' '+applying(t.causes).join(' ')+' '+applying(t.check).join(' ')).replace(/\{gfci\}/g,'GFCI RCD breaker').toLowerCase();
     return q.split(/\s+/).every(function(w){return hay.indexOf(w)>=0});
   }
   function render(){
@@ -198,8 +207,8 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
       var items=shown.filter(function(t){return t.c===c[0]});if(!items.length)return;
       html+='<h2 class="cat-h">'+esc(c[1])+'</h2>';
       items.forEach(function(t){
-        html+='<details class="tb'+(t.d?' danger':'')+'"'+(q?' open':'')+'><summary><span class="sym">'+esc(fill(t.s))+(t.w&&!(m&&m.decided&&m.decided(t.w))?'<span class="vtag">'+esc(wlabel(t.w))+'</span>':'')+'</span><span class="first">Most likely: '+refs(t.causes[0])+'</span><span class="flag">'+(t.d?'<span class="unplug">Unplug now</span>':'')+'<span class="chev" aria-hidden="true"></span></span></summary>'+
-          '<div class="tb-body"><div><h3>Likely causes, in order</h3><ol>'+t.causes.map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ol></div><div><h3>What to do</h3><ul>'+t.check.map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ul></div><div class="src">Source: '+esc(t.src)+'</div></div></details>';
+        html+='<details class="tb'+(t.d?' danger':'')+'"'+(q?' open':'')+'><summary><span class="sym">'+esc(fill(t.s))+(t.w&&!(m&&m.decided&&m.decided(t.w))?'<span class="vtag">'+esc(wlabel(t.w))+'</span>':'')+'</span><span class="first">Most likely: '+refs(applying(t.causes)[0])+'</span><span class="flag">'+(t.d?'<span class="unplug">Unplug now</span>':'')+'<span class="chev" aria-hidden="true"></span></span></summary>'+
+          '<div class="tb-body"><div><h3>Likely causes, in order</h3><ol>'+applying(t.causes).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ol></div><div><h3>What to do</h3><ul>'+applying(t.check).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ul></div><div class="src">Source: '+esc(t.src)+'</div></div></details>';
       });
     });
     $('list').innerHTML=html||'<p class="empty">Nothing matches. Try fewer words, or pick All.</p>';

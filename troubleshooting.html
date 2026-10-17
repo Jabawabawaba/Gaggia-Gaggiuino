@@ -89,6 +89,11 @@
 }
 .swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
 .swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
+/* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
+[data-when][hidden],[data-showall][hidden],.mnote[hidden]{display:none!important}
+.showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
+.showall-btn:hover{border-color:var(--accent,#B8650A)}
+.showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
 </style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html" aria-current="page">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
    Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
    condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
@@ -103,7 +108,13 @@
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
-   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording. */
+     set:model,volts,path   true only once every named field is picked (for wording that replaces a combined version)
+     unset:model,volts,path true while any named field is still open (for the combined version itself)
+     !key:...               the opposite of key:..., but only once that field is decided (e.g. !opv9: a known machine without the 9 bar OPV)
+   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording.
+   Inside an element with class m-showall, data-when never hides anything: that's the "Show all models" view.
+   txt(x) turns text into what applies: a plain string as is, or a list of segments, each a string (always kept)
+   or [text, when] (kept only when the condition matches), joined with spaces. */
 (function(){
   var KEY='gaggia-machine-v1',MODELS=['GC','GCP','EVO','E24'];
   var NAMES={GC:'Classic',GCP:'Classic Pro',EVO:'Classic Evo',E24:'Classic E24'};
@@ -151,8 +162,14 @@
   }
   /* true unless the profile rules the element out; unknown fields never rule anything out */
   function matches(when){
-    if(!when||!prof)return true;
-    return conds(when).every(function(c){
+    if(!when)return true;
+    if(!prof)return conds(when).every(function(c){return c.k!=='set'});
+    return conds(when).every(one);
+  }
+  /* one condition; "!key" is true when the field is decided and the condition doesn't hold, and never hides while it's open */
+  function one(c){
+    if(c.k.charAt(0)==='!'){var inner={k:c.k.slice(1),vals:c.vals};return !decidedOne(inner)||!one(inner)}
+    return (function(c){
       if(c.k==='model')return !prof.model||c.vals.indexOf(prof.model)>=0;
       if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
       if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
@@ -161,21 +178,34 @@
       if(c.k==='ground'){if(!prof.model)return true;return prof.model==='GC'&&prof.volts!==230}
       if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
+      if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
+      if(c.k==='unset')return c.vals.some(function(f){return !prof[f]});
       return true;
-    });
+    })(c);
   }
   /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
   function decided(when){
     if(!prof)return false;
-    return conds(when).every(function(c){
+    return conds(when).every(decidedOne);
+  }
+  function decidedOne(c){
+    if(!prof)return false;
+    if(c.k.charAt(0)==='!')return decidedOne({k:c.k.slice(1),vals:c.vals});
+    return (function(c){
       if(c.k==='model'||c.k==='fam')return !!prof.model;
       if(c.k==='volts')return !!prof.volts;
       if(c.k==='eco')return ecoOf(prof)!==null;
       if(c.k==='opv9'||c.k==='ground')return !!prof.model&&!!prof.volts;
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
+      if(c.k==='set'||c.k==='unset')return true;
       return true;
-    });
+    })(c);
+  }
+  function txt(x){
+    if(x==null)return '';
+    if(!Array.isArray(x))return String(x);
+    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ');
   }
   function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
   function label(p){
@@ -207,7 +237,20 @@
   }
   function apply(root){
     root=root||document;
-    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){el.hidden=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall')});
+    /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
+    Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
+      var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
+      /* count what the switch would bring back, not the pieces inside something that's already counted */
+      var n=Array.prototype.filter.call(t.querySelectorAll('[data-when]'),function(el){
+        if(matches(el.getAttribute('data-when')))return false;
+        for(var a=el.parentElement;a&&a!==t;a=a.parentElement){if(a.hasAttribute('data-when')&&!matches(a.getAttribute('data-when')))return false}
+        return true;
+      }).length;
+      b.hidden=!n;var on=t.classList.contains('m-showall');
+      b.setAttribute('aria-pressed',String(on));
+      b.textContent=on?'Show only your Gaggia':'Show all models ('+n+' more)';
+    });
     Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
     var l=document.getElementById('mchip-l');
     if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
@@ -275,6 +318,11 @@
         set(p);
       });
     });
+    document.addEventListener('click',function(e){
+      var b=e.target.closest('[data-showall]');if(!b)return;
+      var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
+      t.classList.toggle('m-showall');apply();
+    });
     var inViewer=typeof window.claude!=='undefined';
     var pb=document.querySelectorAll('[data-print]');
     if(!inViewer)Array.prototype.forEach.call(pb,function(b){b.hidden=false;b.addEventListener('click',function(){window.print()})});
@@ -289,7 +337,13 @@
       else if(!over&&h)h.remove();
     });
   }
-  window.GaggiaMachine={get:function(){return prof},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  function openPanel(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    if(!chip||!pan)return;
+    try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
+    if(pan.hidden)chip.click();
+  }
+  window.GaggiaMachine={get:function(){return prof},txt:txt,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -371,6 +425,8 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
   .no-print,[data-print]{display:none!important}
 }
 
+/* "Troubleshooting" is one long word: shrink it on phones so it never runs off the screen */
+@media (max-width:480px){h1{font-size:clamp(28px,8.2vw,38px)}}
 /* Layout: plate header and the unplug rule, a search box with category chips, then symptom cards. Each card: the symptom, an "unplug first" flag where it matters, likely causes in order, and what to check, with links to check IDs. */
 .vtag{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted);margin-left:8px;vertical-align:2px}
 .find{display:grid;gap:12px;margin-bottom:8px}
@@ -428,7 +484,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
 
   <section class="block" aria-labelledby="h-more">
     <div class="sec-h"><h2 id="h-more">Still stuck</h2></div>
-    <p class="fine" style="font-size:15.5px;color:var(--ink)">Open one help thread on the Gaggiuino Discord, in #install-help-gc for a Classic or #install-help-gcp for a Pro, Eco, Evo or E24, titled with your name, machine and control system, for example [yourname][GCP][PCBv4]. Include the code on your rating label, your voltage and install path, the firmware build numbers from Settings, About, and which power-on checks pass. Photos of the wiring, the SSR and the switch backs answer most questions.</p>
+    <p class="fine" style="font-size:15.5px;color:var(--ink)">Open one help thread on the Gaggiuino Discord, in <span data-when="unset:model">#install-help-gc for a Classic or #install-help-gcp for a Pro, Eco, Evo or E24</span><span data-when="set:model;fam:GC">#install-help-gc</span><span data-when="set:model;fam:GCP">#install-help-gcp</span>, titled with your name, machine and control system, for example [yourname][GCP][PCBv4]. Include the code on your rating label, your voltage and install path, the firmware build numbers from Settings, About, and which power-on checks pass. Photos of the wiring, the SSR and the switch backs answer most questions.</p>
   </section>
 </div>
 
@@ -440,7 +496,9 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      causes:['Line or neutral touching earth: a bare spade, or a wire pinched against the frame.','An element leaking to the boiler.','Water on the wiring, often from a leak at the pump, the boiler seal or the steam valve.'],
      check:['Leave it unplugged; don\'t keep resetting the breaker.','With the covers on, rerun [h3] and [h4]. Then open it up and rerun [d1], [d2], [d5], [d6] and [c2].','Look for wet or crushed insulation near the boiler, the valve, the pump and under the drip tray.'],src:'Official grounding guide, meter checks, Whole Latte Love'},
     {c:'power',s:'Nothing happens when you switch on',
-     causes:['No supply getting through the power switch: inlet leads loose or on the wrong spades.','With stock integration, the boiler\'s thermal fuse has blown: on the Classic it sits in the neutral feed to the whole machine, and on the Pro the PCB\'s line comes from after it. In custom wiring it only feeds the heater, so it can\'t cause this.','The cord or the outlet.'],
+     causes:['No supply getting through the power switch: inlet leads loose or on the wrong spades.',{t:'With stock integration, the boiler\'s thermal fuse has blown: on the Classic it sits in the neutral feed to the whole machine, and on the Pro the PCB\'s line comes from after it. In custom wiring it only feeds the heater, so it can\'t cause this.',w:'unset:model,path'},
+       {t:'The boiler\'s thermal fuse has blown: with stock integration on the Classic it sits in the neutral feed to the whole machine.',w:'set:model,path;fam:GC;wpath:SI'},
+       {t:'The boiler\'s thermal fuse has blown: with stock integration on the Pro family, the PCB\'s line comes from after it.',w:'set:model,path;fam:GCP;wpath:SI'},'The cord or the outlet.'],
      check:['Unplugged, rerun the path continuity checks on the power-on checks page.','Rerun [c3] across the fuse. A blown fuse means the boiler overheated, so find out why before replacing it.','Try the cord on another appliance.'],src:'Meter checks, the official schematics'},
     {c:'power',w:'eco:yes',s:'The power button won\'t stay on',
      causes:['The Eco board\'s button springs back unless the power switch mod is done.'],
@@ -488,7 +546,10 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      causes:['Pump vibration through the sensor, or the sensor touching the housing.','Sensor wires bundled with mains.'],
      check:['Mount the sensor low in the machine, below the T and off metal; a wrap of foam or a fixing to the frame helps.','Route its wires on the right of the case, away from mains.'],src:'Official stock integration guide'},
     {c:'pressure',s:'Pressure never reaches the target, or Test OPV peaks below 10.5 bar',
-     causes:['A 9 bar OPV: stock on US Evo Pros and E24s, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.','The blank basket or group gasket not sealing.'],
+     causes:[{t:'A 9 bar OPV: stock on US Evo Pros and E24s, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'unset:model,volts'},
+       {t:'The stock 9 bar OPV, not raised to 10 to 12 bar yet. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model,volts;opv9'},
+       {t:'A 9 bar spring from a past owner\'s swap. Gaggiuino can\'t tell when the valve opens, so shots fall short.',w:'set:model,volts;!opv9'},
+       'The blank basket or group gasket not sealing.'],
      check:['Raise it to 10 to 12 bar: a 12 bar spring, or three or four M3 washers behind the old one. Add a washer if it still peaks low.','Reseat the basket and gasket and rerun [UT] Test OPV.'],src:'Official machine-specific guide and startup steps'},
     {c:'pressure',s:'Test OPV peaks above 13 bar',
      causes:['An older Classic\'s metal valve set high: owners report about 14 bar from the factory.','A stiffer spring fitted to a Pro-family valve.'],
@@ -503,7 +564,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
      causes:['The 3-way valve jammed open with scale or debris.'],
      check:['Strip and descale the valve, or replace it. Whole Latte Love\'s guide covers both.'],src:'Whole Latte Love, Coffee Forums'},
     {c:'pressure',s:'Leaks at the T-fitting, tap block or sensor',
-     causes:['Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.','The Pro\'s braided hose not clamped over the middle of the barb.','The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
+     causes:['Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.',{t:'The Pro\'s braided hose not clamped over the middle of the barb.',w:'fam:GCP'},'The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
      check:['Unplug and let it cool before touching fittings.','Recut the tube square and reseat it; a rubber glove helps your grip.','Sensor hand tight, plus a quarter turn at most.'],src:'Official stock integration and custom wiring guides'},
     {c:'switch',s:'A switch does nothing',
      causes:['Signal and ground on the wrong spades.','A break in the ground jumper between the switches.'],
@@ -538,6 +599,8 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function M(){return window.GaggiaMachine||null}
   function fill(t){var m=M();return String(t).replace(/\{gfci\}/g,m?m.text('gfci'):'GFCI or RCD')}
+  /* a cause or check can be {t, w}: it shows only when Your Gaggia matches w */
+  function applying(a){var m=M();return (a||[]).filter(function(x){return !(x&&x.w)||!m||m.matches(x.w)}).map(function(x){return x&&x.t!=null?x.t:x})}
   function refs(t){
     return esc(fill(t)).replace(/\[([A-Za-z0-9]+)\]/g,function(_,id){
       if(CHECKREF.test(id))return '<a class="ref" href="power-on-checks.html#'+id+'">'+id+'</a>';
@@ -571,7 +634,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
     var m=M();if(t.w&&m&&!m.matches(t.w))return false;
     if(cat!=='all'&&t.c!==cat)return false;
     if(!q)return true;
-    var hay=(t.s+' '+t.causes.join(' ')+' '+t.check.join(' ')).replace(/\{gfci\}/g,'GFCI RCD breaker').toLowerCase();
+    var hay=(t.s+' '+applying(t.causes).join(' ')+' '+applying(t.check).join(' ')).replace(/\{gfci\}/g,'GFCI RCD breaker').toLowerCase();
     return q.split(/\s+/).every(function(w){return hay.indexOf(w)>=0});
   }
   function render(){
@@ -585,8 +648,8 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
       var items=shown.filter(function(t){return t.c===c[0]});if(!items.length)return;
       html+='<h2 class="cat-h">'+esc(c[1])+'</h2>';
       items.forEach(function(t){
-        html+='<details class="tb'+(t.d?' danger':'')+'"'+(q?' open':'')+'><summary><span class="sym">'+esc(fill(t.s))+(t.w&&!(m&&m.decided&&m.decided(t.w))?'<span class="vtag">'+esc(wlabel(t.w))+'</span>':'')+'</span><span class="first">Most likely: '+refs(t.causes[0])+'</span><span class="flag">'+(t.d?'<span class="unplug">Unplug now</span>':'')+'<span class="chev" aria-hidden="true"></span></span></summary>'+
-          '<div class="tb-body"><div><h3>Likely causes, in order</h3><ol>'+t.causes.map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ol></div><div><h3>What to do</h3><ul>'+t.check.map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ul></div><div class="src">Source: '+esc(t.src)+'</div></div></details>';
+        html+='<details class="tb'+(t.d?' danger':'')+'"'+(q?' open':'')+'><summary><span class="sym">'+esc(fill(t.s))+(t.w&&!(m&&m.decided&&m.decided(t.w))?'<span class="vtag">'+esc(wlabel(t.w))+'</span>':'')+'</span><span class="first">Most likely: '+refs(applying(t.causes)[0])+'</span><span class="flag">'+(t.d?'<span class="unplug">Unplug now</span>':'')+'<span class="chev" aria-hidden="true"></span></span></summary>'+
+          '<div class="tb-body"><div><h3>Likely causes, in order</h3><ol>'+applying(t.causes).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ol></div><div><h3>What to do</h3><ul>'+applying(t.check).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ul></div><div class="src">Source: '+esc(t.src)+'</div></div></details>';
       });
     });
     $('list').innerHTML=html||'<p class="empty">Nothing matches. Try fewer words, or pick All.</p>';
