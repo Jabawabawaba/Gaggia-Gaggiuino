@@ -371,6 +371,8 @@ def render_template(name):
     s = s.replace("%%BASECSS%%", open(os.path.join(HERE, "base.css")).read())
     if "%%WIRING_DATA%%" in s:
         s = s.replace("%%WIRING_DATA%%", json.dumps(json.load(open(os.path.join(HERE, "wiring-data.json"))), ensure_ascii=False, separators=(",", ":")))
+    if "%%WIRING_MAPS%%" in s:
+        s = s.replace("%%WIRING_MAPS%%", open(os.path.join(HERE, "wiring-maps.json")).read())
     if "%%STORY%%" in s:
         s = s.replace("%%STORY%%", open(os.path.join(HERE, "story.tpl.html")).read())
     s = s.replace("%%NCHECKS%%", str(n_checks()))

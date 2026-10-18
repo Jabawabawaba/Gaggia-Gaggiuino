@@ -41,6 +41,8 @@ def render(name, mode="artifact"):
     if "%%WIRING_DATA%%" in s:
         data = json.load(open(os.path.join(HERE, "wiring-data.json")))
         s = s.replace("%%WIRING_DATA%%", json.dumps(data, ensure_ascii=False, separators=(",", ":")))
+    if "%%WIRING_MAPS%%" in s:
+        s = s.replace("%%WIRING_MAPS%%", open(os.path.join(HERE, "wiring-maps.json")).read())
     return s
 
 

@@ -7,6 +7,7 @@
 /* Layout: plate header, the variant switcher (stock or custom wiring, machine, voltage), the official schematic link,
    then the wires for that variant: by run (grouped by circuit) or by terminal, each run expandable. */
 %%INCLUDE:wiring-switch.css%%
+%%INCLUDE:wiring-map.css%%
 .off{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:start;border-left:4px solid var(--accent);background:var(--surface);border-radius:0 12px 12px 0;padding:12px 16px;margin-top:16px}
 .off .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);padding-top:3px}
 .off p{margin:0;font-size:15.5px}
@@ -59,7 +60,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   <header class="top">
     <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Wiring</b></span><span>Gaggia Classic family</span><span>PCB v3.1 / v4</span><span class="rivet" aria-hidden="true"></span></div>
     <h1>Gaggia Wiring</h1>
-    <p class="lede">Every wire for your install, taken from the official schematic for your machine and voltage: where each one starts and ends, its color, length and connectors. Open the official schematic beside this page; it's the reference, and this page turns it into a list you can work down at the bench.</p>
+    <p class="lede">Every wire for your install, taken from the official schematic for your machine and voltage: where each one starts and ends, its color, length and connectors. Open the official schematic beside this page; it's the reference. This page draws it as a map you can tap through, then lists every wire to work down at the bench.</p>
   </header>
 
   <section class="vbox" aria-label="Which schematic">
@@ -68,6 +69,25 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   </section>
 
   <div class="off" id="off"></div>
+
+  <section class="mapsec" id="mapsec" aria-labelledby="h-map" hidden>
+    <div class="sec-h"><h2 id="h-map">Where every wire goes</h2><span class="sum">tap a wire or a part</span></div>
+    <div class="mtool">
+      <div class="chips" id="mchips" role="group" aria-label="Show circuit"></div>
+      <div class="mtool-r">
+        <div class="mseg2" role="group" aria-label="Wire colors"><button type="button" data-wc="sys" aria-pressed="true">By circuit</button><button type="button" data-wc="draw" aria-pressed="false">Drawing's colors</button></div>
+        <div class="stepper" role="group" aria-label="Step through the runs"><button type="button" id="m-prev" aria-label="Previous run">‹</button><span id="m-step" aria-live="polite"></span><button type="button" id="m-next" aria-label="Next run">›</button></div>
+      </div>
+    </div>
+    <p class="msel" id="msel" aria-live="polite"></p>
+    <figure style="margin:0">
+      <div class="mscroll" id="mscroll"></div>
+      <p class="mhint phone">The map is wide: scroll it sideways, or pinch to zoom.</p>
+      <div class="mlegend" id="mlegend" aria-label="Legend"></div>
+      <figcaption class="fine" style="margin-top:8px">Redrawn from the official schematic, with each part where that drawing puts it, so you can hold the two side by side. Switches are seen from the back, as on the drawing. Thick lines carry mains, thin ones low voltage. Where two runs meet at one terminal, they share its connector. The map is a guide to follow; the official drawing is the reference.</figcaption>
+    </figure>
+    <div class="mdetail empty" id="mdetail" aria-live="polite"></div>
+  </section>
 
   <div class="views" id="views" role="group" aria-label="View"></div>
   <div id="main"></div>
@@ -84,6 +104,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
 <script>
 (function(){
   %%INCLUDE:wiring-core.js%%
+%%INCLUDE:wiring-map.js%%
   function $(id){return document.getElementById(id)}
   var KEY='gaggia-wiring-view-v1',view='runs',cur=null,showOpt=false;
   try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv){view=sv.view==='terms'?'terms':'runs';showOpt=!!sv.opt;cur=VARS[sv.cur]?sv.cur:null}}catch(e){}
@@ -98,6 +119,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     $('vnote').textContent=mine?(active===mine?'Showing the schematic for your Gaggia. Pick another to compare.':'Showing '+vlabel(active)+'. The dot marks yours.')+(noSI?' There\'s no official stock-integration drawing for a 230 V Pro-family machine (the guide recommends custom wiring with the Eco board), so yours is the custom wiring schematic.':''):
       'Set your model, voltage and install path in the top bar and this page opens on your schematic. Until then, pick one here.';
     $('off').innerHTML='<span class="k">Official</span><p><a href="'+esc(v.schematic)+'" target="_blank" rel="noopener">'+esc(vlabel(active))+' schematic</a> (opens the full-size drawing on GitHub) and the <a href="'+(v.path==='SI'?'https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration':'https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring')+'" target="_blank" rel="noopener">'+(v.path==='SI'?'stock wiring integration':'custom wiring')+' guide</a>.'+(v.path==='CW'&&v.volts===230&&v.fam==='GCP'&&!(GM()&&GM().eco&&GM().eco()===false&&active===mine)?' 230 V Pro-family machines with the Eco board also need the power switch mod.':'')+'</p>';
+    MAP.show(active,showOpt);
     if(v.path==='SI'){$('views').innerHTML='';renderSI(v);return}
     $('views').innerHTML='<div class="chips"><button type="button" class="chip" data-view="runs" aria-pressed="'+(view==='runs')+'">By run</button><button type="button" class="chip" data-view="terms" aria-pressed="'+(view==='terms')+'">By terminal</button></div>'+
       (v.runs.some(function(r){return r.opt})?'<label style="display:inline-flex;align-items:center;gap:8px;font-size:15px"><input type="checkbox" id="opt"'+(showOpt?' checked':'')+'> Optional resettable fuse runs</label>':'');
@@ -114,7 +136,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     var tags=(r.opt?'<span class="tag2 opt">optional</span>':'')+(r.stock?'<span class="tag2 stk">stock lead</span>':'');
     return '<details class="run" id="r-'+r.id+'"><summary><span class="rid">'+swatch(r.color)+r.id+'</span><span class="rshort">'+esc(r.short)+tags+'</span><span class="rlen">'+lenTxt(r)+'</span><span class="rsub">'+esc(r.wire)+(r.color?', '+esc(r.color):'')+'</span></summary>'+
       '<div class="rbody"><div><h4>From</h4><p>'+esc(r.frm)+'</p><p class="note">'+endTxt(r,0)+'</p></div><div><h4>To</h4><p>'+esc(r.to)+'</p><p class="note">'+endTxt(r,1)+'</p></div>'+
-      (r.note?'<div class="wide"><h4>Note</h4><p>'+esc(r.note)+'</p></div>':'')+(r.conf&&r.conf!=='clear'?'<div class="wide"><p class="note">Partly legible on the schematic; check it against the drawing.</p></div>':'')+'</div></details>';
+      (r.note?'<div class="wide"><h4>Note</h4><p>'+esc(r.note)+'</p></div>':'')+(r.conf&&r.conf!=='clear'?'<div class="wide"><p class="note">Partly legible on the schematic; check it against the drawing.</p></div>':'')+'<div class="wide"><button type="button" class="linkbtn onmap" data-onmap="'+esc(r.id)+'">Show on the map</button></div></div></details>';
   }
   function renderRuns(v){
     var rs=runsOf(v),order=['L','H','N','E','LV'],h='';
@@ -140,7 +162,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     var hv=v.runs.filter(function(r){return r.sys!=='LV'&&r.sys!=='LVG'}),lv=v.runs.filter(function(r){return r.sys==='LV'||r.sys==='LVG'});
     var h='<h3 class="grp-h">What changes in the machine</h3><ul class="moves">'+v.moves.map(function(m){return '<li>'+esc(m)+'</li>'}).join('')+'</ul>';
     h+='<h3 class="grp-h">The seven integration wires</h3><div class="tablewrap"><table class="si-t"><thead><tr><th>Wire</th><th>Goes</th><th>Ends</th><th>Length</th></tr></thead><tbody>'+
-      hv.map(function(w){return '<tr id="r-'+esc(w.id)+'"><td class="id">'+swatch(w.color)+esc(w.id)+'</td><td><b>'+esc(w.short)+'</b><div>'+esc(w.what)+'</div>'+(w.note?'<div class="note">'+esc(w.note)+'</div>':'')+'</td><td>'+w.ends.map(function(e,i){return endLabel(w,i)}).join(' to ')+'</td><td class="num">'+(w.mm?w.mm+' mm':'')+'<div class="note">'+esc(w.color)+'</div></td></tr>'}).join('')+'</tbody></table></div>'+
+      hv.map(function(w){return '<tr id="r-'+esc(w.id)+'"><td class="id">'+swatch(w.color)+esc(w.id)+'</td><td><b>'+esc(w.short)+'</b><div>'+esc(w.what)+'</div>'+(w.note?'<div class="note">'+esc(w.note)+'</div>':'')+'<div><button type="button" class="linkbtn onmap" data-onmap="'+esc(w.id)+'">Show on the map</button></div></td><td>'+w.ends.map(function(e,i){return endLabel(w,i)}).join(' to ')+'</td><td class="num">'+(w.mm?w.mm+' mm':'')+'<div class="note">'+esc(w.color)+'</div></td></tr>'}).join('')+'</tbody></table></div>'+
       '<p class="fine" style="margin-top:8px">18 AWG silicone. Lengths and colors are the guide\'s: it calls the lengths generous, so route each wire first and then trim. '+BARENOTE+'</p>';
     h+='<h3 class="grp-h">'+esc(SYSNAME.LV)+'</h3>'+lv.map(runHTML).join('')+'<p class="fine" style="margin-top:10px">The drawing gives no lengths for these: measure them on your machine. The thermocouple goes to J4, the pressure sensor to J6 (5V, GND, P) and the screen to J1, all on their own leads.</p>';
     h+='<h3 class="grp-h">What stays</h3><ul class="moves">'+v.keep.map(function(m){return '<li>'+esc(m)+'</li>'}).join('')+'</ul>';
@@ -149,10 +171,12 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   }
   document.addEventListener('click',function(e){
     var b=e.target.closest('[data-view]');if(b){view=b.getAttribute('data-view');save();render();return}
+    var om=e.target.closest('[data-onmap]');if(om){e.preventDefault();MAP.focus(om.getAttribute('data-onmap'));return}
     var j=e.target.closest('[data-jump]');if(j){e.preventDefault();var id=j.getAttribute('data-jump');if(view!=='runs'){view='runs';save();render()}var d=$('r-'+id);if(d){d.open=true;d.classList.remove('flash');void d.offsetWidth;d.classList.add('flash');d.scrollIntoView({behavior:'smooth',block:'center'})}}
   });
   document.addEventListener('change',function(e){if(e.target.id==='opt'){showOpt=e.target.checked;save();render()}});
   window.addEventListener('gaggia-machine',function(){override=null;render()});
+  MAP.init();
   render();
 })();
 </script>
