@@ -164,6 +164,8 @@
     r.addEventListener('input',upd);upd();
   })();
 
+%%INCLUDE:learn-sim.js%%
+
   /* ---------- the circuit ---------- */
   %%INCLUDE:learn-ladder.js%%
 })();
