@@ -22,7 +22,7 @@
 
 .dia text{fill:var(--ink)}
 .dia .box{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
-.dia .opt{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
+.dia rect.opt{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
 .dia .inner{fill:none;stroke:var(--line);stroke-width:1}
 .dia .pcb{fill:var(--pcb);stroke:var(--ink);stroke-width:1.5}
 .dia .sp{fill:var(--surface-2);stroke:var(--muted);stroke-width:1}
@@ -70,7 +70,7 @@
 .dia .tag.s-LV rect{stroke:var(--w-lv)}.dia .tag.s-LVG rect{stroke:var(--w-lvg)}.dia .tag.s-S rect{stroke:var(--w-s)}
 .dia .tag.opt rect{stroke-dasharray:3 2}
 .dia.dim .run.off,.dia.dim .tag.off{opacity:.1}
-.dia.dim .stk{opacity:.18}
+.dia.dim .stk{opacity:.18}.dia.dim .stk.on{opacity:.8}
 .dia.dim .part.off{opacity:.3}
 .dia .run.sel .halo{stroke:var(--accent-soft)}
 .dia .part.sel .phit{fill:var(--accent-soft);opacity:.55;stroke:var(--accent);stroke-width:2}
@@ -87,7 +87,7 @@
 .lg-L{border-color:var(--w-l)!important}.lg-H{border-color:var(--w-h)!important}.lg-N{border-color:var(--w-n)!important}
 .lg-E{border-top-style:dashed!important;border-color:var(--w-e)!important}.lg-LV{border-top-width:2px!important;border-color:var(--w-lv)!important}
 .lg-LVG{border-top-width:2px!important;border-top-style:dashed!important;border-color:var(--w-lvg)!important}.lg-S{border-top-width:2px!important;border-color:var(--w-s)!important}
-.lg-stk{border-top-width:2px!important;border-top-style:dashed!important}
+.lg-stk{border-top-width:2px!important;border-top-style:dashed!important}.lg-stk0{border-top-width:2px!important}
 
 .mdetail{margin-top:12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--surface);padding:14px 16px;display:grid;gap:10px}
 .mdetail.empty{border-left-color:var(--line)}

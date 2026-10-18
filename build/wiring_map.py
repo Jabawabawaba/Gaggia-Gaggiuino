@@ -31,6 +31,7 @@ class Map:
         self.term = {}           # name -> (x, y, dir, part)
         self.obs = []            # (x0, y0, x1, y1, part)
         self.links = []          # stock leads on the stock-wiring maps: (from terminal, to terminal, moved?)
+        self.soft = []           # (x0, y0, x1, y1, cost): areas a wire may cross but should not wander through
 
     # a part: its drawing, a click box and an obstacle box for the router
     def part(self, pid, name, svg, bbox, note="", block=True, faded=False, obs=None):
@@ -65,9 +66,11 @@ def lamp(m, pid, name, sub, cx, leads, used=True):
     s += text(cx, 40, name, "nm") + (text(cx, 53, sub, "tiny") if sub else "")
     for i, (tn, lab) in enumerate(leads):
         x = cx - 8 + 16 * i
-        s += f'<path d="M{x},110 V{128}" class="lead"/>' + text(x, 140, lab, "pinl")
+        s += f'<path d="M{x},110 V{128}" class="lead"/>' + text(x + (-5 if i == 0 else 5), 124, lab, "pinl", "end" if i == 0 else "start")
         m.t(tn, x, 128, "d", pid)
-    m.part(pid, name, s, (cx - 28, 24, cx + 28, 114), faded=not used)
+    hw = max(len(name) * 3.6, len(sub) * 2.9) + 4
+    m.part(pid, name, s, (cx - 28, 24, cx + 28, 114), faded=not used,
+           obs=[(cx - hw, 24, cx + hw, 58), (cx - 14, 58, cx + 14, 114)])
 
 
 def rocker(m, pid, name, sub, x0, prefix, used):
@@ -78,7 +81,7 @@ def rocker(m, pid, name, sub, x0, prefix, used):
         for col, num, d in ((x0 + 16, n, "l"), (x0 + 64, n + 3, "r")):
             on = num in used
             s += spade(col, y, 22, 9, "sp" if on else "sp sp-idle")
-            s += text(col + (-14 if d == "l" else 14), y + 3.5, str(num), "pinl", "end" if d == "l" else "start")
+            s += text(col + (14 if d == "l" else -14), y + 3.5, str(num), "pinl", "start" if d == "l" else "end")
             m.t(f"{prefix}{num}", col, y, d, pid)
     m.part(pid, name, s, (x0, 20, x0 + 80, 152))
 
@@ -87,7 +90,7 @@ def housing(m, x0, used, y0=72):
     """the original Classic's switch housing viewed from the back: Brew, Steam, spare, On/Off, each top, P, bottom"""
     secs = (("Brew", "1", "2"), ("Steam", "3", "4"), ("", "5", "6"), ("On/Off", "7", "8"))
     s = box(x0, y0, 256, 120) + text(x0 + 128, 30, "Switch housing", "nm") + text(x0 + 128, 44, "view: back", "tiny")
-    exits = {"Brew": ("u", "l", "d"), "Steam": ("u", "d", "d"), "": ("u", "d", "d"), "On/Off": ("r", "r", "r")}
+    exits = {"Brew": ("l", "r", "l"), "Steam": ("r", "l", "r"), "": ("r", "r", "r"), "On/Off": ("r", "r", "r")}
     for i, (nm, a, b) in enumerate(secs):
         cx = x0 + 32 + 64 * i
         if i:
@@ -96,12 +99,13 @@ def housing(m, x0, used, y0=72):
             key = f"{nm or 'Spare'} {lab}"
             on = key in used
             s += spade(cx, y, 24, 9, "sp" if on else "sp sp-idle")
-            s += text(cx - 16, y + 3.5, lab, "pinl", "end")
-            m.t(f"hs:{key}", cx, y, exits[nm][j], "housing")
+            ex = exits[nm][j]
+            s += text(cx + 16, y + 3.5, lab, "pinl", "start") if ex == "l" else text(cx - 16, y + 3.5, lab, "pinl", "end")
+            m.t(f"hs:{key}", cx, y, ex, "housing")
         if nm:
             s += text(cx, y0 + 112, nm, "tiny")
-    m.part("housing", "Switch housing", s, (x0, 20, x0 + 256, y0 + 120),
-           obs=[(x0, y0, x0 + 256, y0 + 120), (x0 + 72, 20, x0 + 184, 50)])
+    m.part("housing", "Switch housing", s, (x0, 20, x0 + 256, y0 + 120), obs=[(x0 + 72, 20, x0 + 184, 50)])
+    m.soft.append((x0, y0, x0 + 256, y0 + 120, 4))
 
 
 def cup_warmer(m, faded=False, at=(48, 304)):
@@ -132,9 +136,9 @@ def boiler(m, si=False):
         m.t(tn, cx, cy, d, "boiler")
     s += text(x0 + 64, y0 + 66, "TL", "pinl") + text(x0 + 216, y0 + 66, "TR", "pinl")
     s += text(x0 + 64, y0 + 236, "BL", "pinl") + text(x0 + 216, y0 + 236, "BR", "pinl")
-    s += text(x0 + 140, y0 + 300, "Boiler", "nm") + text(x0 + 140, y0 + 314, "view: top · two elements", "tiny")
+    s += text(x0 + 140, y0 + 160, "Boiler", "nm") + text(x0 + 140, y0 + 174, "view: top · two elements", "tiny")
     if si:
-        s += text(x0 + 140, y0 + 176, "elements and fuse stay as they are", "tiny")
+        s += text(x0 + 140, y0 + 188, "elements and fuse stay as they are", "tiny")
         s += f'<polygon points="{x0 + 104},{y0 - 6} {x0 + 120},{y0 - 6} {x0 + 126},{y0 + 6} {x0 + 120},{y0 + 18} {x0 + 104},{y0 + 18} {x0 + 98},{y0 + 6}" class="term"/>'
         s += text(x0 + 92, y0 - 12, "brew thermostat, out", "tiny", "end")
         s += f'<polygon points="{x0 + 276},{y0 + 128} {x0 + 292},{y0 + 128} {x0 + 298},{y0 + 140} {x0 + 292},{y0 + 152} {x0 + 276},{y0 + 152} {x0 + 270},{y0 + 140}" class="term"/>'
@@ -142,6 +146,9 @@ def boiler(m, si=False):
         m.t("b:bt", x0 + 112, y0 - 8, "u", "boiler")
         m.t("b:st", x0 + 296, y0 + 140, "r", "boiler")
     m.part("boiler", "Boiler", s, (x0, y0, x0 + 280, y0 + 280), block=False)
+    m.soft.append((x0 + 8, y0 + 8, x0 + 272, y0 + 272, 2))
+    for ring in ((x0, y0, x0 + 280, y0), (x0, y0 + 280, x0 + 280, y0 + 280), (x0, y0, x0, y0 + 280), (x0 + 280, y0, x0 + 280, y0 + 280)):
+        m.soft.append(ring + (5,))
     m.obs.append((x0 + 76, y0 + 60, x0 + 212, y0 + 92, "boiler"))  # the fuse body
 
 
@@ -179,7 +186,18 @@ def ssr(m, x0, y0):
     m.part("ssr", "Solid-state relay (SSR)", s, (x0, y0, x0 + 120, y0 + 136))
 
 
-def solenoid(m, x0, y0, faded=False):
+def solenoid(m, x0, y0, faded=False, gnd_down=False):
+    """the 3-way valve from its connector side; the Classic drawings show it with the ground spade at the bottom"""
+    if gnd_down:
+        s = box(x0, y0, 80, 80) + spade(x0 + 40, y0 + 70, 18, 8)
+        s += spade(x0 + 16, y0 + 8, 8, 16) + spade(x0 + 64, y0 + 8, 8, 16)
+        s += text(x0 + 40, y0 + 46, "3-way valve", "nm") + text(x0 + 40, y0 + 58, "connector side", "tiny")
+        s += text(x0 + 54, y0 + 74, "gnd", "tiny", "start") + text(x0 + 16, y0 + 30, "L", "pinl") + text(x0 + 64, y0 + 30, "R", "pinl")
+        m.t("sol:gnd", x0 + 40, y0 + 80, "d", "sol")
+        m.t("sol:L", x0 + 16, y0, "u", "sol")
+        m.t("sol:R", x0 + 64, y0, "u", "sol")
+        m.part("sol", "3-way solenoid valve", s, (x0, y0, x0 + 80, y0 + 80), faded=faded)
+        return
     s = box(x0, y0, 80, 80) + spade(x0 + 40, y0 + 10, 18, 8)
     s += spade(x0 + 16, y0 + 72, 8, 16) + spade(x0 + 64, y0 + 72, 8, 16)
     s += text(x0 + 40, y0 + 40, "3-way valve", "nm") + text(x0 + 40, y0 + 53, "connector side", "tiny")
@@ -194,7 +212,7 @@ def chassis(m, x, y, faded=False):
     s = (f'<path d="M{x - 24},{y - 16} l8,8 h12 v-8 h8 v8 h12 l8,-8" class="lead"/>' + spade(x, y, 9, 16)
          + text(x, y - 24, "Chassis ground", "tiny"))
     m.t("chassis", x, y + 8, "d", "chassis")
-    m.part("chassis", "Chassis ground", s, (x - 28, y - 30, x + 28, y + 8), faded=faded)
+    m.part("chassis", "Chassis ground", s, (x - 42, y - 34, x + 42, y + 8), faded=faded)
 
 
 def socket(m, x0, y0, faded=False):
@@ -206,23 +224,26 @@ def socket(m, x0, y0, faded=False):
     m.part("sock", "Power socket", s, (x0 - 24, y0, x0 + 120, y0 + 88), faded=faded)
 
 
-def pump(m, x0, y0, fam, si=False, faded=False):
+def pump(m, x0, y0, fam, si=False, faded=False, fuse=True):
     s = box(x0, y0, 96, 176) + box(x0 + 32, y0 + 176, 32, 40, "box", 3)
     s += spade(x0 + 24, y0 + 16, 9, 16) + spade(x0 + 48, y0 + 16, 9, 16)
     s += text(x0 + 24, y0 + 40, "A", "pinl") + text(x0 + 48, y0 + 40, "B", "pinl")
-    s += box(x0 + 60, y0 + 24, 24, 28, "fuse", 2) + text(x0 + 72, y0 + 64, "110 °C", "tiny")
+    if fuse:
+        s += box(x0 + 60, y0 + 24, 24, 28, "fuse", 2) + text(x0 + 72, y0 + 64, "110 °C", "tiny")
     s += text(x0 + 48, y0 + 104, "Ulka pump", "nm") + text(x0 + 48, y0 + 118, "connector side", "tiny")
     m.t("pump:A", x0 + 24, y0, "u", "pump")
     m.t("pump:B", x0 + 48, y0, "u", "pump")
-    m.t("pf:in", x0 + 64, y0 + 24, "u", "pump")
-    m.t("pf:out", x0 + 80, y0 + 24, "u", "pump")
-    m.part("pump", "Pump and its 110 °C fuse", s, (x0, y0, x0 + 96, y0 + 216), faded=faded)
+    if fuse:
+        m.t("pf:in", x0 + 64, y0 + 24, "u", "pump")
+        m.t("pf:out", x0 + 80, y0 + 24, "u", "pump")
+    m.part("pump", "Pump and its 110 °C fuse" if fuse else "Pump (no fuse on this drawing)", s,
+           (x0, y0, x0 + 96, y0 + 216), faded=faded)
 
 
 def inline_spade(m, x, y):
-    s = f'<rect x="{x - 8}" y="{y - 5}" width="16" height="10" rx="2" class="splice"/>' + text(x, y - 10, "inline spade", "tiny")
+    s = f'<rect x="{x - 8}" y="{y - 5}" width="16" height="10" rx="2" class="splice"/>' + text(x, y + 18, "inline spade", "tiny")
     m.t("inl", x, y, "u", "inl")
-    m.part("inl", "Inline spade at the pump", s, (x - 30, y - 22, x + 30, y + 6))
+    m.part("inl", "Inline spade at the pump", s, (x - 30, y - 6, x + 30, y + 22))
 
 
 def sensor(m, x0, y0):
@@ -237,10 +258,10 @@ def sensor(m, x0, y0):
 
 def thermocouple(m, x, y):
     s = (f'<path d="M{x},{y} V{y + 40}" class="lead"/><rect x="{x - 6}" y="{y + 40}" width="12" height="28" rx="2" class="box"/>'
-         f'<path d="M{x},{y + 68} V{y + 84}" class="lead"/>' + text(x + 12, y + 54, "Thermocouple", "tiny", "start")
-         + text(x + 12, y + 66, "in the brew thermostat's hole", "tiny", "start"))
+         f'<path d="M{x},{y + 68} V{y + 84}" class="lead"/>' + text(x + 12, y + 44, "Thermocouple", "tiny", "start")
+         + text(x + 12, y + 56, "in the brew", "tiny", "start") + text(x + 12, y + 68, "thermostat's hole", "tiny", "start"))
     m.t("tc", x, y, "u", "tc")
-    m.part("tc", "Thermocouple", s, (x - 8, y, x + 160, y + 84))
+    m.part("tc", "Thermocouple", s, (x - 8, y, x + 104, y + 84))
 
 
 def screen(m, x0, y0):
@@ -283,12 +304,16 @@ def pcb(m, x0=1176, y0=296):
     m.part("pcb", "Gaggiuino PCB", s, (x0, y0, x0 + 200, y0 + 536))
 
 
-def flag(m, fid, x, y, d, note, faded=False):
-    """a stock connector end: drawn as a small tab with its name; d is the side its new wire leaves from"""
+def flag(m, fid, x, y, d, note, faded=False, ld=None):
+    """a stock connector end: drawn as a small tab with its name; d is the side its new wire leaves from, ld the side its
+    stock lead leaves from when that differs"""
     w = 16 * -(-(14 + 8 * len(fid)) // 16)
     s = f'<rect x="{x - w / 2}" y="{y - 8}" width="{w}" height="16" rx="3" class="flag"/>' + text(x, y + 4, fid, "flagt")
-    off = {"l": (-w / 2, 0), "r": (w / 2, 0), "u": (0, -8), "d": (0, 8)}[d]
+    offs = {"l": (-w / 2, 0), "r": (w / 2, 0), "u": (0, -8), "d": (0, 8)}
+    off = offs[d]
     m.t("f:" + fid, x + off[0], y + off[1], d, "f:" + fid)
+    if ld:
+        m.t("f:" + fid + "~", x + offs[ld][0], y + offs[ld][1], ld, "f:" + fid)
     m.part("f:" + fid, "Stock connector " + fid, s, (x - w / 2, y - 8, x + w / 2, y + 8), note=note, faded=faded)
 
 
@@ -306,25 +331,26 @@ def layout_gcp(key, title, si, data):
     pcb(m)
     sensor(m, 1040, 384)
     if si:
-        cup_warmer(m, faded=True, at=(640, 760))
+        cup_warmer(m, faded=True, at=(680, 760))
         boiler(m, si=True)
         thermocouple(m, 248, 432)
         ssr(m, 480, 336)
         solenoid(m, 656, 392, faded=True)
-        chassis(m, 728, 560, faded=True)
+        chassis(m, 680, 560, faded=True)
         socket(m, 544, 760, faded=True)
         pump(m, 824, 600, "GCP", si=True)
         flag(m, "Ba", 336, 416, "r", data["Ba"])
         flag(m, "Bb", 408, 416, "l", data["Bb"])
-        flag(m, "Sb", 472, 560, "u", data["Sb"])
-        flag(m, "Sa", 536, 576, "u", data["Sa"])
-        flag(m, "Pb", 824, 544, "r", data["Pb"])
-        flag(m, "B4", 968, 584, "r", data["B4"])
-        flag(m, "Pa", 896, 576, "u", data["Pa"])
+        flag(m, "Sb", 472, 560, "u", data["Sb"], ld="d")
+        flag(m, "Sa", 536, 576, "u", data["Sa"], ld="d")
+        flag(m, "Pb", 776, 544, "r", data["Pb"], ld="l")
+        flag(m, "B4", 968, 584, "r", data["B4"], ld="u")
+        flag(m, "Pa", 912, 528, "r", data["Pa"], ld="l")
         flag(m, "S4", 384, 176, "u", data["S4"], faded=True)
         flag(m, "S5", 440, 192, "u", data["S5"], faded=True)
         m.links += [("f:Ba", "b:bt", True), ("f:Bb", "b:bt", True), ("f:Sa", "b:st", True), ("f:Sb", "b:st", True),
-                    ("f:Pb", "pump:A", True), ("f:Pa", "pump:B", False), ("f:B4", "brew4", True), ("f:S4", "steam1", False)]
+                    ("f:Pb", "pump:A", True), ("f:Pa", "pump:B", False), ("f:B4", "brew4", True), ("f:S4", "steam1", False),
+                    ("f:S5", "steam5", True)]
     else:
         cup_warmer(m)
         boiler(m)
@@ -354,8 +380,10 @@ def layout_gc(key, title, si, data, volts):
         used = {"Brew 1", "Brew P", "Steam 3", "Steam P"}
     else:
         used = {"Brew 1", "Brew P", "Steam 3", "Steam P", "On/Off 7", "On/Off P", "On/Off 8"}
-    il = box(536, 64, 56, 96, "opt", 6) + text(564, 40, "Brew lamp", "nm") + text(564, 53, "inside, unused", "tiny")
-    m.part("lampB", "Internal brew lamp (unused)", il, (528, 24, 600, 160), faded=True, obs=[(536, 24, 592, 56)])
+    lname = "Boiler lamp" if si else "Brew lamp"
+    lx = 472 if si else 536
+    il = box(lx, 64, 56, 96, "opt", 6) + text(lx + 28, 40, lname, "nm") + text(lx + 28, 53, "inside, unused", "tiny")
+    m.part("lampB", f"Internal {lname.lower()} (unused)", il, (lx - 8, 24, lx + 64, 160), faded=True, obs=[(lx, 24, lx + 56, 56)])
     housing(m, 616, used)
     ip = box(896, 64, 56, 96, "opt", 6) + text(924, 40, "Power lamp", "nm") + text(924, 53, "inside" if si else "now the boiler lamp", "tiny")
     m.part("lampP", "Internal power lamp", ip, (888, 24, 960, 160), obs=[(896, 24, 952, 56)])
@@ -366,38 +394,46 @@ def layout_gc(key, title, si, data, volts):
     if si:
         thermocouple(m, 248, 432)
         ssr(m, 480, 336)
-        cup_warmer(m, faded=True, at=(640, 760))
-        solenoid(m, 656, 392, faded=True)
+        cup_warmer(m, faded=True, at=(680, 760))
+        solenoid(m, 656, 392, faded=True, gnd_down=True)
         socket(m, 544, 760, faded=True)
-        pump(m, 824, 600, "GC", si=True)
+        pump(m, 824, 600, "GC", si=True, fuse=volts != 230)
         flag(m, "Ba", 336, 416, "r", data["Ba"])
         flag(m, "Bb", 408, 416, "l", data["Bb"])
-        flag(m, "Sb", 472, 560, "u", data["Sb"])
-        flag(m, "Sa", 536, 592, "u", data["Sa"])
-        flag(m, "P1-2", 824, 544, "r", data["P1-2"])
-        flag(m, "Pb", 824, 576, "r", data["Pb"])
+        flag(m, "Sb", 472, 560, "u", data["Sb"], ld="d")
+        flag(m, "Sa", 536, 592, "u", data["Sa"], ld="d")
+        flag(m, "P1-2", 768, 504, "r", data["P1-2"], ld="l")
+        flag(m, "Pb", 776, 544, "r", data["Pb"], ld="l")
         if "Pa" in data:
-            flag(m, "Pa", 896, 584, "u", data["Pa"])
-            flag(m, "F", 896, 552, "u", data["F"], faded=True)
+            flag(m, "Pa", 912, 528, "r", data["Pa"], ld="l")
+            flag(m, "F", 952, 640, "l", data["F"], faded=True)
         else:
-            flag(m, "F", 896, 584, "u", data["F"])
-        for i, fid in enumerate(("1", "2", "3", "P3-4")):
-            flag(m, fid, 528 + 48 * (i % 2), 216 + 28 * (i // 2), "u", data[fid], faded=True)
+            flag(m, "F", 912, 528, "r", data["F"], ld="l")
+        for fid, x, y, d in (("1", 584, 96, "r"), ("2", 584, 160, "r"), ("P3-4", 712, 248, "u"), ("3", 768, 248, "u")):
+            flag(m, fid, x, y, d, data[fid], faded=True)
         m.links += [("f:Ba", "b:bt", True), ("f:Bb", "b:bt", True), ("f:Sa", "b:st", True), ("f:Sb", "b:st", True),
                     ("f:Pb", "pump:A", True), ("f:P1-2", "hs:Brew P", True)]
         m.links += [("f:Pa", "pump:B", False)] if "Pa" in data else [("f:F", "pump:B", False)]
+        m.links += [("f:1", "hs:Brew 1", True), ("f:2", "hs:Brew 2", True), ("f:3", "hs:Steam 3", True), ("f:P3-4", "hs:Steam P", True)]
     else:
         thermocouple(m, 456, 424)
         ssr(m, 568, 296)
         cup_warmer(m)
         pump(m, 664, 600, "GC")
-        solenoid(m, 816, 600)
+        solenoid(m, 816, 600, gnd_down=True)
         socket(m, 936, 712)
         inline_spade(m, 776, 576)
         splice(m, "s5", "BN2 splice", 496, 736, label="BN2")
         rf = (box(472, 760, 136, 80, "opt", 8) + f'<circle cx="540" cy="796" r="13" class="term"/>'
               + text(540, 778, "Resettable fuse, optional", "tiny"))
-        m.part("rf", "Resettable fuse (optional, not wired here)", rf, (472, 760, 608, 840), faded=True)
+        if volts == 230:
+            rnote = ("Optional, in the steam thermostat's place. If you fit it, AC6 and AC7 move from the thermal fuse's "
+                     "right end to its right spade, and the element lead AC8 from the fuse's left end to its left spade (TL).")
+        else:
+            rnote = ("Optional, in the steam thermostat's place. If you fit it, AC6 and AC7 move from the thermal fuse's "
+                     "right end to its right spade, and the element leads AC8 and AC9 from the fuse's left end to its left "
+                     "spade (TL and BL).")
+        m.part("rf", "Resettable fuse (optional, not drawn wired)", rf, (472, 760, 608, 840), note=rnote, faded=True)
     return m
 
 
@@ -476,18 +512,45 @@ def resolve(end, role, run, fam="GCP"):
 
 # ---------- router ----------
 class Router:
-    def __init__(self, m):
+    def __init__(self, m, used=None):
         self.m = m
         self.nx, self.ny = W // G + 1, H // G + 1
         self.block = [[False] * self.ny for _ in range(self.nx)]
-        for (x0, y0, x1, y1, _) in m.obs:
+        self.owner = {}
+        for (x0, y0, x1, y1, pid) in m.obs:
             for i in range(max(0, int(x0 // G)), min(self.nx, -int(-x1 // G) + 1)):
                 for j in range(max(0, int(y0 // G)), min(self.ny, -int(-y1 // G) + 1)):
                     self.block[i][j] = True
+                    self.owner.setdefault((i, j), set()).add(pid)
         for i in range(self.nx):
             for j in range(0, 3):
                 self.block[i][j] = True
-        self.occ = {}  # (i, j) -> list of (axis, run id, set of terminals)
+        self.occ = {}   # (i, j) -> list of (axis, run id, set of terminals, circuit)
+        self.bends = {}  # (i, j) -> list of (run id, set of terminals): where a run turns
+        self.soft = {}
+        for (x0, y0, x1, y1, c) in m.soft:
+            for i in range(max(0, int(x0 // G)), min(self.nx, int(x1 // G) + 1)):
+                for j in range(max(0, int(y0 // G)), min(self.ny, int(y1 // G) + 1)):
+                    self.soft[(i, j)] = self.soft.get((i, j), 0) + c
+        # every terminal keeps its own clearance: the cells round it and its way out belong to the runs that end there
+        self.stubs = {tn: self.stub(tn) for tn in m.term}
+        self.own = {}
+        for tn, (cells, _) in self.stubs.items():
+            i, j = cells[0]
+            zone = {(i + a, j + b) for a in (-1, 0, 1) for b in (-1, 0, 1)}
+            if used is None or tn in used:
+                zone |= set(cells)
+            self.own[tn] = zone
+        self.keep = {}
+        for tn, zone in self.own.items():
+            for c in zone:
+                self.keep.setdefault(c, set()).add(tn)
+        self.near = {}
+        for c, tns in self.keep.items():
+            for (a, b) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                n = (c[0] + a, c[1] + b)
+                self.near.setdefault(n, set()).update(tns)
+        self.fallback = []
 
     def stub(self, tn):
         """leave a terminal straight out of its part until clear of every obstacle; returns the cells"""
@@ -501,27 +564,49 @@ class Router:
             j += dy
             n += 1
             cells.append((i, j))
-            if n >= 2 and not self.block[i][j]:
+            if n >= 3 and (not self.block[i][j] or part not in self.owner.get((i, j), ())):
                 break
             if n > 40:
                 break
         return cells, (dx, dy)
 
-    def cost(self, cell, axis, nets):
-        c = 0.0
-        for (ax, rid, ts) in self.occ.get(cell, ()):
+    def cost(self, cell, axis, nets, grp):
+        c = self.soft.get(cell, 0)
+        for (ax, rid, ts, g) in self.occ.get(cell, ()):
             if ts & nets:
                 c += 0.15
             elif ax == axis:
-                c += 9.0
+                c += 14.0
             else:
-                c += 2.5
+                c += 9.0 if g == grp else 5.0  # two wires of one colour crossing are the easiest to misread
+        for (rid, ts) in self.bends.get(cell, ()):
+            if not ts & nets:
+                c += 8.0  # crossing right at another wire's corner reads like a junction
+        if self.near.get(cell, set()) - nets:
+            c += 6
         return c
 
-    def route(self, a, b, rid):
-        ca, da = self.stub(a)
-        cb, db = self.stub(b)
+    def route(self, a, b, rid, grp=""):
+        try:
+            return self._route(a, b, rid, grp, hard=True)
+        except RuntimeError:
+            self.fallback.append(rid)
+            return self._route(a, b, rid, grp, hard=False)
+
+    def unroute(self, rid):
+        for d in (self.occ, self.bends):
+            for c in list(d):
+                keep = [e for e in d[c] if e[1 if d is self.occ else 0] != rid]
+                if keep:
+                    d[c] = keep
+                else:
+                    del d[c]
+
+    def _route(self, a, b, rid, grp, hard):
+        ca, da = self.stubs[a]
+        cb, db = self.stubs[b]
         nets = {a, b}
+        mine = self.own[a] | self.own[b]
         start, goal = ca[-1], cb[-1]
         dirs = ((1, 0), (-1, 0), (0, 1), (0, -1))
         sd = dirs.index(da)
@@ -545,8 +630,11 @@ class Router:
                     continue
                 if self.block[ni][nj] and (ni, nj) != goal:
                     continue
+                kept = (ni, nj) in self.keep and (ni, nj) not in mine
+                if kept and hard:
+                    continue
                 axis = "h" if dx else "v"
-                step = 1 + self.cost((ni, nj), axis, nets) + (4 if nd != di else 0)
+                step = 1 + self.cost((ni, nj), axis, nets, grp) + (4 if nd != di else 0) + (40 if kept else 0)
                 if (ni, nj) == goal and nd != gd:
                     step += 6
                 ng = g + step
@@ -568,7 +656,11 @@ class Router:
             (i0, j0), (i1, j1) = cells[k - 1], cells[k]
             axis = "h" if i0 != i1 else "v"
             for c in ((i0, j0), (i1, j1)):
-                self.occ.setdefault(c, []).append((axis, rid, nets))
+                self.occ.setdefault(c, []).append((axis, rid, nets, grp))
+        for k in range(1, len(cells) - 1):
+            (i0, j0), (i1, j1), (i2, j2) = cells[k - 1], cells[k], cells[k + 1]
+            if (i1 - i0, j1 - j0) != (i2 - i1, j2 - j1):
+                self.bends.setdefault(cells[k], []).append((rid, nets))
         # exact terminal points at the ends, grid in between
         pts = [(c[0] * G, c[1] * G) for c in cells]
         ax, ay = self.m.term[a][:2]
@@ -623,7 +715,6 @@ def build_variant(key, v):
         m = layout_gcp(key, title, si, flags)
     else:
         m = layout_gc(key, title, si, flags, v["volts"])
-    r = Router(m)
     runs = []
     missing = []
     for run in v["runs"]:
@@ -635,21 +726,41 @@ def build_variant(key, v):
         runs.append((run, a, b))
     if missing:
         raise SystemExit("unplaced ends:\n  " + "\n  ".join(missing))
+    used = {t for _, a, b in runs for t in (a, b)} | {t for fa, fb, _ in m.links for t in (fa, fa + "~", fb)}
+    if v.get("cables"):
+        used |= {t for _, legs in CABLES.values() for leg in legs for t in leg}
+    r = Router(m, used)
     order = {"H": 0, "L": 1, "N": 2, "E": 3, "LV": 4, "LVG": 4}
     def dist(x):
         (ax, ay), (bx, by) = m.term[x[1]][:2], m.term[x[2]][:2]
         return abs(ax - bx) + abs(ay - by)
-    paths = {}
-    for run, a, b in sorted(runs, key=lambda x: (order.get(x[0]["sys"], 5), dist(x))):
-        paths[run["id"]] = r.route(a, b, run["id"])
-    links = []
+    # everything to draw, in routing order: (key, from, to, circuit)
+    jobs = [(run["id"], a, b, run["sys"]) for run, a, b in sorted(runs, key=lambda x: (order.get(x[0]["sys"], 5), dist(x)))]
+    lmap = []
     for (fa, fb, moved) in m.links:
-        links.append((fa, fb, moved, r.route(fa, fb, "stock:" + fa)))
-    m.routed_links = links
+        fa = fa + "~" if fa + "~" in m.term else fa
+        lmap.append((fa, fb, moved))
+        jobs.append(("stock:" + fa, fa, fb, "STK"))
+    if v.get("cables"):
+        for cid, (nm, legs) in CABLES.items():
+            jobs += [(f"{cid}#{i}", a, b, "S") for i, (a, b) in enumerate(legs)]
+    got = {}
+    for jid, a, b, grp in jobs:
+        got[jid] = r.route(a, b, jid, grp)
+    # then route each again with all the others in place, so the first ones drawn see the last ones
+    for _ in range(2):
+        r.fallback = []
+        for jid, a, b, grp in jobs:
+            r.unroute(jid)
+            got[jid] = r.route(a, b, jid, grp)
+    if r.fallback:
+        print(f"  {key}: squeezed past another terminal: {', '.join(r.fallback)}")
+    paths = {run["id"]: got[run["id"]] for run, _, _ in runs}
+    m.routed_links = [(fa, fb, moved, got["stock:" + fa]) for fa, fb, moved in lmap]
     cab = {}
     if v.get("cables"):
         for cid, (nm, legs) in CABLES.items():
-            cab[cid] = [r.route(a, b, cid) for a, b in legs]
+            cab[cid] = [got[f"{cid}#{i}"] for i in range(len(legs))]
     return m, runs, paths, cab
 
 
@@ -696,7 +807,7 @@ def svg_variant(key, v):
     o.extend(p[3] for p in m.parts)
     o.append('</g><g class="stocks">')
     for (fa, fb, moved, pts) in getattr(m, "routed_links", []):
-        o.append(f'<path d="{d_of(pts)}" class="stk{" moved" if moved else ""}" data-part="{fa}"/>')
+        o.append(f'<path d="{d_of(pts)}" class="stk{" moved" if moved else ""}" data-part="{m.term[fa][3]}" data-to="{m.term[fb][3]}"/>')
     o.append('</g><g class="wires">')
     seq = sorted(runs, key=lambda x: {"LV": 0, "LVG": 0, "E": 1, "N": 2, "L": 3, "H": 4}.get(x[0]["sys"], 0))
     for cid, legs in cab.items():

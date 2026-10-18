@@ -22,7 +22,7 @@
       if(l==='lv')return s==='LV'||s==='LVG'||s==='S';
       return s===l;
     }
-    function lenTxt(r){return r.mm?r.mm+' mm':(r.sys==='LV'||r.sys==='LVG'?'Measure on your machine':'Stock lead, no length to cut')}
+    function lenTxt(r){return r.mm?r.mm+' mm':(r.stock?'Stock lead, no length to cut':'Measure on your machine')}
     /* the order the list uses, so the stepper walks the runs the way the page lists them */
     function listOrder(){
       var rs=v.runs.filter(function(r){return showOpt||!r.opt});
@@ -36,6 +36,7 @@
         el('mscroll').innerHTML=mp?mp.svg:'';svg=el('mscroll').querySelector('svg');}
       order=listOrder();
       el('mapsec').hidden=!mp;
+      el('mcapsi').hidden=!(v&&v.path==='SI');
       if(mp)paint();
     }
     function ends(id){return (mp.ends[id]||[])}
@@ -48,6 +49,11 @@
         else if(sel&&sel.t==='part')on=ends(id).indexOf(sel.id)>=0;
         else on=inLayer(id,layer);
         lit[id]=on;if(on&&sel)ends(id).forEach(function(p){partsLit[p]=1});
+      });
+      /* a stock connector's lead lights with it, and so does the part that lead came off or stays on */
+      Array.prototype.forEach.call(svg.querySelectorAll('.stk'),function(g){
+        var f=g.getAttribute('data-part'),t=g.getAttribute('data-to'),on=!!sel&&(partsLit[f]||(sel.t==='part'&&(sel.id===f||sel.id===t)));
+        g.classList.toggle('on',!!on);if(on){partsLit[t]=1;partsLit[f]=1}
       });
       svg.classList.toggle('dim',any);svg.classList.toggle('wcol',wcol);
       Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag'),function(g){
@@ -81,7 +87,7 @@
       var h;
       if(wcol)h='<span><i class="c" style="background:#C2412F"></i>The drawing\'s own wire colors, as listed for each run</span>';
       else h=[['L','Line'],['H','Heater line'],['N','Neutral'],['E','Earth'],['LV','Switch signal, SSR control'],['LVG','Low-voltage ground']].map(function(x){return '<span><i class="lg-'+x[0]+'"></i>'+x[1]+'</span>'}).join('')+(mp&&mp.cables&&Object.keys(mp.cables).length?'<span><i class="lg-S"></i>Sensor and screen cables</span>':'');
-      if(v.path==='SI')h+='<span><i class="lg-stk"></i>Stock lead: where a stock connector came from</span>';
+      if(v.path==='SI')h+='<span><i class="lg-stk0"></i>Stock lead that stays on its spade</span><span><i class="lg-stk"></i>Where a moved or parked stock connector came off</span>';
       if(v.runs.some(function(r){return r.opt}))h+='<span><i style="border-top-style:dashed"></i>Optional run</span>';
       el('mlegend').innerHTML=h;
     }

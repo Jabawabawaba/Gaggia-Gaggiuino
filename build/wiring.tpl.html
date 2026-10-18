@@ -84,7 +84,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
       <div class="mscroll" id="mscroll"></div>
       <p class="mhint phone">The map is wide: scroll it sideways, or pinch to zoom.</p>
       <div class="mlegend" id="mlegend" aria-label="Legend"></div>
-      <figcaption class="fine" style="margin-top:8px">Redrawn from the official schematic, with each part where that drawing puts it, so you can hold the two side by side. Switches are seen from the back, as on the drawing. Thick lines carry mains, thin ones low voltage. Where two runs meet at one terminal, they share its connector. The map is a guide to follow; the official drawing is the reference.</figcaption>
+      <figcaption class="fine" style="margin-top:8px">Redrawn from the official schematic, with each part where that drawing puts it, so you can hold the two side by side. Switches are seen from the back, as on the drawing. Thick lines carry mains, thin ones low voltage. Where two runs meet at one terminal, they share its connector. The map is a guide to follow; the official drawing is the reference.<span id="mcapsi" hidden> A stock-wiring map draws only the stock leads this install touches; every other stock wire stays as it is.</span></figcaption>
     </figure>
     <div class="mdetail empty" id="mdetail" aria-live="polite"></div>
   </section>
@@ -126,7 +126,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     if(view==='terms')renderTerms(v);else renderRuns(v);
   }
   function runsOf(v){return v.runs.filter(function(r){return showOpt||!r.opt})}
-  function lenTxt(r){return r.mm?r.mm+' mm':(r.sys==='LV'||r.sys==='LVG'?'measure':'stock')}
+  function lenTxt(r){return r.mm?r.mm+' mm':(r.stock?'stock':'measure')}
   /* ends at the boiler or valve: uninsulated spades under silicone, never nylon-insulated ones (the cut list counts them the same way) */
   function isBare(r,i){return !!(r.k&&(r.k[i]==='b'||r.k[i]==='mb'))}
   function endLabel(r,i){return esc(r.ends[i]||'')+(isBare(r,i)?'<span class="tag2 bare">bare</span>':'')}
