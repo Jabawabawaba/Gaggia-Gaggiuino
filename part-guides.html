@@ -1,0 +1,981 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><title>Part Guides</title>
+<style>
+.site-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;font:500 14px/1.35 "Barlow",system-ui,sans-serif;background:var(--surface,#F9FAFA);color:var(--ink,#16191C);border-bottom:1px solid var(--line,#CBD0D5);transition:transform .22s ease,box-shadow .22s ease}
+/* it slides away while you read down the page and comes back as soon as you scroll up a little (NAV_JS) */
+.site-nav.nav-hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+.site-nav.nav-float{box-shadow:0 6px 18px rgba(0,0,0,.16)}
+@media (prefers-reduced-motion:reduce){.site-nav{transition:none}}
+.site-nav .in{max-width:1300px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.site-nav a{color:var(--ink,#16191C);text-decoration:none;padding:4px 0;white-space:nowrap}
+.site-nav a:hover,.site-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+.site-nav .brand{font-weight:700;letter-spacing:.01em;padding:8px 0}
+.site-nav .brand small{font-weight:500;color:var(--muted,#59616A);margin-left:6px;font-size:12px}
+.site-nav .nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;flex:1 1 auto;min-width:0}
+.site-nav .grp{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 12px}
+.site-nav .gl{font:600 10.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A)}
+.site-nav button{font:inherit;color:inherit}
+.nav-toggle{display:none;appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer;margin-left:auto}
+.nav-toggle[aria-expanded="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.mchip{appearance:none;border:1px solid var(--accent,#D98400);background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);border-radius:999px;padding:6px 12px;min-height:36px;cursor:pointer;font-weight:600;white-space:nowrap}
+.mchip b{color:var(--ink,#16191C);font-weight:600;margin-left:4px}
+/* desktop: brand and Your Gaggia on the first row, every page on the second */
+@media (min-width:1061px){
+  .site-nav .nav-links{order:3;flex-basis:100%}
+  .mchip{margin-left:auto}
+}
+/* tablets and phones: brand, Your Gaggia and the Pages button on one row; the page list opens below */
+@media (max-width:1060px){
+  .site-nav .brand{order:1}
+  .mchip{order:2;margin-left:auto;min-height:40px}
+  .nav-toggle{display:inline-block;order:3;margin-left:0;min-height:40px}
+  .site-nav .nav-links{display:none;order:5;flex-basis:100%;flex-direction:column;align-items:flex-start;gap:6px;padding:6px 0 6px}
+  .site-nav .nav-links.open{display:flex;position:absolute;left:0;right:0;top:100%;background:var(--surface,#F9FAFA);border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);box-shadow:0 12px 24px rgba(0,0,0,.18);padding:4px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+  .site-nav .grp{gap:0 18px}
+  .site-nav .nav-links a{display:inline-flex;align-items:center;min-height:40px}
+}
+@media (max-width:480px){
+  .site-nav .in{gap:6px 10px}
+  .site-nav .brand small{display:none}
+  .mchip:not(.set) #mchip-l{display:none}
+  .mchip.set .mchip-k{display:none}
+  .mchip.set b{margin-left:0}
+  .mchip-x{display:none}
+}
+/* the page list (phones) and the Your Gaggia panel open over the page, so nothing below them jumps */
+.mpanel{position:absolute;left:0;right:0;top:100%;border-top:1px solid var(--line,#CBD0D5);border-bottom:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);box-shadow:0 12px 24px rgba(0,0,0,.18);max-height:calc(100vh - 120px);max-height:calc(100svh - 120px);overflow-y:auto;overscroll-behavior:contain}
+.mpanel .in{display:grid;gap:12px;padding-block:14px 16px}
+/* behind an open page list or panel: dims the page, and a tap on it closes them instead of following whatever link was under it */
+.nav-scrim{position:fixed;inset:0;z-index:49;background:rgba(10,14,18,.3);-webkit-tap-highlight-color:transparent}
+.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.mk{font:600 11px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);min-width:7ch}
+.mseg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line,#CBD0D5);border-radius:999px;overflow:hidden}
+.mseg button{appearance:none;border:0;border-right:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);padding:7px 13px;cursor:pointer;font-weight:600;min-height:36px}
+.mseg button:last-child{border-right:0}
+.mseg button[aria-pressed="true"]{background:var(--ink,#16191C);color:var(--bg,#ECEEF0)}
+.mseg button[disabled]{opacity:.4;cursor:default}
+.mh{font-size:13px;color:var(--muted,#59616A)}
+#m-summary{margin:0;font-size:14px;color:var(--muted,#59616A);max-width:80ch}
+.mact{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.mact a{color:var(--accent-ink,#965300);text-decoration:underline}
+.mact button{appearance:none;border:1px solid var(--line,#CBD0D5);background:var(--surface,#F9FAFA);border-radius:8px;padding:6px 12px;cursor:pointer}
+.mact button#m-done{background:var(--ink,#16191C);color:var(--bg,#ECEEF0);border-color:var(--ink,#16191C)}
+.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono,ui-monospace,monospace);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft,#F4E1C0);color:var(--accent-ink,#965300);vertical-align:2px;margin-left:6px;white-space:nowrap}
+.site-foot{font:400 13.5px/1.5 "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);border-top:1px solid var(--line,#CBD0D5);background:var(--bg,#ECEEF0)}
+.site-foot .in{max-width:1300px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));display:grid;gap:6px}
+.site-foot a{color:var(--accent-ink,#965300)}
+.site-foot p{margin:0;max-width:95ch}
+/* every page ends with the full page list, so the next page is one tap away at the bottom too */
+.foot-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;min-width:0;padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--line,#CBD0D5)}
+@media (min-width:640px){.foot-nav{grid-template-columns:repeat(4,minmax(0,180px))}}
+.foot-nav .fn-home{grid-column:1/-1;justify-self:start;font-weight:700;color:var(--ink,#16191C);text-decoration:none;padding:4px 0}
+.foot-nav .fn-g{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0}
+.foot-nav .gl{font:600 11.5px var(--f-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#59616A);margin-bottom:2px}
+.foot-nav .fn-g a{color:var(--ink,#16191C);text-decoration:none;padding:3px 0}
+.foot-nav a:hover,.foot-nav a[aria-current]{text-decoration:underline;text-underline-offset:3px}
+@media (pointer:coarse){.foot-nav .fn-g a,.foot-nav .fn-home{padding:8px 0}}
+@media print{.site-nav,.site-foot,.swipe-hint,.nav-scrim{display:none!important}}
+/* phones: inputs fill their boxes, small text buttons get a bigger tap area, wide drawings say they scroll */
+.read input,.money input,.unitbox input{align-self:stretch}
+@media (pointer:coarse){
+  .linkbtn{min-height:40px}
+  summary{min-height:40px}
+  .mact a,.foot .links a{display:inline-block;padding:10px 0}
+  input.mm{min-height:36px}
+  input[type=range]{height:32px}
+}
+@media (max-width:600px){
+  .plate{font-size:12px}
+  .vtag{font-size:11px}
+}
+.swipe-hint{margin:6px 0 0;font:500 12.5px "Barlow",system-ui,sans-serif;color:var(--muted,#59616A);display:flex;align-items:center;gap:6px}
+.swipe-hint::before{content:"";width:18px;height:10px;background:linear-gradient(90deg,transparent 0 3px,currentColor 3px 15px,transparent 15px) center/100% 2px no-repeat;opacity:.7}
+/* "Show all models" switch (machine.js): sections that lead with your Gaggia keep the other models one tap away */
+[data-when][hidden],[data-showall][hidden],.mnote[hidden],[data-when][display="none"]{display:none!important}
+.showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
+.showall-btn:hover{border-color:var(--accent,#B8650A)}
+.showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
+</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="part-guides.html" aria-current="page">Part guides</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
+   Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
+   condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
+   show; with no voltage, both voltages' notes show and the wording stays generic. Nothing is filled in for them.
+   Condition keys:
+     model:GC,GCP,EVO,E24   the machine (GC = original Classic; GCP, EVO, E24 = the Classic Pro family)
+     fam:GC | fam:GCP       Classic or Classic Pro family (Pro, Eco, Evo, E24)
+     volts:120 | volts:230
+     eco:yes | eco:no       230 V Pro-family machines with the Eco board (auto-off PCB, push-button power switch)
+     opv9                   US Evo Pro and E24: 9 bar OPV that has to go up to 10-12 bar
+     ground                 120 V original Classic: often a 2-pin cord, needs grounding
+     siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
+     path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
+                            so it gets custom wiring even when stock wiring is picked
+     set:model,volts,path   true only once every named field is picked (for wording that replaces a combined version)
+     unset:model,volts,path true while any named field is still open (for the combined version itself)
+     !key:...               the opposite of key:..., but only once that field is decided (e.g. !opv9: a known machine without the 9 bar OPV)
+   Elements with data-mtext="gfci|outlet|volts" get voltage-specific wording.
+   Inside an element with class m-showall, data-when never hides anything: that's the "Show all models" view.
+   txt(x) turns text into what applies: a plain string as is, or a list of segments, each a string (always kept)
+   or [text, when] (kept only when the condition matches), joined with spaces. */
+(function(){
+  var KEY='gaggia-machine-v1',MODELS=['GC','GCP','EVO','E24'];
+  var NAMES={GC:'Classic',GCP:'Classic Pro',EVO:'Classic Evo',E24:'Classic E24'};
+  var SHORT={GC:'Classic',GCP:'Pro',EVO:'Evo',E24:'E24'};
+  /* the Evo and E24 carry "Pro" only in North America: Classic Evo Pro and Classic Pro E24 at 120 V */
+  function shortName(m,v){return v===120?{EVO:'Evo Pro',E24:'Pro E24'}[m]||SHORT[m]:SHORT[m]}
+  function longName(m,v){return v===120?{EVO:'Classic Evo Pro',E24:'Classic Pro E24'}[m]||NAMES[m]:NAMES[m]}
+  var TEXT={
+    gfci:{'120':'GFCI','230':'RCD','':'GFCI (RCD outside North America)'},
+    outlet:{'120':'GFCI-protected outlet','230':'socket with RCD protection','':'GFCI- or RCD-protected outlet'},
+    volts:{'120':'120 V','230':'230 V','':'your mains voltage'}
+  };
+  function pro(m){return m==='GCP'||m==='EVO'||m==='E24'}
+  function clean(s){
+    if(!s||typeof s!=='object')return null;
+    var model=MODELS.indexOf(s.model)>=0?s.model:null;
+    var v=Number(s.volts),volts=v===230?230:v===120?120:null;
+    /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
+    var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
+    var path=s.path==='SI'||s.path==='CW'?s.path:null;
+    if(!model&&!volts&&!path)return null;
+    return {model:model,volts:volts,eco:eco,path:path};
+  }
+  function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
+  var prof=read();
+  /* Eco board: true, false, or null when it isn't known yet */
+  function ecoOf(p){
+    if(!p)return null;
+    /* no 120 V machine and no original Classic has the Eco board, whatever else is still open */
+    if(p.volts===120||p.model==='GC')return false;
+    if(!p.model||p.volts!==230)return null;
+    return p.eco==null?null:!!p.eco;
+  }
+  /* the wiring the pages actually use (see wpath above); null until an install path is picked */
+  function wpathOf(p){
+    if(!p||!p.path)return null;
+    if(p.path==='CW'||p.model==='GC')return p.path;
+    /* stock wiring on a Pro-family machine, or on an unknown model: it holds at 120 V, becomes custom wiring at 230 V, and is open until the voltage (and model) are known */
+    if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
+    return p.volts===120?'SI':null;
+  }
+  function conds(when){
+    return String(when||'').split(';').map(function(c){
+      c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
+    }).filter(function(c){return c.k});
+  }
+  /* true unless the profile rules the element out; unknown fields never rule anything out */
+  function matches(when){
+    if(!when)return true;
+    if(!prof)return conds(when).every(function(c){return c.k!=='set'});
+    return conds(when).every(one);
+  }
+  /* one condition; "!key" is true when the field is decided and the condition doesn't hold, and never hides while it's open */
+  function one(c){
+    if(c.k.charAt(0)==='!'){var inner={k:c.k.slice(1),vals:c.vals};return !decidedOne(inner)||!one(inner)}
+    return (function(c){
+      if(c.k==='model')return !prof.model||c.vals.indexOf(prof.model)>=0;
+      if(c.k==='fam')return !prof.model||c.vals.indexOf(pro(prof.model)?'GCP':'GC')>=0;
+      if(c.k==='volts')return !prof.volts||c.vals.indexOf(String(prof.volts))>=0;
+      if(c.k==='eco'){var e=ecoOf(prof);if(e===null)return true;return c.vals.indexOf(e?'yes':'no')>=0}
+      /* 230 V alone rules both out: the 9 bar OPV is a US Evo Pro and E24 thing, the two-pin cord a US Classic one */
+      if(c.k==='opv9'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='EVO'||prof.model==='E24'}
+      if(c.k==='ground'){if(prof.volts===230)return false;if(!prof.model)return true;return prof.model==='GC'}
+      if(c.k==='siok')return !(prof.model&&prof.model!=='GC'&&prof.volts===230);
+      if(c.k==='path')return !prof.path||c.vals.indexOf(prof.path)>=0;
+      if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
+      if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
+      if(c.k==='unset')return c.vals.some(function(f){return !prof[f]});
+      return true;
+    })(c);
+  }
+  /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
+  function decided(when){
+    if(!prof)return false;
+    return conds(when).every(decidedOne);
+  }
+  function decidedOne(c){
+    if(!prof)return false;
+    if(c.k.charAt(0)==='!')return decidedOne({k:c.k.slice(1),vals:c.vals});
+    return (function(c){
+      if(c.k==='model'||c.k==='fam')return !!prof.model;
+      if(c.k==='volts')return !!prof.volts;
+      if(c.k==='eco')return ecoOf(prof)!==null;
+      if(c.k==='opv9')return prof.volts===230||(!!prof.model&&(!!prof.volts||(prof.model!=='EVO'&&prof.model!=='E24')));
+      if(c.k==='ground')return prof.volts===230||(!!prof.model&&(!!prof.volts||prof.model!=='GC'));
+      if(c.k==='siok')return prof.model==='GC'||prof.volts===120||(!!prof.model&&!!prof.volts);
+      if(c.k==='path')return !!prof.path;
+      if(c.k==='wpath')return wpathOf(prof)!==null;
+      if(c.k==='set'||c.k==='unset')return true;
+      return true;
+    })(c);
+  }
+  /* an element's text without the parts that don't apply to the picked machine */
+  function vtext(el){
+    if(!el)return '';
+    var c=el.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('[data-when]'),function(x){if(!matches(x.getAttribute('data-when')))x.remove()});
+    return c.textContent.replace(/\s+/g,' ').trim();
+  }
+  function txt(x){
+    if(x==null)return '';
+    if(!Array.isArray(x))return String(x);
+    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ');
+  }
+  function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
+  function label(p){
+    p=p||prof;if(!p)return 'Set it';
+    var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
+    if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    return a.join(', ');
+  }
+  function missing(p){
+    p=p||prof;if(!p)return [];var m=[];
+    if(!p.model)m.push('model');
+    if(!p.volts)m.push('mains voltage');
+    if(!p.path)m.push('install path');
+    return m;
+  }
+  function ecoOpen(p){return !!(p&&p.model&&pro(p.model)&&p.volts===230&&p.eco===null)}
+  function andList(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
+  function summary(p){
+    p=p||prof;
+    if(!p)return 'Pick your model, voltage and install path. Until you do, every page shows all the model notes, each tagged with the machines it applies to.';
+    var m=missing(p),e=ecoOf(p),w=wpathOf(p);
+    var what=(p.model?longName(p.model,p.volts):'Gaggia')+(p.volts?' ('+p.volts+' V'+(e?', Eco board':'')+')':'');
+    var how=w==='CW'||p.path==='CW'?' with custom wiring':p.path==='SI'?' with stock wiring integration':'';
+    var nodraw=p.path==='SI'&&w==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine.':'';
+    var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
+    var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
+    var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+  }
+  function apply(root){
+    root=root||document;
+    Array.prototype.forEach.call(root.querySelectorAll('[data-when]'),function(el){
+      var hide=!matches(el.getAttribute('data-when'))&&!el.closest('.m-showall');
+      /* inside a drawing, hidden doesn't apply, so SVG elements get display="none" instead */
+      if(window.SVGElement&&el instanceof SVGElement){if(hide)el.setAttribute('display','none');else el.removeAttribute('display')}
+      else el.hidden=hide;
+    });
+    /* "Show all models" switches: data-showall="id of the element to open up"; they only show once a model is picked */
+    Array.prototype.forEach.call(root.querySelectorAll('[data-showall]'),function(b){
+      var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
+      /* count what the switch would bring back, not the pieces inside something that's already counted */
+      var n=Array.prototype.filter.call(t.querySelectorAll('[data-when]'),function(el){
+        if(matches(el.getAttribute('data-when')))return false;
+        for(var a=el.parentElement;a&&a!==t;a=a.parentElement){if(a.hasAttribute('data-when')&&!matches(a.getAttribute('data-when')))return false}
+        return true;
+      }).length;
+      b.hidden=!n;var on=t.classList.contains('m-showall');
+      b.setAttribute('aria-pressed',String(on));
+      b.textContent=on?'Show only your Gaggia':'Show all models ('+n+' more)';
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
+    var l=document.getElementById('mchip-l');
+    if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
+      var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      l.textContent=!prof?'Set it':main.length?main.join(', '):x;
+      if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
+    var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
+    syncPanel();
+  }
+  function set(p){
+    prof=p?clean(p):null;
+    try{if(prof)localStorage.setItem(KEY,JSON.stringify(prof));else localStorage.removeItem(KEY)}catch(e){}
+    apply();
+    try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
+  }
+  /* start from what's saved, never from guesses */
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  /* ---- nav panel ---- */
+  function syncPanel(){
+    var pan=document.getElementById('mpanel');if(!pan)return;
+    var p=prof||{},e=ecoOf(p);
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mmodel]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mmodel')===p.model))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
+    var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
+    var s=document.getElementById('m-summary');if(s)s.textContent=summary();
+  }
+  function wire(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    var nt=document.getElementById('nav-toggle'),nl=document.getElementById('nav-links');
+    /* the page list and the Your Gaggia panel open over the page, one at a time; a tap outside or Escape closes them */
+    var scrim=document.getElementById('nav-scrim');
+    function sync(){if(scrim)scrim.hidden=!((nl&&nl.classList.contains('open'))||(pan&&!pan.hidden))}
+    function closeMenu(){if(nt&&nl&&nl.classList.contains('open')){nt.setAttribute('aria-expanded','false');nl.classList.remove('open');sync();return true}}
+    function closePanel(){if(chip&&pan&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();return true}}
+    if(scrim)scrim.addEventListener('click',function(){closeMenu();closePanel()});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&closeMenu())nt.focus()});
+    if(chip&&pan){
+      chip.addEventListener('click',function(){var open=pan.hidden;pan.hidden=!open;chip.setAttribute('aria-expanded',String(open));if(open)closeMenu();sync()});
+      pan.addEventListener('click',function(e){
+        var b=e.target.closest('button');if(!b||b.disabled)return;
+        var p=current();
+        if(b.hasAttribute('data-mmodel'))p.model=b.getAttribute('data-mmodel');
+        else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
+        else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
+        else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.id==='m-clear'){set(null);return}
+        else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
+        else return;
+        set(p);
+      });
+      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pan.hidden){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync()}});
+    }
+    if(nt&&nl)nt.addEventListener('click',function(){var open=nt.getAttribute('aria-expanded')!=='true';nt.setAttribute('aria-expanded',String(open));nl.classList.toggle('open',open);if(open)closePanel();sync()});
+    /* buttons on a page that set one field: data-setmachine="model:GCP" or "path:CW" */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-setmachine]'),function(b){
+      b.addEventListener('click',function(){
+        var p=current();
+        String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
+          var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+        });
+        set(p);
+      });
+    });
+    document.addEventListener('click',function(e){
+      var b=e.target.closest('[data-showall]');if(!b)return;
+      var t=document.getElementById(b.getAttribute('data-showall'));if(!t)return;
+      t.classList.toggle('m-showall');apply();
+    });
+    var inViewer=typeof window.claude!=='undefined';
+    var pb=document.querySelectorAll('[data-print]');
+    if(!inViewer)Array.prototype.forEach.call(pb,function(b){b.hidden=false;b.addEventListener('click',function(){window.print()})});
+    apply();
+    hints();window.addEventListener('resize',hints);
+  }
+  /* "swipe sideways" under drawings and tables that are wider than the screen */
+  function hints(){
+    Array.prototype.forEach.call(document.querySelectorAll('.scroll,.tablewrap,.table-wrap'),function(el){
+      var over=el.scrollWidth>el.clientWidth+8,h=el.nextElementSibling&&el.nextElementSibling.classList.contains('swipe-hint')?el.nextElementSibling:null;
+      if(over&&!h){h=document.createElement('p');h.className='swipe-hint';h.textContent=el.querySelector('svg')?'Swipe sideways to see the whole drawing':'Swipe sideways to see every column';el.parentNode.insertBefore(h,el.nextSibling)}
+      else if(!over&&h)h.remove();
+    });
+  }
+  function openPanel(){
+    var chip=document.getElementById('mchip'),pan=document.getElementById('mpanel');
+    if(!chip||!pan)return;
+    try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
+    if(pan.hidden)chip.click();
+  }
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Shared tokens and components for the site-only pages (home, which Gaggia, wiring, cut list, troubleshooting, Learn). */
+:root{
+  --bg:#ECEEF0; --surface:#F9FAFA; --surface-2:#E2E5E8; --ink:#16191C; --muted:#59616A; --line:#CBD0D5;
+  --accent:#D98400; --accent-ink:#965300; --accent-soft:#F4E1C0; --on-accent:#1A1206;
+  --good:#2D7A4C; --good-soft:#DCEFE3; --bad:#B13A2F; --bad-soft:#F6DEDB; --blue:#2F6F98; --blue-soft:#DCE9F2;
+  --w-l:#B03A2E; --w-h:#C77800; --w-n:#2F5FB3; --w-e:#2D7A4C; --w-lv:#7046B8; --w-lvg:#59616A; --w-s:#1F7F86;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+    --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+    --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A; --blue:#6AAED6; --blue-soft:#16293A;
+    --w-l:#F0735F; --w-h:#F2A33A; --w-n:#79A6F2; --w-e:#63C08A; --w-lv:#B595F2; --w-lvg:#9BA2AA; --w-s:#5CC3C9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111316; --surface:#1A1D21; --surface-2:#252A30; --ink:#E7E9EB; --muted:#9BA2AA; --line:#30363D;
+  --accent:#F2A33A; --accent-ink:#F5B566; --accent-soft:#3B2B13; --on-accent:#1A1206;
+  --good:#63C08A; --good-soft:#17301F; --bad:#EC7064; --bad-soft:#3A1D1A; --blue:#6AAED6; --blue-soft:#16293A;
+  --w-l:#F0735F; --w-h:#F2A33A; --w-n:#79A6F2; --w-e:#63C08A; --w-lv:#B595F2; --w-lvg:#9BA2AA; --w-s:#5CC3C9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:30px 64px}
+.top{display:grid;gap:14px;margin-bottom:24px}
+.plate{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 12px;justify-self:start;max-width:100%;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;font:500 11.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.plate .rivet{width:6px;height:6px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 1px var(--muted);opacity:.7}
+.plate b{color:var(--ink);font-weight:600}
+/* rivets pinned to the plate's ends so a wrapped plate never leaves one on a line of its own */
+.plate{position:relative;padding:7px 26px}.plate .rivet{position:absolute;top:calc(50% - 3px);left:10px}.plate .rivet:last-child{left:auto;right:10px}
+h1{font:700 clamp(38px,6.6vw,60px)/.95 var(--f-display);letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h2{font:600 24px/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;margin:0;text-wrap:balance}
+h3{margin:0;font-size:18px;font-weight:600;line-height:1.3}
+.lede{margin:0;color:var(--muted);max-width:66ch;font-size:17.5px}
+.warn{border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:12px 16px;display:grid;gap:4px;max-width:880px}
+.warn strong{font:600 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bad)}
+.warn p{margin:0;font-size:15.5px}
+section.block{margin-top:38px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:14px}
+.sec-h .sum{font:500 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+/* on phones a long heading takes its own line and the note drops below it, instead of the heading squeezing into a column */
+@media (max-width:520px){.sec-h{flex-wrap:wrap;row-gap:2px}.sec-h .sum{white-space:normal}}
+.k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fine{margin:0;font-size:14.5px;color:var(--muted);max-width:90ch}
+.chip{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font:600 14px var(--f-body);cursor:pointer;min-height:38px;display:inline-flex;align-items:center;gap:7px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip .n{font:500 12px var(--f-mono);color:var(--muted)}
+.chip[aria-pressed="true"] .n{color:var(--bg);opacity:.75}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px;font:600 15px var(--f-body);cursor:pointer;min-height:44px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.print-only{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#fff;--surface:#fff;--surface-2:#eee;--ink:#000;--muted:#333;--line:#999;--accent:#000;--accent-ink:#000;--accent-soft:#fff;color-scheme:light}
+  body{background:#fff;color:#000;font-size:10.5pt}
+  .wrap{max-width:none;padding:0}
+  .print-only{display:block}
+  .no-print,[data-print]{display:none!important}
+}
+
+/* Part guides: per part, a drawing that steps through the install (sticky beside the written steps on wide screens,
+   above them on phones, where the current step's text sits right under it). */
+.pg-jump{display:flex;flex-wrap:wrap;gap:8px}
+.pg-jump a{text-decoration:none;color:inherit}
+.pg-where{margin:0 0 12px;font-size:15.5px;max-width:75ch}
+.pg-meta{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 28px;margin:0 0 16px}
+.pg-meta ul{margin:6px 0 0;padding-left:20px;display:grid;gap:4px;font-size:15px}
+.pg-meta p{margin:6px 0 0;font-size:15px}
+.pg-note{border:1px solid var(--accent);background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:15px;max-width:880px}
+.pg-note p{margin:0}
+.pg-note p+p{margin-top:6px}
+@media (max-width:760px){.pg-meta{grid-template-columns:minmax(0,1fr)}}
+.pg-vars{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.pg{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:18px 26px;align-items:start}
+.pg-figcol{position:sticky;top:calc(14px + var(--nav-cover,0px));transition:top .22s ease}
+.pg-fig{margin:0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.pg-fig>svg{display:block;width:100%;height:auto;padding:8px 8px 2px}
+.pg-defs{position:absolute;width:0;height:0;overflow:hidden}
+.pg-ctl{display:flex;align-items:center;gap:6px;padding:6px 8px;border-top:1px solid var(--line)}
+.pg-ctl button{appearance:none;border:1px solid var(--line);background:var(--bg);border-radius:10px;min-width:44px;min-height:40px;display:inline-grid;place-items:center;cursor:pointer;color:var(--ink)}
+.pg-ctl button:disabled{opacity:.35;cursor:default}
+.pg-ctl button svg{display:block;width:18px;height:18px;padding:0;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pg-ctl .pg-pos{flex:1;text-align:center;font:500 13px var(--f-mono);color:var(--muted)}
+.pg-drawn{margin:0;padding:0 12px 8px;font-size:13px;color:var(--muted)}
+.pg-now{display:none;margin:10px 2px 0;font-size:15px}
+.pg-now b{display:block;font-weight:600}
+.pg-steps{list-style:none;margin:0;padding:0;display:grid;gap:6px;counter-reset:none}
+.pg-steps li{border:1px solid transparent;border-radius:12px;padding:8px 12px 10px;transition:background .2s,border-color .2s}
+.pg-steps li.cur{background:var(--surface);border-color:var(--accent)}
+.pg-sb{appearance:none;border:0;background:none;padding:2px 0;display:flex;gap:10px;align-items:baseline;text-align:left;cursor:pointer;width:100%;color:inherit;min-height:32px}
+.pg-sb .pg-n{flex:none;width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font:600 13px var(--f-mono);border:1.5px solid var(--line);background:var(--bg);transform:translateY(-2px)}
+.pg-steps li.cur .pg-n{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.pg-sb .pg-t{font-weight:600;font-size:16.5px;line-height:1.3}
+.pg-steps p{margin:4px 0 0 36px;font-size:15px;color:var(--ink)}
+.pg-steps li:not(.cur) p{color:var(--muted)}
+.pg-steps .pg-links{font-size:14px}
+@media (max-width:860px){
+  .pg{grid-template-columns:minmax(0,1fr)}
+  .pg-figcol{position:static}
+  .pg-now{display:block}
+}
+.pg-src{display:grid;gap:4px;font-size:14.5px;color:var(--muted);padding-left:18px;margin:0}
+
+/* ---- drawings ---- */
+.pg-fig .cap{font:500 11px var(--f-mono);fill:var(--muted)}
+.pg-fig .lbl{font:600 12.5px var(--f-mono);fill:var(--ink)}
+.pg-fig .tiny{font:600 9px var(--f-mono);fill:#4A4136}
+.pg-fig .onmetal{fill:#2B3036}
+.pg-fig .alu{fill:url(#pg-alu);stroke:#5E656C;stroke-width:1.2}
+.pg-fig .hatch{fill:url(#pg-hatch)}
+.pg-fig .water{fill:#7FBDEB;opacity:.35}
+.pg-fig .hole{fill:#2B3036}
+.pg-fig .thr{fill:none;stroke:#5E656C;stroke-width:1.1}
+.pg-fig .thrc{fill:none;stroke:#8D959C;stroke-width:1;stroke-dasharray:2 2}
+.pg-fig .thrl{fill:none;stroke:rgba(0,0,0,.35);stroke-width:1}
+.pg-fig .facet{fill:none;stroke:rgba(0,0,0,.28);stroke-width:1}
+.pg-fig .brass{fill:url(#pg-brass);stroke:#6E5420;stroke-width:1.1}
+.pg-fig .copper{fill:url(#pg-copper);stroke:#6B3A18;stroke-width:1.1}
+.pg-fig .steel{fill:url(#pg-steel);stroke:#59616A;stroke-width:1.1}
+.pg-fig .steel2{fill:url(#pg-steelh);stroke:#59616A;stroke-width:1.1}
+.pg-fig .steelc{fill:#C3CAD0;stroke:#59616A;stroke-width:1.1}
+.pg-fig .tbody{fill:#8C949B;stroke:#3E454C;stroke-width:1.2}
+.pg-fig .tcap{fill:#B9C0C6;stroke:#3E454C;stroke-width:1}
+.pg-fig .ceramic{fill:#F1E9DA;stroke:#8C7F68;stroke-width:1.2}
+.pg-fig .ceramic2{fill:#E8DCC2;stroke:#8C7F68;stroke-width:1.1}
+.pg-fig .tab,.pg-fig .spade{fill:#DDE1E4;stroke:#59616A;stroke-width:1}
+.pg-fig .conn{fill:#E9ECEE;stroke:#59616A;stroke-width:1.1}
+.pg-fig .sleeve{fill:#D7DBDE;stroke:#59616A;stroke-width:1}
+.pg-fig .sleeveS{fill:#E05A47;opacity:.45;stroke:#B13A2F;stroke-width:1}
+.pg-fig .lead2{fill:none;stroke:#8D959C;stroke-width:2}
+.pg-fig .wire-m{fill:none;stroke:#A0521F;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.pg-fig .jumper{fill:none;stroke:#D98400;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.pg-fig .jl{fill:#965300}
+.pg-fig .braid{fill:none;stroke:#79828A;stroke-width:6;stroke-linecap:round}
+.pg-fig .braid2{fill:none;stroke:#C2C8CD;stroke-width:2;stroke-dasharray:2 3;stroke-linecap:round}
+.pg-fig .tcwire{fill:none;stroke:#A2AAB1;stroke-width:3.5;stroke-linecap:round}
+.pg-fig .paste{fill:#C9CDD1;stroke:#8E969E;stroke-width:.8}
+.pg-fig .pasteon{opacity:.92}
+.pg-fig .syr{fill:#F3F5F6;stroke:#59616A;stroke-width:1.1}
+.pg-fig .syrp{fill:#8E969E;stroke:#59616A}
+.pg-fig .spn{fill:#9AA3AB;stroke:#3E454C;stroke-width:1.2}
+.pg-fig .nono{fill:none;stroke:#C8392C;stroke-width:3.5;stroke-linecap:round}
+.pg-fig .chassis{fill:none;stroke:var(--muted);stroke-width:1.4;stroke-dasharray:6 5}
+.pg-fig .keep{fill:url(#pg-keep);stroke:#B13A2F;stroke-width:1.2;stroke-dasharray:4 3}
+.pg-fig .pcb{fill:#2F6B4F;stroke:#1C4532;stroke-width:1.2}
+.pg-fig .pcb+text.lbl,.pg-fig text.onpcb{fill:#F2F5F3}
+.pg-fig .term{fill:#2D63A8;stroke:#1D3F6E;stroke-width:1.1}
+.pg-fig .screw{fill:url(#pg-steel);stroke:#3E454C;stroke-width:1.1}
+.pg-fig .slot{stroke:#3E454C;stroke-width:2;stroke-linecap:round}
+.pg-fig .tclead{fill:none;stroke:#D98400;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1}
+.pg-fig .draw{stroke-dasharray:1}
+.pg-fig .meter{fill:#F2C230;stroke:#6E5420;stroke-width:1.2}
+.pg-fig .lcd{fill:#C9D6B8;stroke:#4E5A44;stroke-width:1}
+.pg-fig .lcdt{font:600 17px var(--f-mono);fill:#1E2618}
+.pg-fig .jack{fill:#1E2226}
+.pg-fig .jack.r{fill:#C8392C}
+.pg-fig .collet{fill:#3E454C;stroke:#1E2226;stroke-width:1}
+.pg-fig .oring-w{fill:#FFFFFF;stroke:#59616A;stroke-width:1}
+.pg-fig .oring-g{fill:#3FA35B;stroke:#226B37;stroke-width:1}
+.pg-fig .oring-d{fill:#2E3236;stroke:#0E1012;stroke-width:1}
+.pg-fig .cable{fill:none;stroke:#3E454C;stroke-width:5;stroke-linecap:round}
+.pg-fig .mark{fill:none;stroke:#C8392C;stroke-width:2;stroke-linecap:round}
+.pg-fig .lead{fill:none;stroke:var(--muted);stroke-width:1}
+.pg-fig .ptfe{fill:#FBFBF8;stroke:#8E969E;stroke-width:1.1}
+.pg-fig .hose{fill:none;stroke:#7E878E;stroke-width:12;stroke-linecap:round}
+.pg-fig .hose2{fill:none;stroke:#B6BCC1;stroke-width:3;stroke-dasharray:3 3}
+.pg-fig .hoseB{fill:none;stroke:#8B9399;stroke-width:10;stroke-linecap:round}
+.pg-fig .ptfeL{fill:none;stroke:#F4F4F0;stroke-width:8;stroke-linecap:round;filter:drop-shadow(0 0 .6px #59616A)}
+.pg-fig .pushT{fill:#E9ECEE;stroke:#59616A;stroke-width:1.1}
+.pg-fig .clamp{fill:#C3CAD0;stroke:#3E454C;stroke-width:1.1}
+.pg-fig .pumpb{fill:#2E3440;stroke:#14181D;stroke-width:1.2}
+.pg-fig .pumpb+text.lbl{fill:#E7E9EB}
+.pg-fig .cap-screw{fill:#3E454C;stroke:#14181D;stroke-width:1}
+.pg-fig .dimln{fill:none;stroke:var(--ink);stroke-width:1.2}
+.pg-fig .dimln.acc{stroke:var(--accent);stroke-width:2}
+.pg-fig .magring{fill:none;stroke:var(--accent);stroke-width:2.5}
+.pg-fig .wfill{fill:#5AA7E0;opacity:.85}
+.pg-fig .waterln{fill:none;stroke:#5AA7E0;stroke-width:4;stroke-linecap:round}
+.pg-fig .foam{fill:#F2D28A;opacity:.45;stroke:#B58B2E;stroke-width:1.2;stroke-dasharray:4 3}
+.pg-fig .ring{fill:none;stroke:rgba(0,0,0,.18);stroke-width:1.2}
+.pg-fig .pin{fill:#DDE1E4;stroke:#59616A;stroke-width:1.1}
+.pg-fig .pinc{fill:#59616A}
+.pg-fig .rbtn{fill:#D9473A;stroke:#7E1F17;stroke-width:1}
+.pg-fig .cutln{fill:none;stroke:#C8392C;stroke-width:2.2;stroke-dasharray:4 3}
+.pg-fig .drop{fill:#5AA7E0}
+/* pieces that only run during their steps */
+.pg-fig [data-loop]{display:none}
+.pg-fig [data-loop].run{display:inline}
+.pg-fig .turnarc{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-dasharray:6 5;stroke-linecap:round;animation:pgflow .9s linear infinite}
+.pg-fig .turnhd{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linecap:round}
+.pg-fig .pulse circle{fill:none;stroke:var(--accent);stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:pgpulse 1.4s ease-out infinite}
+.pg-fig .drips .drop{animation:pgdrip 1s ease-in infinite}
+.pg-fig .drips .d2{animation-delay:.5s}
+.pg-fig .bubs circle{fill:#FFFFFF;stroke:#5AA7E0;stroke-width:1;offset-path:path("M366,226 V206 C366,176 356,150 322,150 H276");animation:pgbub 2.2s linear infinite}
+.pg-fig .bubs .b2{animation-delay:.7s}
+.pg-fig .bubs .b3{animation-delay:1.4s}
+.pg-fig [data-run].on>*{animation:pgpress 1.6s ease-in-out infinite}
+@keyframes pgflow{to{stroke-dashoffset:-11}}
+@keyframes pgpulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+@keyframes pgdrip{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(46px);opacity:0}}
+@keyframes pgbub{0%{offset-distance:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{offset-distance:100%;opacity:0}}
+@keyframes pgpress{0%,60%,100%{transform:translateY(0)}75%{transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){
+  .pg-fig .turnarc,.pg-fig .pulse circle,.pg-fig .drips .drop,.pg-fig .bubs circle,.pg-fig [data-run].on>*{animation:none}
+  .pg-fig .pulse circle{opacity:.8}
+  .pg-fig .bubs circle{offset-distance:50%}
+  .pg-figcol{transition:none}
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pg-fig .hole{fill:#0D0F11}}
+:root[data-theme="dark"] .pg-fig .hole{fill:#0D0F11}
+
+</style>
+<svg class="pg-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="pg-alu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E3E7EA"/><stop offset=".55" stop-color="#C6CCD1"/><stop offset="1" stop-color="#A9B1B8"/></linearGradient>
+<linearGradient id="pg-brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0CF7A"/><stop offset=".5" stop-color="#D2A443"/><stop offset="1" stop-color="#A97A22"/></linearGradient>
+<linearGradient id="pg-copper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDB081"/><stop offset=".5" stop-color="#C77A45"/><stop offset="1" stop-color="#94532A"/></linearGradient>
+<linearGradient id="pg-steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF1F3"/><stop offset=".5" stop-color="#C3CAD0"/><stop offset="1" stop-color="#959EA6"/></linearGradient>
+<linearGradient id="pg-steelh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9AA3AB"/><stop offset=".35" stop-color="#EEF1F3"/><stop offset="1" stop-color="#A3ACB4"/></linearGradient>
+<pattern id="pg-hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#8D959C" stroke-width="1.2" opacity=".55"/></pattern>
+<pattern id="pg-keep" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#B13A2F" stroke-width="1.4" opacity=".35"/></pattern>
+</defs></svg>
+
+<div class="wrap">
+  <header class="top">
+    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Install</b></span><span>Part guides</span><span>drawn step by step</span><span class="rivet" aria-hidden="true"></span></div>
+    <h1>Part Guides</h1>
+    <p class="lede">The thermocouple, the pressure sensor and the resettable thermal fuse, each drawn step by step. Tap a step to watch it, or step through with the arrows. The runbook has the same work in order with everything else.</p>
+    <nav class="pg-jump" aria-label="Guides on this page"><a class="chip" href="#tc">Thermocouple</a><a class="chip" href="#ps">Pressure sensor</a><a class="chip" href="#fuse">Resettable fuse</a></nav>
+  </header>
+
+  <div class="warn"><strong>Cord out, boiler cold</strong><p>Unplug the machine and let the boiler cool before you open it. The drawings show what your hands do, not to scale; steps with a photo in the official guide link to it.</p></div>
+
+  <section class="block" id="tc" aria-labelledby="h-tc">
+    <div class="sec-h"><h2 id="h-tc">Thermocouple</h2><span class="sum">K type · M4 × 6 mm</span></div>
+    <p class="pg-where" id="pg-tc-where"></p>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>The thermocouple: K type, ungrounded, M4 thread</li><li>Thermal paste rated for 180 °C or more</li><li>A spanner for the old thermostat</li><li>Hex keys for the boiler's four screws, if you tip it up</li><li>A multimeter</li></ul></div>
+      <div><span class="k">What it does</span><p>It reports the boiler's temperature to the PCB on J4. Ungrounded means its junction is insulated from the probe body, because the low-voltage side floats; <a href="how-gaggiuino-works.html#ground">How Gaggiuino works</a> explains why.</p></div>
+    </div>
+    <div class="pg" id="pg-tc-g">
+      <div class="pg-figcol">
+        <figure class="pg-fig"><svg id="pg-tc" viewBox="0 0 480 300" role="img" aria-labelledby="pg-tc-t"><title id="pg-tc-t">Thermocouple install, drawn step by step: the brew thermostat comes out of its hole in the boiler wall, the thermocouple goes in with thermal paste, finger tight, its lead runs around the front of the boiler to the control box, and it clamps into J4.</title><g data-k="close"><rect class="water" x="0" y="30" width="40" height="240"/><text class="cap" x="20" y="286" text-anchor="middle">water</text><rect class="alu" x="40" y="30" width="80" height="240"/><rect class="hatch" x="40" y="30" width="80" height="240"/><text class="cap" x="80" y="22" text-anchor="middle">boiler wall</text><rect class="hole" x="84" y="138" width="36" height="24"/><path class="thr" d="M84,138L86,135L88,138L90,135L92,138L94,135L96,138L98,135L100,138L102,135L104,138L106,135L108,138L110,135L112,138L114,135L116,138L118,135L120,138M84,162L86,165L88,162L90,165L92,162L94,165L96,162L98,165L100,162L102,165L104,162L106,165L108,162L110,165L112,162L114,165L116,162L118,165L120,162"/><rect data-k="oldpaste" class="paste" x="86" y="140.5" width="34" height="19" rx="2"/><g data-k="bt"><rect class="brass" x="84" y="141" width="36" height="18"/><path class="thrl" d="M86,141L88,159M90,141L92,159M94,141L96,159M98,141L100,159M102,141L104,159M106,141L108,159M110,141L112,159M114,141L116,159M118,141L120,159"/><rect class="brass" x="120" y="116" width="14" height="68" rx="2"/><path class="facet" d="M120,133H134M120,167H134"/><rect class="tbody" x="134" y="122" width="60" height="56" rx="8"/><path class="facet" d="M146,122V178"/><rect class="tab" x="194" y="130" width="24" height="6" rx="1"/><rect class="tab" x="194" y="164" width="24" height="6" rx="1"/><text class="cap" x="170" y="204" text-anchor="middle">brew thermostat</text></g><g data-k="ba"><path class="wire-m" d="M232,133 C280,133 300,90 360,80 S440,70 486,70"/><rect class="conn" x="206" y="126" width="26" height="14" rx="2"/><text class="lbl" x="252" y="121">Ba</text></g><g data-k="bb"><path class="wire-m" d="M232,167 C280,167 300,210 360,220 S440,230 486,230"/><rect class="conn" x="206" y="160" width="26" height="14" rx="2"/><text class="lbl" x="252" y="194">Bb</text></g><g data-k="j" data-v="SI"><path class="jumper" d="M330,99 H310 V201 H330"/><text class="lbl jl" x="292" y="155">J</text></g><g data-k="tc"><path class="braid" d="M166,150 C220,150 236,134 286,134 S356,166 406,160 S458,148 486,150"/><path class="braid2" d="M166,150 C220,150 236,134 286,134 S356,166 406,160 S458,148 486,150"/><rect class="copper" x="84" y="142" width="36" height="16"/><path class="thrl" d="M86,142L88,158M90,142L92,158M94,142L96,158M98,142L100,158M102,142L104,158M106,142L108,158M110,142L112,158M114,142L116,158M118,142L120,158"/><rect data-k="paste" data-origin="left center" class="paste pasteon" x="84" y="141.5" width="36" height="17" rx="2"/><rect class="copper" x="120" y="132" width="12" height="36" rx="2"/><path class="facet" d="M120,144H132M120,156H132"/><rect class="copper" x="132" y="138" width="16" height="24" rx="3"/><rect class="steel" x="148" y="142" width="18" height="16" rx="3"/><g data-k="syr"><rect class="syr" x="74" y="64" width="20" height="44" rx="3"/><rect class="syrp" x="78" y="54" width="12" height="12" rx="2"/><path class="syr" d="M79,108 L89,108 L85.5,135 L82.5,135 Z"/><circle class="paste" cx="84" cy="138" r="3"/></g><g data-loop="spinF" class="turn"><path class="turnarc" d="M111,150 A15,40 0 1,1 126,190"/><path class="turnhd" d="M126,190 l7,-4 M126,190 l7,5"/></g></g><g data-loop="spinR" class="turn"><path class="turnarc" d="M143,150 A16,42 0 1,0 127,192"/><path class="turnhd" d="M127,192 l-7,-4 M127,192 l-7,5"/></g><g data-k="nosp"><g transform="translate(212 64) scale(0.95)"><path class="spn" d="M-22,6 L10,-6 A9,9 0 1,1 16,4 L10,0 L6,4 L10,9 A9,9 0 0,1 2,6 L-20,14 Z"/><circle class="nono" cx="-2" cy="4" r="24"/><path class="nono" d="M-19,-13 L15,21"/></g><text class="cap" x="212" y="104" text-anchor="middle">no spanner</text></g></g><g data-k="route"><rect class="chassis" x="60" y="34" width="360" height="236" rx="14"/><text class="cap" x="240" y="290" text-anchor="middle">front of the machine</text><text class="cap" x="240" y="26" text-anchor="middle">back</text><rect class="keep" x="330" y="166" width="80" height="86" rx="6"/><text class="cap" x="370" y="206" text-anchor="middle">pump</text><text class="cap" x="370" y="220" text-anchor="middle">area</text><path class="wire-m" d="M96,48 V252"/><text class="cap" x="104" y="60">mains</text><rect class="alu" x="170" y="96" width="120" height="114" rx="18"/><text class="lbl onmetal" x="230" y="158" text-anchor="middle">boiler</text><rect class="pcb" x="338" y="56" width="70" height="76" rx="6"/><text class="lbl" x="373" y="92" text-anchor="middle">PCB</text><text class="cap onpcb" x="373" y="108" text-anchor="middle">J4</text><path data-k="rlead" class="tclead draw" pathLength="1" d="M160,132 H134 V238 H312 V102 H338"/><rect class="copper" x="158" y="126" width="12" height="12" rx="2"/><text class="cap" x="230" y="256" text-anchor="middle">around the front</text></g><g data-k="j4v"><rect class="pcb" x="40" y="56" width="170" height="92" rx="8"/><text class="lbl" x="56" y="78">J4</text><rect class="term" x="70" y="88" width="50" height="48" rx="4"/><rect class="term" x="130" y="88" width="50" height="48" rx="4"/><g data-k="sc1" data-origin="center"><circle class="screw" cx="95" cy="104" r="10"/><path class="slot" d="M88,104H102"/></g><g data-k="sc2" data-origin="center"><circle class="screw" cx="155" cy="104" r="10"/><path class="slot" d="M148,104H162"/></g><text class="lbl onpcb" x="95" y="130" text-anchor="middle">−</text><text class="lbl onpcb" x="155" y="130" text-anchor="middle">+</text><g data-k="tcw"><path class="tcwire" d="M95,138 V214 C95,236 120,244 125,262 V300"/><path class="tcwire" d="M155,138 V214 C155,236 130,244 125,262 V300"/><path class="braid" d="M125,262 V300"/></g><g data-k="ma"><rect class="meter" x="240" y="40" width="104" height="128" rx="12"/><rect class="lcd" x="252" y="54" width="80" height="34" rx="4"/><text class="lcdt" x="292" y="79" text-anchor="middle">OL</text><circle class="jack" cx="272" cy="146" r="6"/><circle class="jack r" cx="312" cy="146" r="6"/><text class="cap" x="292" y="188" text-anchor="middle">either wire</text><text class="cap" x="292" y="202" text-anchor="middle">to the boiler</text></g><g data-k="mb"><rect class="meter" x="360" y="40" width="104" height="128" rx="12"/><rect class="lcd" x="372" y="54" width="80" height="34" rx="4"/><text class="lcdt" x="412" y="79" text-anchor="middle">3.1 Ω</text><circle class="jack" cx="392" cy="146" r="6"/><circle class="jack r" cx="432" cy="146" r="6"/><text class="cap" x="412" y="188" text-anchor="middle">wire to wire</text><text class="cap" x="412" y="202" text-anchor="middle">a few ohms</text></g></g></svg>
+
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="ps" aria-labelledby="h-ps">
+    <div class="sec-h"><h2 id="h-ps">Pressure sensor</h2><span class="sum">1.2 MPa · 0 to 12 bar</span></div>
+    <p class="pg-where" id="pg-ps-where"></p>
+    <div class="pg-meta">
+      <div><span class="k">You need</span>
+        <ul data-pv="ptb"><li>The sensor and its O-rings</li><li>The tap block with its small push-in fitting</li><li>The sensor's push-in fitting (1/4" thread to 6 mm tube)</li><li>40 mm of 4 × 6 mm PTFE tube and a sharp cutter</li><li>Two longer M5 screws (25 mm on the official parts list)</li><li>A towel</li></ul>
+        <ul data-pv="tee"><li>The sensor and its flat O-ring</li><li data-when="fam:GCP">Classic Pro family: a 6 mm barbed T, a 6 mm barb to 1/4" sensor fitting, 200 to 250 mm of braided hose, four hose clamps and clamp pliers</li><li data-when="fam:GC">Original Classic: a 6 mm push-to-connect T, a push-in sensor fitting (1/4" to 6 mm), 200 to 250 mm of 4 × 6 mm PTFE tube</li><li>A sharp cutter</li></ul></div>
+      <div><span class="k">What it does</span><p>It tells the PCB the brew pressure, 0 to 12 bar, on J6, so Gaggiuino can profile pressure. It seals on an O-ring, not on its thread.</p>
+        <p data-pv="ptb"><b>Two O-ring jobs.</b> A flat white one, about 11 mm across and 3 mm thick, seals the sensor in its fitting. A small round silicone one, 6 mm inside and 1.8 mm thick, seals the block against the group. Check your kit has one of each: the block's is a size 010 O-ring.</p></div>
+    </div>
+    <div class="pg" id="pg-ps-g">
+      <div class="pg-figcol">
+        <div class="pg-vars" role="group" aria-label="How the sensor connects"></div>
+        <figure class="pg-fig"><svg id="pg-ptb" viewBox="0 0 480 380" role="img" aria-labelledby="pg-ptb-t"><title id="pg-ptb-t">Pressure sensor on the tap block, drawn step by step: the flat O-ring goes into the sensor fitting and the sensor screws in; the push-in fitting and 40 mm of tube go into the block; the inlet fitting comes off the group, the block clamps in between with longer screws and both O-rings facing the group, and the sensor plugs onto the tube.</title><g data-k="Lw"><g data-k="sasm" data-box="view" data-origin="100px 34px"><rect class="hole" x="95" y="30" width="10" height="48"/><rect class="collet" x="88" y="34" width="24" height="10" rx="2"/><rect class="brass" x="78" y="44" width="44" height="30" rx="3"/><path class="facet" d="M92,44V74M108,44V74"/><rect class="brass" x="80" y="74" width="40" height="38"/><rect class="hole" x="89" y="78" width="22" height="34"/><path class="thr" d="M89,80L92,82L89,84L92,86L89,88L92,90L89,92L92,94L89,96L92,98L89,100L92,102L89,104L92,106L89,108L92,110L89,112M111,80L108,82L111,84L108,86L111,88L108,90L111,92L108,94L111,96L108,98L111,100L108,102L111,104L108,106L111,108L108,110L111,112"/><rect class="hole" x="95" y="40" width="10" height="38"/><g data-k="or1"><rect class="oring-w" x="89.5" y="78" width="6.5" height="6" rx="1.2"/><rect class="oring-w" x="104" y="78" width="6.5" height="6" rx="1.2"/></g><g data-loop="pulseR" class="pulse"><circle cx="100" cy="81" r="20"/></g><g data-k="sen"><path class="cable" d="M100,212 V236 C100,258 64,262 40,262 H-6"/><rect class="steel" x="90" y="84" width="20" height="30"/><path class="thrl" d="M90,86L110,88M90,90L110,92M90,94L110,96M90,98L110,100M90,102L110,104M90,106L110,108M90,110L110,112"/><rect class="oring-g" x="84" y="114" width="32" height="4" rx="2"/><rect class="steel" x="76" y="118" width="48" height="18" rx="2"/><path class="facet" d="M90,118V136M110,118V136"/><rect class="steel2" x="80" y="136" width="40" height="76" rx="6"/><g data-loop="spinS" class="turn"><path class="turnarc" d="M66,127 A34,9 0 1,1 100,136"/><path class="turnhd" d="M100,136 l7,-4 M100,136 l7,5"/></g></g><g data-k="gap"><path class="mark" d="M126,111 h6 M126,119 h6 M129,111 V119"/><text class="cap" x="136" y="118">gap</text></g><g data-k="qt"><g transform="translate(160 128) scale(0.7)"><path class="spn" d="M-22,6 L10,-6 A9,9 0 1,1 16,4 L10,0 L6,4 L10,9 A9,9 0 0,1 2,6 L-20,14 Z"/></g><text class="lbl" x="160" y="162" text-anchor="middle">¼ max</text></g><g data-k="lcaps"><text class="cap" x="128" y="56">fitting</text><path class="lead" d="M126,52 L114,52"/><text class="cap" x="6" y="76">flat O-ring</text><path class="lead" d="M70,73 L88,80"/><text class="cap" x="128" y="190">sensor</text><text class="cap" x="128" y="204">1.2 MPa</text></g></g></g><g data-k="R"><rect class="alu" x="222" y="56" width="30" height="180"/><rect class="hatch" x="222" y="56" width="30" height="180"/><rect class="hole" x="222" y="112" width="30" height="16"/><text class="cap" x="237" y="48" text-anchor="middle">group</text><g data-k="ptb"><rect class="steel" x="252" y="70" width="38" height="80" rx="3"/><rect class="hole" x="252" y="112" width="38" height="16"/><rect class="hole" x="265" y="128" width="10" height="22"/><g data-k="or2"><rect class="oring-d" x="247" y="102" width="6" height="8" rx="3"/><rect class="oring-d" x="247" y="130" width="6" height="8" rx="3"/></g><g data-k="pc6"><rect class="brass" x="266" y="126" width="8" height="24"/><path class="thrl" d="M266,128L274,130M266,131L274,133M266,134L274,136M266,137L274,139M266,140L274,142M266,143L274,145M266,146L274,148"/><rect class="brass" x="257" y="150" width="26" height="20" rx="2"/><path class="facet" d="M265,150V170M275,150V170"/><rect class="collet" x="261" y="170" width="18" height="8" rx="2"/><g data-loop="spinP" class="turn"><path class="turnarc" d="M248,160 A22,6 0 1,1 270,166"/><path class="turnhd" d="M270,166 l7,-4 M270,166 l7,5"/></g></g><g data-k="tube"><rect class="ptfe" x="265" y="160" width="10" height="70" rx="2"/></g><g data-k="dim"><path class="dimln" d="M250,162 V230 M245,162 H255 M245,230 H255"/><text class="lbl" x="242" y="200" text-anchor="end">40 mm</text></g></g><g data-k="inl"><path class="hose" d="M362,120 C410,120 424,84 486,74"/><path class="hose2" d="M362,120 C410,120 424,84 486,74"/><rect class="brass" x="332" y="114" width="30" height="12"/><path class="facet" d="M340,114V126M348,114V126M356,114V126"/><rect class="brass" x="290" y="80" width="42" height="80" rx="3"/><rect class="hole" x="290" y="112" width="42" height="16"/><g data-k="or3"><rect class="oring-d" x="286" y="102" width="6" height="8" rx="3"/><rect class="oring-d" x="286" y="130" width="6" height="8" rx="3"/></g><text class="cap" x="311" y="176" text-anchor="middle">inlet</text></g><g data-k="ss"><rect class="steel" x="228" y="90" width="66" height="6"/><rect class="steel" x="228" y="144" width="66" height="6"/><rect class="cap-screw" x="294" y="86" width="10" height="14" rx="2"/><rect class="cap-screw" x="294" y="140" width="10" height="14" rx="2"/></g><g data-k="ls"><rect class="steel" x="228" y="90" width="106" height="6"/><rect class="steel" x="228" y="144" width="106" height="6"/><rect class="cap-screw" x="334" y="86" width="10" height="14" rx="2"/><rect class="cap-screw" x="334" y="140" width="10" height="14" rx="2"/><text class="cap" x="318" y="76">M5 × 25</text></g><g data-loop="pulseO" class="pulse"><circle cx="250" cy="120" r="24"/><circle cx="289" cy="120" r="24"/></g><g data-k="drip" data-loop="drip" class="drips"><path class="drop" d="M246,140 q4,7 0,10 q-4,-3 0,-10"/><path class="drop d2" d="M240,140 q4,7 0,10 q-4,-3 0,-10"/></g><g data-k="water"><rect class="wfill" x="222" y="114" width="110" height="12"/><rect class="wfill" x="267" y="128" width="6" height="100"/></g></g><g data-k="mag"><clipPath id="pg-magc"><circle cx="330" cy="282" r="46"/></clipPath><g clip-path="url(#pg-magc)"><rect class="steel" x="284" y="236" width="92" height="92"/><rect class="hole" x="284" y="262" width="92" height="18"/><rect class="hole" x="318" y="280" width="24" height="48"/><rect class="brass" x="320" y="275" width="20" height="53"/><path class="thrl" d="M320,278L340,280M320,283L340,285M320,288L340,290M320,293L340,295M320,298L340,300M320,303L340,305M320,308L340,310M320,313L340,315M320,318L340,320M320,323L340,325"/></g><circle class="magring" cx="330" cy="282" r="46"/><path class="dimln acc" d="M352,275 V281 M348,275 H356 M348,281 H356"/><text class="lbl" x="382" y="282">&lt; 1 mm</text><text class="cap" x="330" y="346" text-anchor="middle">thread into the bore</text></g><g data-k="gauge"><rect class="meter" x="384" y="300" width="88" height="54" rx="10"/><rect class="lcd" x="392" y="308" width="72" height="28" rx="4"/><text class="lcdt" data-k="pval" x="428" y="328" text-anchor="middle">0 bar</text><text class="cap" x="428" y="372" text-anchor="middle">blank basket</text></g></svg>
+<svg id="pg-tee" viewBox="0 0 480 340" role="img" aria-labelledby="pg-tee-t"><title id="pg-tee-t">Pressure sensor on a T-fitting, drawn step by step: the line from the pump to the boiler is cut, a T goes in, a branch runs down to the sensor, which sits low in the machine, and the branch is filled with water.</title><rect class="alu" x="170" y="14" width="140" height="40" rx="8"/><text class="lbl onmetal" x="240" y="39" text-anchor="middle">boiler</text><rect class="brass" x="230" y="54" width="20" height="14"/><rect class="pumpb" x="30" y="262" width="120" height="56" rx="10"/><text class="lbl" x="90" y="295" text-anchor="middle">pump</text><rect class="brass" x="150" y="282" width="14" height="12"/><g data-fam="GCP"><g data-k="huGCP"><path class="hoseB" d="M240,68 V150"/></g><g data-k="hlGCP"><path class="hoseB" d="M240,150 V250 C240,288 204,288 164,288"/></g></g><g data-fam="GC"><g data-k="huGC"><path class="ptfeL" d="M240,68 V150"/></g><g data-k="hlGC"><path class="ptfeL" d="M240,150 V250 C240,288 204,288 164,288"/></g></g><g data-k="dim"><g data-fam="GCP"><path class="dimln" d="M266,68 V140 M261,68 H271 M261,140 H271"/><text class="lbl" x="274" y="108">≈ 65 mm</text></g><g data-fam="GC"><text class="cap" x="262" y="104">near the boiler,</text><text class="cap" x="262" y="118">T upright</text></g></g><g data-k="cut"><path class="cutln" d="M222,150 H258"/><path class="mark" d="M200,142 l10,8 l-10,8 M214,142 l-4,8 l4,8"/></g><g data-k="tee"><g data-fam="GCP"><rect class="brass" x="233" y="132" width="14" height="36" rx="2"/><rect class="brass" x="247" y="143" width="26" height="14" rx="2"/><path class="facet" d="M233,138H247M233,162H247M263,143V157"/></g><g data-fam="GC"><rect class="pushT" x="230" y="134" width="20" height="32" rx="3"/><rect class="pushT" x="250" y="141" width="26" height="18" rx="3"/><rect class="collet" x="232" y="130" width="16" height="5" rx="1"/><rect class="collet" x="232" y="165" width="16" height="5" rx="1"/><rect class="collet" x="275" y="142" width="5" height="16" rx="1"/></g></g><g data-k="cl1" data-fam="GCP"><rect class="clamp" x="232" y="134" width="16" height="6" rx="2"/><rect class="clamp" x="232" y="160" width="16" height="6" rx="2"/></g><g data-fam="GCP"><path data-k="brGCP" class="hoseB draw" pathLength="1" d="M273,150 H322 C356,150 366,176 366,206 V232"/></g><g data-fam="GC"><path data-k="brGC" class="ptfeL draw" pathLength="1" d="M278,150 H322 C356,150 366,176 366,206 V232"/></g><path data-k="brw" class="waterln draw" pathLength="1" d="M276,150 H322 C356,150 366,176 366,206 V232"/><g data-k="cl2" data-fam="GCP"><rect class="clamp" x="280" y="142" width="6" height="16" rx="2"/><rect class="clamp" x="358" y="222" width="16" height="6" rx="2"/></g><g data-k="tsen"><rect class="brass" x="356" y="230" width="20" height="18" rx="2"/><rect class="steel" x="352" y="248" width="28" height="10" rx="2"/><rect class="steel2" x="354" y="258" width="24" height="48" rx="5"/><path class="cable" d="M366,306 V332"/><text class="cap" x="392" y="276">sensor</text><text class="cap" x="392" y="290">below the T</text></g><g data-k="foam"><rect class="foam" x="346" y="244" width="40" height="68" rx="10"/><text class="cap" x="340" y="326" text-anchor="end">foam if it reads noisy</text></g><g data-loop="bub" class="bubs"><circle cx="366" cy="226" r="3"/><circle class="b2" cx="366" cy="226" r="2.4"/><circle class="b3" cx="366" cy="226" r="2"/></g></svg>
+
+          <p class="pg-drawn" hidden>Drawn for the Classic Pro family's braided hose; set Your Gaggia to see the original Classic's.</p>
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="fuse" aria-labelledby="h-fuse">
+    <div class="sec-h"><h2 id="h-fuse">Resettable fuse</h2><span class="sum">185 °C · 250 V 16 A · optional</span></div>
+    <p class="pg-where" id="pg-fuse-where"></p>
+    <div class="pg-note" data-pv="SI"><p><b>Optional.</b> The official <a href="https://gaggiuino.github.io/#/learning/wiring-basics?id=thermal-fuse">wiring basics page</a> says a kit's resettable fuse goes in the steam thermostat's slot as a replacement for the stock 184 °C one-shot fuse, on any install. The stock wiring guide itself keeps the stock fuse and gives no steps for the swap, so these follow the custom wiring guide: the old fuse's wires move onto the new one. If you'd rather follow the stock guide exactly, keep it as a spare.</p>
+      <p>On stock wiring it carries everything the machine draws: about 12 A at 120 V and 6 A at 230 V, inside its 16 A rating.</p></div>
+    <div class="pg-note" data-pv="CW"><p><b>Optional.</b> The custom wiring guide lists it as a substitute for the stock one-shot fuse, in the steam thermostat's hole. In custom wiring it sits in the heater line.</p></div>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>The resettable fuse: 185 °C, 16 A, M4 stud</li><li>The same 180 °C thermal paste</li><li>Uninsulated 6.3 mm female spades, silicone sleeve and an open-barrel crimper</li><li data-pv="SI">18 AWG silicone wire, a bare BN1.25 butt splice and silicone heat shrink, if a wire won't reach</li><li>A multimeter</li></ul></div>
+      <div><span class="k">What it does</span><p>Like the thermostats it's a bimetal switch, but it opens only at 185 °C, as a last resort if the boiler overheats, and stays open until you press its button. The stock fuse does the same job once and then has to be replaced.</p></div>
+    </div>
+    <div class="pg" id="pg-fuse-g">
+      <div class="pg-figcol">
+        <div class="pg-vars" role="group" aria-label="Install path"></div>
+        <figure class="pg-fig"><svg id="pg-fuse" viewBox="0 0 480 300" role="img" aria-labelledby="pg-fuse-t"><title id="pg-fuse-t">Resettable fuse install, drawn step by step on the top of the boiler: the steam thermostat comes out of its hole, the resettable fuse screws in with paste, and the wires that fed the stock one-shot fuse move onto its two spades.</title><rect class="alu" x="24" y="24" width="252" height="252" rx="28"/><circle class="ring" cx="150" cy="150" r="112"/><text class="cap" x="24" y="16">boiler, top</text><circle class="pin" cx="95" cy="78" r="9"/><circle class="pinc" cx="95" cy="78" r="3"/><circle class="pin" cx="205" cy="78" r="9"/><circle class="pinc" cx="205" cy="78" r="3"/><circle class="pin" cx="95" cy="222" r="9"/><circle class="pinc" cx="95" cy="222" r="3"/><circle class="pin" cx="205" cy="222" r="9"/><circle class="pinc" cx="205" cy="222" r="3"/><circle class="hole" cx="232" cy="176" r="10"/><circle class="thrc" cx="232" cy="176" r="7"/><g data-k="ow"><path class="wire-m" d="M92,120 H40 C28,120 20,110 10,102"/><path class="wire-m" d="M208,120 H226 C242,120 248,104 248,60 V8"/></g><g data-k="of"><path class="wire-m" d="M96,120 H92 M204,120 H208"/><rect class="sleeve" x="96" y="114" width="20" height="12" rx="2"/><rect class="sleeve" x="184" y="114" width="20" height="12" rx="2"/><path class="lead2" d="M116,120 H126 M174,120 H184"/><rect class="ceramic2" x="126" y="110" width="48" height="20" rx="10"/><text class="tiny" x="150" y="124" text-anchor="middle">184 °C</text><text class="cap onmetal" x="150" y="104" text-anchor="middle">stock one-shot fuse</text></g><g data-k="snip"><path class="mark" d="M86,106 l12,12 M98,106 l-12,12 M202,106 l12,12 M214,106 l-12,12"/></g><g data-k="stl"><path class="wire-m" d="M225.5,188 C225,228 196,250 186,302"/><path class="wire-m" d="M238.5,188 C239,228 266,250 278,302"/><g data-v="SI"><text class="lbl" x="160" y="280">Sa</text><text class="lbl" x="284" y="280">Sb</text></g></g><g data-k="st" data-origin="center"><circle class="tbody" cx="232" cy="176" r="26"/><circle class="tcap" cx="232" cy="176" r="17"/><rect class="tab" x="224" y="164" width="3" height="24"/><rect class="tab" x="237" y="164" width="3" height="24"/><text class="cap onmetal" x="150" y="252" text-anchor="middle">steam thermostat</text></g><g data-loop="spinR" class="turn"><path class="turnarc" d="M268,176 A36,36 0 1,0 232,212"/><path class="turnhd" d="M232,212 l-7,-4 M232,212 l-7,5"/></g><g data-k="nf" data-origin="center"><circle class="steelc" cx="232" cy="176" r="25"/><circle class="ceramic" cx="232" cy="176" r="21"/><rect class="tab" x="221" y="163" width="3" height="26"/><rect class="tab" x="239" y="163" width="3" height="26"/><circle class="rbtn" cx="232" cy="176" r="5"/></g><g data-loop="spinF" class="turn"><path class="turnarc" d="M196,176 A36,36 0 1,1 232,212"/><path class="turnhd" d="M232,212 l7,-4 M232,212 l7,5"/></g><g data-v="SI"><path data-k="nw1" class="wire-m draw" pathLength="1" d="M92,120 C128,120 160,140 180,160 C196,178 212,196 222.5,192"/><path data-k="nw2" class="wire-m draw" pathLength="1" d="M208,120 C232,124 246,140 240.5,162"/><g data-k="sp1"><rect class="sleeveS" x="216" y="178" width="13" height="20" rx="4"/><rect class="spade" x="219" y="182" width="7" height="12" rx="1"/></g><g data-k="sp2"><rect class="sleeveS" x="234" y="154" width="13" height="20" rx="4"/><rect class="spade" x="237" y="158" width="7" height="12" rx="1"/></g><g data-k="xt"><text class="cap onmetal" x="40" y="246">extend with</text><text class="cap onmetal" x="40" y="260">18 AWG if short</text></g></g><g data-v="CW"><path data-k="cw1" class="wire-m draw" pathLength="1" d="M110,302 C120,250 190,222 222.5,192"/><path data-k="cw2" class="wire-m draw" pathLength="1" d="M300,150 C272,150 250,150 240.5,162"/><g data-k="cwl"><g data-fam="GCP"><g data-volts="120"><text class="lbl" x="120" y="296">AC18</text><text class="lbl" x="282" y="140">AC17</text></g><g data-volts="230"><text class="lbl" x="120" y="296">AC17</text><text class="lbl" x="282" y="140">AC16</text></g></g><g data-fam="GC"><text class="lbl" x="120" y="296">AC8 (AC9)</text><text class="lbl" x="280" y="140">AC6, AC7</text></g></g><g data-k="spc"><rect class="sleeveS" x="216" y="178" width="13" height="20" rx="4"/><rect class="spade" x="219" y="182" width="7" height="12" rx="1"/><rect class="sleeveS" x="234" y="154" width="13" height="20" rx="4"/><rect class="spade" x="237" y="158" width="7" height="12" rx="1"/></g></g><g class="side"><text class="cap" x="385" y="40" text-anchor="middle">side view</text><rect class="tab" x="356" y="56" width="6" height="34" rx="1"/><rect class="tab" x="408" y="56" width="6" height="34" rx="1"/><g data-k="rb" data-run="press"><rect class="rbtn" x="377" y="74" width="16" height="16" rx="3"/></g><rect class="ceramic" x="338" y="88" width="94" height="54" rx="10"/><text class="tiny" x="385" y="112" text-anchor="middle">185 °C</text><text class="tiny" x="385" y="126" text-anchor="middle">250 V 16 A</text><rect class="steel" x="332" y="142" width="106" height="14" rx="3"/><rect class="steel" x="378" y="156" width="14" height="36"/><path class="thrl" d="M378,158L392,160M378,162L392,164M378,166L392,168M378,170L392,172M378,174L392,176M378,178L392,180M378,182L392,184M378,186L392,188M378,190L392,192"/><g data-k="fpaste" data-origin="center top"><rect class="paste pasteon" x="376" y="155" width="18" height="38" rx="2"/><rect class="paste pasteon" x="334" y="154" width="102" height="3" rx="1"/></g><text class="cap" x="440" y="80">reset</text><path class="lead" d="M438,77 L396,80"/><text class="cap" x="402" y="190">M4</text></g><g data-k="fm"><rect class="meter" x="330" y="216" width="110" height="62" rx="10"/><rect class="lcd" x="340" y="226" width="90" height="30" rx="4"/><text class="lcdt" x="385" y="248" text-anchor="middle">0.2 Ω</text><text class="cap" x="385" y="292" text-anchor="middle">across its spades</text></g></svg>
+
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="src" aria-labelledby="h-src">
+    <div class="sec-h"><h2 id="h-src">Sources</h2></div>
+    <ul class="pg-src">
+      <li>Gaggiuino, stock wiring integration: <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=brew-thermostat-replacement">brew thermostat replacement</a> and <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=pressure-transducer">pressure transducer</a>, with their photos.</li>
+      <li>Gaggiuino, custom wiring: <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=alternate-components">alternate components</a> (the resettable fuse and where it goes), <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=thermocouple">thermocouple</a>, and the custom wiring schematics' optional fuse.</li>
+      <li>Gaggiuino, <a href="https://gaggiuino.github.io/#/learning/wiring-basics?id=thermal-fuse">wiring basics: thermal fuse</a>, and the machine-specific guide's <a href="https://gaggiuino.github.io/#/guides/machine-specific-guide?id=grounding">grounding</a> (the fuse clip as the earth point).</li>
+      <li>Gaggiuino <a href="https://gaggiuino.github.io/#/?id=bill-of-materials">parts list</a>: the fittings, the tap block's 010 O-ring (6 mm inside, 1.8 mm thick), the flat O-ring and the M5 × 25 screws; the custom wiring guide's bare BN1.25 splices. Docs read October 2026.</li>
+      <li>Part names as Peak Coffee lists them in its <a href="https://www.peakcoffee.cc/product/gaggiuino-v4-kit/">V4 kit</a>.</li>
+      <li>On this site: <a href="runbook.html">Runbook</a> phase 3, <a href="power-on-checks.html">Power-on checks</a>, <a href="model-notes.html">model notes</a>.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+/* Part guides: a stepped, animated drawing for each part, with the steps written out beside it.
+   Each step lists moves for the drawing's data-k pieces as [key, {x,y,r,s,sx,sy,o,d}, delay ms, duration ms]; the state
+   after a step is everything before it plus its own moves, so any step can be shown on its own and replayed.
+   x,y move (user units), r turns (deg), s/sx/sy scale, o is opacity, d the hidden share of a drawn path (1 hidden, 0 drawn).
+   loop names the data-loop pieces that run during the step, text sets a readout, count runs a number up.
+   Steps and wording follow Your Gaggia (machine.js); the tap block or T-fitting and stock or custom wiring can also be
+   switched on the guide itself. Reduced motion shows each step's end state without movement. */
+(function(){
+  var GM=window.GaggiaMachine,RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var EASE='cubic-bezier(.45,0,.2,1)';
+  function $(id){return document.getElementById(id)}
+  function m(w){return !w||!GM||GM.matches(w)}
+  function T(x){if(x==null)return '';if(typeof x==='string')return x;if(GM)return GM.txt(x);return x.map(function(s){return typeof s==='string'?s:s[0]}).join(' ')}
+  function prof(){return (GM&&GM.get())||{}}
+  function famOf(){var p=prof();return p.model?(p.model==='GC'?'GC':'GCP'):null}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+  var PH={
+    tc:'https://github.com/user-attachments/assets/7eef096a-bcce-4d98-8a7d-ae898c3afec3',
+    xf:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/78d801f3-9c4f-4c17-8105-74e32711af09',
+    xfp:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/f294cdb2-000b-4583-b258-8dd53854a2ec',
+    ptbA:'https://github.com/user-attachments/assets/14188d93-508f-4ab4-b003-80f8aeb243a8',
+    inl:'https://github.com/user-attachments/assets/12e2f8d8-5313-4f5d-b932-4b213ebf22e8',
+    ptbC:'https://github.com/user-attachments/assets/8cf1157b-b990-41c1-9770-24d7ac5af067',
+    ptbF:'https://github.com/user-attachments/assets/53026edc-2026-4144-9714-200cdb2ebf51',
+    teeGC:'https://user-images.githubusercontent.com/117388662/239457706-7ee5d101-d209-41b4-a3d3-ce159e98032f.png',
+    teeGCP:'https://user-images.githubusercontent.com/117388662/246573952-ca092066-d107-46e6-85f1-e2a7b19865e0.png',
+    foam:'https://user-images.githubusercontent.com/117388662/239457402-b58dfe55-6572-45b7-8960-2a4d1f9d5753.png',
+    cw:'https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/'
+  };
+
+  /* ---------------- the guides ---------------- */
+  var G={};
+  G.tc={svg:'pg-tc',
+    base:{close:{o:1},route:{o:0},j4v:{o:0},oldpaste:{o:0},j:{o:0},tc:{x:150,o:0},paste:{sx:0},syr:{o:0},nosp:{o:0},rlead:{d:1},tcw:{y:44},ma:{o:0},mb:{o:0}},
+    steps:{all:[
+      {t:'Unplug the brew thermostat',
+       d:['Pull its two connectors, Ba and Bb, straight off the thermostat.',['On stock wiring they get joined later by a short jumper, J.','wpath:SI'],['On custom wiring they come out with the old harness.','wpath:CW'],
+          'It\'s easier with the boiler tipped up: take off the steam knob and wand, then the four cap screws up from under the frame.'],
+       a:[['ba',{x:110,y:-34},0,800],['bb',{x:110,y:34},90,800],['j',{o:1},1000,350]]},
+      {t:'Unscrew the thermostat',d:'Turn it out of the side of the boiler with a spanner on its hex. The old paste stays in the hole: leave it, unless it\'s dried out, in which case clean it out for fresh paste.',
+       a:[['bt',{x:90},0,1200],['oldpaste',{o:1},250,400],['bt',{o:0},950,350]],loop:['spinR']},
+      {t:'Paste on the thread',d:'Coat the thermocouple\'s thread with thermal paste rated for 180 °C or more, or reuse the old thermostat\'s if it\'s still soft. The official guide lists Thermal Grizzly Kryonaut, Noctua NT-H2, SYY-157 and GELID GC-Extreme.',
+       a:[['tc',{o:1},0,300],['syr',{o:1},250,250],['syr',{x:32},500,1300],['paste',{sx:1},500,1300],['syr',{o:0},1850,250]]},
+      {t:'Screw it in, barely finger tight',d:'Turn it in gently by its hex and stop as soon as it seats. No spanner: the M4 thread is small and the boiler\'s thread is soft metal. Let the lead turn with the probe so it doesn\'t twist.',
+       a:[['tc',{x:0},0,1500],['nosp',{o:1},1550,350]],loop:['spinF'],ph:PH.tc},
+      {t:'Route the lead',d:'Around the front of the boiler and back to the control box on the right, clear of the pump area. Mains wires run on the left side and above this lead; low-voltage wires and sensors stay on the right.',
+       a:[['close',{o:0},0,300],['route',{o:1},200,300],['rlead',{d:0},500,1900]]},
+      {t:'Clamp it in J4 and check it',d:['Fold each bare wire over before it goes in the clamp, keep the insulation out of it, and put + and − where they were on your bench test. Lead colors vary between makers, so trust that test: the reading must rise when you warm the probe.','With a meter: either wire to the boiler reads open (OL), because the probe is ungrounded; the two wires together read a few ohms.'],
+       a:[['route',{o:0},0,300],['j4v',{o:1},200,300],['tcw',{y:0},500,900],['sc1',{r:360},500,1000],['sc2',{r:360},650,1000],['ma',{o:1},1500,300],['mb',{o:1},1900,300]],
+       chk:[['b7','Thermocouple lead to boiler body'],['c7','Thermocouple loop']]}
+    ]}};
+
+  G.ps={vars:[{k:'ptb',l:'Tap block'},{k:'tee',l:'T-fitting'}],def:function(){return 'ptb'},
+    svgs:{ptb:'pg-ptb',tee:'pg-tee'},
+    base:{
+      ptb:{Lw:{o:1},R:{o:.35},or1:{y:70,o:0},sen:{y:44},qt:{o:0},gap:{o:0},lcaps:{o:1},ptb:{x:150,y:60},pc6:{y:40,o:0},tube:{y:50,o:0},dim:{o:0},inl:{x:-38},ss:{x:0,o:1},ls:{x:80,o:0},mag:{o:0},water:{o:0},gauge:{o:0},drip:{o:0},sasm:{x:0,y:0,s:1}},
+      tee:{dim:{o:0},cut:{o:0},huGCP:{y:0},hlGCP:{y:0},huGC:{y:0},hlGC:{y:0},tee:{x:60,o:0},cl1:{o:0},brGCP:{d:1},brGC:{d:1},brw:{d:1},cl2:{o:0},tsen:{x:40,o:0},foam:{o:0}}
+    },
+    steps:{
+      ptb:[
+        {t:'O-ring into the sensor fitting',d:'Press the flat white O-ring into the sensor\'s fitting until it sits flush at the bottom of the thread. The sensor\'s own base O-ring often can\'t reach the fitting\'s face, so this one makes the seal.',
+         a:[['or1',{o:1},0,300],['or1',{y:0},0,1000]],loop:['pulseR'],ph:PH.xf},
+        {t:'Sensor in: hand tight, then at most a quarter turn',d:'Screw the sensor into the fitting by hand until it stops. A quarter turn more with a spanner is the most it ever gets: more crushes the O-ring.',
+         a:[['sen',{y:0},0,1500],['qt',{o:1},1500,300],['gap',{o:1},1800,300]],loop:['spinS']},
+        {t:'Push-in fitting into the block',d:'Screw the small push-in fitting into the block\'s port, hand tight. Then look along the block\'s water bore: the fitting\'s thread may poke in by less than 1 mm (a quarter of the hole), no more.',
+         a:[['Lw',{o:.35},0,300],['R',{o:1},0,300],['pc6',{o:1},150,200],['pc6',{y:0},300,1100],['mag',{o:1},1450,350]],loop:['spinP'],ph:PH.ptbA},
+        {t:'40 mm of tube, cut square',d:'Cut 40 mm of the 4 × 6 mm PTFE tube with both ends square and push it into the block\'s fitting until it stops, past the teeth and the O-ring inside.',
+         a:[['mag',{o:0},0,250],['tube',{o:1},0,250],['tube',{y:0},250,900],['dim',{o:1},1200,300]],ph:PH.ptbA},
+        {t:'Take off the inlet fitting',d:[['The group\'s inlet fitting (the metal OPV on the original Classic)','unset:model'],['The inlet fitting, where the pump\'s hose meets the group,','set:model;fam:GCP'],['The metal OPV on the group\'s inlet','set:model;fam:GC'],'comes off with its two M5 screws. Boiler cold and cord out; keep a towel under it for the water that runs out.'],
+         a:[['dim',{o:0},0,200],['ss',{x:60},0,1000],['ss',{o:0},900,250],['inl',{x:40},1100,900],['drip',{o:1},1600,300]],loop:['drip'],ph:PH.inl},
+        {t:'Clamp the block in',d:'Fit the block between the group and the inlet fitting with the longer M5 screws (the official parts list uses 25 mm), the block\'s O-ring and the fitting\'s own O-ring both facing the group. Tighten the two screws evenly.',
+         a:[['drip',{o:0},0,200],['ptb',{x:0,y:0},200,1300],['inl',{x:0},1550,800],['ls',{o:1},2350,200],['ls',{x:0},2350,900]],loop:['pulseO'],ph:PH.ptbC},
+        {t:'Sensor onto the tube',d:'Push the sensor\'s fitting onto the tube until the tube is fully home. The sensor mustn\'t touch any metal.',
+         a:[['Lw',{o:1},0,300],['lcaps',{o:0},0,250],['qt',{o:0},0,250],['gap',{o:0},0,250],['sasm',{x:170,y:184,s:.55},250,1500]],ph:PH.ptbF},
+        {t:'Fill it and test it',d:'With the machine back together: run Flush for 10 seconds with the group open to fill the block, then flush against a blank basket to see the pressure. Then unplug and touch a dry paper towel to each joint to find any leak.',
+         a:[['water',{o:1},0,900],['gauge',{o:1},500,300]],count:['pval',0,9,' bar',800,1600],chk:[['g15','Pressure sensor plumbing snug and dry']]}
+      ],
+      tee:[
+        {t:'Cut the line',d:[['Classic Pro family: cut the braided hose between the pump and the boiler about 65 mm above the boiler connection.','fam:GCP'],['Original Classic: cut the PTFE tube between the pump and the boiler, nearer the boiler but high enough that the T stands mostly upright.','fam:GC'],'Cut it square.'],
+         a:[['dim',{o:1},0,300],['cut',{o:1},300,300],['huGCP',{y:-8},800,600],['hlGCP',{y:8},800,600],['huGC',{y:-8},800,600],['hlGC',{y:8},800,600],['cut',{o:0},1500,250]]},
+        {t:'Fit the T',d:[['Classic Pro family: slide a loose clamp onto each cut end, push the barbed T in (a rubber glove helps grip, and a little water-based lube if it won\'t go), and set the clamps over the middle of each barb.','fam:GCP'],['Original Classic: push each tube fully into the push-to-connect T, past both the teeth and the O-ring inside.','fam:GC']],
+         a:[['dim',{o:0},0,250],['tee',{o:1},0,200],['tee',{x:0},100,1000],['cl1',{o:1},1200,350]],ph:'tee'},
+        {t:'Run the branch',d:['200 to 250 mm from the T to the sensor\'s fitting.',['Classic Pro family: braided hose, clamped at both ends.','fam:GCP'],['Original Classic: PTFE tube, pushed fully home at both ends.','fam:GC']],
+         a:[['brGCP',{d:0},0,1300],['brGC',{d:0},0,1300],['cl2',{o:1},1300,350]]},
+        {t:'Seal the sensor',d:'Flat white O-ring flush in the sensor\'s fitting, then the sensor in hand tight plus at most a quarter turn, as on the tap block.',
+         a:[['tsen',{o:1},0,250],['tsen',{x:0},150,1000]],ph:'xf'},
+        {t:'Park it low',d:'At the base of the machine, lower than the T, and not touching metal. If its readings turn out noisy, wrap it in foam or fix it to the frame.',
+         a:[['foam',{o:1},0,600]],ph:PH.foam},
+        {t:'Fill the line',d:'Once the install is finished, run [UT] Tube Fill from the community profiles in the web UI. It fills the branch slowly and pushes the air out.',
+         a:[['brw',{d:0},0,2000]],loop:['bub'],chk:[['g15','Pressure sensor plumbing snug and dry']]}
+      ]
+    }};
+
+  G.fuse={vars:[{k:'SI',l:'Stock wiring'},{k:'CW',l:'Custom wiring'}],def:function(){return (GM&&GM.wpath&&GM.wpath())||'SI'},
+    svgs:{SI:'pg-fuse',CW:'pg-fuse'},
+    base:{
+      SI:{stl:{o:1,y:0},st:{o:1},nf:{o:0,r:-90},fpaste:{sy:0},of:{o:1},snip:{o:0},nw1:{d:1},nw2:{d:1},sp1:{o:0,x:-130,y:-64},sp2:{o:0,x:-32,y:-40},xt:{o:0},fm:{o:0}},
+      CW:{stl:{o:1,y:0},st:{o:1},nf:{o:0,r:-90},fpaste:{sy:0},of:{o:1},ow:{o:1},snip:{o:0},cw1:{d:1},cw2:{d:1},cwl:{o:0},spc:{o:0},fm:{o:0}}
+    },
+    steps:{
+      SI:[
+        {t:'Steam thermostat out',d:'Pull its two leads off (on stock wiring these are Sa and Sb, which go to the SSR) and unscrew the thermostat from the top of the boiler.',
+         a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR']},
+        {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
+         a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
+        {t:'Cut the stock fuse out',d:['The 184 °C one-shot fuse sits across the top of the boiler with its wires crimped to it. Cut each wire just behind the old crimp, keeping all the length you can, and lift the fuse out. Leave its clip in place, and any earth wire fixed to it.',['On a grounded original Classic that clip is the boiler\'s earth point.','fam:GC']],
+         a:[['snip',{o:1},0,300],['of',{o:0},500,600],['snip',{o:0},1200,200]]},
+        {t:'New spades on the wires',d:'Crimp an uninsulated 6.3 mm female spade onto each end\'s wire with an open-barrel crimper (a spade sized for two wires where two shared an end), and cover it with silicone sleeve: insulated spades melt this close to the boiler. If a wire won\'t reach, lengthen it with 18 AWG silicone wire and a bare BN1.25 butt splice under silicone heat shrink.',
+         a:[['sp1',{o:1},0,400],['sp2',{o:1},150,400]]},
+        {t:'Onto the fuse',d:'Push one end\'s wires onto each spade of the new fuse. Either way round works: like the fuse it replaces, it\'s a switch in series.',
+         a:[['sp1',{x:0,y:0},0,1100],['sp2',{x:0,y:0},0,1100],['nw1',{d:0},0,1100],['nw2',{d:0},0,1100],['xt',{o:1},1150,300]]},
+        {t:'Check it',d:['Unplugged, a meter across its two spades reads under 1 Ω. On stock wiring the whole machine runs through it, so if it ever trips',['everything but the power lamp goes dead:','fam:GCP;set:model'],['everything goes dark, the power lamp too:','fam:GC;set:model'],['everything goes dead (the Pro family\'s power lamp stays lit):','unset:model'],'unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.'],
+         a:[['fm',{o:1},0,350]],loop:['press'],chk:[['c3','Boiler thermal fuse, across it']]}
+      ],
+      CW:[
+        {t:'Steam thermostat out',d:'Its leads go with the old harness. Unscrew the thermostat from the top of the boiler.',
+         a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR']},
+        {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
+         a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
+        {t:'Wire it instead of the stock fuse',d:[['Classic Pro family: AC17, from the SSR, goes on one spade and AC18, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:120;set:volts'],['Classic Pro family: AC16, from the SSR, goes on one spade and AC17, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:230;set:volts'],['Classic Pro family: the run from the SSR goes on one spade and the run to the heater splice on the other (AC17 and AC18 at 120 V, AC16 and AC17 at 230 V), instead of AC11 and AC12 to the stock fuse.','fam:GCP;unset:volts'],['Original Classic: AC6 and AC7 go on its right spade and the element lead AC8 on its left (AC8 and AC9 on a 120 V machine), instead of the stock fuse\'s ends.','fam:GC'],'Uninsulated 6.3 mm spades under silicone sleeve, and the stock fuse comes out; leave its clip and any earth wire on it in place.'],
+         a:[['of',{o:0},0,600],['ow',{o:0},0,600],['cw1',{d:0},400,1100],['cw2',{d:0},500,1100],['spc',{o:1},1500,300],['cwl',{o:1},1500,300]],ph:'cw'},
+        {t:'Check it',d:'Unplugged, a meter across its two spades reads under 1 Ω. In custom wiring it sits in the heater line, so if it ever trips the boiler stops heating: unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.',
+         a:[['fm',{o:1},0,350]],loop:['press'],chk:[['c3','Boiler thermal fuse, across it'],['g6','Boiler thermal fuse in the heater line']]}
+      ]
+    }};
+
+  /* ---------------- engine ---------------- */
+  function num(v,d){return v==null?d:v}
+  function tf(s){return 'translate('+num(s.x,0)+'px,'+num(s.y,0)+'px) rotate('+num(s.r,0)+'deg) scale('+num(s.sx,num(s.s,1))+','+num(s.sy,num(s.s,1))+')'}
+  function clone(o){var r={};for(var k in o){r[k]={};for(var p in o[k])r[k][p]=o[k][p]}return r}
+  function merge(st,k,props){if(!st[k])st[k]={};for(var p in props)st[k][p]=props[p]}
+  var CH={x:'t',y:'t',r:'t',s:'t',sx:'t',sy:'t',o:'o',d:'d'};
+  function chanVal(s,c){s=s||{};return c==='t'?tf(s):c==='o'?String(num(s.o,1)):String(num(s.d,0))}
+  function prop(c){return c==='t'?'transform':c==='o'?'opacity':'strokeDashoffset'}
+
+  function Guide(id,def){
+    this.id=id;this.def=def;this.root=$('pg-'+id+'-g');if(!this.root)return;
+    this.list=this.root.querySelector('.pg-steps');this.now=this.root.querySelector('.pg-now');
+    this.pos=this.root.querySelector('.pg-pos');this.anims=[];this.timers=[];this.i=0;this.played=false;this.pick=null;
+    var self=this;
+    this.root.querySelector('.pg-prev').addEventListener('click',function(){self.go(self.i-1,true)});
+    this.root.querySelector('.pg-next').addEventListener('click',function(){self.go(self.i+1,true)});
+    this.root.querySelector('.pg-again').addEventListener('click',function(){self.go(self.i,true)});
+    this.list.addEventListener('click',function(e){var b=e.target.closest('button[data-i]');if(b)self.go(Number(b.getAttribute('data-i')),true,true)});
+    this.root.addEventListener('keydown',function(e){if(e.target.closest('.pg-steps,.pg-ctl,.pg-fig')&&(e.key==='ArrowRight'||e.key==='ArrowLeft')&&!e.altKey&&!e.metaKey){e.preventDefault();self.go(self.i+(e.key==='ArrowRight'?1:-1),true)}});
+    var vb=this.root.querySelector('.pg-vars');
+    if(vb&&def.vars){vb.innerHTML=def.vars.map(function(v){return '<button type="button" class="chip" data-var="'+v.k+'" aria-pressed="false">'+esc(v.l)+'</button>'}).join('');
+      vb.addEventListener('click',function(e){var b=e.target.closest('[data-var]');if(!b)return;self.pick=b.getAttribute('data-var');self.setup(true)})}
+    this.setup(false);
+    if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){if(es[0].isIntersecting&&!self.played){self.played=true;self.go(self.i,true);io.disconnect()}},{threshold:.45});io.observe(this.root.querySelector('.pg-fig'))}
+  }
+  Guide.prototype.variant=function(){var d=this.def;if(!d.vars)return 'all';return this.pick||d.def()};
+  Guide.prototype.setup=function(play){
+    var d=this.def,v=this.variant(),self=this;
+    this.v=v;
+    var svgId=d.svgs?d.svgs[v]:d.svg;
+    Array.prototype.forEach.call(this.root.querySelectorAll('.pg-fig>svg'),function(s){s.style.display=s.id===svgId?'':'none'});
+    this.svg=$(svgId);
+    Array.prototype.forEach.call(this.root.querySelectorAll('[data-var]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-var')===v))});
+    Array.prototype.forEach.call((this.root.closest('section')||this.root).querySelectorAll('[data-pv]'),function(e){e.hidden=e.getAttribute('data-pv').split(',').indexOf(v)<0});
+    /* drawing variants: wiring path and family (the Pro family is drawn when no model is set) */
+    var fam=famOf()||'GCP';
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-v]'),function(e){var dv=e.getAttribute('data-v');e.style.display=(d.vars?dv===v:m('wpath:'+dv))?'':'none'});
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-fam]'),function(e){e.style.display=e.getAttribute('data-fam')===fam?'':'none'});
+    var volts=prof().volts||120;
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-volts]'),function(e){e.style.display=Number(e.getAttribute('data-volts'))===volts?'':'none'});
+    var drawn=this.root.querySelector('.pg-drawn');if(drawn)drawn.hidden=!!famOf()||!this.svg.querySelector('[data-fam]');
+    /* pieces */
+    this.el={};
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-k]'),function(e){
+      var k=e.getAttribute('data-k');
+      if(e.closest('[data-fam]')&&e.closest('[data-fam]').style.display==='none'&&self.el[k])return;
+      self.el[k]=e;
+      var o=e.getAttribute('data-origin');
+      e.style.transformBox=e.getAttribute('data-box')==='view'?'view-box':'fill-box';
+      e.style.transformOrigin=o||'center';
+    });
+    this.base=d.base[v]||d.base;
+    this.steps=(d.steps[v]||d.steps.all).filter(function(s){return m(s.when)});
+    this.states=[];var st=clone(this.base);
+    for(var i=0;i<this.steps.length;i++){(this.steps[i].a||[]).forEach(function(op){merge(st,op[0],op[1])});this.states.push(clone(st))}
+    this.renderList();
+    this.i=Math.min(this.i,this.steps.length-1);
+    if(play&&this.played)this.go(0,true);else this.show(this.played?this.i:-1,this.played?this.i:0);
+  };
+  Guide.prototype.stateBefore=function(i){return i<=0?this.base:this.states[i-1]};
+  Guide.prototype.apply=function(st){
+    for(var k in this.el){var e=this.el[k],s=st[k]||{};
+      e.style.transform=tf(s);e.style.opacity=String(num(s.o,1));
+      if(e.classList.contains('draw')){e.style.strokeDashoffset=String(num(s.d,0));if(num(s.d,0)>=1)e.style.opacity='0'}
+    }
+  };
+  Guide.prototype.stop=function(){
+    this.anims.forEach(function(a){try{a.cancel()}catch(e){}});this.anims=[];
+    this.timers.forEach(function(t){clearTimeout(t);cancelAnimationFrame(t)});this.timers=[];
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-loop]'),function(e){e.classList.remove('run')});
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-run]'),function(e){e.classList.remove('on')});
+  };
+  /* show the state at step "at" (−1 = before the first) with step "cur" highlighted, no movement */
+  Guide.prototype.show=function(at,cur){
+    this.stop();this.apply(at<0?this.base:this.states[at]);this.i=cur;this.mark();
+    if(at>=0)this.extras(this.steps[at],false);
+  };
+  Guide.prototype.extras=function(step,anim){
+    var self=this;
+    (step.loop||[]).forEach(function(n){Array.prototype.forEach.call(self.svg.querySelectorAll('[data-loop="'+n+'"]'),function(e){e.classList.add('run')});
+      Array.prototype.forEach.call(self.svg.querySelectorAll('[data-run="'+n+'"]'),function(e){e.classList.add('on')})});
+    if(step.count){var c=step.count,el=this.svg.querySelector('[data-k="'+c[0]+'"]');
+      if(el){
+        if(!anim||RM){el.textContent=c[2]+c[3]}
+        else{el.textContent=c[1]+c[3];var t0=null;
+          var tick=function(ts){if(t0===null)t0=ts;var p=Math.min(1,Math.max(0,(ts-t0-c[4])/c[5]));el.textContent=(c[1]+(c[2]-c[1])*(1-Math.pow(1-p,2))).toFixed(1).replace(/\.0$/,'')+c[3];if(p<1)self.timers.push(requestAnimationFrame(tick))};
+          self.timers.push(requestAnimationFrame(tick))}
+      }}
+  };
+  Guide.prototype.go=function(i,anim,fromList){
+    if(i<0||i>=this.steps.length)return;
+    this.stop();var step=this.steps[i],before=this.stateBefore(i),after=this.states[i],self=this;
+    this.i=i;this.played=true;this.mark(fromList);
+    this.apply(after);
+    if(anim&&!RM&&this.svg.animate){
+      var cur=clone(before),lines={};
+      (step.a||[]).forEach(function(op){
+        var k=op[0],e=self.el[k];if(!e)return;
+        var nxt=clone(cur);merge(nxt,k,op[1]);
+        var chans={};for(var p in op[1])chans[CH[p]]=1;
+        for(var c in chans){
+          if(c==='d'&&!e.classList.contains('draw'))continue;
+          var key=k+'|'+c;if(!lines[key])lines[key]={e:e,c:c,pts:[[0,chanVal(cur[k],c)]]};
+          lines[key].pts.push([op[2],chanVal(cur[k],c)],[op[2]+op[3],chanVal(nxt[k],c)]);
+        }
+        cur=nxt;
+      });
+      for(var key in lines){var L=lines[key],end=L.pts[L.pts.length-1][0]||1,kf=[];
+        L.pts.forEach(function(pt,j){var f={offset:Math.min(1,pt[0]/end)};f[prop(L.c)]=pt[1];f.easing=EASE;
+          if(kf.length&&f.offset<kf[kf.length-1].offset)f.offset=kf[kf.length-1].offset;kf.push(f)});
+        try{this.anims.push(L.e.animate(kf,{duration:end,fill:'both'}))}catch(err){}
+        if(L.c==='d'&&L.pts[0][1]==='1'&&L.pts.length>1){var t0=L.pts[1][0];try{this.anims.push(L.e.animate([{opacity:0,offset:0},{opacity:0,offset:Math.min(1,t0/end)},{opacity:1,offset:Math.min(1,t0/end)},{opacity:1,offset:1}],{duration:end,fill:'both'}))}catch(err){}}
+      }
+    }
+    this.extras(step,anim);
+  };
+  Guide.prototype.renderList=function(){
+    var self=this,n=this.steps.length;
+    this.list.innerHTML=this.steps.map(function(s,i){
+      var ph=s.ph==='tee'?(famOf()==='GC'?PH.teeGC:PH.teeGCP):s.ph==='xf'?(famOf()==='GC'?PH.xf:PH.xfp):s.ph==='cw'?PH.cw+(famOf()==='GC'?'GC':'GCP')+'_wiring_PCBv3_1_'+(prof().volts===230?'220':'120')+'v.png':s.ph;
+      var phl=s.ph==='cw'?'Official drawing':'Official photo';
+      var chk=(s.chk||[]).map(function(c){return '<a href="power-on-checks.html#'+c[0]+'">'+c[0]+' '+esc(c[1])+'</a>'}).join(' · ');
+      return '<li data-n="'+(i+1)+'"><button type="button" class="pg-sb" data-i="'+i+'"><span class="pg-n">'+(i+1)+'</span><span class="pg-t">'+esc(s.t)+'</span></button>'
+        +'<p>'+esc(T(s.d))+'</p>'+((ph||chk)?'<p class="pg-links">'+(ph?'<a href="'+ph+'" target="_blank" rel="noopener">'+phl+'</a>':'')+(ph&&chk?' · ':'')+(chk?'Check: '+chk:'')+'</p>':'')+'</li>';
+    }).join('');
+    this.n=n;
+  };
+  Guide.prototype.mark=function(fromList){
+    var i=this.i,s=this.steps[i];
+    Array.prototype.forEach.call(this.list.children,function(li,j){li.classList.toggle('cur',j===i);var b=li.querySelector('button');if(j===i)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+    this.pos.textContent='Step '+(i+1)+' of '+this.steps.length;
+    this.root.querySelector('.pg-prev').disabled=i<=0;this.root.querySelector('.pg-next').disabled=i>=this.steps.length-1;
+    if(this.now&&s)this.now.innerHTML='<b>'+(i+1)+'. '+esc(s.t)+'</b> '+esc(T(s.d));
+    if(fromList&&window.innerWidth<=860){var f=this.root.querySelector('.pg-fig');if(f&&f.getBoundingClientRect().top<0&&f.scrollIntoView)f.scrollIntoView({block:'start',behavior:RM?'auto':'smooth'})}
+  };
+
+  /* where each part goes, following Your Gaggia */
+  function where(){
+    var w={tc:['In the brew thermostat\'s hole in the side of the boiler. The same on every Classic and Pro-family model.'],
+      ps:[['Tap block: clamped between the group and its inlet fitting (the metal OPV on the original Classic).','unset:model'],['Tap block: clamped between the group and its inlet fitting.','set:model;fam:GCP'],['Tap block: clamped between the group and the metal OPV on its inlet.','set:model;fam:GC'],
+          'It fits every Classic and Pro-family model. T-fitting: cut into the line from the pump to the boiler.'],
+      fuse:['In the steam thermostat\'s hole in the top of the boiler, in place of the stock 184 °C one-shot fuse.']};
+    for(var k in w){var e=$('pg-'+k+'-where');if(e)e.textContent=T(w[k])}
+  }
+
+  var guides={};
+  function init(){
+    where();
+    ['tc','ps','fuse'].forEach(function(k){guides[k]=new Guide(k,G[k])});
+    window.addEventListener('gaggia-machine',function(){where();for(var k in guides)if(guides[k].root)guides[k].setup(false)});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
+</script>
+<footer class="site-foot"><div class="in"><nav class="foot-nav" aria-label="All pages"><a class="fn-home" href="index.html">Gaggia × Gaggiuino home</a><div class="fn-g"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></div><div class="fn-g"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></div><div class="fn-g"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="part-guides.html" aria-current="page">Part guides</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></div><div class="fn-g"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></div></nav><p><strong>Mains voltage.</strong> This conversion puts your hands near 120/230 V wiring. Work only with the cord out, check everything with a meter before first power-on, and stop if anything here disagrees with the official Gaggiuino docs or your own reading of the machine. Nothing on this site has been reviewed by the Gaggiuino project. You are responsible for your own build.</p><p>Unofficial community material for the Gaggia Classic family. The install itself is the official guide at <a href="https://gaggiuino.github.io/">gaggiuino.github.io</a>; these pages organize it, link to each step and add tools around it. Content is <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>, like the sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia site</a>. · <a href="https://github.com/Jabawabawaba/Gaggia-Gaggiuino">Source and issues on GitHub</a></p></div></footer></body></html>

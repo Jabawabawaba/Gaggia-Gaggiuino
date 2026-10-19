@@ -21,6 +21,7 @@ Gaggiuino was built for the Gaggia Classic, and its official guide covers the in
 | `model-notes.html` | Reference | Every model difference that matters for the install, each marked with its source |
 | `parts-tracker.html` | Ordering | The parts list with links, status, price paid and box contents |
 | `runbook.html` | Install day | Eight phases of tickable steps, each linked to its section of the official guide, with a stop point before first power-on; prints as one checklist |
+| `part-guides.html` | Install day | The thermocouple, pressure sensor and resettable fuse, each drawn step by step, following your model and install path |
 | `wiring.html` | Install day | Every wire for your model, voltage and install path, taken from the official schematic: ends, color, connectors and length |
 | `cut-list.html` | Install day | Wire to buy by color, connectors to crimp, and every wire to cut, with adjustable extra length |
 | `wire-labels.html` | Install day | Printable flag labels for each wire end, PDF for Letter or A4 |
@@ -49,7 +50,7 @@ If you have a finished build, your lengths, photos and corrections are exactly w
 
 ## Rebuilding the pages
 
-`build/` holds the generators. `wiring-data.json` is the single source of truth for the wires: every run for each official schematic (stock wiring integration and custom wiring, by model family and voltage), and `wiring.html`, `wire-labels.html`, `cut-list.html` and the power-on checks read it. The site-only pages (home, which Gaggia, cut list, troubleshooting, the Learn pages and the glossary) are templates in `build/` that share `base.css`; the scroll animation on `conversion.html` is `story.tpl.html`, and `img/` holds the still the home page uses for it. The runbook steps are in `runbook-phases.js` and the links into the official guide in `official-links.js`. The Learn pages pull their parts from `learn-*.html`, `learn-*.css` and `learn-*.js`, and the glossary entries live in `gen_glossary.py`. `machine.js` is the "Your Gaggia" picker, inlined into every page.
+`build/` holds the generators. `wiring-data.json` is the single source of truth for the wires: every run for each official schematic (stock wiring integration and custom wiring, by model family and voltage), and `wiring.html`, `wire-labels.html`, `cut-list.html` and the power-on checks read it. The site-only pages (home, which Gaggia, cut list, troubleshooting, the Learn pages and the glossary) are templates in `build/` that share `base.css`; the scroll animation on `conversion.html` is `story.tpl.html`, and `img/` holds the still the home page uses for it. The runbook steps are in `runbook-phases.js` and the links into the official guide in `official-links.js`. The Learn pages pull their parts from `learn-*.html`, `learn-*.css` and `learn-*.js`, and the glossary entries live in `gen_glossary.py`. `machine.js` is the "Your Gaggia" picker, inlined into every page. The Part guides drawings come from `gen_part_svgs.py` (it writes the `part-*.svg.html` files), animated by `part-guides.js`.
 
 ```
 cd build
