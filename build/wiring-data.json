@@ -561,7 +561,53 @@
      "l2": "now: parked: live, insulate it"
     }
    ],
-   "cables": [],
+   "cables": [
+    {
+     "frm": "K Type Thermocouple + lead",
+     "to": "PCB J4 +",
+     "color": "red"
+    },
+    {
+     "frm": "K Type Thermocouple - lead",
+     "to": "PCB J4 -",
+     "color": "white"
+    },
+    {
+     "frm": "Pressure Transducer 5V",
+     "to": "PCB J6 5V",
+     "color": "red"
+    },
+    {
+     "frm": "Pressure Transducer GND",
+     "to": "PCB J6 GND",
+     "color": "black"
+    },
+    {
+     "frm": "Pressure Transducer OUT",
+     "to": "PCB J6 P",
+     "color": "yellow"
+    },
+    {
+     "frm": "PCB J1 GND",
+     "to": "ESP32-S3 Display PicoBlade GND",
+     "color": "black"
+    },
+    {
+     "frm": "PCB J1 TX",
+     "to": "ESP32-S3 Display IO18 (UART1)",
+     "color": "yellow"
+    },
+    {
+     "frm": "PCB J1 RX",
+     "to": "ESP32-S3 Display IO17 (UART1)",
+     "color": "blue"
+    },
+    {
+     "frm": "PCB J1 5V",
+     "to": "ESP32-S3 Display PicoBlade 5V",
+     "color": "red"
+    }
+   ],
    "lamps": []
   },
   "si-gc-120": {
@@ -1141,7 +1187,53 @@
      "l2": "now: parked: live, insulate it"
     }
    ],
-   "cables": [],
+   "cables": [
+    {
+     "frm": "K Type Thermocouple + lead",
+     "to": "PCB J4 +",
+     "color": "red"
+    },
+    {
+     "frm": "K Type Thermocouple - lead",
+     "to": "PCB J4 -",
+     "color": "white"
+    },
+    {
+     "frm": "Pressure Transducer 5V",
+     "to": "PCB J6 5V",
+     "color": "red"
+    },
+    {
+     "frm": "Pressure Transducer GND",
+     "to": "PCB J6 GND",
+     "color": "black"
+    },
+    {
+     "frm": "Pressure Transducer OUT",
+     "to": "PCB J6 P",
+     "color": "yellow"
+    },
+    {
+     "frm": "ESP32-S3 Display PicoBlade 1.25mm 5V",
+     "to": "PCB J1 5V",
+     "color": "red"
+    },
+    {
+     "frm": "ESP32-S3 Display PicoBlade 1.25mm GND",
+     "to": "PCB J1 GND",
+     "color": "black"
+    },
+    {
+     "frm": "ESP32-S3 Display IO17 (UART1 header)",
+     "to": "PCB J1 RX",
+     "color": "blue"
+    },
+    {
+     "frm": "ESP32-S3 Display IO18 (UART1 header)",
+     "to": "PCB J1 TX",
+     "color": "yellow"
+    }
+   ],
    "lamps": []
   },
   "si-gc-230": {
@@ -1716,7 +1808,53 @@
      "l2": "now: parked: live, insulate it"
     }
    ],
-   "cables": [],
+   "cables": [
+    {
+     "frm": "K Type Thermocouple + lead",
+     "to": "PCB J4 +",
+     "color": "red"
+    },
+    {
+     "frm": "K Type Thermocouple - lead",
+     "to": "PCB J4 -",
+     "color": "white"
+    },
+    {
+     "frm": "Pressure Transducer 5V",
+     "to": "PCB J6 5V",
+     "color": "red"
+    },
+    {
+     "frm": "Pressure Transducer GND",
+     "to": "PCB J6 GND",
+     "color": "black"
+    },
+    {
+     "frm": "Pressure Transducer OUT",
+     "to": "PCB J6 P",
+     "color": "yellow"
+    },
+    {
+     "frm": "ESP32-S3 Display PicoBlade 1.25mm 5V",
+     "to": "PCB J1 5V",
+     "color": "red"
+    },
+    {
+     "frm": "ESP32-S3 Display PicoBlade 1.25mm GND",
+     "to": "PCB J1 GND",
+     "color": "black"
+    },
+    {
+     "frm": "ESP32-S3 Display IO17 (UART1 header)",
+     "to": "PCB J1 RX",
+     "color": "blue"
+    },
+    {
+     "frm": "ESP32-S3 Display IO18 (UART1 header)",
+     "to": "PCB J1 TX",
+     "color": "yellow"
+    }
+   ],
    "lamps": []
   },
   "cw-gcp-120": {
