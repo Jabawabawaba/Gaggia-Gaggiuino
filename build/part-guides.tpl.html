@@ -82,11 +82,11 @@
 
 
   <section class="block" id="wire" aria-labelledby="h-wire">
-    <div class="sec-h"><h2 id="h-wire">Making the wires</h2><span class="sum">strip · crimp · insulate · tug</span></div>
+    <div class="sec-h"><h2 id="h-wire">Making the wires</h2><span class="sum">strip · crimp · insulate · pull-test</span></div>
     <p class="pg-where" id="pg-wire-where"></p>
     <div class="pg-meta">
-      <div><span class="k">You need</span><ul><li>18 AWG silicone wire for mains, 22 AWG for low voltage, cut from the <a href="cut-list.html">cut list</a></li><li>A wire stripper</li><li>A ratcheting crimper for insulated terminals (red, blue, yellow dies)</li><li>An open-barrel crimper for the bare spades at the boiler</li><li>6.3 mm spades (insulated, bare and piggyback), forks, BN1.25 splices</li><li>Silicone heat shrink or self-fusing silicone tape, and a heat gun</li></ul></div>
-      <div><span class="k">Which crimper is which</span><p>An insulated-terminal crimper has colored, rounded dies and squashes a nylon sleeve. An open-barrel crimper has small B-shaped dies that roll a bare terminal's tabs over the wire. Most hardware-store crimpers are the insulated kind; the bare spades at the boiler need the open-barrel kind.</p></div>
+      <div><span class="k">You need</span><ul><li>18 AWG silicone wire for mains, 22 AWG for low voltage, cut from the <a href="cut-list.html">cut list</a></li><li>A wire stripper</li><li>A ratcheting crimper for insulated terminals (red, blue, yellow dies)</li><li>An open-barrel crimper for the bare spades at the boiler, and an uninsulated-terminal crimper for any BN splices</li><li>6.3 mm spades (insulated, bare and piggyback), forks, BN1.25 splices</li><li>Silicone heat shrink or self-fusing silicone tape, and a heat gun</li></ul></div>
+      <div><span class="k">Which crimper is which</span><p>An insulated-terminal crimper has colored, rounded dies and squashes a nylon sleeve. An open-barrel crimper has small B-shaped dies that roll a bare terminal's tabs over the wire. A third kind, with a punch and block, crimps bare BN splices. Most hardware-store crimpers are the insulated kind; bare open-barrel spades at the boiler need the open-barrel kind.</p></div>
     </div>
     <div class="pg" id="pg-wire-g">
       <div class="pg-figcol">
@@ -103,7 +103,7 @@
     <div class="sec-h"><h2 id="h-ssr">Solid-state relay</h2><span class="sum">SSR-40DA · back wall</span></div>
     <p class="pg-where" id="pg-ssr-where"></p>
     <div class="pg-meta">
-      <div><span class="k">You need</span><ul><li>The SSR (SSR-40DA)</li><li>An M4 × 10 screw, washer and nut, or an 8-32 set</li><li>Forks for all four screws: SV1.25 for one wire, SV2 for two</li><li>A screwdriver for the terminal screws</li></ul></div>
+      <div><span class="k">You need</span><ul><li>The SSR (SSR-40DA)</li><li>An M4 × 10 screw, washer and nut, or an 8-32 set</li><li>Forks for all four screws: SV1.25-5 for one wire, SV2-5 for two, as on the official parts list</li><li>A screwdriver for the terminal screws</li></ul></div>
       <div><span class="k">What it does</span><p>It switches the heater on the board's command, with the board's 5 V side isolated from mains. <a href="how-gaggiuino-works.html#newparts">How Gaggiuino works</a> explains it.</p></div>
     </div>
     <div class="pg" id="pg-ssr-g">
@@ -123,8 +123,8 @@
     <p class="pg-where" id="pg-sw-where"></p>
     <div class="pg-note" data-when="set:path;wpath:CW"><p>On custom wiring the brew and steam switches carry only the low-voltage wires your harness drawing shows. The moves below are for stock wiring.</p></div>
     <div class="pg-meta">
-      <div><span class="k">You need</span><ul><li>Your printed <a href="wire-labels.html">wire labels</a></li><li>Silicone tape or silicone heat shrink for the connectors that stay live</li><li>Cable ties</li><li>The low-voltage switch wires, with 6.3 mm female spades (one sized for two wires)</li></ul></div>
-      <div><span class="k">What changes</span><p>The switches stop switching mains loads and become signals: each one, when on, joins a PCB input to the 5 V ground. Some spades still carry mains, so the low-voltage wires go only on the ones this frees.</p></div>
+      <div><span class="k">You need</span><ul><li>Your printed <a href="wire-labels.html">wire labels</a></li><li>Silicone tape or silicone heat shrink for the connectors that stay live</li><li>Cable ties</li><li>The low-voltage switch wires, with 6.3 mm female spades (the ground and its jumper share one)</li></ul></div>
+      <div><span class="k">What changes</span><p>The switches also become signals for the PCB: one pole of each, when on, joins a PCB input to the 5 V ground. The other spades still carry mains, so the low-voltage wires go only on the ones this frees, and the moved connectors stay live.</p></div>
     </div>
     <div class="pg" id="pg-sw-g">
       <div class="pg-figcol">

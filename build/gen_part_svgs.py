@@ -373,7 +373,7 @@ def wires():
     s.append('<g data-k="wv5"><rect class="ins-r" x="20" y="92" width="120" height="11" rx="3"/><rect class="ins-k" x="20" y="108" width="120" height="11" rx="3"/>'
              + copper(138, 160, 105.5, 14) +
              '<g data-k="tsp"><rect class="metal" x="186" y="96" width="46" height="19" rx="2"/><path class="isl-b" d="M132,93 H180 L188,97 V114 L180,118 H132 Z"/></g>'
-             '<text class="cap" x="160" y="74" text-anchor="middle">spade sized for two wires</text>'
+             '<text class="cap" x="160" y="74" text-anchor="middle">two 18 AWG wires: blue spade</text>'
              '<rect class="ins-p" x="250" y="186" width="112" height="7" rx="3"/>' + copper(360, 390, 189.5, 5) +
              '<g data-k="fold" data-box="view" data-origin="390px 189.5px">' + copper(390, 420, 189.5, 5) + '</g>'
              '<g data-k="fk"><rect class="metal" x="392" y="181" width="40" height="17" rx="2"/><rect class="hole" x="414" y="186" width="20" height="7" rx="3"/>'
@@ -401,7 +401,7 @@ def wires():
              '<rect class="dimple" x="240" y="130.5" width="14" height="19" rx="3"/></g>'
              '<g data-loop="tug" class="tug"><path d="M30,140 H-2 M8,130 L-2,140 L8,150"/><path d="M322,140 H360 M350,130 L360,140 L350,150"/></g>'
              '<g data-k="okm"><circle class="okc" cx="420" cy="80" r="22"/><path class="okt" d="M409,80 l8,8 l14,-16"/></g>'
-             '<text class="cap" x="176" y="196" text-anchor="middle">a good tug: nothing moves</text></g>')
+             '<text class="cap" x="176" y="196" text-anchor="middle">a gentle pull: nothing moves</text></g>')
     s.append('</svg>')
     return "".join(s)
 

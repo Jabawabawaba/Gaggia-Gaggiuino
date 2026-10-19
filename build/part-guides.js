@@ -29,6 +29,7 @@
     cw:'https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/',
     ssr:'https://github.com/user-attachments/assets/94bcb6c1-6e65-4ced-957c-9c00551140b3',
     ssrW:'https://user-images.githubusercontent.com/117388662/246569790-dfc78317-caef-4bba-a528-466affb516b1.png',
+    ssrWc:'https://user-images.githubusercontent.com/117388662/239403962-c0ef2429-ec12-4d81-b56b-02c91cd702d3.png',
     cci:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/83f63c3a-9919-4c99-b01e-34eacba4ff71',
     swL:'https://user-images.githubusercontent.com/117388662/243890489-77c730e4-20e3-4e6f-9cb5-6295780194fc.png',
     swLc:'https://user-images.githubusercontent.com/117388662/239404551-97d6f3e4-f62e-45c4-93d7-52d8ae373526.png',
@@ -148,17 +149,17 @@
        links:[['Cut list','cut-list.html'],['Wire labels','wire-labels.html']]},
       {t:'Strip 6 mm',d:'Strip about 6 mm of insulation. If any strands come away with it, cut the end off and strip again. A light twist keeps the strands together.',
        a:cat(only('wv',2,8),[['sjT',{y:0},400,450],['sjB',{y:0},400,450],['sjT',{x:60},900,900],['sjB',{x:60},900,900],['slug',{x:60},900,900],['slug',{o:0},1700,300],['sjT',{o:0},1700,300],['sjB',{o:0},1700,300],['wd2',{o:1},1900,300]])},
-      {t:'Insulated spades and forks',d:'For ends away from the boiler. Set the connector in the crimper\'s die that matches its color (red for one 18 or 22 AWG wire), push the stripped end fully in, and squeeze until the crimper lets go. Nylon insulation is good to only 105 °C.',
+      {t:'Insulated spades and forks',d:'For ends away from the boiler. Set the connector in the crimper\'s die that matches its color (red for one 18 AWG wire; a single 22 AWG wire needs the fold-over in step 5 first), push the stripped end fully in, and squeeze until the crimper lets go. Nylon insulation is good to only 105 °C.',
        a:cat(only('wv',3,8),[['isp',{x:0},400,900],['cjT',{o:1},1100,250],['cjB',{o:1},1100,250],['cjT',{y:0},1400,450],['cjB',{y:0},1400,450],['dimp',{o:1},1800,200],['cjT',{y:-18,o:0},2000,400],['cjB',{y:18,o:0},2000,400]])},
-      {t:'Bare spades at the boiler',d:'Anything on or near the boiler gets an uninsulated spade under silicone, because insulated ones melt there. Slide the silicone sleeve onto the wire first. Lay the end in with the bare copper under the front tabs and the insulation under the rear tabs, and squeeze in the open-barrel crimper\'s matching die. Then slide the sleeve over and shrink it with the heat gun, or wrap it in self-fusing silicone tape.',
+      {t:'Bare spades at the boiler',d:'Anything on or near the boiler gets an uninsulated spade under silicone, because insulated ones melt there. Slide the silicone sleeve onto the wire first. Lay the end in with the bare copper under the front tabs and the insulation under the rear tabs, and squeeze in the open-barrel crimper\'s matching die. (The official grounding tip also allows an insulated spade with its nylon taken off.) Then slide the sleeve over and shrink it with the heat gun, or wrap it in self-fusing silicone tape.',
        a:cat(only('wv',4,8),[['bsp',{x:0},400,900],['ojT',{o:1},1100,250],['ojB',{o:1},1100,250],['ojT',{y:0},1400,450],['ojB',{y:0},1400,450],['wo',{o:0},1700,150],['wc',{o:1},1700,150],['wcap',{o:0},1700,250],['ojT',{y:-18,o:0},1900,400],['ojB',{y:18,o:0},1900,400],['slv',{x:122},2200,800],['hgun',{o:1},2900,300],['slv',{sy:.72},3100,800]]),loop:['heat']},
-      {t:'Two wires, or a thin one',d:'Where two wires share a spade, as the low-voltage ground does, strip both to the same length, twist them together, and use a spade sized for two wires. A 22 AWG wire is too thin for a fork on its own: strip four times as much and fold the copper back on itself, or splice it to 18 AWG first. Kits often come with these ends already made.',
+      {t:'Two wires, or a thin one',d:'Where two wires share a spade, strip both to the same length and twist them together. Two 18 AWG wires need a blue spade; two 22 AWG wires, like the low-voltage ground and its jumper, fill a red one. One 22 AWG wire on its own is too thin for any spade or fork: strip four times as much and fold the copper back on itself, or splice it to 18 AWG first. Kits often come with these ends already made.',
        a:cat(only('wv',5,8),[['tsp',{x:0},400,900],['fold',{r:180},1500,900],['fk',{o:1},2500,200],['fk',{x:0},2500,800]])},
       {t:'Piggyback on the pump',when:'wpath:SI',d:['Wire N ends in a piggyback spade. Unplug',['Pa','!model:GC'],['Pa (F on a 230 V original Classic)','model:GC'],'from the pump, push the piggyback onto that terminal, and plug the lead back onto the piggyback\'s tab. Either way round, the two share the terminal.'],
        a:cat(only('wv',6,8),[['pgy',{x:0},400,900],['pa',{y:0},1500,800]])},
-      {t:'A butt splice, if a wire is short',d:'A bare BN1.25 splice (a BN2 takes two 18 AWG wires a side), with silicone heat shrink slid on first. Push each wire in to the middle stop, crimp each half, then shrink the sleeve over it. Mains wires are crimped, not soldered.',
+      {t:'A butt splice, if a wire is short',d:'A bare BN1.25 splice (a BN2 takes two 18 AWG wires a side), with silicone heat shrink slid on first. Push each wire in to the middle stop, crimp each half with an uninsulated-terminal crimper, then shrink the sleeve over it. Mains wires are crimped, not soldered.',
        a:cat(only('wv',7,8),[['bl',{x:0},400,900],['br',{x:0},400,900],['bjT',{o:1},1100,250],['bjB',{o:1},1100,250],['bjT',{y:0},1400,400],['bjB',{y:0},1400,400],['bd1',{o:1},1750,150],['bjT',{y:-18},1900,300],['bjB',{y:18},1900,300],['bjT',{x:48},2200,400],['bjB',{x:48},2200,400],['bjT',{y:0},2650,400],['bjB',{y:0},2650,400],['bd2',{o:1},3000,150],['bjT',{y:-18,o:0},3150,400],['bjB',{y:18,o:0},3150,400],['hs',{x:118},3500,800],['hg2',{o:1},4200,300],['hs',{sy:.72},4300,700]]),loop:['heat2']},
-      {t:'Pull-test every crimp',d:'Give each one a good tug. If it moves, cut the connector off and crimp a new one. Then cover any bare metal that\'s left.',
+      {t:'Pull-test every crimp',d:'Pull gently on each one. If it moves, cut the connector off and crimp a new one. Then cover any bare metal that\'s left.',
        a:cat(only('wv',8,8),[['okm',{o:1},1400,400]]),loop:['tug','jig']}
     ]}};
 
@@ -168,21 +169,21 @@
     steps:{SI:null,CW:null}};
   (function(){
     var base={sv1:{o:1},sv2:{o:0},sv3:{o:0},ssr1:{x:150,o:0},clr:{o:0},scw:{x:-80},wsh:{x:50,o:0},nut:{x:60,o:0},cov:{o:1,y:0},lw1:{y:70},lw2:{y:70},cwp:{y:-60,o:0},cwm:{y:-60,o:0}};
-    function steps(load){return [
+    function steps(load,lph){return [
       {t:'Find its spot',d:'On the back wall, with room above it for the funnel piece and its screw, and not touching the pump or its housing.',
        a:[['ssr1',{o:1},0,200],['ssr1',{x:0},100,900],['clr',{o:1},1100,300]],ph:PH.ssr},
       {t:'Screw it to the wall',d:'An M4 (or 8-32) screw, washer and nut through a vent slot, with the SSR\'s metal base flat against the wall.',
        a:[['sv1',{o:0},0,250],['sv2',{o:1},150,300],['scw',{x:0},500,900],['wsh',{o:1},1400,200],['wsh',{x:0},1400,600],['nut',{o:1},1700,200],['nut',{x:0},1700,600]],loop:['nutspin']},
       {t:'Load wires on the big screws',d:load,
-       a:[['sv2',{o:0},0,250],['sv3',{o:1},150,300],['cov',{o:0,y:-24},600,600],['lw1',{y:0},1200,900],['lw2',{y:0},1300,900],['sl1',{r:360},2200,800],['sl2',{r:360},2300,800]],ph:PH.ssrW},
+       a:[['sv2',{o:0},0,250],['sv3',{o:1},150,300],['cov',{o:0,y:-24},600,600],['lw1',{y:0},1200,900],['lw2',{y:0},1300,900],['sl1',{r:360},2200,800],['sl2',{r:360},2300,800]],ph:lph},
       {t:'Control wires: + and −',d:'J9 R1 goes on the + screw and J9 GND on −. This side has a polarity. The 22 AWG control wires need the fold-over, or a splice to 18 AWG, to sit in a fork.',
        a:[['cwp',{o:1},0,200],['cwm',{o:1},100,200],['cwp',{y:0},0,900],['cwm',{y:0},100,900],['sc1',{r:360},1000,800],['sc2',{r:360},1100,800]],chk:[['f5','J9 R1 pin to SSR +'],['f6','J9 GND pin to SSR −']]},
       {t:'Check it',d:'Every screw tight, no stray strands, no fork touching its neighbor, and the cover closed. On the bench test, the SSR\'s light comes on whenever the board calls for heat.',
        a:[['cov',{o:1,y:0},0,600]],loop:['blink']}
     ]}
     G.ssr.base.SI=base;G.ssr.base.CW=base;
-    G.ssr.steps.SI=steps('Wires Sa and Sb, which plug onto the two leads that came off the steam thermostat, go under the two load screws, either way round. Forks under the clamp plates are the tidy way; the stock guide also allows bare wire looped under the plate.');
-    G.ssr.steps.CW=steps([['Classic Pro family: the right screw takes AC2 from the power switch and AC4 to the PCB\'s L, both in one two-wire (SV2) fork; the left screw takes AC11 to the boiler fuse (AC17 at 120 V, or AC16 at 230 V, with the optional resettable fuse).','fam:GCP'],['Original Classic: the right screw takes AC2 from the On/Off common and AC3 to the PCB\'s L in one two-wire (SV2) fork; the left screw takes AC6 to the boiler fuse.','fam:GC']]);
+    G.ssr.steps.SI=steps('Wires Sa and Sb, which plug onto the two leads that came off the steam thermostat, go under the two load screws, either way round. Forks under the clamp plates are the tidy way; the stock guide also allows bare wire looped under the plate.','ssrW');
+    G.ssr.steps.CW=steps([['Classic Pro family: the right screw takes AC2 from the power switch and AC4 to the PCB\'s L, both in one two-wire (SV2) fork; the left screw takes AC11 to the boiler fuse (AC17 at 120 V, or AC16 at 230 V, with the optional resettable fuse).','fam:GCP'],['Original Classic: the right screw takes AC2 from the On/Off common and AC3 to the PCB\'s L in one two-wire (SV2) fork; the left screw takes AC6 to the boiler fuse (or to the optional resettable fuse, which AC6 and AC7 move to).','fam:GC']],'cw');
   })();
 
   G.sw={vars:[{k:'GCP',l:'Pro, Evo, E24'},{k:'GC',l:'Original Classic'}],def:function(){return famOf()||'GCP'},
@@ -193,7 +194,7 @@
     },
     steps:{
       GCP:[
-        {t:'Evo and E24: split the connector block',when:'model:EVO,E24',d:'Easier with the switch or boiler out. Press each connector\'s locking tab with a small screwdriver, pull it out the back, cover it with silicone tape or 6 mm silicone heat shrink, and label it (an oil-based marker writes on silicone). One at a time.',
+        {t:'Evo and E24: split the connector block',when:'model:EVO,E24',d:'Most Evo and E24 machines have one; skip this if yours has single connectors. Easier with the switch or boiler out. Press each connector\'s locking tab with a small screwdriver, pull it out the back, cover it with silicone tape or 6 mm silicone heat shrink, and label it (an oil-based marker writes on silicone). One at a time.',
          a:[['swv',{o:0},0,250],['blk',{o:1},150,300],['bc0',{y:70},500,500],['bs0',{o:1},1000,300],['bc1',{y:70},1300,500],['bs1',{o:1},1800,300],['bc2',{y:70},2100,500],['bs2',{o:1},2600,300],['bc3',{y:70},2900,500],['bs3',{o:1},3400,300]],ph:PH.cci},
         {t:'Label the three that move',d:'B4 on brew spade 4, and S4 and S5 on steam spades 4 and 5. The wire labels page prints them.',
          a:[['blk',{o:0},0,250],['swv',{o:1},150,300],['b4t',{o:1},500,300],['s4t',{o:1},750,300],['s5t',{o:1},1000,300]],links:[['Wire labels','wire-labels.html']]},
@@ -203,9 +204,9 @@
          a:[['s4',{x:-80},0,1000]]},
         {t:'Park S5',d:'Unplug S5. It stays live: cover its end with silicone tape or heat shrink, and tie it down where it can\'t touch anything.',
          a:[['s5',{x:-10,y:-117},0,1100],['s5s',{o:1},1100,400]]},
-        {t:'Low-voltage wires on the freed spades',d:'Only on brew 1 and 2 and steam 4 and 5. J7 B goes on brew 1; J7 GND on brew 2, in a spade sized for two wires, with a jumper on to steam 5; J7 S on steam 4.',
+        {t:'Low-voltage wires on the freed spades',d:'Only on brew 1 and 2 and steam 4 and 5. J7 B goes on brew 1; J7 GND and a jumper share one spade on brew 2, and the jumper runs on to steam 5; J7 S on steam 4.',
          a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,300],['lv4',{o:1},800,500],['lvcap',{o:1},1100,300]],ph:PH.swLV},
-        {t:'Check it',d:'Unplugged, with the J7 plug off: brew on reads under 1 Ω from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the steam lamp lights when the boiler isn\'t heating, and the brew lamp stays dark.',
+        {t:'Check it',d:'Unplugged, with the J7 plug off: brew on shows continuity (close to 0 Ω) from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the steam lamp lights when the boiler isn\'t heating, and the brew lamp stays dark.',
          a:[['swv',{o:0},0,250],['swm',{o:1},150,300]],chk:[['f1','Brew ON'],['f2','Brew OFF'],['f3','Steam ON'],['f4','Steam OFF']]}
       ],
       GC:[
@@ -215,9 +216,9 @@
          a:[['cp12',{x:-35,y:-115},0,1100]],ph:PH.swLc},
         {t:'Park 1, 2, 3 and P3-4',d:['All four stay live: cover each end and tie it down. Where a connector holds two wires, leave them joined in it.',['At 120 V, 2 and 3 still join wires that carry heater current (3 links the power switch to Ba, 2 links Sa to an element): don\'t cut either off.','volts:120'],['At 230 V, 3 still joins the power switch to P1-2, so L\'s feed passes through it: don\'t cut it off.','volts:230']],
          a:[['c1',{y:-34},0,800],['c3',{y:-34},100,800],['c2',{y:34},200,800],['cp34',{x:50},300,800],['c1s',{o:1},1000,300],['c3s',{o:1},1100,300],['c2s',{o:1},1200,300],['cp34s',{o:1},1300,300],['park',{o:1},1500,300]]},
-        {t:'Low-voltage wires on the freed spades',d:'Only on 1, 3, P(1-2) and P(3-4). J7 B on brew 1; J7 S on steam 3; J7 GND on steam P(3-4), in a spade sized for two wires, with a jumper on to brew P(1-2). Steam P(5-6) and 6 still carry mains for the valve.',
+        {t:'Low-voltage wires on the freed spades',d:'Only on 1, 3, P(1-2) and P(3-4). J7 B on brew 1; J7 S on steam 3; J7 GND and a jumper share one spade on steam P(3-4), and the jumper runs on to brew P(1-2). Steam P(5-6) and 6 still carry mains for the valve.',
          a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,500],['lv4',{o:1},900,300],['lvcap',{o:1},1100,300]],ph:PH.swLVc},
-        {t:'Check it',d:'Unplugged, with the J7 plug off: brew on reads under 1 Ω from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the boiler lamp inside the housing stays dark; the power lamp works as before.',
+        {t:'Check it',d:'Unplugged, with the J7 plug off: brew on shows continuity (close to 0 Ω) from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the boiler lamp inside the housing stays dark; the power lamp works as before.',
          a:[['swv',{o:0},0,250],['swm',{o:1},150,300]],chk:[['f1','Brew ON'],['f2','Brew OFF'],['f3','Steam ON'],['f4','Steam OFF']]}
       ]
     }};
@@ -342,7 +343,7 @@
   Guide.prototype.renderList=function(){
     var self=this,n=this.steps.length;
     this.list.innerHTML=this.steps.map(function(s,i){
-      var ph=s.ph==='tee'?(famOf()==='GC'?PH.teeGC:PH.teeGCP):s.ph==='xf'?(famOf()==='GC'?PH.xf:PH.xfp):s.ph==='cw'?PH.cw+(famOf()==='GC'?'GC':'GCP')+'_wiring_PCBv3_1_'+(prof().volts===230?'220':'120')+'v.png':s.ph;
+      var ph=s.ph==='ssrW'?(famOf()==='GC'?PH.ssrWc:PH.ssrW):s.ph==='tee'?(famOf()==='GC'?PH.teeGC:PH.teeGCP):s.ph==='xf'?(famOf()==='GC'?PH.xf:PH.xfp):s.ph==='cw'?PH.cw+(famOf()==='GC'?'GC':'GCP')+'_wiring_PCBv3_1_'+(prof().volts===230?'220':'120')+'v.png':s.ph;
       var phl=s.ph==='cw'?'Official drawing':'Official photo';
       var chk=(s.chk||[]).map(function(c){return '<a href="power-on-checks.html#'+c[0]+'">'+c[0]+' '+esc(c[1])+'</a>'}).join(' · ');
       var lk=(s.links||[]).map(function(l){return '<a href="'+l[1]+'">'+esc(l[0])+'</a>'}).join(' · ');
