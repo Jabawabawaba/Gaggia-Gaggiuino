@@ -40,7 +40,7 @@
           'It\'s easier with the boiler tipped up: take off the steam knob and wand, then the four cap screws up from under the frame.'],
        a:[['ba',{x:110,y:-34},0,800],['bb',{x:110,y:34},90,800],['j',{o:1},1000,350]]},
       {t:'Unscrew the thermostat',d:'Turn it out of the side of the boiler with a spanner on its hex. The old paste stays in the hole: leave it there.',
-       a:[['bt',{x:130},0,1300],['oldpaste',{o:1},250,400],['bt',{o:0},1200,300]],loop:['spinR']},
+       a:[['bt',{x:90},0,1200],['oldpaste',{o:1},250,400],['bt',{o:0},950,350]],loop:['spinR']},
       {t:'Paste on the thread',d:'Coat the thermocouple\'s thread with thermal paste rated for 180 °C or more, or reuse the old thermostat\'s if it\'s still soft. The official guide lists Thermal Grizzly Kryonaut, Noctua NT-H2, SYY-157 and GELID GC-Extreme.',
        a:[['tc',{o:1},0,300],['syr',{o:1},250,250],['syr',{x:32},500,1300],['paste',{sx:1},500,1300],['syr',{o:0},1850,250]]},
       {t:'Screw it in, barely finger tight',d:'Turn it in gently by its hex and stop as soon as it seats. No spanner: the M4 thread is small and the boiler\'s thread is soft metal. Let the lead turn with the probe so it doesn\'t twist.',
