@@ -39,7 +39,7 @@
     <article class="pc" id="tc">
       <div class="ph"><h3>Thermocouple</h3><span class="where">in the brew thermostat's place, to J4</span></div>
       <div class="prose">
-        <p>The temperature sensor: an ungrounded K-type with an M4 thread, from the official parts list. It screws into the boiler where the brew thermostat was, with high-temperature thermal paste and only finger tight.</p>
+        <p>The temperature sensor: an ungrounded K-type with an M4 thread, from the official parts list. It screws into the boiler where the brew thermostat was, with high-temperature thermal paste and only finger tight. <a href="part-guides.html#tc">Part guides</a> draws the install step by step.</p>
         <h3>How it works</h3>
         <p>Two different alloys, chromel and alumel, are joined at the tip. When the tip is hotter than the far ends, a tiny voltage appears between them, about 41 microvolts per degree. The MAX31855 chip on the PCB measures it, adds the temperature at its own end (the cold junction), and hands the STM32 a reading. "Ungrounded" means the junction is insulated inside the probe's sheath, which matters because the boiler is earthed; <a href="#ground">see why the low-voltage side floats</a>.</p>
         <p>Polarity matters. Swapped wires make the reading fall as the boiler heats, so the controller may keep heating. The public Gen 2 firmware cuts the heater once the reading drops to 0 °C, Gen 3's behavior isn't published, and the boiler's thermal fuse is the last line. That's why the runbook has you watch the temperature rise at first power-on.</p>
@@ -50,7 +50,7 @@
     <article class="pc" id="xdcr">
       <div class="ph"><h3>Pressure sensor</h3><span class="where">on a T-fitting or tap block, to J6</span></div>
       <div class="prose">
-        <p>A 0 to 1.2 MPa (0 to 12 bar) pressure transducer with a 1/4" thread, powered from 5 V. It's what lets Gaggiuino profile pressure: the PCB reads it continuously and adjusts the pump to follow the curve.</p>
+        <p>A 0 to 1.2 MPa (0 to 12 bar) pressure transducer with a 1/4" thread, powered from 5 V. It's what lets Gaggiuino profile pressure: the PCB reads it continuously and adjusts the pump to follow the curve. <a href="part-guides.html#ps">Part guides</a> draws both ways of fitting it.</p>
         <h3>How it works</h3>
         <p>Water pressure bends a thin metal diaphragm. Strain gauges on the diaphragm change resistance as it flexes, and electronics in the sensor body turn that into a voltage on the signal pin: 0.5 V at 0 bar, rising evenly to 4.5 V at 12 bar. The ADS1015 on the PCB converts that voltage to a number.</p>
         <p>On a Gaggia it goes on a T-fitting cut into the line from the pump to the boiler<span data-when="set:model;fam:GC"> (a push-to-connect T in the Classic's PTFE tube)</span><span data-when="set:model;fam:GCP"> (a barbed T in the Pro's braided hose, with clamps)</span>, or on a pressure tap block clamped between the group and its <span data-when="!fam:GC">inlet fitting</span><span data-when="set:model;fam:GC">metal OPV</span>. Either way it seals on an O-ring, not its thread: the small flat O-ring goes flush into the fitting first, because many fittings are too short for the sensor's own base O-ring to seal, then the sensor goes in hand tight plus at most a quarter turn. On a T-fitting, [UT] Tube Fill pushes the air out of its line.</p>

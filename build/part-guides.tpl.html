@@ -1,0 +1,97 @@
+<title>Part Guides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+%%BASECSS%%
+%%INCLUDE:part-guides.css%%
+</style>
+%%INCLUDE:part-defs.svg.html%%
+<div class="wrap">
+  <header class="top">
+    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Install</b></span><span>Part guides</span><span>drawn step by step</span><span class="rivet" aria-hidden="true"></span></div>
+    <h1>Part Guides</h1>
+    <p class="lede">The thermocouple, the pressure sensor and the resettable thermal fuse, each drawn step by step. Tap a step to watch it, or step through with the arrows. The runbook has the same work in order with everything else.</p>
+    <nav class="pg-jump" aria-label="Guides on this page"><a class="chip" href="#tc">Thermocouple</a><a class="chip" href="#ps">Pressure sensor</a><a class="chip" href="#fuse">Resettable fuse</a></nav>
+  </header>
+
+  <div class="warn"><strong>Cord out, boiler cold</strong><p>Unplug the machine and let the boiler cool before you open it. The drawings show what your hands do, not to scale; steps with a photo in the official guide link to it.</p></div>
+
+  <section class="block" id="tc" aria-labelledby="h-tc">
+    <div class="sec-h"><h2 id="h-tc">Thermocouple</h2><span class="sum">K type · M4 × 6 mm</span></div>
+    <p class="pg-where" id="pg-tc-where"></p>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>The thermocouple: K type, ungrounded, M4 thread</li><li>Thermal paste rated for 180 °C or more</li><li>A spanner for the old thermostat</li><li>Hex keys for the boiler's four screws, if you tip it up</li><li>A multimeter</li></ul></div>
+      <div><span class="k">What it does</span><p>It reports the boiler's temperature to the PCB on J4. Ungrounded means its junction is insulated from the probe body, because the low-voltage side floats; <a href="how-gaggiuino-works.html#ground">How Gaggiuino works</a> explains why.</p></div>
+    </div>
+    <div class="pg" id="pg-tc-g">
+      <div class="pg-figcol">
+        <figure class="pg-fig">%%INCLUDE:part-tc.svg.html%%
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="ps" aria-labelledby="h-ps">
+    <div class="sec-h"><h2 id="h-ps">Pressure sensor</h2><span class="sum">1.2 MPa · two O-rings</span></div>
+    <p class="pg-where" id="pg-ps-where"></p>
+    <div class="pg-meta">
+      <div><span class="k">You need</span>
+        <ul data-pv="ptb"><li>The sensor and its O-rings</li><li>The tap block with its small push-in fitting</li><li>The sensor's push-in fitting (1/4" thread to 6 mm tube)</li><li>40 mm of 4 × 6 mm PTFE tube and a sharp cutter</li><li>Two longer M5 screws (25 mm on the official parts list)</li><li>A towel</li></ul>
+        <ul data-pv="tee"><li>The sensor and its flat O-ring</li><li data-when="fam:GCP">Classic Pro family: a 6 mm barbed T, a 6 mm barb to 1/4" sensor fitting, 200 to 250 mm of braided hose, four hose clamps and clamp pliers</li><li data-when="fam:GC">Original Classic: a 6 mm push-to-connect T, a push-in sensor fitting (1/4" to 6 mm), 200 to 250 mm of 4 × 6 mm PTFE tube</li><li>A sharp cutter</li></ul></div>
+      <div><span class="k">What it does</span><p>It tells the PCB the brew pressure on J6, 0 to 12 bar as 0.5 to 4.5 V, so Gaggiuino can profile pressure. It seals on an O-ring, not on its thread.</p>
+        <p data-pv="ptb"><b>Two O-ring jobs.</b> A flat white one, about 11 mm across and 3 mm thick, seals the sensor in its fitting. A small round silicone one, 6 mm inside and 1.8 mm thick, seals the block against the group. Match the two in your kit by size.</p></div>
+    </div>
+    <div class="pg" id="pg-ps-g">
+      <div class="pg-figcol">
+        <div class="pg-vars" role="group" aria-label="How the sensor connects"></div>
+        <figure class="pg-fig">%%INCLUDE:part-ptb.svg.html%%%%INCLUDE:part-tee.svg.html%%
+          <p class="pg-drawn" hidden>Drawn for the Classic Pro family's braided hose; set Your Gaggia to see the original Classic's.</p>
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="fuse" aria-labelledby="h-fuse">
+    <div class="sec-h"><h2 id="h-fuse">Resettable fuse</h2><span class="sum">185 °C · 250 V 16 A · optional</span></div>
+    <p class="pg-where" id="pg-fuse-where"></p>
+    <div class="pg-note" data-pv="SI"><p><b>Optional.</b> The official stock wiring guide keeps the boiler's 184 °C one-shot fuse. This resettable fuse is the custom wiring guide's substitute for it, in the steam thermostat's hole; on stock wiring that means moving the old fuse's wires onto it, which the stock guide doesn't cover. If you'd rather follow the stock guide exactly, keep it as a spare.</p>
+      <p>On stock wiring it carries everything the machine draws: about 12 A at 120 V and 6 A at 230 V, inside its 16 A rating.</p></div>
+    <div class="pg-note" data-pv="CW"><p><b>Optional.</b> The custom wiring guide lists it as a substitute for the stock one-shot fuse, in the steam thermostat's hole. In custom wiring it sits in the heater line.</p></div>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>The resettable fuse: 185 °C, 16 A, M4 stud</li><li>The same 180 °C thermal paste</li><li>Uninsulated 6.3 mm female spades, silicone sleeve and an open-barrel crimper</li><li data-pv="SI">18 AWG silicone wire and a butt splice, if a wire won't reach</li><li>A multimeter</li></ul></div>
+      <div><span class="k">What it does</span><p>Like the thermostats it's a bimetal switch, but it opens only at 185 °C, as a last resort if the boiler overheats, and stays open until you press its button. The stock fuse does the same job once and then has to be replaced.</p></div>
+    </div>
+    <div class="pg" id="pg-fuse-g">
+      <div class="pg-figcol">
+        <div class="pg-vars" role="group" aria-label="Install path"></div>
+        <figure class="pg-fig">%%INCLUDE:part-fuse.svg.html%%
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="src" aria-labelledby="h-src">
+    <div class="sec-h"><h2 id="h-src">Sources</h2></div>
+    <ul class="pg-src">
+      <li>Gaggiuino, stock wiring integration: <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=brew-thermostat-replacement">brew thermostat replacement</a> and <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=pressure-transducer">pressure transducer</a>, with their photos.</li>
+      <li>Gaggiuino, custom wiring: <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=alternate-components">alternate components</a> (the resettable fuse and where it goes), <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=thermocouple">thermocouple</a>, and the custom wiring schematics' optional fuse.</li>
+      <li>Gaggiuino <a href="https://gaggiuino.github.io/#/?id=bill-of-materials">parts list</a>: the fittings, the tap block's O-ring, the flat O-ring and the M5 × 25 screws. Docs read October 2026.</li>
+      <li>Part names as Peak Coffee lists them in its <a href="https://www.peakcoffee.cc/product/gaggiuino-v4-kit/">V4 kit</a>.</li>
+      <li>On this site: <a href="runbook.html">Runbook</a> phase 3, <a href="power-on-checks.html">Power-on checks</a>, <a href="model-notes.html">model notes</a>.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+%%INCLUDE:part-guides.js%%
+</script>

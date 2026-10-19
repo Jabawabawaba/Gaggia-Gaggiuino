@@ -223,7 +223,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   }
   function renderPhase(){
     var i=state.phase,p=PHASES[i],h='';
-    h+='<div class="phase-h"><span class="eyebrow">'+esc(p.n)+' of '+(PHASES.length-1)+'</span><h2 id="ph-title" tabindex="-1">'+esc(p.name)+'</h2><p class="goal">'+esc(p.goal)+'</p></div>';
+    h+='<div class="phase-h"><span class="eyebrow">'+esc(p.n)+' of '+(PHASES.length-1)+'</span><h2 id="ph-title" tabindex="-1">'+esc(p.name)+'</h2><p class="goal">'+esc(p.goal)+(p.guide?' <a href="'+p.guide[1]+'">'+esc(p.guide[0])+'</a>':'')+'</p></div>';
     if(p.stop)h+='<div class="stop" role="note"><strong>Stop point</strong><p>'+esc(p.stop)+' <a href="'+esc(L.checks)+'" target="_blank" rel="noopener">Open the power-on checks</a></p></div>';
     if(p.note)h+='<div class="pnote" role="note">'+esc(p.note)+'</div>';
     h+='<ol class="steps">'+stepsOf(i).map(function(s){
