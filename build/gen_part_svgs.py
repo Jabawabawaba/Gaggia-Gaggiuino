@@ -309,8 +309,284 @@ def fuse():
     return "".join(s)
 
 
+
+# ---------------------------------------------------------------- making the wires
+def copper(x0, x1, y, h=8):
+    """bare stranded copper, centred on y"""
+    t = y - h / 2
+    lines = "".join(f"M{x0},{t + k:g}H{x1}" for k in (h * .25, h * .5, h * .75))
+    return f'<rect class="cu" x="{x0}" y="{t}" width="{x1 - x0}" height="{h}" rx="2"/><path class="strand" d="{lines}"/>'
+
+
+def jaws(key, x0, x1, y, gap, die=None, hump=False, label=None):
+    """a crimper's two jaws closing on y; die is a colour dot on the top jaw"""
+    mid = (x0 + x1) / 2
+    if hump:
+        top = f"M{x0},{y - 80} H{x1} V{y - gap} Q{mid + (x1 - mid) / 2},{y - gap + 8} {mid},{y - gap} Q{mid - (mid - x0) / 2},{y - gap + 8} {x0},{y - gap} Z"
+    else:
+        top = f"M{x0},{y - 80} H{x1} V{y - gap} Q{mid},{y - gap + 7} {x0},{y - gap} Z"
+    bot = f"M{x0},{y + 80} H{x1} V{y + gap} Q{mid},{y + gap - 7} {x0},{y + gap} Z"
+    s = f'<g data-k="{key}T"><path class="jaw" d="{top}"/>'
+    if die:
+        s += f'<circle class="die-{die}" cx="{mid}" cy="{y - 64}" r="5"/>'
+    if label:
+        s += f'<text class="cap" x="{mid}" y="{y - 88}" text-anchor="middle">{label}</text>'
+    return s + f'</g><g data-k="{key}B"><path class="jaw" d="{bot}"/></g>'
+
+
+def heat(key, xs, y):
+    return f'<g data-loop="{key}" class="heatw">' + "".join(f'<path d="M{x},{y} q6,-8 0,-16 q-6,-8 0,-16"/>' for x in xs) + '</g>'
+
+
+def wires():
+    s = ['<svg id="pg-wire" viewBox="0 30 480 220" role="img" aria-labelledby="pg-wire-t"><title id="pg-wire-t">Making the wires, drawn step by step: '
+         'cut and label, strip 6 mm, crimp insulated spades and forks, crimp bare spades for the boiler under silicone, two wires or a thin one, '
+         'the piggyback spade on the pump, a butt splice, and the pull test.</title>']
+    # 1 cut and label
+    s.append('<g data-k="wv1"><rect class="ins-r" x="20" y="134" width="282" height="12" rx="5"/>'
+             '<g data-k="waste"><rect class="ins-r" x="300" y="134" width="70" height="12" rx="5"/></g>'
+             '<g data-k="cutT"><path class="blade" d="M286,40 L314,40 L304,138 L298,138 Z"/></g><g data-k="cutB"><path class="blade" d="M286,240 L314,240 L304,142 L298,142 Z"/></g>'
+             '<g data-k="flag"><rect class="flagw" x="62" y="96" width="46" height="30" rx="3"/><text class="lbl onmetal" x="85" y="117" text-anchor="middle">J</text>'
+             '<rect class="flagw" x="78" y="126" width="14" height="26" rx="2"/></g>'
+             '<g data-k="wd1"><path class="dimln" d="M20,176 V188 M300,176 V188 M20,182 H300"/><text class="cap" x="160" y="204" text-anchor="middle">length from the cut list</text></g></g>')
+    # 2 strip
+    s.append('<g data-k="wv2">' + copper(262, 300, 140) + '<rect class="ins-r" x="20" y="134" width="244" height="12" rx="3"/>'
+             '<g data-k="slug"><rect class="ins-r" x="262" y="134" width="38" height="12" rx="3"/></g>'
+             '<g data-k="sjT"><path class="jaw" d="M255,50 H269 V128 L264,133 H260 L255,128 Z"/></g><g data-k="sjB"><path class="jaw" d="M255,230 H269 V152 L264,147 H260 L255,152 Z"/></g>'
+             '<g data-k="wd2"><path class="dimln" d="M262,108 V118 M300,108 V118 M262,113 H300"/><text class="lbl" x="281" y="102" text-anchor="middle">6 mm</text></g></g>')
+    # 3 insulated spade
+    s.append('<g data-k="wv3"><rect class="ins-r" x="20" y="134" width="216" height="12" rx="3"/>' + copper(234, 264, 140) +
+             '<g data-k="isp"><rect class="metal" x="266" y="132" width="46" height="16" rx="2"/><path class="facet" d="M266,136 H312 M266,144 H312"/>'
+             '<path class="isl" d="M228,130.5 H262 L268,134 V146 L262,149.5 H228 Z"/><rect data-k="dimp" class="dimple" x="240" y="130.5" width="14" height="19" rx="3"/></g>'
+             + jaws("cj", 234, 260, 140, 12, die="r", label="red die") +
+             '<text class="cap" x="380" y="120">nylon spade:</text><text class="cap" x="380" y="134">105 °C max</text></g>')
+    # 4 bare spade for the boiler
+    s.append('<g data-k="wv4"><rect class="ins-r" x="20" y="134" width="218" height="12" rx="3"/>' + copper(236, 264, 140) +
+             '<g data-k="slv"><rect class="slv" x="110" y="129" width="72" height="22" rx="7"/></g>'
+             '<g data-k="bsp"><rect class="metal" x="266" y="133" width="42" height="14" rx="2"/><rect class="metal" x="222" y="146" width="46" height="4"/>'
+             '<g data-k="wo"><path class="wing" d="M246,148 V122 M262,148 V122 M226,148 V116 M240,148 V116"/></g>'
+             '<g data-k="wc"><rect class="metal" x="244" y="133" width="22" height="14" rx="5"/><rect class="metal" x="222" y="131" width="20" height="18" rx="6"/></g>'
+             '<g data-k="wcap"><text class="cap" x="254" y="198" text-anchor="middle">copper</text><text class="cap" x="230" y="212" text-anchor="middle">insulation</text></g></g>'
+             + jaws("oj", 220, 268, 140, 13, hump=True, label="open-barrel die") +
+             '<g data-k="hgun"><path class="gun" d="M352,44 H446 V72 H384 L374,100 H356 Z"/>' + heat("heat", (266, 284, 302), 118) + '</g></g>')
+    # 5 two wires, or a thin one
+    s.append('<g data-k="wv5"><rect class="ins-r" x="20" y="92" width="120" height="11" rx="3"/><rect class="ins-k" x="20" y="108" width="120" height="11" rx="3"/>'
+             + copper(138, 160, 105.5, 14) +
+             '<g data-k="tsp"><rect class="metal" x="186" y="96" width="46" height="19" rx="2"/><path class="isl-b" d="M132,93 H180 L188,97 V114 L180,118 H132 Z"/></g>'
+             '<text class="cap" x="160" y="74" text-anchor="middle">spade sized for two wires</text>'
+             '<rect class="ins-p" x="250" y="186" width="112" height="7" rx="3"/>' + copper(360, 390, 189.5, 5) +
+             '<g data-k="fold" data-box="view" data-origin="390px 189.5px">' + copper(390, 420, 189.5, 5) + '</g>'
+             '<g data-k="fk"><rect class="metal" x="392" y="181" width="40" height="17" rx="2"/><rect class="hole" x="414" y="186" width="20" height="7" rx="3"/>'
+             '<path class="isl" d="M350,182 H386 L392,185 V194 L386,197 H350 Z"/></g>'
+             '<text class="cap" x="330" y="230" text-anchor="middle">22 AWG: strip 4× as much, fold it back</text></g>')
+    # 6 piggyback on the pump
+    s.append('<g data-k="wv6"><rect class="pumpb" x="302" y="70" width="168" height="150" rx="12"/><text class="lbl" x="386" y="150" text-anchor="middle" fill="#E7E9EB">pump</text>'
+             '<rect class="metal" x="272" y="136" width="30" height="8"/>'
+             '<g data-k="pgy"><path class="wire-w" d="M222,140 H10"/><text class="lbl" x="30" y="128">N</text>'
+             '<rect class="metal" x="220" y="135" width="20" height="10" rx="2"/><rect class="metal" x="238" y="132" width="36" height="16" rx="2"/>'
+             '<rect class="metal" x="250" y="102" width="8" height="30"/></g>'
+             '<g data-k="pa"><path class="wire-m" d="M254,96 C254,72 200,64 120,64 H10"/><text class="lbl" x="30" y="56">Pa</text>'
+             '<rect class="metal" x="244" y="96" width="20" height="24" rx="2"/></g></g>')
+    # 7 butt splice
+    s.append('<g data-k="wv7"><g data-k="bl"><rect class="ins-r" x="10" y="134" width="188" height="12" rx="3"/>' + copper(196, 236, 140) + '</g>'
+             '<g data-k="br"><rect class="ins-r" x="282" y="134" width="188" height="12" rx="3"/>' + copper(244, 284, 140) + '</g>'
+             '<rect class="metal" x="192" y="132" width="96" height="16" rx="3"/><path class="facet" d="M240,132 V148"/>'
+             '<rect data-k="bd1" class="dimple" x="208" y="131" width="16" height="18" rx="3"/><rect data-k="bd2" class="dimple" x="256" y="131" width="16" height="18" rx="3"/>'
+             '<text class="cap" x="240" y="196" text-anchor="middle">bare BN1.25</text>'
+             '<g data-k="hs"><rect class="slv" x="70" y="128" width="112" height="24" rx="7"/></g>'
+             + jaws("bj", 204, 228, 140, 12) + '<g data-k="hg2">' + heat("heat2", (214, 240, 266), 116) + '</g></g>')
+    # 8 pull test
+    s.append('<g data-k="wv8"><g data-loop="jig" class="jig"><rect class="ins-r" x="40" y="134" width="196" height="12" rx="3"/>'
+             '<rect class="metal" x="266" y="132" width="46" height="16" rx="2"/><path class="isl" d="M228,130.5 H262 L268,134 V146 L262,149.5 H228 Z"/>'
+             '<rect class="dimple" x="240" y="130.5" width="14" height="19" rx="3"/></g>'
+             '<g data-loop="tug" class="tug"><path d="M30,140 H-2 M8,130 L-2,140 L8,150"/><path d="M322,140 H360 M350,130 L360,140 L350,150"/></g>'
+             '<g data-k="okm"><circle class="okc" cx="420" cy="80" r="22"/><path class="okt" d="M409,80 l8,8 l14,-16"/></g>'
+             '<text class="cap" x="176" y="196" text-anchor="middle">a good tug: nothing moves</text></g>')
+    s.append('</svg>')
+    return "".join(s)
+
+
+# ---------------------------------------------------------------- SSR
+def ssr_top(x, y):
+    """the SSR seen from above, control screws at the top, load screws at the bottom"""
+    return (f'<rect class="ssrb" x="{x}" y="{y}" width="200" height="200" rx="8"/>'
+            f'<text class="ssrt" x="{x + 100}" y="{y + 104}" text-anchor="middle">SSR-40DA</text>'
+            f'<text class="ssrs" x="{x + 100}" y="{y + 70}" text-anchor="middle">DC control</text><text class="ssrs" x="{x + 100}" y="{y + 138}" text-anchor="middle">AC load</text>')
+
+
+def screw(key, cx, cy, r):
+    return (f'<rect class="plate" x="{cx - r - 5}" y="{cy - r - 5}" width="{2 * r + 10}" height="{2 * r + 10}" rx="3"/>'
+            f'<g data-k="{key}" data-origin="center"><circle class="screw" cx="{cx}" cy="{cy}" r="{r}"/><path class="slot" d="M{cx - r + 3},{cy}H{cx + r - 3}M{cx},{cy - r + 3}V{cy + r - 3}"/></g>')
+
+
+def fork(cx, cy, up=True, cls="isl", two=False):
+    """an insulated fork terminal around a screw at (cx,cy); its wire leaves downward (up=False: upward)"""
+    d = 1 if up else -1
+    tip = cy
+    s = (f'<path class="metal" d="M{cx - 11},{tip - 4 * d} V{tip + 18 * d} H{cx + 11} V{tip - 4 * d} H{cx + 5} V{tip + 6 * d} H{cx - 5} V{tip - 4 * d} Z"/>')
+    y0 = tip + 18 * d
+    s += f'<rect class="{"isl-b" if two else cls}" x="{cx - 8}" y="{min(y0, y0 + 24 * d)}" width="16" height="24" rx="4"/>'
+    return s
+
+
+def ssr():
+    s = ['<svg id="pg-ssr" viewBox="0 0 480 300" role="img" aria-labelledby="pg-ssr-t"><title id="pg-ssr-t">SSR install, drawn step by step: '
+         'its place on the back wall below the funnel piece, the screw, washer and nut through a vent slot, forks on the load and control screws, and the cover closed.</title>']
+    # 1 where it goes
+    s.append('<g data-k="sv1"><rect class="wallp" x="30" y="16" width="420" height="268" rx="6"/><text class="cap onmetal" x="44" y="274">back wall, from inside</text>')
+    for row in range(5):
+        for col in range(7):
+            s.append(f'<rect class="vent" x="{150 + col * 40}" y="{126 + row * 26}" width="26" height="9" rx="4"/>')
+    s.append('<path class="funnel" d="M150,16 H330 L310,74 H170 Z"/><text class="lbl onmetal" x="240" y="48" text-anchor="middle">funnel piece</text>'
+             '<circle class="screw" cx="240" cy="94" r="7"/><path class="slot" d="M235,94 H245"/>'
+             '<rect class="pumpb" x="330" y="216" width="112" height="68" rx="8"/><text class="lbl" x="386" y="256" text-anchor="middle" fill="#E7E9EB">pump</text>'
+             '<g data-k="ssr1"><rect class="ssrb" x="196" y="134" width="88" height="74" rx="5"/><text class="ssrs" x="240" y="176" text-anchor="middle">SSR</text></g>'
+             '<g data-k="clr"><path class="dimln acc" d="M262,104 V132 M256,104 H268 M256,132 H268"/><text class="cap onmetal" x="274" y="100">room for the</text>'
+             '<text class="cap onmetal" x="274" y="114">funnel\'s screw</text></g></g>')
+    # 2 screw through a vent slot, in section
+    s.append('<g data-k="sv2"><text class="cap" x="150" y="34" text-anchor="middle">inside</text><text class="cap" x="350" y="34" text-anchor="middle">outside</text>'
+             '<rect class="wallp" x="250" y="44" width="12" height="104"/><rect class="wallp" x="250" y="172" width="12" height="104"/>'
+             '<rect class="hatch" x="250" y="44" width="12" height="104"/><rect class="hatch" x="250" y="172" width="12" height="104"/>'
+             '<rect class="ssrb" x="130" y="96" width="108" height="128" rx="6"/><rect class="metal" x="238" y="92" width="12" height="136" rx="2"/>'
+             '<text class="ssrs" x="184" y="166" text-anchor="middle">SSR</text>'
+             '<g data-k="scw"><rect class="steel" x="226" y="155" width="70" height="10"/><rect class="cap-screw" x="214" y="148" width="12" height="24" rx="3"/></g>'
+             '<g data-k="wsh"><rect class="steel" x="262" y="146" width="5" height="28" rx="1"/></g>'
+             '<g data-k="nut"><rect class="steel" x="267" y="149" width="14" height="22" rx="2"/><path class="facet" d="M267,156 H281 M267,164 H281"/></g>'
+             + arrow_ellipse(274, 160, 12, 22, "nutspin") +
+             '<text class="lbl" x="150" y="250" text-anchor="middle">M4 or 8-32</text><text class="cap" x="150" y="266" text-anchor="middle">through a vent slot</text></g>')
+    # 3-5 the SSR from above
+    s.append('<g data-k="sv3">' + ssr_top(140, 50) +
+             '<circle data-k="led" data-run="blink" class="led" cx="240" cy="98" r="5"/>' + screw("sc1", 190, 90, 10) + screw("sc2", 290, 90, 10) + screw("sl1", 190, 210, 13) + screw("sl2", 290, 210, 13) +
+             '<text class="lbl onssr" x="168" y="94" text-anchor="end">+</text><text class="lbl onssr" x="312" y="94">−</text>')
+    # load side, stock wiring
+    s.append('<g data-v="SI"><g data-k="lw1">' + fork(190, 210) + '<path class="wire-m" d="M190,252 V300"/><text class="lbl" x="172" y="290" text-anchor="end">Sa</text></g>'
+             '<g data-k="lw2">' + fork(290, 210) + '<path class="wire-m" d="M290,252 V300"/><text class="lbl" x="308" y="290">Sb</text></g></g>')
+    # load side, custom wiring: one run on the fuse side, two on the line side in one fork
+    s.append('<g data-v="CW"><g data-k="lw1">' + fork(190, 210) + '<path class="wire-m" d="M190,252 V300"/>'
+             '<g data-fam="GCP"><text class="lbl" x="172" y="290" text-anchor="end">AC11</text></g><g data-fam="GC"><text class="lbl" x="172" y="290" text-anchor="end">AC6</text></g></g>'
+             '<g data-k="lw2">' + fork(290, 210, two=True) + '<path class="wire-m" d="M286,252 V300 M294,252 V300"/>'
+             '<g data-fam="GCP"><text class="lbl" x="308" y="290">AC2 + AC4</text></g><g data-fam="GC"><text class="lbl" x="308" y="290">AC2 + AC3</text></g></g></g>')
+    # control side
+    s.append('<g data-k="cwp">' + fork(190, 90, up=False, cls="isl") + '<path class="lvw" d="M190,48 V0"/><text class="lbl" x="172" y="18" text-anchor="end">J9 R1</text></g>'
+             '<g data-k="cwm">' + fork(290, 90, up=False, cls="isl") + '<path class="lvg" d="M290,48 V0"/><text class="lbl" x="308" y="18">J9 GND</text></g>')
+    s.append('<g data-k="cov"><rect class="cover" x="134" y="44" width="212" height="212" rx="10"/></g></g>')
+    s.append('</svg>')
+    return "".join(s)
+
+
+# ---------------------------------------------------------------- switches, stock wiring
+def spade_tab(x, y, n, faded=False, lab="l"):
+    t = f'<rect class="tab{" fadedtab" if faded else ""}" x="{x - 11}" y="{y - 5}" width="22" height="10" rx="1"/>'
+    tx = x - 18 if lab == "l" else x + 18
+    return t + f'<text class="cap onmetal" x="{tx}" y="{y + 4}" text-anchor="{"end" if lab == "l" else "start"}">{n}</text>'
+
+
+def conn(key, x, y, wire_d, label=None, lx=0, ly=0, cls="wire-m", sleeve=False):
+    s = f'<g data-k="{key}"><path class="{cls}" d="{wire_d}"/><rect class="conn" x="{x - 14}" y="{y - 8}" width="28" height="16" rx="3"/>'
+    if sleeve:
+        s += f'<rect data-k="{key}s" class="slv" x="{x - 18}" y="{y - 12}" width="36" height="24" rx="7"/>'
+    if label:
+        s += f'<g class="tagg" data-k="{key}t"><rect class="tagb" x="{x + lx - 15}" y="{y + ly - 10}" width="30" height="16" rx="3"/><text class="tagt" x="{x + lx}" y="{y + ly + 2}" text-anchor="middle">{label}</text></g>'
+    return s + "</g>"
+
+
+def lvwire(key, d, cls, end, cap=None, capxy=None):
+    """a low-voltage wire drawn in, ending in a small female spade at end=(x,y)"""
+    x, y = end
+    s = f'<g data-k="{key}"><path class="{cls}" d="{d}"/><rect class="conn lvc" x="{x - 12}" y="{y - 7}" width="24" height="14" rx="3"/>'
+    if cap:
+        s += f'<text class="lbl" x="{capxy[0]}" y="{capxy[1]}">{cap}</text>'
+    return s + "</g>"
+
+
+def meters(prefix, a, b):
+    """two meter readouts for the switch checks"""
+    s = f'<g data-k="{prefix}"><rect class="wallbg" x="0" y="0" width="480" height="300"/>'
+    for i, (val, l1, l2) in enumerate((a, b)):
+        x = 90 + i * 190
+        s += (f'<rect class="meter" x="{x}" y="60" width="110" height="140" rx="12"/><rect class="lcd" x="{x + 12}" y="74" width="86" height="36" rx="4"/>'
+              f'<text class="lcdt" x="{x + 55}" y="100" text-anchor="middle">{val}</text><circle class="jack" cx="{x + 34}" cy="176" r="6"/><circle class="jack r" cx="{x + 76}" cy="176" r="6"/>'
+              f'<text class="cap" x="{x + 55}" y="222" text-anchor="middle">{l1}</text><text class="cap" x="{x + 55}" y="236" text-anchor="middle">{l2}</text>')
+    return s + '<text class="cap" x="240" y="270" text-anchor="middle">unplugged, J7 plug off, probes on its pins</text></g>'
+
+
+def switches_gcp():
+    s = ['<svg id="pg-swp" viewBox="0 0 480 300" role="img" aria-labelledby="pg-swp-t"><title id="pg-swp-t">Classic Pro family switches on stock wiring, seen from the back, drawn step by step: '
+         'B4 moves onto wire L, S4 moves to steam spade 1, S5 is insulated and parked, and the low-voltage wires go on brew spades 1 and 2 and steam spades 4 and 5.</title>']
+    # Evo and E24: the combined connector block
+    s.append('<g data-k="blk"><rect class="blkh" x="120" y="96" width="240" height="56" rx="6"/><text class="cap" x="240" y="40" text-anchor="middle">combined connector block</text>')
+    for i in range(4):
+        x = 150 + i * 60
+        s.append(f'<g data-k="bc{i}"><path class="wire-m" d="M{x},152 V300"/><rect class="conn" x="{x - 12}" y="104" width="24" height="40" rx="3"/>'
+                 f'<g data-k="bs{i}"><rect class="slv" x="{x - 15}" y="100" width="30" height="64" rx="7"/></g></g>')
+    s.append('<text class="cap" x="240" y="60" text-anchor="middle">each one out the back, taped and labeled</text></g>')
+    s.append('<g data-k="swv"><text class="cap" x="8" y="292">seen from the back</text>'
+             '<rect class="swbody" x="40" y="58" width="160" height="176" rx="10"/><text class="lbl" x="120" y="256" text-anchor="middle">Steam switch</text>'
+             '<rect class="swbody" x="280" y="58" width="160" height="176" rx="10"/><text class="lbl" x="360" y="256" text-anchor="middle">Brew switch</text>')
+    sp = {}
+    for nm, x0 in (("s", 80), ("b", 320)):
+        for k, (dx, dy) in enumerate(((0, 95), (0, 145), (0, 195), (80, 95), (80, 145), (80, 195))):
+            sp[nm + str(k + 1)] = (x0 + dx, dy)
+    for key, (x, y) in sp.items():
+        n = key[1:]
+        used = key in ("s1", "s2", "s3", "s4", "s5", "b1", "b2", "b4", "b5")
+        s.append(spade_tab(x, y, n, faded=not used, lab="l" if int(n) <= 3 else "r"))
+    # stock connectors that stay
+    s.append(conn("s2c", 80, 145, "M66,145 H0", cls="wire-g") + conn("s3c", 80, 195, "M66,195 H0", cls="wire-g") + conn("b5c", 400, 145, "M414,145 H480", cls="wire-g"))
+    # the ones that move
+    s.append(conn("b4", 400, 95, "M400,87 V0", "B4", -34, 0))
+    s.append('<g data-k="Lw"><path class="wire-m" d="M480,30 H446"/><rect class="tab" x="424" y="26" width="22" height="8" rx="1"/><text class="lbl" x="474" y="20" text-anchor="end">L</text>'
+             '<text class="cap" x="474" y="50" text-anchor="end">to J11</text></g>')
+    s.append(conn("s4", 160, 95, "M160,87 V0", "S4", 0, -20))
+    s.append(conn("s5", 160, 145, "M174,145 C186,145 196,120 198,0", "S5", 0, 24))
+    s.append('<g data-k="s5s"><rect class="slv" x="132" y="16" width="36" height="24" rx="7"/><path class="tie" d="M156,12 V44"/><text class="cap" x="178" y="32">live: insulate, tie down</text></g>')
+    s.append('<g data-k="b4note"><text class="cap onmetal" x="396" y="76" text-anchor="middle">empty, live</text></g>')
+    # low-voltage wires
+    s.append(lvwire("lv1", "M268,300 V95 H308", "lvw", (320, 95)))
+    s.append(lvwire("lv2", "M258,300 V145 H308 M306,152 C290,160 270,164 240,164 C210,164 186,158 172,152", "lvg", (320, 145)))
+    s.append('<g data-k="lv3"><rect class="conn lvc" x="148" y="138" width="24" height="14" rx="3"/></g>')
+    s.append(lvwire("lv4", "M230,300 V95 H172", "lvw", (160, 95)))
+    s.append('<g data-k="lvcap"><text class="cap" x="276" y="292">to J7: S, GND, B</text></g>')
+    s.append('</g>')
+    s.append(meters("swm", ("0.3 Ω", "brew ON:", "J7 B to GND"), ("OL", "brew OFF:", "J7 B to GND")))
+    s.append('</svg>')
+    return "".join(s)
+
+
+def switches_gc():
+    s = ['<svg id="pg-swc" viewBox="0 0 480 300" role="img" aria-labelledby="pg-swc-t"><title id="pg-swc-t">Original Classic switch housing on stock wiring, seen from the back, drawn step by step: '
+         'P1-2 moves onto wire L, connectors 1, 2, 3 and P3-4 are insulated and parked, and the low-voltage wires go on spades 1, 3, P(1-2) and P(3-4).</title>']
+    s.append('<g data-k="swv"><text class="cap" x="291" y="14" text-anchor="middle">seen from the back</text>'
+             '<rect class="swbody" x="30" y="70" width="420" height="160" rx="10"/>'
+             '<text class="lbl" x="70" y="256" text-anchor="middle">Brew</text><text class="lbl" x="250" y="256" text-anchor="middle">Steam</text>'
+             '<text class="lbl" x="380" y="256" text-anchor="middle">On/Off</text>')
+    cols = ((80, ("1", "P", "2")), (180, ("3", "P", "4")), (280, ("5", "P", "6")), (380, ("7", "P", "8")))
+    used = {"1", "3", "P12", "P34", "2", "P56", "6"}
+    for cx, names in cols:
+        for (y, n) in zip((100, 145, 190), names):
+            key = n if n != "P" else "P" + names[0] + names[2]
+            s.append(spade_tab(cx, y, n, faded=key not in used))
+    s.append(conn("c56", 280, 145, "M294,145 C330,145 340,60 360,0", cls="wire-g") + conn("c6", 280, 190, "M294,190 C340,190 350,60 380,0", cls="wire-g"))
+    s.append(conn("cp12", 80, 145, "M80,137 V0", "P1-2", 36, 0))
+    s.append('<g data-k="Lw"><path class="wire-m" d="M0,30 H34"/><rect class="tab" x="34" y="26" width="22" height="8" rx="1"/><text class="lbl" x="8" y="20">L</text><text class="cap" x="8" y="52">to J11</text></g>')
+    s.append(conn("c1", 80, 100, "M94,100 C120,100 130,40 140,0", "1", 34, 0, sleeve=True))
+    s.append(conn("c2", 80, 190, "M94,190 C120,190 128,260 140,300", "2", 34, 0, sleeve=True))
+    s.append(conn("c3", 180, 100, "M194,100 C214,100 220,40 226,0", "3", 0, -22, sleeve=True))
+    s.append(conn("cp34", 180, 145, "M194,145 C214,145 220,240 230,300", "P3-4", 0, 24, sleeve=True))
+    s.append('<g data-k="park"><text class="cap" x="472" y="272" text-anchor="end">parked: live,</text><text class="cap" x="472" y="286" text-anchor="end">insulated, tied down</text></g>')
+    s.append(lvwire("lv1", "M44,300 V100 H68", "lvw", (80, 100)))
+    s.append(lvwire("lv2", "M140,300 V100 H168", "lvw", (180, 100)))
+    s.append(lvwire("lv3", "M200,300 V145 H192 M168,152 C150,170 110,170 92,152", "lvg", (180, 145)))
+    s.append('<g data-k="lv4"><rect class="conn lvc" x="68" y="138" width="24" height="14" rx="3"/></g>')
+    s.append('<g data-k="lvcap"><text class="cap" x="50" y="292">J7 B</text><text class="cap" x="146" y="292">J7 S</text><text class="cap" x="206" y="292">J7 GND</text></g>')
+    s.append('</g>')
+    s.append(meters("swm", ("0.3 Ω", "brew ON:", "J7 B to GND"), ("OL", "brew OFF:", "J7 B to GND")))
+    s.append('</svg>')
+    return "".join(s)
+
+
 def main():
-    out = {"part-defs.svg.html": DEFS, "part-tc.svg.html": tc(), "part-ptb.svg.html": ptb(), "part-tee.svg.html": tee(), "part-fuse.svg.html": fuse()}
+    out = {"part-defs.svg.html": DEFS, "part-tc.svg.html": tc(), "part-ptb.svg.html": ptb(), "part-tee.svg.html": tee(), "part-fuse.svg.html": fuse(), "part-wire.svg.html": wires(), "part-ssr.svg.html": ssr(), "part-swp.svg.html": switches_gcp(), "part-swc.svg.html": switches_gc()}
     for name, body in out.items():
         open(os.path.join(HERE, name), "w").write(body + "\n")
         print(name, len(body), "bytes")
