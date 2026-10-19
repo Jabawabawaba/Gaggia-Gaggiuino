@@ -36,14 +36,14 @@
   </section>
 
   <section class="block" id="ps" aria-labelledby="h-ps">
-    <div class="sec-h"><h2 id="h-ps">Pressure sensor</h2><span class="sum">1.2 MPa · two O-rings</span></div>
+    <div class="sec-h"><h2 id="h-ps">Pressure sensor</h2><span class="sum">1.2 MPa · 0 to 12 bar</span></div>
     <p class="pg-where" id="pg-ps-where"></p>
     <div class="pg-meta">
       <div><span class="k">You need</span>
         <ul data-pv="ptb"><li>The sensor and its O-rings</li><li>The tap block with its small push-in fitting</li><li>The sensor's push-in fitting (1/4" thread to 6 mm tube)</li><li>40 mm of 4 × 6 mm PTFE tube and a sharp cutter</li><li>Two longer M5 screws (25 mm on the official parts list)</li><li>A towel</li></ul>
         <ul data-pv="tee"><li>The sensor and its flat O-ring</li><li data-when="fam:GCP">Classic Pro family: a 6 mm barbed T, a 6 mm barb to 1/4" sensor fitting, 200 to 250 mm of braided hose, four hose clamps and clamp pliers</li><li data-when="fam:GC">Original Classic: a 6 mm push-to-connect T, a push-in sensor fitting (1/4" to 6 mm), 200 to 250 mm of 4 × 6 mm PTFE tube</li><li>A sharp cutter</li></ul></div>
-      <div><span class="k">What it does</span><p>It tells the PCB the brew pressure on J6, 0 to 12 bar as 0.5 to 4.5 V, so Gaggiuino can profile pressure. It seals on an O-ring, not on its thread.</p>
-        <p data-pv="ptb"><b>Two O-ring jobs.</b> A flat white one, about 11 mm across and 3 mm thick, seals the sensor in its fitting. A small round silicone one, 6 mm inside and 1.8 mm thick, seals the block against the group. Match the two in your kit by size.</p></div>
+      <div><span class="k">What it does</span><p>It tells the PCB the brew pressure, 0 to 12 bar, on J6, so Gaggiuino can profile pressure. It seals on an O-ring, not on its thread.</p>
+        <p data-pv="ptb"><b>Two O-ring jobs.</b> A flat white one, about 11 mm across and 3 mm thick, seals the sensor in its fitting. A small round silicone one, 6 mm inside and 1.8 mm thick, seals the block against the group. Check your kit has one of each: the block's is a size 010 O-ring.</p></div>
     </div>
     <div class="pg" id="pg-ps-g">
       <div class="pg-figcol">
@@ -61,11 +61,11 @@
   <section class="block" id="fuse" aria-labelledby="h-fuse">
     <div class="sec-h"><h2 id="h-fuse">Resettable fuse</h2><span class="sum">185 °C · 250 V 16 A · optional</span></div>
     <p class="pg-where" id="pg-fuse-where"></p>
-    <div class="pg-note" data-pv="SI"><p><b>Optional.</b> The official stock wiring guide keeps the boiler's 184 °C one-shot fuse. This resettable fuse is the custom wiring guide's substitute for it, in the steam thermostat's hole; on stock wiring that means moving the old fuse's wires onto it, which the stock guide doesn't cover. If you'd rather follow the stock guide exactly, keep it as a spare.</p>
+    <div class="pg-note" data-pv="SI"><p><b>Optional.</b> The official <a href="https://gaggiuino.github.io/#/learning/wiring-basics?id=thermal-fuse">wiring basics page</a> says a kit's resettable fuse goes in the steam thermostat's slot as a replacement for the stock 184 °C one-shot fuse, on any install. The stock wiring guide itself keeps the stock fuse and gives no steps for the swap, so these follow the custom wiring guide: the old fuse's wires move onto the new one. If you'd rather follow the stock guide exactly, keep it as a spare.</p>
       <p>On stock wiring it carries everything the machine draws: about 12 A at 120 V and 6 A at 230 V, inside its 16 A rating.</p></div>
     <div class="pg-note" data-pv="CW"><p><b>Optional.</b> The custom wiring guide lists it as a substitute for the stock one-shot fuse, in the steam thermostat's hole. In custom wiring it sits in the heater line.</p></div>
     <div class="pg-meta">
-      <div><span class="k">You need</span><ul><li>The resettable fuse: 185 °C, 16 A, M4 stud</li><li>The same 180 °C thermal paste</li><li>Uninsulated 6.3 mm female spades, silicone sleeve and an open-barrel crimper</li><li data-pv="SI">18 AWG silicone wire and a butt splice, if a wire won't reach</li><li>A multimeter</li></ul></div>
+      <div><span class="k">You need</span><ul><li>The resettable fuse: 185 °C, 16 A, M4 stud</li><li>The same 180 °C thermal paste</li><li>Uninsulated 6.3 mm female spades, silicone sleeve and an open-barrel crimper</li><li data-pv="SI">18 AWG silicone wire, a bare BN1.25 butt splice and silicone heat shrink, if a wire won't reach</li><li>A multimeter</li></ul></div>
       <div><span class="k">What it does</span><p>Like the thermostats it's a bimetal switch, but it opens only at 185 °C, as a last resort if the boiler overheats, and stays open until you press its button. The stock fuse does the same job once and then has to be replaced.</p></div>
     </div>
     <div class="pg" id="pg-fuse-g">
@@ -85,7 +85,8 @@
     <ul class="pg-src">
       <li>Gaggiuino, stock wiring integration: <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=brew-thermostat-replacement">brew thermostat replacement</a> and <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=pressure-transducer">pressure transducer</a>, with their photos.</li>
       <li>Gaggiuino, custom wiring: <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=alternate-components">alternate components</a> (the resettable fuse and where it goes), <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=thermocouple">thermocouple</a>, and the custom wiring schematics' optional fuse.</li>
-      <li>Gaggiuino <a href="https://gaggiuino.github.io/#/?id=bill-of-materials">parts list</a>: the fittings, the tap block's O-ring, the flat O-ring and the M5 × 25 screws. Docs read October 2026.</li>
+      <li>Gaggiuino, <a href="https://gaggiuino.github.io/#/learning/wiring-basics?id=thermal-fuse">wiring basics: thermal fuse</a>, and the machine-specific guide's <a href="https://gaggiuino.github.io/#/guides/machine-specific-guide?id=grounding">grounding</a> (the fuse clip as the earth point).</li>
+      <li>Gaggiuino <a href="https://gaggiuino.github.io/#/?id=bill-of-materials">parts list</a>: the fittings, the tap block's 010 O-ring (6 mm inside, 1.8 mm thick), the flat O-ring and the M5 × 25 screws; the custom wiring guide's bare BN1.25 splices. Docs read October 2026.</li>
       <li>Part names as Peak Coffee lists them in its <a href="https://www.peakcoffee.cc/product/gaggiuino-v4-kit/">V4 kit</a>.</li>
       <li>On this site: <a href="runbook.html">Runbook</a> phase 3, <a href="power-on-checks.html">Power-on checks</a>, <a href="model-notes.html">model notes</a>.</li>
     </ul>

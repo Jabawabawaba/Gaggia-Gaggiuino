@@ -288,7 +288,7 @@ def fuse():
     # custom wiring: the harness runs that went to the stock fuse
     s.append('<g data-v="CW"><path data-k="cw1" class="wire-m draw" pathLength="1" d="M110,302 C120,250 190,222 222.5,192"/>'
              '<path data-k="cw2" class="wire-m draw" pathLength="1" d="M300,150 C272,150 250,150 240.5,162"/>'
-             '<g data-k="cwl"><g data-fam="GCP"><text class="lbl" x="120" y="296">AC18</text><text class="lbl" x="282" y="140">AC17</text></g>'
+             '<g data-k="cwl"><g data-fam="GCP"><g data-volts="120"><text class="lbl" x="120" y="296">AC18</text><text class="lbl" x="282" y="140">AC17</text></g><g data-volts="230"><text class="lbl" x="120" y="296">AC17</text><text class="lbl" x="282" y="140">AC16</text></g></g>'
              '<g data-fam="GC"><text class="lbl" x="120" y="296">AC8 (AC9)</text><text class="lbl" x="280" y="140">AC6, AC7</text></g></g>'
              '<g data-k="spc"><rect class="sleeveS" x="216" y="178" width="13" height="20" rx="4"/><rect class="spade" x="219" y="182" width="7" height="12" rx="1"/>'
              '<rect class="sleeveS" x="234" y="154" width="13" height="20" rx="4"/><rect class="spade" x="237" y="158" width="7" height="12" rx="1"/></g></g>')

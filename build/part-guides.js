@@ -26,8 +26,7 @@
     teeGC:'https://user-images.githubusercontent.com/117388662/239457706-7ee5d101-d209-41b4-a3d3-ce159e98032f.png',
     teeGCP:'https://user-images.githubusercontent.com/117388662/246573952-ca092066-d107-46e6-85f1-e2a7b19865e0.png',
     foam:'https://user-images.githubusercontent.com/117388662/239457402-b58dfe55-6572-45b7-8960-2a4d1f9d5753.png',
-    cwGCP:'https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/GCP_wiring_PCBv3_1_120v.png',
-    cwGC:'https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/GC_wiring_PCBv3_1_120v.png'
+    cw:'https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/'
   };
 
   /* ---------------- the guides ---------------- */
@@ -39,7 +38,7 @@
        d:['Pull its two connectors, Ba and Bb, straight off the thermostat.',['On stock wiring they get joined later by a short jumper, J.','wpath:SI'],['On custom wiring they come out with the old harness.','wpath:CW'],
           'It\'s easier with the boiler tipped up: take off the steam knob and wand, then the four cap screws up from under the frame.'],
        a:[['ba',{x:110,y:-34},0,800],['bb',{x:110,y:34},90,800],['j',{o:1},1000,350]]},
-      {t:'Unscrew the thermostat',d:'Turn it out of the side of the boiler with a spanner on its hex. The old paste stays in the hole: leave it there.',
+      {t:'Unscrew the thermostat',d:'Turn it out of the side of the boiler with a spanner on its hex. The old paste stays in the hole: leave it, unless it\'s dried out, in which case clean it out for fresh paste.',
        a:[['bt',{x:90},0,1200],['oldpaste',{o:1},250,400],['bt',{o:0},950,350]],loop:['spinR']},
       {t:'Paste on the thread',d:'Coat the thermocouple\'s thread with thermal paste rated for 180 °C or more, or reuse the old thermostat\'s if it\'s still soft. The official guide lists Thermal Grizzly Kryonaut, Noctua NT-H2, SYY-157 and GELID GC-Extreme.',
        a:[['tc',{o:1},0,300],['syr',{o:1},250,250],['syr',{x:32},500,1300],['paste',{sx:1},500,1300],['syr',{o:0},1850,250]]},
@@ -82,10 +81,10 @@
          a:[['dim',{o:1},0,300],['cut',{o:1},300,300],['huGCP',{y:-8},800,600],['hlGCP',{y:8},800,600],['huGC',{y:-8},800,600],['hlGC',{y:8},800,600],['cut',{o:0},1500,250]]},
         {t:'Fit the T',d:[['Classic Pro family: slide a loose clamp onto each cut end, push the barbed T in (a rubber glove helps grip, and a little water-based lube if it won\'t go), and set the clamps over the middle of each barb.','fam:GCP'],['Original Classic: push each tube fully into the push-to-connect T, past both the teeth and the O-ring inside.','fam:GC']],
          a:[['dim',{o:0},0,250],['tee',{o:1},0,200],['tee',{x:0},100,1000],['cl1',{o:1},1200,350]],ph:'tee'},
-        {t:'Run the branch',d:['200 to 250 mm from the T to the sensor\'s fitting:',['braided hose, clamped at both ends.','fam:GCP'],['PTFE tube, pushed fully home at both ends.','fam:GC']],
+        {t:'Run the branch',d:['200 to 250 mm from the T to the sensor\'s fitting.',['Classic Pro family: braided hose, clamped at both ends.','fam:GCP'],['Original Classic: PTFE tube, pushed fully home at both ends.','fam:GC']],
          a:[['brGCP',{d:0},0,1300],['brGC',{d:0},0,1300],['cl2',{o:1},1300,350]]},
         {t:'Seal the sensor',d:'Flat white O-ring flush in the sensor\'s fitting, then the sensor in hand tight plus at most a quarter turn, as on the tap block.',
-         a:[['tsen',{o:1},0,250],['tsen',{x:0},150,1000]],ph:PH.xf},
+         a:[['tsen',{o:1},0,250],['tsen',{x:0},150,1000]],ph:'xf'},
         {t:'Park it low',d:'At the base of the machine, lower than the T, and not touching metal. If its readings turn out noisy, wrap it in foam or fix it to the frame.',
          a:[['foam',{o:1},0,600]],ph:PH.foam},
         {t:'Fill the line',d:'Once the install is finished, run [UT] Tube Fill from the community profiles in the web UI. It fills the branch slowly and pushes the air out.',
@@ -105,13 +104,13 @@
          a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR']},
         {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
          a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
-        {t:'Cut the stock fuse out',d:'The 184 °C one-shot fuse sits across the top of the boiler with its wires crimped to it. Cut each wire just behind the old crimp, keeping all the length you can, and lift the fuse out.',
+        {t:'Cut the stock fuse out',d:['The 184 °C one-shot fuse sits across the top of the boiler with its wires crimped to it. Cut each wire just behind the old crimp, keeping all the length you can, and lift the fuse out. Leave its clip in place, and any earth wire fixed to it.',['On a grounded original Classic that clip is the boiler\'s earth point.','fam:GC']],
          a:[['snip',{o:1},0,300],['of',{o:0},500,600],['snip',{o:0},1200,200]]},
-        {t:'New spades on the wires',d:'Crimp an uninsulated 6.3 mm female spade onto each end\'s wire (two wires in one spade if two shared an end) with an open-barrel crimper, and cover it with silicone sleeve: insulated spades melt this close to the boiler. If a wire won\'t reach, lengthen it with 18 AWG silicone wire and a butt splice.',
+        {t:'New spades on the wires',d:'Crimp an uninsulated 6.3 mm female spade onto each end\'s wire with an open-barrel crimper (a spade sized for two wires where two shared an end), and cover it with silicone sleeve: insulated spades melt this close to the boiler. If a wire won\'t reach, lengthen it with 18 AWG silicone wire and a bare BN1.25 butt splice under silicone heat shrink.',
          a:[['sp1',{o:1},0,400],['sp2',{o:1},150,400]]},
         {t:'Onto the fuse',d:'Push one end\'s wires onto each spade of the new fuse. Either way round works: like the fuse it replaces, it\'s a switch in series.',
          a:[['sp1',{x:0,y:0},0,1100],['sp2',{x:0,y:0},0,1100],['nw1',{d:0},0,1100],['nw2',{d:0},0,1100],['xt',{o:1},1150,300]]},
-        {t:'Check it',d:'Unplugged, a meter across its two spades reads under 1 Ω. On stock wiring the whole machine runs through it, so if it ever trips everything goes dark: unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.',
+        {t:'Check it',d:['Unplugged, a meter across its two spades reads under 1 Ω. On stock wiring the whole machine runs through it, so if it ever trips',['everything but the power lamp goes dead:','fam:GCP;set:model'],['everything goes dark, the power lamp too:','fam:GC;set:model'],['everything goes dead (the Pro family\'s power lamp stays lit):','unset:model'],'unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.'],
          a:[['fm',{o:1},0,350]],loop:['press'],chk:[['c3','Boiler thermal fuse, across it']]}
       ],
       CW:[
@@ -119,7 +118,7 @@
          a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR']},
         {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
          a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
-        {t:'Wire it instead of the stock fuse',d:[['Classic Pro family: AC17, from the SSR, goes on one spade and AC18, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP'],['Original Classic: AC6 and AC7 go on its right spade and the element lead AC8 on its left (AC8 and AC9 on a 120 V machine), instead of the stock fuse\'s ends.','fam:GC'],'Uninsulated 6.3 mm spades under silicone sleeve, and the stock fuse comes out.'],
+        {t:'Wire it instead of the stock fuse',d:[['Classic Pro family: AC17, from the SSR, goes on one spade and AC18, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:120;set:volts'],['Classic Pro family: AC16, from the SSR, goes on one spade and AC17, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:230;set:volts'],['Classic Pro family: the run from the SSR goes on one spade and the run to the heater splice on the other (AC17 and AC18 at 120 V, AC16 and AC17 at 230 V), instead of AC11 and AC12 to the stock fuse.','fam:GCP;unset:volts'],['Original Classic: AC6 and AC7 go on its right spade and the element lead AC8 on its left (AC8 and AC9 on a 120 V machine), instead of the stock fuse\'s ends.','fam:GC'],'Uninsulated 6.3 mm spades under silicone sleeve, and the stock fuse comes out; leave its clip and any earth wire on it in place.'],
          a:[['of',{o:0},0,600],['ow',{o:0},0,600],['cw1',{d:0},400,1100],['cw2',{d:0},500,1100],['spc',{o:1},1500,300],['cwl',{o:1},1500,300]],ph:'cw'},
         {t:'Check it',d:'Unplugged, a meter across its two spades reads under 1 Ω. In custom wiring it sits in the heater line, so if it ever trips the boiler stops heating: unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.',
          a:[['fm',{o:1},0,350]],loop:['press'],chk:[['c3','Boiler thermal fuse, across it'],['g6','Boiler thermal fuse in the heater line']]}
@@ -164,6 +163,8 @@
     var fam=famOf()||'GCP';
     Array.prototype.forEach.call(this.svg.querySelectorAll('[data-v]'),function(e){var dv=e.getAttribute('data-v');e.style.display=(d.vars?dv===v:m('wpath:'+dv))?'':'none'});
     Array.prototype.forEach.call(this.svg.querySelectorAll('[data-fam]'),function(e){e.style.display=e.getAttribute('data-fam')===fam?'':'none'});
+    var volts=prof().volts||120;
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-volts]'),function(e){e.style.display=Number(e.getAttribute('data-volts'))===volts?'':'none'});
     var drawn=this.root.querySelector('.pg-drawn');if(drawn)drawn.hidden=!!famOf()||!this.svg.querySelector('[data-fam]');
     /* pieces */
     this.el={};
@@ -243,7 +244,7 @@
   Guide.prototype.renderList=function(){
     var self=this,n=this.steps.length;
     this.list.innerHTML=this.steps.map(function(s,i){
-      var ph=s.ph==='tee'?(famOf()==='GC'?PH.teeGC:PH.teeGCP):s.ph==='cw'?(famOf()==='GC'?PH.cwGC:PH.cwGCP):s.ph;
+      var ph=s.ph==='tee'?(famOf()==='GC'?PH.teeGC:PH.teeGCP):s.ph==='xf'?(famOf()==='GC'?PH.xf:PH.xfp):s.ph==='cw'?PH.cw+(famOf()==='GC'?'GC':'GCP')+'_wiring_PCBv3_1_'+(prof().volts===230?'220':'120')+'v.png':s.ph;
       var phl=s.ph==='cw'?'Official drawing':'Official photo';
       var chk=(s.chk||[]).map(function(c){return '<a href="power-on-checks.html#'+c[0]+'">'+c[0]+' '+esc(c[1])+'</a>'}).join(' · ');
       return '<li data-n="'+(i+1)+'"><button type="button" class="pg-sb" data-i="'+i+'"><span class="pg-n">'+(i+1)+'</span><span class="pg-t">'+esc(s.t)+'</span></button>'
