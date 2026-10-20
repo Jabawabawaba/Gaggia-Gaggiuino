@@ -117,3 +117,6 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .mdetail .d-refs .rg{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:10px}
 .mdetail .d-refs .sep{color:var(--muted)}
 .mdetail .d-refs a{color:var(--accent-ink)}
+
+/* what a part is, on the detail card */
+.mdetail .d-pcb .k{margin-right:6px}
