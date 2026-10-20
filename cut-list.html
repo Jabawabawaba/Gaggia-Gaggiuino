@@ -480,6 +480,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 .note{font-size:13.5px;color:var(--muted)}
 .panel p.note{margin:10px 0 0}
 .cut td.id{font:600 14px var(--f-mono);white-space:nowrap}
+.cut td.id a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .cut td.len{font:500 14px var(--f-mono);white-space:nowrap;font-variant-numeric:tabular-nums}
 .cut td.len small{display:block;font:400 12.5px var(--f-body);color:var(--muted);white-space:normal;min-width:14ch}
 .cut tr.done td{color:var(--muted)}
@@ -606,6 +607,18 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function swatch(c){return '<span class="swatch" style="background:'+(SWATCH[c]||'transparent')+'"></span>'}
 
+    /* Links into the wiring page's map; wiring.html reads them (applyHash there). A target is 'run:TC' (| between
+     alternatives: the first one on the reader's drawing wins), 'part:ssr', 'runs:AC1,AC2', 'short:J9 R1,J9 GND'
+     (every run whose name starts that way), 'layer:E', or '' for the whole map; join two with ';'. o.path (SI or CW) or o.v (a schematic
+     key) picks the drawing when it isn't the reader's own, and o.fam (GC or GCP) the family; o.label names a set of runs. */
+  function mapHref(t,o){
+    o=o||{};var q=[];
+    if(t)t.split(';').forEach(function(x){var i=x.indexOf(':');q.push(x.slice(0,i)+'='+encodeURIComponent(x.slice(i+1)))});
+    if(o.v)q.push('v='+encodeURIComponent(o.v));else{if(o.path)q.push('path='+o.path);if(o.fam)q.push('fam='+o.fam)}
+    if(o.label)q.push('label='+encodeURIComponent(o.label));
+    return 'wiring.html#map'+(q.length?'?'+q.join('&'):'');
+  }
+
   function $(id){return document.getElementById(id)}
   var KEY='gaggia-cut-list-v1';
   /* parts by kind; a terminal holding two new wires takes the two-wire size */
@@ -712,7 +725,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
         else if(r.mm)lenCell=c+' mm<small>'+r.mm+' mm + '+st.slack+'%</small>';
         else lenCell='<label class="vh" for="mm-'+r.id+'">Length for '+r.id+' in mm</label><input class="mm" id="mm-'+r.id+'" data-mm="'+r.id+'" type="number" inputmode="numeric" min="0" step="10" placeholder="mm" value="'+(typeof mm[r.id]==='number'?mm[r.id]:'')+'">'+(c?' → '+c+' mm':'')+'<small>Measure on your machine</small>';
         var ends=[0,1].map(function(i){var p=P.per[r.id+':'+i]||r.k[i];return SHORTK[p]||p}).join(' to ');
-        html+='<tr class="'+(d?'done':'')+'"><td class="tick"><input type="checkbox" data-cut="'+r.id+'"'+(d?' checked':'')+' aria-label="'+r.id+' cut and crimped"></td><td class="id">'+swatch(r.color)+r.id+'</td><td>'+esc(r.short)+(r.stock?'<span class="tag2">stock lead</span>':'')+(r.opt?'<span class="tag2">optional</span>':'')+'</td><td>'+(r.stock?'Stock':esc(gaugeOf(r))+' '+esc(r.color))+'</td><td class="len">'+lenCell+'</td><td class="ends">'+esc(ends)+'</td></tr>';
+        html+='<tr class="'+(d?'done':'')+'"><td class="tick"><input type="checkbox" data-cut="'+r.id+'"'+(d?' checked':'')+' aria-label="'+r.id+' cut and crimped"></td><td class="id"><a class="idmap" href="'+esc(mapHref('run:'+r.id,{v:vk}))+'" title="Show '+r.id+' on the wiring map">'+swatch(r.color)+r.id+'</a></td><td>'+esc(r.short)+(r.stock?'<span class="tag2">stock lead</span>':'')+(r.opt?'<span class="tag2">optional</span>':'')+'</td><td>'+(r.stock?'Stock':esc(gaugeOf(r))+' '+esc(r.color))+'</td><td class="len">'+lenCell+'</td><td class="ends">'+esc(ends)+'</td></tr>';
       });
     });
     $('cut').innerHTML=html;

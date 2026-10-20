@@ -22,7 +22,7 @@ The official Gaggiuino guide is written for the Gaggia Classic family, so every 
 - **Stock wiring integration** keeps the factory harness and adds seven wires: J, Sa, Sb, 3, P, L and N. Official drawings exist for the 120 V Classic Pro family and the Classic at 120 V and 230 V. **[Official]**
 - **Custom wiring** replaces the harness with a new one, using the stock lamps, element leads and fuses. Official drawings exist for both families at both voltages. **[Official]**
 - **230 V Pro family with the Eco board:** the docs say stock integration "is not recommended" and point to custom wiring, which leaves the board out of the circuit. There is no official stock integration drawing for any 230 V Pro-family machine. **[Official]**
-- Stock wiring colors and connector positions vary between machines, especially at the pump. Check yours against the drawing before moving anything. **[Official]**
+- Stock wiring colors and connector positions vary between machines, especially at the pump. Check yours against the drawing before moving anything. **[Official]** The [wiring map](wiring.html#map?path=SI) shows the drawing for your model.
 
 ## Classic (1991 to 2014, US to 2018)
 
@@ -43,7 +43,7 @@ The official Gaggiuino guide is written for the Gaggia Classic family, so every 
 - **Lamps.** The steam lamp becomes a boiler lamp, lit while the boiler isn't heating. The brew lamp stays dark. **[Official]**
 - **OPV.** A black valve on top of the pump that returns to the tank. Gaggia's specification is 11 bar (+1, −0.5), inside the 10 to 12 bar Gaggiuino wants; reviewers report 12 to 14. Owners often swap in 9 bar springs, so test it. US Evo Pros and E24s ship with a 9 bar valve instead (below). **[Gaggia]**, **[Owners]**
 - **Pressure sensor.** Cut the braided pump hose about 65 mm above the boiler connection, fit a barbed 6 mm T with a clamp on each tube, and run 200 to 250 mm of hose to the sensor, clamped at each end. The docs' hose is the Saeco OEM braided tube, Gaggia part 996530009505. Or fit the pressure tap block. **[Official]**
-- **SSR** mounts to the back wall with an M4 (or 8-32) screw; leave room above it for the funnel piece and its screw. **[Official]**
+- **SSR** mounts to the back wall with an M4 (or 8-32) screw; leave room above it for the funnel piece and its screw. **[Official]** Its wires: [wiring map](wiring.html#map?part=ssr&path=SI).
 
 ## Eco board (230 V Pro family in the EU and UK)
 

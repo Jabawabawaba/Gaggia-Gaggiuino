@@ -471,6 +471,7 @@ details[open] .chev{transform:rotate(225deg)}
 .tb-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px;padding:6px 14px 18px 17px;border-left:3px solid var(--line);background:var(--surface)}
 details.tb.danger .tb-body{border-left-color:var(--bad)}
 @media (max-width:720px){.tb-body{grid-template-columns:minmax(0,1fr)}}
+.tb-map{margin:8px 0 0;font-size:14.5px}
 .tb-body h3{font:600 11.5px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .tb-body ol,.tb-body ul{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
 .tb-body .src{grid-column:1 / -1;font:500 12px var(--f-mono);color:var(--muted);letter-spacing:.04em}
@@ -513,7 +514,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
     {c:'power',d:1,s:'The breaker or {gfci} trips when you plug in or switch on',
      causes:['Line or neutral touching earth: a bare spade, or a wire pinched against the frame.','An element leaking to the boiler.','Water on the wiring, often from a leak at the pump, the boiler seal or the steam valve.'],
      check:['Leave it unplugged; don\'t keep resetting the breaker.','With the covers on, rerun [h3] and [h4]. Then open it up and rerun [d1], [d2], [d5], [d6] and [c2].','Look for wet or crushed insulation near the boiler, the valve, the pump and under the drip tray.'],src:'Official grounding guide, meter checks, Whole Latte Love'},
-    {c:'power',s:'Nothing happens when you switch on',
+    {c:'power',s:'Nothing happens when you switch on',map:[['The power socket on the wiring map','part:sock']],
      causes:['No supply getting through the power switch: inlet leads loose or on the wrong spades.',{t:'With stock integration, the boiler\'s thermal fuse has blown: on the Classic it sits in the neutral feed to the whole machine, and on the Pro the PCB\'s line comes from after it. In custom wiring it only feeds the heater, so it can\'t cause this.',w:'unset:model,path'},
        {t:'The boiler\'s thermal fuse has blown: with stock integration on the Classic it sits in the neutral feed to the whole machine.',w:'set:model,path;fam:GC;wpath:SI'},
        {t:'The boiler\'s thermal fuse has blown: with stock integration on the Pro family, the PCB\'s line comes from after it.',w:'set:model,path;fam:GCP;wpath:SI'},'The cord or the outlet.'],
@@ -524,43 +525,43 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
     {c:'power',w:'eco:yes',s:'It still turns itself off after 20 minutes',
      causes:['The Eco board is still in the circuit.'],
      check:['Custom wiring takes it out: the inlet goes straight to the power switch, with nothing to the board. Trace yours against the schematic.'],src:'Official custom wiring schematic, Gaggia service manual'},
-    {c:'screen',s:'The screen stays black',
+    {c:'screen',s:'The screen stays black',map:'run:SCR',
      causes:['The J1 cable wired by color rather than by pin; blue and yellow vary between cable revisions.','The cable not fully seated at either end.','No power to the PCB: USB-C on the bench, mains in the machine.'],
      check:['Check J1 pin by pin: GND, TX, RX, 5V.','Don\'t take a pre-made cable apart; reseat it.','On the bench, power from the PCB\'s USB-C and try again.'],src:'Official PCB guide'},
-    {c:'screen',s:'"Initialization in progress" never clears',
+    {c:'screen',s:'"Initialization in progress" never clears',map:'run:SCR',
      causes:['The screen and PCB aren\'t talking: TX and RX crossed wrong on J1.','The core and screen firmware are from different releases.'],
      check:['Check J1 by pin against the PCB order.','Bring both to the same release: core first, then the screen. The core can also be flashed with the ST-Link.'],src:'Official PCB guide, MCU flashing'},
     {c:'screen',s:'You can\'t find the Gaggiuino network or gaggiuino.local',
      causes:['The access point can show up as ESP_xxxxxx at first instead of Gaggiuino AP.','Your Wi-Fi is 5 GHz only; Gaggiuino joins 2.4 GHz networks.','Some phones and browsers don\'t open .local addresses.'],
      check:['Join the access point directly.','In Settings, System, Connect, pick a 2.4 GHz network.','Find the machine\'s address in your router\'s device list and open that instead.'],src:'Official Gen 3 manual'},
-    {c:'heat',d:1,s:'The temperature falls while the boiler heats',
+    {c:'heat',d:1,s:'The temperature falls while the boiler heats',map:'run:TC',
      causes:['The thermocouple is reversed at J4. The controller sees a falling temperature and may keep heating. The public Gen 2 firmware cuts the heater once the reading reaches 0 °C; Gen 3\'s behavior isn\'t published, and the boiler\'s thermal fuse is the last line.'],
      check:['Switch off and unplug now.','Swap the two thermocouple wires at J4, folding the bare ends over again.','Retest on the bench: warm the thermocouple in your hand and the reading must rise. If the fuse blew, replace it.'],src:'Official PCB guide'},
-    {c:'heat',s:'The temperature reading is jumpy, stuck or far off',
+    {c:'heat',s:'The temperature reading is jumpy, stuck or far off',map:'run:TC',
      causes:['Insulation clamped in J4 instead of bare wire.','A grounded thermocouple, or earth touching the 5 V ground. The low-voltage side has to float.','A broken thermocouple or lead.','The lead routed alongside mains wires.'],
      check:['Refit J4 with the bare wire folded over and no insulation in the clamp.','Rerun [b6], [b7] and [c7].','Route the lead around the front of the boiler, with the mains wires on the left of the case, above it.'],src:'Official PCB, stock integration and grounding guides'},
-    {c:'heat',s:'The SSR light comes on but the boiler doesn\'t heat',w:'wpath:CW',
+    {c:'heat',s:'The SSR light comes on but the boiler doesn\'t heat',w:'wpath:CW',map:'part:ssr',
      causes:['The boiler\'s thermal fuse has blown, or the optional resettable one has tripped. In custom wiring it sits in the heater\'s own line, so the PCB stays on.','A break in a heater run or splice.','The SSR failed open: its light comes on but it never switches the load.','An open element.'],
      check:['Unplugged, rerun [c3] and [c1], then the path continuity checks.','If every check passes, replace the SSR.'],src:'Meter checks, the official schematics, Whole Latte Love'},
-    {c:'heat',s:'The SSR light comes on but the boiler doesn\'t heat',w:'wpath:SI',
+    {c:'heat',s:'The SSR light comes on but the boiler doesn\'t heat',w:'wpath:SI',map:[['The SSR on the wiring map','part:ssr'],['Jumper J','run:J']],
      causes:['A break in the heater circuit: J, Sa or Sb, or the stock connectors they plug into.','The SSR failed open: its light comes on but it never switches the load.','An open element.'],
      check:['Not the boiler\'s thermal fuse: in stock integration the PCB is fed through it, so a blown fuse leaves the screen dark too.','Unplugged, rerun [c1], then the path continuity checks through J, Sa and Sb.','If every check passes, replace the SSR.'],src:'Meter checks, the official schematics, Whole Latte Love'},
-    {c:'heat',s:'The SSR light never comes on',
+    {c:'heat',s:'The SSR light never comes on',map:[['On the wiring map','short:J9 R1,J9 GND',null,'SSR control wires']],
      causes:['SSR control reversed or open: J9 R1 to SSR +, J9 GND to SSR −.','The temperature is already above the target.'],
      check:['Rerun [f5] and [f6].','Read the temperature on the screen before chasing wiring.'],src:'Official schematics'},
-    {c:'heat',d:1,s:'It keeps heating past the target',
+    {c:'heat',d:1,s:'It keeps heating past the target',map:'part:ssr',
      causes:['A reversed thermocouple (see above), or one loose and out of contact so the reading lags.','The SSR failed closed.','The elements wired around the SSR.'],
      check:['Switch off and unplug.','Rerun [d7]: with the switch on, L to N must not read near the heater\'s resistance.','Check the SSR\'s load wires against the wiring page.'],src:'Meter checks'},
-    {c:'heat',d:1,s:'The boiler\'s thermal fuse blew',
+    {c:'heat',d:1,s:'The boiler\'s thermal fuse blew',map:'run:TC',
      causes:['A reversed or loose thermocouple, or an SSR stuck on, let the boiler overheat.','The boiler heated dry: after it\'s been drained, fill it before it heats.','Flashing an older STM32F411 board (PCB v2 to v3.1) with the machine powered: some switch the heater on while the programmer is connected.'],
      check:['Find the cause before fitting a new one: the stock fuse is one-shot.',{t:'If you fitted the optional resettable fuse in custom wiring, it trips instead; find the cause before resetting it.',w:'!wpath:SI'},'Never bridge it.','Recheck the thermocouple direction on the bench, and rerun [d7].'],src:'Official PCB upgrade and flashing guides, Whole Latte Love'},
     {c:'heat',s:'The temperature swings or overshoots in normal use',
      causes:['Settings changed from the defaults: the Gen 3 manual recommends them for the Classic and the Pro family.','Poor contact at the thermocouple: no paste, or not finger tight.'],
      check:['Put Settings, Boiler back on the defaults.','Refit the thermocouple with fresh paste rated for 180 °C or more.','Change Temperature Offset only against a real group-head measurement.'],src:'Official Gen 3 manual'},
-    {c:'pressure',s:'Pressure reads 0.0 bar during a shot',
+    {c:'pressure',s:'Pressure reads 0.0 bar during a shot',map:'run:PS',
      causes:['J6 wired out of order: 5V, GND, P.','The sensor screwed in too far: overtightening can damage its O-ring and stop it reading.','Air in the sensor line.'],
      check:['Check J6 pin by pin against the sensor: 5V, GND and OUT to P.','Back it off to hand tight plus at most a quarter turn.','T-fitting: run [UT] Tube Fill. Tap block: flush for 10 seconds with the group open.'],src:'Official stock integration guide'},
-    {c:'pressure',s:'The pressure reading is noisy',
+    {c:'pressure',s:'The pressure reading is noisy',map:'run:PS',
      causes:['Pump vibration through the sensor, or the sensor touching the housing.','Sensor wires bundled with mains.'],
      check:['Mount the sensor low in the machine, below the T and off metal; a wrap of foam or a fixing to the frame helps.','Route its wires on the right of the case, away from mains.'],src:'Official stock integration guide'},
     {c:'pressure',s:'Pressure never reaches the target, or Test OPV peaks below 10.5 bar',
@@ -574,28 +575,28 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
     {c:'pressure',s:'Test OPV peaks above 13 bar',
      causes:[{t:'An older Classic\'s metal valve set high: owners report about 14 bar from the factory.',w:'fam:GC'},{t:'Too many washers, or too stiff a spring, added behind the 9 bar valve.',w:'set:model,volts;opv9'},{t:'The stock spring: reviewers have measured Classic Pros at 12 to 14 bar, above Gaggia\'s 11 bar figure.',w:'fam:GCP;!model:EVO,E24'},{t:'Washers or a stiffer spring added by a past owner.',w:'fam:GCP;!opv9'}],
      check:[{t:'The old Classic\'s valve adjusts: cap off (17 mm), then the 5 mm hex inside. Turn it down a little at a time and rerun [UT] Test OPV.',w:'fam:GC'},{t:'On the Pro family, take out a washer at a time and rerun [UT] Test OPV. If it\'s a stock spring with no washers and still peaks above 13 bar, ask in your help thread before changing it.',w:'fam:GCP'}],src:'Official startup steps, Coffee Forums'},
-    {c:'pressure',s:'The pump doesn\'t run',
+    {c:'pressure',s:'The pump doesn\'t run',map:[['J7 B on the wiring map','short:J7 B'],['The pump','part:pump']],
      causes:['The brew input isn\'t reaching J7 B.',{t:'An open pump thermal fuse.',w:'!fam:GC'},{t:'An open pump thermal fuse.',w:'set:model;fam:GC;!volts:230'},{t:'An open pump thermal fuse, if yours has one: the 230 V Classic\'s stock-integration drawing shows none.',w:'set:model,volts;fam:GC;volts:230'},'J12 or the pump wire not connected.'],
      check:[{t:'Rerun [f1], [f2] and [c5], plus [c4] where your schematic has the pump fuse, then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'unset:model'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model;fam:GCP'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model;fam:GC;!volts:230'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model,volts,path;fam:GC;volts:230;path:CW'},{t:'Rerun [f1], [f2] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model,volts;fam:GC;volts:230;!path:CW'},'Gen 3\'s Maintenance page can run the pump on its own, which splits wiring faults from settings.'],src:'Meter checks, official Gen 3 docs'},
     {c:'pressure',s:'The pump runs but no water reaches the group',
      causes:['Tank empty, or its intake out of the water.','An air lock.',{t:'The 3-way valve not opening: J13, its wire or the coil. In stock integration the valve\'s circuit still runs through the steam switch, so steam must be off.',w:'!wpath:CW'},{t:'The 3-way valve not opening: J13, its wire or the coil.',w:'set:path;path:CW'},{t:'The 3-way valve not opening: J13, its wire or the coil.',w:'set:path,model,volts;path:SI;wpath:CW'}],
      check:['Prime it: open the steam knob and run Flush until water flows steadily from the wand.',{t:'Turn steam off, then rerun [c6] and the valve checks under path continuity.',w:'!wpath:CW'},{t:'Rerun [c6] and the valve checks under path continuity.',w:'set:path;path:CW'},{t:'Rerun [c6] and the valve checks under path continuity.',w:'set:path,model,volts;path:SI;wpath:CW'}],src:'Meter checks, Whole Latte Love'},
-    {c:'pressure',s:'Wet pucks, and no whoosh into the drip tray after a shot',
+    {c:'pressure',s:'Wet pucks, and no whoosh into the drip tray after a shot',map:[['The valve on the wiring map','part:sol']],
      causes:['The 3-way valve jammed open with scale or debris.'],
      check:['Strip and descale the valve, or replace it. Whole Latte Love\'s guide covers both.'],src:'Whole Latte Love, Coffee Forums'},
     {c:'pressure',s:'Leaks at the T-fitting, tap block or sensor',
      causes:[{t:'The braided hose not clamped over the middle of the barb, or the clamp not tight.',w:'set:model;fam:GCP'},{t:'Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.',w:'fam:GC'},{t:'On the Pro family, the braided hose not clamped over the middle of the barb.',w:'unset:model'},'The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
      check:['Unplug and let it cool before touching fittings.',{t:'Recut the tube square and reseat it; a rubber glove helps your grip.',w:'fam:GC'},{t:'Reseat the hose over the barb and clamp it over the middle.',w:'fam:GCP'},'Sensor hand tight, plus a quarter turn at most.'],src:'Official stock integration and custom wiring guides'},
-    {c:'switch',s:'A switch does nothing',
+    {c:'switch',s:'A switch does nothing',map:[['On the wiring map','short:J7,Brew sw 2 →,Steam sw P(3-4) →,Brew sw P(1-2) →',null,'Switch signal wires']],
      causes:['Signal and ground on the wrong spades.','A break in the ground jumper between the switches.'],
      check:['Rerun [f1] to [f4] with the plugs off the PCB.','Gen 3\'s Maintenance page shows the raw brew and steam pin levels as you flip each switch.'],src:'Official schematics, official Gen 3 docs'},
-    {c:'switch',s:'A switch acts as if it\'s always on',
+    {c:'switch',s:'A switch acts as if it\'s always on',map:[['On the wiring map','short:J7,Brew sw 2 →,Steam sw P(3-4) →,Brew sw P(1-2) →',null,'Switch signal wires']],
      causes:['Signal and ground on two spades that are always connected.'],
      check:['Compare the spade numbers with the wiring page, then rerun the OFF checks [f2] and [f4].'],src:'Official schematics'},
-    {c:'switch',s:'The lamps don\'t do what they used to',
+    {c:'switch',s:'The lamps don\'t do what they used to',map:[['The lamp on the wiring map','part:lampS|lampP']],
      causes:[{t:'Expected. On the Pro family the steam lamp becomes a boiler lamp, lit while the boiler isn\'t heating, and the brew lamp stays dark.',w:'fam:GCP'},{t:'On the Classic, stock integration leaves the internal boiler lamp dark; custom wiring turns the power lamp into the boiler lamp.',w:'unset:model'},{t:'Expected. On the Classic, stock integration leaves the internal boiler lamp dark; custom wiring turns the power lamp into the boiler lamp.',w:'set:model;fam:GC'}],
      check:['Nothing to fix. If the boiler lamp never changes, check its wires against the wiring page.'],src:'Official schematics'},
-    {c:'switch',w:'wpath:SI',d:1,s:'A spark, smell or buzz near the switches',
+    {c:'switch',w:'wpath:SI',d:1,s:'A spark, smell or buzz near the switches',map:[['Parked connectors on the wiring map','part:f:S5|housing']],
      causes:['A parked connector touching metal: in stock integration they stay live.','A low-voltage wire on a mains spade.'],
      check:['Switch off and unplug.','Check every parked connector is insulated and tied down.','Rerun [f8] and [f9].'],src:'Official stock integration guide'},
     {c:'fw',s:'An over-the-air update fails',
@@ -624,7 +625,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
   function refs(t){
     return esc(fill(t)).replace(/\[([A-Za-z0-9]+)\]/g,function(_,id){
       if(CHECKREF.test(id))return '<a class="ref" href="power-on-checks.html#'+id+'">'+id+'</a>';
-      if(/^(AC|LV|G|OP)[0-9]+$/.test(id))return '<a class="ref" href="wiring.html#'+id+'">'+id+'</a>';
+      if(/^(AC|LV|G|OP)[0-9]+$/.test(id))return '<a class="ref" href="'+esc(mapHref('run:'+id))+'">'+id+'</a>';
       return '['+id+']';
     });
   }
@@ -650,7 +651,25 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
     return s.off||null;
   }
 
+    /* Links into the wiring page's map; wiring.html reads them (applyHash there). A target is 'run:TC' (| between
+     alternatives: the first one on the reader's drawing wins), 'part:ssr', 'runs:AC1,AC2', 'short:J9 R1,J9 GND'
+     (every run whose name starts that way), 'layer:E', or '' for the whole map; join two with ';'. o.path (SI or CW) or o.v (a schematic
+     key) picks the drawing when it isn't the reader's own, and o.fam (GC or GCP) the family; o.label names a set of runs. */
+  function mapHref(t,o){
+    o=o||{};var q=[];
+    if(t)t.split(';').forEach(function(x){var i=x.indexOf(':');q.push(x.slice(0,i)+'='+encodeURIComponent(x.slice(i+1)))});
+    if(o.v)q.push('v='+encodeURIComponent(o.v));else{if(o.path)q.push('path='+o.path);if(o.fam)q.push('fam='+o.fam)}
+    if(o.label)q.push('label='+encodeURIComponent(o.label));
+    return 'wiring.html#map'+(q.length?'?'+q.join('&'):'');
+  }
+
   var cat='all',q='';
+  /* the symptom's wiring on the wiring map (see maplink.js) */
+  function tmap(t){
+    if(t.map==null)return '';var m=M(),pm=/wpath:(SI|CW)/.exec(t.w||'');
+    var l=(typeof t.map==='string'?[['On the wiring map',t.map]]:t.map).filter(function(x){return !x[2]||!m||m.matches(x[2])});
+    return l.length?'<p class="tb-map">'+l.map(function(x){var o={};if(pm)o.path=pm[1];if(x[3])o.label=x[3];return '<a href="'+esc(mapHref(x[1],o))+'">'+esc(x[0])+'</a>'}).join(' · ')+'</p>':'';
+  }
   function visible(t){
     var m=M();if(t.w&&m&&!m.matches(t.w))return false;
     if(cat!=='all'&&t.c!==cat)return false;
@@ -670,7 +689,7 @@ details.tb.danger .tb-body{border-left-color:var(--bad)}
       html+='<h2 class="cat-h">'+esc(c[1])+'</h2>';
       items.forEach(function(t){
         html+='<details class="tb'+(t.d?' danger':'')+'"'+(q?' open':'')+'><summary><span class="sym">'+esc(fill(t.s))+(t.w&&!(m&&m.decided&&m.decided(t.w))?'<span class="vtag">'+esc(wlabel(t.w))+'</span>':'')+'</span><span class="first">Most likely: '+refs(applying(t.causes)[0])+'</span><span class="flag">'+(t.d?'<span class="unplug">Unplug now</span>':'')+'<span class="chev" aria-hidden="true"></span></span></summary>'+
-          '<div class="tb-body"><div><h3>Likely causes, in order</h3><ol>'+applying(t.causes).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ol></div><div><h3>What to do</h3><ul>'+applying(t.check).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ul></div><div class="src">Source: '+esc(t.src)+'</div></div></details>';
+          '<div class="tb-body"><div><h3>Likely causes, in order</h3><ol>'+applying(t.causes).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ol></div><div><h3>What to do</h3><ul>'+applying(t.check).map(function(x){return '<li>'+refs(x)+'</li>'}).join('')+'</ul>'+tmap(t)+'</div><div class="src">Source: '+esc(t.src)+'</div></div></details>';
       });
     });
     $('list').innerHTML=html||'<p class="empty">Nothing matches. Try fewer words, or pick All.</p>';

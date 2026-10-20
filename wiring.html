@@ -467,7 +467,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 :root{--pcb:#E8EFE8;--w-l:#B03A2E;--w-h:#C77800;--w-n:#2F5FB3;--w-e:#2D7A4C;--w-lv:#7046B8;--w-lvg:#59616A;--w-s:#1F7F86;--w-opt:#8A6D3B}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--pcb:#17201A;--w-l:#F0735F;--w-h:#F2A33A;--w-n:#79A6F2;--w-e:#63C08A;--w-lv:#B595F2;--w-lvg:#9BA2AA;--w-s:#5CC3C9;--w-opt:#D2B27A}}
 :root[data-theme="dark"]{--pcb:#17201A;--w-l:#F0735F;--w-h:#F2A33A;--w-n:#79A6F2;--w-e:#63C08A;--w-lv:#B595F2;--w-lvg:#9BA2AA;--w-s:#5CC3C9;--w-opt:#D2B27A}
-.mapsec{margin-top:26px;--mw:min(1360px,calc(100vw - 48px));width:var(--mw);margin-left:calc((100% - var(--mw)) / 2)}
+.mapsec{margin-top:26px;scroll-margin-top:12px;--mw:min(1360px,calc(100vw - 48px));width:var(--mw);margin-left:calc((100% - var(--mw)) / 2)}
 @media (max-width:1040px){.mapsec{width:auto;margin-left:0}}
 .mdetail .ids button.o{border-style:dashed}
 .mtool{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;margin:4px 0 10px}
@@ -764,6 +764,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
       Array.prototype.forEach.call(svg.querySelectorAll('.run'),function(g){
         var id=g.getAttribute('data-run'),on;
         if(sel&&sel.t==='run')on=id===sel.id;
+        else if(sel&&sel.t==='set')on=sel.ids.indexOf(id)>=0;
         else if(sel&&sel.t==='part')on=ends(id).indexOf(sel.id)>=0;
         else on=inLayer(id,layer);
         lit[id]=on;if(on&&sel)ends(id).forEach(function(p){partsLit[p]=1});
@@ -777,7 +778,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
       Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag'),function(g){
         var id=g.getAttribute('data-run');
         g.classList.toggle('off',!lit[id]);
-        g.classList.toggle('sel',!!(sel&&sel.t==='run'&&sel.id===id));
+        g.classList.toggle('sel',!!(sel&&((sel.t==='run'&&sel.id===id)||(sel.t==='set'&&sel.ids.indexOf(id)>=0))));
       });
       Array.prototype.forEach.call(svg.querySelectorAll('.part'),function(g){
         var id=g.getAttribute('data-part');
@@ -797,6 +798,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     function summary(){
       var e=el('msel'),r=sel&&sel.t==='run'?runOf(sel.id):null;
       if(!sel){e.textContent='';return}
+      if(sel.t==='set'){e.innerHTML=(sel.label?'<span class="rt">'+esc(sel.label)+'</span>: ':'')+sel.ids.map(function(id){return '<b>'+esc(id)+'</b>'}).join(' ');return}
       if(sel.t==='part'){var p=mp.parts[sel.id]||{name:sel.id},n=Object.keys(mp.ends).filter(function(id){return ends(id).indexOf(sel.id)>=0}).length;e.innerHTML='<span class="rt">'+esc(p.name)+'</span>: '+(n?n+(n===1?' run lands here':' runs land here'):'nothing new connects here');return}
       if(!r){e.innerHTML='<b>'+esc(sel.id)+'</b><span class="rt">'+esc((mp.cables||{})[sel.id]||'')+'</span>';return}
       e.innerHTML='<b>'+esc(r.id)+'</b><span class="rt">'+esc(r.short||(r.frm+' → '+r.to))+'</span> · '+esc(lenTxt(r));
@@ -813,6 +815,11 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
       var d=el('mdetail');
       if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it. Step through with the arrows to go run by run.</p>';return}
       var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+'<button type="button" class="chip" data-mclear>Show everything</button></span>';
+      if(sel.t==='set'){
+        d.className='mdetail';d.style.borderLeftColor='var(--accent)';
+        d.innerHTML='<div class="d-head"><span class="d-route">'+esc(sel.label||'The runs that page pointed to')+'</span>'+acts+'</div><div><span class="k">'+sel.ids.length+' runs, in order</span><div class="ids" style="margin-top:4px">'+sel.ids.map(function(id){return '<button type="button" data-mrun="'+esc(id)+'">'+esc(id)+'</button>'}).join('')+'</div></div><p style="color:var(--muted)">Tap one to see it on its own.</p>';
+        return;
+      }
       if(sel.t==='part'){
         var p=mp.parts[sel.id]||{name:sel.id},ids=Object.keys(mp.ends).filter(function(id){return ends(id).indexOf(sel.id)>=0});
         d.className='mdetail';d.style.borderLeftColor='var(--accent)';
@@ -842,8 +849,8 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     function center(){
       if(!svg||!sel)return;
       var sc=el('mscroll');if(sc.scrollWidth<=sc.clientWidth+2)return;
-      var g=sel.t==='run'?svg.querySelector('.run[data-run="'+sel.id+'"]'):svg.querySelector('.part[data-part="'+sel.id+'"]');
-      try{var bb=g.getBBox(),ratio=svg.clientWidth/1400;sc.scrollTo({left:Math.max(0,(bb.x+bb.width/2)*ratio-sc.clientWidth/2),behavior:'smooth'})}catch(e){}
+      var gs=sel.t==='set'?sel.ids.map(function(id){return svg.querySelector('.run[data-run="'+id+'"]')}):[sel.t==='run'?svg.querySelector('.run[data-run="'+sel.id+'"]'):svg.querySelector('.part[data-part="'+sel.id+'"]')];
+      try{var x0=1e9,x1=-1e9;gs.forEach(function(g){if(!g)return;var bb=g.getBBox();x0=Math.min(x0,bb.x);x1=Math.max(x1,bb.x+bb.width)});var ratio=svg.clientWidth/1400;sc.scrollTo({left:Math.max(0,(x0+x1)/2*ratio-sc.clientWidth/2),behavior:'smooth'})}catch(e){}
     }
     function pickRun(id,toggle){sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
     function pickPart(id){sel=(sel&&sel.t==='part'&&sel.id===id)?null:{t:'part',id:id};paint();center()}
@@ -870,7 +877,29 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     }
     /* from the list: show one run on the map */
     function focus(id){if(!mp)return;pickRun(id,false);el('mapsec').scrollIntoView({behavior:'smooth',block:'start'})}
-    return {show:show,init:init,focus:focus};
+    function hasRun(id){return !!(svg&&svg.querySelector('.run[data-run="'+id+'"]'))}
+    function hasPart(id){return !!(svg&&svg.querySelector('.part[data-part="'+id+'"]'))}
+    /* a link from another page (see maplink.js): run=TC, part=ssr (| between alternatives, the first on this drawing wins),
+       runs=AC1,AC2 or short=J9 R1,J9 GND (every run whose name starts that way) for a set, layer=E for a layer.
+       Returns false when nothing it asked for is on this drawing; the whole map shows instead. */
+    function deep(q){
+      if(!mp)return false;
+      var found=null,ids=[],asked=!!(q.run||q.part||q.runs||q.short||q.layer);
+      if(q.run)q.run.split('|').some(function(id){if(hasRun(id)){found={t:'run',id:id};return true}return false});
+      if(!found&&q.part)q.part.split('|').some(function(id){if(hasPart(id)){found={t:'part',id:id};return true}return false});
+      if(!found&&(q.runs||q.short)){
+        if(q.runs)q.runs.split(',').forEach(function(id){if(hasRun(id)&&ids.indexOf(id)<0)ids.push(id)});
+        if(q.short)q.short.split(',').forEach(function(p){v.runs.forEach(function(r){if(r.short&&r.short.indexOf(p)===0&&hasRun(r.id)&&ids.indexOf(r.id)<0)ids.push(r.id)})});
+        if(ids.length===1)found={t:'run',id:ids[0]};else if(ids.length)found={t:'set',ids:ids,label:q.label||''};
+      }
+      sel=found;layer='all';
+      if(!found&&q.layer&&Array.prototype.some.call(svg.querySelectorAll('.run'),function(g){return inLayer(g.getAttribute('data-run'),q.layer)})){layer=q.layer;found=true;sel=null}
+      paint();center();
+      if(found===true){var ln=LAYERS.filter(function(l){return l[0]===q.layer})[0];el('msel').innerHTML=(q.label?'<span class="rt">'+esc(q.label)+'</span>: ':'')+esc(ln?ln[1]:'')+' runs lit'}
+      if(asked&&!found)el('msel').innerHTML='<span class="rt">'+esc(q.label?q.label+': not':'Not')+' on this drawing, so the whole map is showing.</span>';
+      return !asked||!!found;
+    }
+    return {show:show,init:init,focus:focus,deep:deep};
   })();
 
   function $(id){return document.getElementById(id)}
@@ -944,8 +973,34 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   });
   document.addEventListener('change',function(e){if(e.target.id==='opt'){showOpt=e.target.checked;save();render()}});
   window.addEventListener('gaggia-machine',function(){override=null;render()});
+  /* links from the other pages land on the map: wiring.html#map?run=TC&path=CW (maplink.js builds them).
+     path= or v= picks the drawing when it isn't the reader's own; the saved Gaggia doesn't change. */
+  function hashQ(){var h=location.hash||'';if(h.indexOf('#map')!==0)return null;var q={},i=h.indexOf('?');if(i>=0)try{new URLSearchParams(h.slice(i+1)).forEach(function(val,k){q[k]=val})}catch(e){}return q}
+  /* the drawing a link asks for: v= exactly, or the reader's own if it fits path= and fam=, else the closest that does
+     (their voltage first; the only Pro-family stock-wiring drawing is 120 V) */
+  function linkVariant(q){
+    if(q.v&&VARS[q.v])return q.v;
+    var p=(GM()&&GM().get())||{},path=q.path==='SI'||q.path==='CW'?q.path:null,fam=q.fam==='GC'||q.fam==='GCP'?q.fam:null;
+    if(!path&&!fam)return null;
+    if(!fam&&p.model)fam=p.model==='GC'?'GC':'GCP';
+    function ok(k,vv){var x=VARS[k];return (!path||x.path===path)&&(!fam||x.fam===fam)&&(!vv||!p.volts||x.volts===p.volts)}
+    var m=mineV();if(m&&ok(m,true))return m;
+    for(var i=0;i<ORDERV.length;i++)if(ok(ORDERV[i],true))return ORDERV[i];
+    for(i=0;i<ORDERV.length;i++)if(ok(ORDERV[i],false))return ORDERV[i];
+    return null;
+  }
+  function applyHash(){
+    var q=hashQ();if(!q)return;
+    var k=linkVariant(q);
+    if(k){override=k===mineV()?null:k;cur=k}
+    render();
+    MAP.deep(q);
+    var ms=$('mapsec');if(ms&&!ms.hidden)ms.scrollIntoView({block:'start'});
+  }
+  window.addEventListener('hashchange',applyHash);
   MAP.init();
   render();
+  applyHash();
 })();
 </script>
 <footer class="site-foot"><div class="in"><nav class="foot-nav" aria-label="All pages"><a class="fn-home" href="index.html">Gaggia × Gaggiuino home</a><div class="fn-g"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></div><div class="fn-g"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a></div><div class="fn-g"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="part-guides.html">Part guides</a><a href="wiring.html" aria-current="page">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></div><div class="fn-g"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></div></nav><p><strong>Mains voltage.</strong> This conversion puts your hands near 120/230 V wiring. Work only with the cord out, check everything with a meter before first power-on, and stop if anything here disagrees with the official Gaggiuino docs or your own reading of the machine. Nothing on this site has been reviewed by the Gaggiuino project. You are responsible for your own build.</p><p>Unofficial community material for the Gaggia Classic family. The install itself is the official guide at <a href="https://gaggiuino.github.io/">gaggiuino.github.io</a>; these pages organize it, link to each step and add tools around it. Content is <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>, like the sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia site</a>. · <a href="https://github.com/Jabawabawaba/Gaggia-Gaggiuino">Source and issues on GitHub</a></p></div></footer></body></html>
