@@ -42,7 +42,7 @@ E = [
     ('MCU', 'microcontroller unit', "A single-chip computer. The Gaggiuino PCB's MCU is an STM32.", []),
     ('MPa', 'megapascal', 'A pressure unit. 1 MPa is 10 bar, so the 0 to 1.2 MPa sensor reads 0 to 12 bar.', []),
     ('NPT', 'National Pipe Taper', "An American tapered pipe thread that seals on the thread itself. Not the same as BSPP; the two don't mix.", []),
-    ('OL', 'overload, or open line', 'What a multimeter shows when the reading is off its scale, usually because the circuit is open. On the power-on checks, OL is the right answer for every short test.', [('Power-on checks', 'power-on-checks.html')]),
+    ('OL', 'overload, or open line', 'What a multimeter shows when the reading is off its scale, usually because the circuit is open. On the power-on checks, OL is the right answer for almost every short test; inlet L to inlet N can also pass on a high reading that climbs as the PCB's supply charges.', [('Power-on checks', 'power-on-checks.html')]),
     ('OPV', 'overpressure valve', 'A spring-loaded valve that caps the pump pressure by sending excess water back to the tank. Gaggiuino needs it at 10 to 12 bar.', [('How the Gaggia works', 'how-gaggia-works.html#part-opv')]),
     ('OTA', 'over the air', 'Updating firmware over Wi-Fi instead of a cable. Gaggiuino updates the screen this way, and on PCB v4 the board too, from the web page.', [('How Gaggiuino works', 'how-gaggiuino-works.html#pcb')]),
     ('PCB', 'printed circuit board', 'The Gaggiuino control board, with the STM32 on it and the connectors for every sensor and load.', [('How Gaggiuino works', 'how-gaggiuino-works.html#pcb')]),

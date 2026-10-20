@@ -1,0 +1,6 @@
+[
+{"id":"safety-01","k":"safety","crit":true,"q":"Sample: when do you open the machine?","a":["Only with the cord out of the wall","With the power switch off","Once the lamps are out"],"why":"Sample why.","r":[["ck","c7"],["rb","p3d"]]},
+{"id":"gg-01","k":"gg","q":"Sample: what does the SSR do?","a":["Switches the elements for the PCB","Measures temperature","Powers the screen"],"why":"Sample.","r":[["url","how-gaggiuino-works.html#ssr","How Gaggiuino works: the SSR"],["map","part=ssr","The SSR on the wiring map"],["gl","t-ssr"]]},
+{"id":"install-01","k":"install","q":"Sample: how tight is the thermocouple?","a":["Barely finger tight","Spanner tight","Hand tight plus a half turn"],"why":"Sample.","r":[["pg","tc",null,"Screw it in, barely finger tight"],["tr","No pressure reading, or it reads 0 bar"]]},
+{"id":"wiring-01","k":"wiring","w":"wpath:SI;fam:GCP","q":"Sample SI GCP question","a":["A","B","C"],"why":"Sample.","r":[["pg","sw","GCP","Brew: B4 onto wire L"]]}
+]

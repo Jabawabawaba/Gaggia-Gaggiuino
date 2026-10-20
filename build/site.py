@@ -30,6 +30,7 @@ PAGES = [
     ("page", "used-gaggia-checklist.html", "used-checklist.html", "Used Gaggia check", "plan"),
     (None, "which.tpl.html", "which-gaggia.html", "Which Gaggia", "plan"),
     ("page", "gaggia-parts-tracker.html", "parts-tracker.html", "Parts tracker", "plan"),
+    (None, "test-yourself.tpl.html", "test-yourself.html", "Test yourself", "plan"),
     (None, "gaggia-install-runbook.html", "runbook.html", "Runbook", "install"),
     (None, "part-guides.tpl.html", "part-guides.html", "Part guides", "install"),
     (None, "wiring.tpl.html", "wiring.html", "Wiring", "install"),
@@ -379,6 +380,13 @@ def render_template(name):
         idx = [[m.group(1), (m.group(3).replace("\\'", "'") if m.group(3) is not None else fallback.get(m.group(1), m.group(1))), m.group(2) or ""]
                for m in re.finditer(r"\{id:'([a-h]\d+)'(?:,when:'([^']*)')?,t:(?:'((?:[^'\\]|\\.)*)'|function)", src)]
         s = s.replace("%%CHECK_INDEX%%", json.dumps(idx, ensure_ascii=False))
+    if "%%TEST_QUESTIONS%%" in s:
+        # the Test yourself questions, without the fact-check notes (src)
+        qs = [{k: v for k, v in q.items() if k != "src"} for q in json.load(open(os.path.join(HERE, "test-questions.json")))]
+        s = s.replace("%%TEST_QUESTIONS%%", json.dumps(qs, ensure_ascii=False, separators=(",", ":")))
+    if "%%GLOSSARY_INDEX%%" in s:
+        import gen_glossary
+        s = s.replace("%%GLOSSARY_INDEX%%", json.dumps({gen_glossary.slug(e[0]): e[0] for e in gen_glossary.E}, ensure_ascii=False))
     if "%%WIRING_MAPS%%" in s:
         s = s.replace("%%WIRING_MAPS%%", open(os.path.join(HERE, "wiring-maps.json")).read())
     if "%%STORY%%" in s:
