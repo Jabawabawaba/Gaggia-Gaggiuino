@@ -369,7 +369,7 @@ def render_template(name):
     if name == "glossary.tpl.html":
         import gen_glossary
         bar, body, n = gen_glossary.render()
-        s = s.replace("%%GL_BAR%%", bar).replace("%%GL_BODY%%", body).replace("%%GL_COUNT%%", str(n))
+        s = s.replace("%%GL_BAR%%", bar).replace("%%GL_BODY%%", body).replace("%%GL_COUNT%%", str(n)).replace("%%GL_IMGS%%", str(gen_glossary.image_count()))
     s = s.replace("%%BASECSS%%", open(os.path.join(HERE, "base.css")).read())
     if "%%WIRING_DATA%%" in s:
         s = s.replace("%%WIRING_DATA%%", json.dumps(json.load(open(os.path.join(HERE, "wiring-data.json"))), ensure_ascii=False, separators=(",", ":")))
