@@ -120,8 +120,8 @@
       if(b.tray&&b.tc0<38)N.push('Leave the cup on the warmer while the machine heats.');
       if(Tq>0)L.push([Tq>=88&&Tq<=96.5,'About '+r0(Tq)+' °C at the puck'+(Tq<88?': too cool, so sour.':Tq>96.5?': too hot, so bitter.':': right in the band.')]);
       if(b.tray&&!b.steam){
-        L.push([v>=25&&v<=52,r0(secs)+' s for '+r0(v)+' ml'+(v<25?': stopped early.':v>52?': ran long, so thin and bitter.':'.')]);
-        if(v<25)N.push('Let it run 25 to 30 seconds, about 35 to 45 ml.');
+        L.push([v>=25&&v<=52,r0(secs)+' s for '+r0(v)+' ml'+(v<25?(secs<22?': stopped early.':Tq<86?': it ran slow, as a cold puck does.':': it ran slow.'):v>52?': ran long, so thin and bitter.':'.')]);
+        if(v<25&&secs<22)N.push('Let it run 25 to 30 seconds, about 35 to 45 ml.');
         if(v>52)N.push('Stop at about 30 seconds or 45 ml.');
       }
       if(!b.tray)N.push('Tap the cup onto the drip tray before brewing.');
@@ -173,11 +173,12 @@
         if(a==='f-jug'&&s.jug.pos!=='wand'&&M){if(s.knob)M.offOpen=true;endMilk(s,'off');if(s.knob)slip('jug-open','The jug came off with the knob open','On a real machine the steam blows milk everywhere as the tip leaves the surface.',['knob','jug'],'Close the knob first, then take the jug away.')}
         if((a==='f-sw-steam'||a==='f-gsw-steam')&&s.steam){st.steamOn=s.t;st.purge=0;st.idle=0}
         if((a==='f-sw-steam'||a==='f-gsw-steam')&&!s.steam&&M)endMilk(s,'steamoff');
-        if(a==='f-knob'&&s.knob&&!s.brew&&!s.steam&&s.Tw<100.3&&s.jug.pos!=='wand')slip('knob-cold','Nothing came out of the wand','The knob only lets out what the boiler has: below boiling there\'s no steam to give.',['steam','knob','lamps'],'Switch steam on and wait for '+readyWord(true)+'. For hot water, open the knob and switch brew on.');
         return;
       }
       if(ev!=='step')return;
       var q=s.q||{};
+      /* the knob open for a while with nothing coming out: not the first moments of a refill or a prime */
+      if(s.knob&&!s.pumpOn&&!s.steam&&s.Tw<100.3&&!(q.qW>0)&&!(q.mS>0)){st.kc=(st.kc||0)+dt;if(st.kc>6)slip('knob-cold','Nothing came out of the wand','The knob only lets out what the boiler has: below boiling there\'s no steam to give.',['steam','knob','lamps'],'Switch steam on and wait for '+readyWord(true)+'. For hot water, open the knob and switch brew on.')}else st.kc=0;
       /* shots: pressure, flashing, running dry; the switch turned off by start over is handled above */
       if(B){B.maxP=Math.max(B.maxP,s.P);B.flash=Math.max(B.flash,q.flash||0);if(s.air||s.tank<=0.5)B.dry=true;
         if(B.dosed&&s.t-B.t0>55)slip('long-shot','A very long shot','Past about 45 ml the coffee turns thin and bitter: the puck has given what it has.',['brew'],'Switch brew off at 25 to 30 seconds, about 35 to 45 ml.')}
