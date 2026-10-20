@@ -90,7 +90,7 @@
         %%INCLUDE_MINI:group%%
       </article>
 
-      <article class="pc nofig" id="part-pf" data-no="9">
+      <article class="pc" id="part-pf" data-no="9">
         <div class="ph"><span class="no">9</span><h3>Portafilter</h3></div>
         <div class="txt">
           <p class="sum">A commercial-size 58 mm portafilter<span data-when="unset:model">: chromed brass on the Classic and Classic Pro, stainless on the Evo and E24</span><span data-when="set:model;model:GC,GCP"> in chrome-plated brass</span><span data-when="set:model;model:EVO,E24"> in stainless steel</span>.</p>
@@ -98,9 +98,10 @@
           <p>It locks into the group against a rubber gasket<span data-when="unset:model">, 8.5 mm thick on the Classic and Classic Pro</span><span data-when="set:model;model:GC,GCP">, 8.5 mm thick</span>. The basket holds the coffee, and the spouts split the shot into one or two cups.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> unchanged. You'll want a blank basket for the OPV test and backflushing.</p>
         </div>
+        %%INCLUDE_MINI:pf%%
       </article>
 
-      <article class="pc nofig" id="part-wand" data-no="10">
+      <article class="pc" id="part-wand" data-no="10">
         <div class="ph"><span class="no">10</span><h3>Steam valve and wand</h3></div>
         <div class="txt">
           <p class="sum">A valve fed from the top of the boiler, opened by the knob on the right side, and the wand it feeds.<span data-when="unset:model"> The original Classic has a Pannarello frother; the Pro family has a commercial-style wand with a two-hole tip.</span><span data-when="set:model;fam:GC"> Your Classic's is a Pannarello: a plastic sleeve over a steam tube with a one-hole tip, which draws in air and froths for you.</span><span data-when="set:model;fam:GCP"> A commercial-style stainless wand with a two-hole tip, which swings side to side but has no ball joint<span data-when="model:E24">, and an insulated grip</span>.</span></p>
@@ -108,9 +109,10 @@
           <p>With the steam switch on, the boiler heats well past boiling and the knob lets the steam out. For hot water, the brew and steam switches go on together with the knob open: the pump pushes water through the boiler and out of the wand.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> kept. Hot water is still brew and steam together, and the steam temperature now comes from a setting instead of the steam thermostat.</p>
         </div>
+        %%INCLUDE_MINI:wand%%
       </article>
 
-      <article class="pc nofig" id="part-tray" data-no="11">
+      <article class="pc" id="part-tray" data-no="11">
         <div class="ph"><span class="no">11</span><h3>Drip tray</h3></div>
         <div class="txt">
           <p class="sum">Catches drips, and the water and pressure the 3-way valve vents after every shot.</p>
@@ -118,9 +120,10 @@
           <p>The valve's drain tube points down into it, so the "whoosh" at the end of a shot lands here.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> unchanged. The optional hardware scales go under it.</p>
         </div>
+        %%INCLUDE_MINI:tray%%
       </article>
 
-      <article class="pc nofig" id="part-panel" data-no="12">
+      <article class="pc" id="part-panel" data-no="12">
         <div class="ph"><span class="no">12</span><h3>Switches and lamps</h3></div>
         <div class="txt">
           <p class="sum"><span data-when="!fam:GC"><span data-when="unset:model">On the Pro family, three</span><span data-when="set:model">Three</span> rockers (power, brew and steam) and three lamps: power, brew ready and steam ready.<span data-when="set:model;model:EVO,E24"> On most of these machines the switches' connectors sit in one combined, shielded block.</span></span><span data-when="unset:model"> The original Classic has all three switches in one housing with the lamps inside.</span><span data-when="set:model;fam:GC">Three switches (power, brew and steam) in one molded housing, with two lamps inside it: a power lamp and a ready lamp.</span></p>
@@ -129,9 +132,10 @@
           <p data-when="set:model;fam:GC">The power switch breaks the line only; the brew and steam switches carry mains straight to the pump, the valve and the thermostats. The ready lamp is wired across both thermostats, so it lights whenever heating stops, at brew temperature or, with steam on, at steam temperature.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> brew and steam signal the PCB through J7 at low voltage.<span data-when="unset:path"> With custom wiring that's all they carry; with stock wiring integration some of their other spades stay on mains, so treat the back of every switch as live.</span><span data-when="set:path;path:CW"> With custom wiring that's all they carry.</span><span data-when="set:path,model,volts;path:SI;wpath:CW"> With custom wiring that's all they carry.</span><span data-when="set:path;wpath:SI"> With stock wiring integration some of their other spades stay on mains, so treat the back of every switch as live.</span> The power switch stays on mains.<span data-when="!fam:GC"> <span data-when="unset:model">On the Pro family the</span><span data-when="set:model">The</span> steam lamp becomes a boiler lamp, lit while the boiler isn't heating, and the brew lamp goes dark.</span><span data-when="unset:model"> On the original Classic, </span><span data-when="set:model;fam:GC"> On your Classic, </span><span data-when="!fam:GCP"><span data-when="!wpath:CW">stock integration leaves the internal boiler lamp dark</span><span data-when="unset:path">; </span><span data-when="!wpath:SI">custom wiring turns the power lamp into the boiler lamp</span>.</span></p>
         </div>
+        %%INCLUDE_MINI:panel%%
       </article>
 
-      <article class="pc nofig" id="part-inlet" data-no="13">
+      <article class="pc" id="part-inlet" data-no="13">
         <div class="ph"><span class="no">13</span><h3>Power inlet</h3></div>
         <div class="txt">
           <p class="sum"><span data-when="unset:model">An IEC C14 socket with an earthed three-wire cord on the Pro family. Most US Classics before 2019 have a two-pin cord and no earth.</span><span data-when="set:model;model:GCP,EVO">An IEC C14 socket with an earthed three-wire cord.</span><span data-when="set:model;model:E24">Gaggia doesn't document the E24's inlet separately; expect the Classic Pro's IEC C14 socket and earthed three-wire cord, and check yours has the earth pin.</span><span data-when="set:model,volts;ground">Most US Classics, likely yours, have a two-pin cord and no earth.</span><span data-when="set:model,volts;fam:GC;volts:230">An earthed three-wire cord: 230 V Classics have the chassis earth that US ones lack.</span><span data-when="set:model;fam:GC;unset:volts"> Most US Classics have a two-pin cord and no earth; 230 V ones are earthed.</span></p>
@@ -139,4 +143,5 @@
           <p>Line goes to the power switch<span data-when="unset:model"> (on the Pro family, neutral does too)</span><span data-when="set:model;fam:GCP"> (and so does neutral)</span><span data-when="eco:yes">, or on Eco-board machines to the board</span>. Earth<span data-when="!fam:GCP">, where there is one,</span> goes to the frame, the cup tray, the valve body and the boiler.</p>
           <p class="gg"><b>In a Gaggiuino build:</b> kept.<span data-when="ground"> A two-pin Classic gets the official grounding retrofit first.</span> The machine should run from a <span data-mtext="outlet">GFCI- or RCD-protected outlet</span>.</p>
         </div>
+        %%INCLUDE_MINI:inlet%%
       </article>

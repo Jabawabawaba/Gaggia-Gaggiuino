@@ -164,6 +164,10 @@
     r.addEventListener('input',upd);upd();
   })();
 
+  /* what the part figures need to know about your Gaggia */
+  var PFM={ev:'gaggia-machine',get:function(){var p=prof(),m=p.model||null;return {site:'g',model:m,fam:m?(m==='GC'?'GC':'GCP'):null,volts:p.volts||null,ground:m==='GC'&&p.volts===120}}};
+%%INCLUDE:learn-partfigs.js%%
+
 %%INCLUDE:learn-sim.js%%
 %%INCLUDE:learn-coach.js%%
 
