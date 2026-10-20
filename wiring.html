@@ -575,6 +575,14 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .msel b{font:700 14px var(--f-mono);color:var(--ink);margin-right:6px}
 .msel .rt{color:var(--ink);font-weight:600}
 
+/* back-links under the detail card */
+.mdetail .d-refs{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}
+.mdetail .d-refs ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.mdetail .d-refs li{font-size:15px;line-height:1.45}
+.mdetail .d-refs .rg{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:10px}
+.mdetail .d-refs .sep{color:var(--muted)}
+.mdetail .d-refs a{color:var(--accent-ink)}
+
 .off{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:start;border-left:4px solid var(--accent);background:var(--surface);border-radius:0 12px 12px 0;padding:12px 16px;margin-top:16px}
 .off .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);padding-top:3px}
 .off p{margin:0;font-size:15.5px}
@@ -716,6 +724,600 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function swatch(c){return '<span class="swatch" style="background:'+(SWATCH[c]||'transparent')+'"></span>'}
 
+  /* ---------- back-links from the wiring map ----------
+     For whatever is picked on the map (a run, a part or a set of runs), every place on the site whose instructions
+     link to it. Found from those pages' own link data, so the two directions can't drift apart: the part guides'
+     step map fields (part-guides-data.js), the runbook's (runbook-phases.js), the troubleshooting symptoms'
+     (trouble-data.js) and the power-on checks' MAPS (checks-map.js, titles pulled from checks.tpl.html at build).
+     Each target is resolved against the drawing on show, exactly as the map resolves a link to it. Whole-map and
+     layer links are left out: they point at everything. */
+  var REFS=(function(){
+    var PGD=(function(){
+      var GM=window.GaggiaMachine;
+      function prof(){return (GM&&GM.get())||{}}
+      function famOf(){var p=prof();return p.model?(p.model==='GC'?'GC':'GCP'):null}
+  /* Part guides data: photo links (PH) and the guides (G). Shared by part-guides.js and the wiring page's
+     back-links (wiring-refs.js), so a step's map target is written once. Needs GM, prof() and famOf() in scope. */
+  var PH={
+    tc:'https://github.com/user-attachments/assets/7eef096a-bcce-4d98-8a7d-ae898c3afec3',
+    xf:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/78d801f3-9c4f-4c17-8105-74e32711af09',
+    xfp:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/f294cdb2-000b-4583-b258-8dd53854a2ec',
+    ptbA:'https://github.com/user-attachments/assets/14188d93-508f-4ab4-b003-80f8aeb243a8',
+    inl:'https://github.com/user-attachments/assets/12e2f8d8-5313-4f5d-b932-4b213ebf22e8',
+    ptbC:'https://github.com/user-attachments/assets/8cf1157b-b990-41c1-9770-24d7ac5af067',
+    ptbF:'https://github.com/user-attachments/assets/53026edc-2026-4144-9714-200cdb2ebf51',
+    teeGC:'https://user-images.githubusercontent.com/117388662/239457706-7ee5d101-d209-41b4-a3d3-ce159e98032f.png',
+    teeGCP:'https://user-images.githubusercontent.com/117388662/246573952-ca092066-d107-46e6-85f1-e2a7b19865e0.png',
+    foam:'https://user-images.githubusercontent.com/117388662/239457402-b58dfe55-6572-45b7-8960-2a4d1f9d5753.png',
+    cw:'https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/',
+    ssr:'https://github.com/user-attachments/assets/94bcb6c1-6e65-4ced-957c-9c00551140b3',
+    ssrW:'https://user-images.githubusercontent.com/117388662/246569790-dfc78317-caef-4bba-a528-466affb516b1.png',
+    ssrWc:'https://user-images.githubusercontent.com/117388662/239403962-c0ef2429-ec12-4d81-b56b-02c91cd702d3.png',
+    cci:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/83f63c3a-9919-4c99-b01e-34eacba4ff71',
+    swL:'https://user-images.githubusercontent.com/117388662/243890489-77c730e4-20e3-4e6f-9cb5-6295780194fc.png',
+    swLc:'https://user-images.githubusercontent.com/117388662/239404551-97d6f3e4-f62e-45c4-93d7-52d8ae373526.png',
+    swLV:'https://user-images.githubusercontent.com/117388662/246567190-77c4ca27-fb2d-4105-bb41-cc5875a4cc50.png',
+    swLVc:'https://user-images.githubusercontent.com/117388662/239406277-7bdd8852-5fcb-454e-9521-cd9537543144.png'
+  };
+
+  /* ---------------- the guides ---------------- */
+  var G={};
+  G.tc={svg:'pg-tc',
+    base:{close:{o:1},route:{o:0},j4v:{o:0},oldpaste:{o:0},j:{o:0},tc:{x:150,o:0},paste:{sx:0},syr:{o:0},nosp:{o:0},rlead:{d:1},tcw:{y:44},ma:{o:0},mb:{o:0}},
+    steps:{all:[
+      {t:'Unplug the brew thermostat',
+       d:['Pull its two connectors, Ba and Bb, straight off the thermostat.',['On stock wiring they get joined later by a short jumper, J.','wpath:SI'],['On custom wiring they come out with the old harness.','wpath:CW'],
+          'It\'s easier with the boiler tipped up: take off the steam knob and wand, then the four cap screws up from under the frame.'],
+       a:[['ba',{x:110,y:-34},0,800],['bb',{x:110,y:34},90,800],['j',{o:1},1000,350]],map:[['Jumper J on the wiring map','run:J','wpath:SI']]},
+      {t:'Unscrew the thermostat',d:'Turn it out of the side of the boiler with a spanner on its hex. The old paste stays in the hole: leave it, unless it\'s dried out, in which case clean it out for fresh paste.',
+       a:[['bt',{x:90},0,1200],['oldpaste',{o:1},250,400],['bt',{o:0},950,350]],loop:['spinR']},
+      {t:'Paste on the thread',d:'Coat the thermocouple\'s thread with thermal paste rated for 180 °C or more, or reuse the old thermostat\'s if it\'s still soft. The official guide lists Thermal Grizzly Kryonaut, Noctua NT-H2, SYY-157 and GELID GC-Extreme.',
+       a:[['tc',{o:1},0,300],['syr',{o:1},250,250],['syr',{x:32},500,1300],['paste',{sx:1},500,1300],['syr',{o:0},1850,250]]},
+      {t:'Screw it in, barely finger tight',d:'Turn it in gently by its hex and stop as soon as it seats. No spanner: the M4 thread is small and the boiler\'s thread is soft metal. Let the lead turn with the probe so it doesn\'t twist.',
+       a:[['tc',{x:0},0,1500],['nosp',{o:1},1550,350]],loop:['spinF'],ph:PH.tc},
+      {t:'Route the lead',d:'Around the front of the boiler and back to the control box on the right, clear of the pump area. Mains wires run on the left side and above this lead; low-voltage wires and sensors stay on the right.',
+       a:[['close',{o:0},0,300],['route',{o:1},200,300],['rlead',{d:0},500,1900]],map:'run:TC'},
+      {t:'Clamp it in J4 and check it',d:['Fold each bare wire over before it goes in the clamp, keep the insulation out of it, and put + and − where they were on your bench test. Lead colors vary between makers, so trust that test: the reading must rise when you warm the probe.','With a meter: either wire to the boiler reads open (OL), because the probe is ungrounded; the two wires together read a few ohms.'],
+       a:[['route',{o:0},0,300],['j4v',{o:1},200,300],['tcw',{y:0},500,900],['sc1',{r:360},500,1000],['sc2',{r:360},650,1000],['ma',{o:1},1500,300],['mb',{o:1},1900,300]],
+       chk:[['b7','Thermocouple lead to boiler body'],['c7','Thermocouple loop']],map:'run:TC'}
+    ]}};
+
+  G.ps={vars:[{k:'ptb',l:'Tap block'},{k:'tee',l:'T-fitting'}],def:function(){return 'ptb'},
+    svgs:{ptb:'pg-ptb',tee:'pg-tee'},
+    base:{
+      ptb:{Lw:{o:1},R:{o:.35},or1:{y:70,o:0},sen:{y:44},qt:{o:0},gap:{o:0},lcaps:{o:1},ptb:{x:150,y:60},pc6:{y:40,o:0},tube:{y:50,o:0},dim:{o:0},inl:{x:-38},ss:{x:0,o:1},ls:{x:80,o:0},mag:{o:0},water:{o:0},gauge:{o:0},drip:{o:0},sasm:{x:0,y:0,s:1}},
+      tee:{dim:{o:0},cut:{o:0},huGCP:{y:0},hlGCP:{y:0},huGC:{y:0},hlGC:{y:0},tee:{x:60,o:0},cl1:{o:0},brGCP:{d:1},brGC:{d:1},brw:{d:1},cl2:{o:0},tsen:{x:40,o:0},foam:{o:0}}
+    },
+    steps:{
+      ptb:[
+        {t:'O-ring into the sensor fitting',d:'Press the flat white O-ring into the sensor\'s fitting until it sits flush at the bottom of the thread. The sensor\'s own base O-ring often can\'t reach the fitting\'s face, so this one makes the seal.',
+         a:[['or1',{o:1},0,300],['or1',{y:0},0,1000]],loop:['pulseR'],ph:PH.xf},
+        {t:'Sensor in: hand tight, then at most a quarter turn',d:'Screw the sensor into the fitting by hand until it stops. A quarter turn more with a spanner is the most it ever gets: more crushes the O-ring.',
+         a:[['sen',{y:0},0,1500],['qt',{o:1},1500,300],['gap',{o:1},1800,300]],loop:['spinS']},
+        {t:'Push-in fitting into the block',d:'Screw the small push-in fitting into the block\'s port, hand tight. Then look along the block\'s water bore: the fitting\'s thread may poke in by less than 1 mm (a quarter of the hole), no more.',
+         a:[['Lw',{o:.35},0,300],['R',{o:1},0,300],['pc6',{o:1},150,200],['pc6',{y:0},300,1100],['mag',{o:1},1450,350]],loop:['spinP'],ph:PH.ptbA},
+        {t:'40 mm of tube, cut square',d:'Cut 40 mm of the 4 × 6 mm PTFE tube with both ends square and push it into the block\'s fitting until it stops, past the teeth and the O-ring inside.',
+         a:[['mag',{o:0},0,250],['tube',{o:1},0,250],['tube',{y:0},250,900],['dim',{o:1},1200,300]],ph:PH.ptbA},
+        {t:'Take off the inlet fitting',d:[['The group\'s inlet fitting (the metal OPV on the original Classic)','unset:model'],['The inlet fitting, where the pump\'s hose meets the group,','set:model;fam:GCP'],['The metal OPV on the group\'s inlet','set:model;fam:GC'],'comes off with its two M5 screws. Boiler cold and cord out; keep a towel under it for the water that runs out.'],
+         a:[['dim',{o:0},0,200],['ss',{x:60},0,1000],['ss',{o:0},900,250],['inl',{x:40},1100,900],['drip',{o:1},1600,300]],loop:['drip'],ph:PH.inl},
+        {t:'Clamp the block in',d:'Fit the block between the group and the inlet fitting with the longer M5 screws (the official parts list uses 25 mm), the block\'s O-ring and the fitting\'s own O-ring both facing the group. Tighten the two screws evenly.',
+         a:[['drip',{o:0},0,200],['ptb',{x:0,y:0},200,1300],['inl',{x:0},1550,800],['ls',{o:1},2350,200],['ls',{x:0},2350,900]],loop:['pulseO'],ph:PH.ptbC},
+        {t:'Sensor onto the tube',d:'Push the sensor\'s fitting onto the tube until the tube is fully home. The sensor mustn\'t touch any metal.',
+         a:[['Lw',{o:1},0,300],['lcaps',{o:0},0,250],['qt',{o:0},0,250],['gap',{o:0},0,250],['sasm',{x:170,y:184,s:.55},250,1500]],ph:PH.ptbF,map:[['Its cable on the wiring map','run:PS']]},
+        {t:'Fill it and test it',d:'With the machine back together: run Flush for 10 seconds with the group open to fill the block, then flush against a blank basket to see the pressure. Then unplug and touch a dry paper towel to each joint to find any leak.',
+         a:[['water',{o:1},0,900],['gauge',{o:1},500,300]],count:['pval',0,9,' bar',800,1600],chk:[['g15','Pressure sensor plumbing snug and dry']]}
+      ],
+      tee:[
+        {t:'Cut the line',d:[['Classic Pro family: cut the braided hose between the pump and the boiler about 65 mm above the boiler connection.','fam:GCP'],['Original Classic: cut the PTFE tube between the pump and the boiler, nearer the boiler but high enough that the T stands mostly upright.','fam:GC'],'Cut it square.'],
+         a:[['dim',{o:1},0,300],['cut',{o:1},300,300],['huGCP',{y:-8},800,600],['hlGCP',{y:8},800,600],['huGC',{y:-8},800,600],['hlGC',{y:8},800,600],['cut',{o:0},1500,250]]},
+        {t:'Fit the T',d:[['Classic Pro family: slide a loose clamp onto each cut end, push the barbed T in (a rubber glove helps grip, and a little water-based lube if it won\'t go), and set the clamps over the middle of each barb.','fam:GCP'],['Original Classic: push each tube fully into the push-to-connect T, past both the teeth and the O-ring inside.','fam:GC']],
+         a:[['dim',{o:0},0,250],['tee',{o:1},0,200],['tee',{x:0},100,1000],['cl1',{o:1},1200,350]],ph:'tee'},
+        {t:'Run the branch',d:['200 to 250 mm from the T to the sensor\'s fitting.',['Classic Pro family: braided hose, clamped at both ends.','fam:GCP'],['Original Classic: PTFE tube, pushed fully home at both ends.','fam:GC']],
+         a:[['brGCP',{d:0},0,1300],['brGC',{d:0},0,1300],['cl2',{o:1},1300,350]]},
+        {t:'Seal the sensor',d:'Flat white O-ring flush in the sensor\'s fitting, then the sensor in hand tight plus at most a quarter turn, as on the tap block.',
+         a:[['tsen',{o:1},0,250],['tsen',{x:0},150,1000]],ph:'xf'},
+        {t:'Park it low',d:'At the base of the machine, lower than the T, and not touching metal. If its readings turn out noisy, wrap it in foam or fix it to the frame.',
+         a:[['foam',{o:1},0,600]],ph:PH.foam,map:[['Its cable on the wiring map','run:PS']]},
+        {t:'Fill the line',d:'Once the install is finished, run [UT] Tube Fill from the community profiles in the web UI. It fills the branch slowly and pushes the air out.',
+         a:[['brw',{d:0},0,2000]],loop:['bub'],chk:[['g15','Pressure sensor plumbing snug and dry']]}
+      ]
+    }};
+
+  G.fuse={vars:[{k:'SI',l:'Stock wiring'},{k:'CW',l:'Custom wiring'}],def:function(){return (GM&&GM.wpath&&GM.wpath())||'SI'},
+    svgs:{SI:'pg-fuse',CW:'pg-fuse'},
+    base:{
+      SI:{stl:{o:1,y:0},st:{o:1},nf:{o:0,r:-90},fpaste:{sy:0},of:{o:1},snip:{o:0},nw1:{d:1},nw2:{d:1},sp1:{o:0,x:-130,y:-64},sp2:{o:0,x:-32,y:-40},xt:{o:0},fm:{o:0}},
+      CW:{stl:{o:1,y:0},st:{o:1},nf:{o:0,r:-90},fpaste:{sy:0},of:{o:1},ow:{o:1},snip:{o:0},cw1:{d:1},cw2:{d:1},cwl:{o:0},spc:{o:0},fm:{o:0}}
+    },
+    steps:{
+      SI:[
+        {t:'Steam thermostat out',d:'Pull its two leads off (on stock wiring these are Sa and Sb, which go to the SSR) and unscrew the thermostat from the top of the boiler.',
+         a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR'],map:[['Sa and Sb on the wiring map','runs:Sa,Sb',null,'Sa and Sb, to the SSR']]},
+        {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
+         a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
+        {t:'Cut the stock fuse out',d:['The 184 °C one-shot fuse sits across the top of the boiler with its wires crimped to it. Cut each wire just behind the old crimp, keeping all the length you can, and lift the fuse out. Leave its clip in place, and any earth wire fixed to it.',['On a grounded original Classic that clip is the boiler\'s earth point.','fam:GC']],
+         a:[['snip',{o:1},0,300],['of',{o:0},500,600],['snip',{o:0},1200,200]]},
+        {t:'New spades on the wires',d:'Crimp an uninsulated 6.3 mm female spade onto each end\'s wire with an open-barrel crimper (a spade sized for two wires where two shared an end), and cover it with silicone sleeve: insulated spades melt this close to the boiler. If a wire won\'t reach, lengthen it with 18 AWG silicone wire and a bare BN1.25 butt splice under silicone heat shrink.',
+         a:[['sp1',{o:1},0,400],['sp2',{o:1},150,400]]},
+        {t:'Onto the fuse',d:'Push one end\'s wires onto each spade of the new fuse. Either way round works: like the fuse it replaces, it\'s a switch in series.',
+         a:[['sp1',{x:0,y:0},0,1100],['sp2',{x:0,y:0},0,1100],['nw1',{d:0},0,1100],['nw2',{d:0},0,1100],['xt',{o:1},1150,300]]},
+        {t:'Check it',d:['Unplugged, a meter across its two spades reads under 1 Ω. On stock wiring the whole machine runs through it, so if it ever trips',['everything but the power lamp goes dead:','fam:GCP;set:model'],['everything goes dark, the power lamp too:','fam:GC;set:model'],['everything goes dead (the Pro family\'s power lamp stays lit):','unset:model'],'unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.'],
+         a:[['fm',{o:1},0,350]],loop:['press'],chk:[['c3','Boiler thermal fuse, across it']]}
+      ],
+      CW:[
+        {t:'Steam thermostat out',d:'Its leads go with the old harness. Unscrew the thermostat from the top of the boiler.',
+         a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR']},
+        {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
+         a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
+        {t:'Wire it instead of the stock fuse',d:[['Classic Pro family: AC17, from the SSR, goes on one spade and AC18, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:120;set:volts'],['Classic Pro family: AC16, from the SSR, goes on one spade and AC17, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:230;set:volts'],['Classic Pro family: the run from the SSR goes on one spade and the run to the heater splice on the other (AC17 and AC18 at 120 V, AC16 and AC17 at 230 V), instead of AC11 and AC12 to the stock fuse.','fam:GCP;unset:volts'],['Original Classic: AC6 and AC7 go on its right spade and the element lead AC8 on its left (AC8 and AC9 on a 120 V machine), instead of the stock fuse\'s ends.','fam:GC'],'Uninsulated 6.3 mm spades under silicone sleeve, and the stock fuse comes out; leave its clip and any earth wire on it in place.'],
+         a:[['of',{o:0},0,600],['ow',{o:0},0,600],['cw1',{d:0},400,1100],['cw2',{d:0},500,1100],['spc',{o:1},1500,300],['cwl',{o:1},1500,300]],ph:'cw',map:'part:rf'},
+        {t:'Check it',d:'Unplugged, a meter across its two spades reads under 1 Ω. In custom wiring it sits in the heater line, so if it ever trips the boiler stops heating: unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.',
+         a:[['fm',{o:1},0,350]],loop:['press'],chk:[['c3','Boiler thermal fuse, across it'],['g6','Boiler thermal fuse in the heater line']]}
+      ]
+    }};
+
+
+  /* one scene per step: fade every other scene out and this one in */
+  function only(prefix,n,count){var a=[];for(var i=1;i<=count;i++)if(i!==n)a.push([prefix+i,{o:0},0,250]);a.push([prefix+n,{o:1},150,300]);return a}
+  function cat(){return Array.prototype.concat.apply([],arguments)}
+
+  G.wire={svg:'pg-wire',
+    base:{wv1:{o:1},wv2:{o:0},wv3:{o:0},wv4:{o:0},wv5:{o:0},wv6:{o:0},wv7:{o:0},wv8:{o:0},waste:{y:0,o:1},cutT:{y:-34,o:0},cutB:{y:34,o:0},flag:{o:0,y:-12},wd1:{o:0},
+      slug:{x:0,o:1},sjT:{y:-14,x:0,o:1},sjB:{y:14,x:0,o:1},wd2:{o:0},isp:{x:70},dimp:{o:0},cjT:{y:-18,o:0},cjB:{y:18,o:0},slv:{x:0,sy:1},bsp:{x:60},wo:{o:1},wc:{o:0},wcap:{o:1},
+      ojT:{y:-18,o:0},ojB:{y:18,o:0},hgun:{o:0},tsp:{x:60},fold:{r:0},fk:{x:60,o:0},pgy:{x:-90},pa:{y:-50},bl:{x:-30},br:{x:30},bd1:{o:0},bd2:{o:0},hs:{x:0,sy:1},hg2:{o:0},
+      bjT:{y:-18,x:0,o:0},bjB:{y:18,x:0,o:0},okm:{o:0}},
+    steps:{all:[
+      {t:'Cut and label',d:'Cut each wire to its length on the cut list (the official lengths are generous: route first, then trim), and put its label on both ends before you crimp.',
+       a:cat(only('wv',1,8),[['wd1',{o:1},0,300],['cutT',{o:1},150,200],['cutB',{o:1},150,200],['cutT',{y:0},400,450],['cutB',{y:0},400,450],['waste',{y:40,o:0},950,600],['cutT',{y:-34,o:0},950,350],['cutB',{y:34,o:0},950,350],['flag',{o:1,y:0},1400,500]]),
+       links:[['Cut list','cut-list.html'],['Wire labels','wire-labels.html']]},
+      {t:'Strip 6 mm',d:'Strip about 6 mm of insulation. If any strands come away with it, cut the end off and strip again. A light twist keeps the strands together.',
+       a:cat(only('wv',2,8),[['sjT',{y:0},400,450],['sjB',{y:0},400,450],['sjT',{x:60},900,900],['sjB',{x:60},900,900],['slug',{x:60},900,900],['slug',{o:0},1700,300],['sjT',{o:0},1700,300],['sjB',{o:0},1700,300],['wd2',{o:1},1900,300]])},
+      {t:'Insulated spades and forks',d:'For ends away from the boiler. Set the connector in the crimper\'s die that matches its color (red for one 18 AWG wire; a single 22 AWG wire needs the fold-over in step 5 first), push the stripped end fully in, and squeeze until the crimper lets go. Nylon insulation is good to only 105 °C.',
+       a:cat(only('wv',3,8),[['isp',{x:0},400,900],['cjT',{o:1},1100,250],['cjB',{o:1},1100,250],['cjT',{y:0},1400,450],['cjB',{y:0},1400,450],['dimp',{o:1},1800,200],['cjT',{y:-18,o:0},2000,400],['cjB',{y:18,o:0},2000,400]])},
+      {t:'Bare spades at the boiler',d:'Anything on or near the boiler gets an uninsulated spade under silicone, because insulated ones melt there. Slide the silicone sleeve onto the wire first. Lay the end in with the bare copper under the front tabs and the insulation under the rear tabs, and squeeze in the open-barrel crimper\'s matching die. (The official grounding tip also allows an insulated spade with its nylon taken off.) Then slide the sleeve over and shrink it with the heat gun, or wrap it in self-fusing silicone tape.',
+       a:cat(only('wv',4,8),[['bsp',{x:0},400,900],['ojT',{o:1},1100,250],['ojB',{o:1},1100,250],['ojT',{y:0},1400,450],['ojB',{y:0},1400,450],['wo',{o:0},1700,150],['wc',{o:1},1700,150],['wcap',{o:0},1700,250],['ojT',{y:-18,o:0},1900,400],['ojB',{y:18,o:0},1900,400],['slv',{x:122},2200,800],['hgun',{o:1},2900,300],['slv',{sy:.72},3100,800]]),loop:['heat']},
+      {t:'Two wires, or a thin one',d:'Where two wires share a spade, strip both to the same length and twist them together. Two 18 AWG wires need a blue spade; two 22 AWG wires, like the low-voltage ground and its jumper, fill a red one. One 22 AWG wire on its own is too thin for any spade or fork: strip four times as much and fold the copper back on itself, or splice it to 18 AWG first. Kits often come with these ends already made.',
+       a:cat(only('wv',5,8),[['tsp',{x:0},400,900],['fold',{r:180},1500,900],['fk',{o:1},2500,200],['fk',{x:0},2500,800]])},
+      {t:'Piggyback on the pump',when:'wpath:SI',d:['Wire N ends in a piggyback spade. Unplug',['Pa','!model:GC'],['Pa (F on a 230 V original Classic)','model:GC'],'from the pump, push the piggyback onto that terminal, and plug the lead back onto the piggyback\'s tab. Either way round, the two share the terminal.'],
+       a:cat(only('wv',6,8),[['pgy',{x:0},400,900],['pa',{y:0},1500,800]]),map:[['Wire N on the wiring map','run:N']]},
+      {t:'A butt splice, if a wire is short',d:'A bare BN1.25 splice (a BN2 takes two 18 AWG wires a side), with silicone heat shrink slid on first. Push each wire in to the middle stop, crimp each half with an uninsulated-terminal crimper, then shrink the sleeve over it. Mains wires are crimped, not soldered.',
+       a:cat(only('wv',7,8),[['bl',{x:0},400,900],['br',{x:0},400,900],['bjT',{o:1},1100,250],['bjB',{o:1},1100,250],['bjT',{y:0},1400,400],['bjB',{y:0},1400,400],['bd1',{o:1},1750,150],['bjT',{y:-18},1900,300],['bjB',{y:18},1900,300],['bjT',{x:48},2200,400],['bjB',{x:48},2200,400],['bjT',{y:0},2650,400],['bjB',{y:0},2650,400],['bd2',{o:1},3000,150],['bjT',{y:-18,o:0},3150,400],['bjB',{y:18,o:0},3150,400],['hs',{x:118},3500,800],['hg2',{o:1},4200,300],['hs',{sy:.72},4300,700]]),loop:['heat2']},
+      {t:'Pull-test every crimp',d:'Pull gently on each one. If it moves, cut the connector off and crimp a new one. Then cover any bare metal that\'s left.',
+       a:cat(only('wv',8,8),[['okm',{o:1},1400,400]]),loop:['tug','jig']}
+    ]}};
+
+  G.ssr={vars:[{k:'SI',l:'Stock wiring'},{k:'CW',l:'Custom wiring'}],def:function(){return (GM&&GM.wpath&&GM.wpath())||'SI'},
+    svgs:{SI:'pg-ssr',CW:'pg-ssr'},
+    base:{SI:null,CW:null},
+    steps:{SI:null,CW:null}};
+  (function(){
+    var base={sv1:{o:1},sv2:{o:0},sv3:{o:0},ssr1:{x:150,o:0},clr:{o:0},scw:{x:-80},wsh:{x:50,o:0},nut:{x:60,o:0},cov:{o:1,y:0},lw1:{y:70},lw2:{y:70},cwp:{y:-60,o:0},cwm:{y:-60,o:0}};
+    function steps(load,lph){return [
+      {t:'Find its spot',d:'On the back wall, with room above it for the funnel piece and its screw, and not touching the pump or its housing.',
+       a:[['ssr1',{o:1},0,200],['ssr1',{x:0},100,900],['clr',{o:1},1100,300]],ph:PH.ssr,map:'part:ssr'},
+      {t:'Screw it to the wall',d:'An M4 (or 8-32) screw, washer and nut through a vent slot, with the SSR\'s metal base flat against the wall.',
+       a:[['sv1',{o:0},0,250],['sv2',{o:1},150,300],['scw',{x:0},500,900],['wsh',{o:1},1400,200],['wsh',{x:0},1400,600],['nut',{o:1},1700,200],['nut',{x:0},1700,600]],loop:['nutspin']},
+      {t:'Load wires on the big screws',d:load,
+       a:[['sv2',{o:0},0,250],['sv3',{o:1},150,300],['cov',{o:0,y:-24},600,600],['lw1',{y:0},1200,900],['lw2',{y:0},1300,900],['sl1',{r:360},2200,800],['sl2',{r:360},2300,800]],ph:lph,map:'part:ssr'},
+      {t:'Control wires: + and −',d:'J9 R1 goes on the + screw and J9 GND on −. This side has a polarity. The 22 AWG control wires need the fold-over, or a splice to 18 AWG, to sit in a fork.',
+       a:[['cwp',{o:1},0,200],['cwm',{o:1},100,200],['cwp',{y:0},0,900],['cwm',{y:0},100,900],['sc1',{r:360},1000,800],['sc2',{r:360},1100,800]],chk:[['f5','J9 R1 pin to SSR +'],['f6','J9 GND pin to SSR −']],map:[['On the wiring map','short:J9 R1,J9 GND',null,'SSR control wires']]},
+      {t:'Check it',d:'Every screw tight, no stray strands, no fork touching its neighbor, and the cover closed. On the bench test, the SSR\'s light comes on whenever the board calls for heat.',
+       a:[['cov',{o:1,y:0},0,600]],loop:['blink']}
+    ]}
+    G.ssr.base.SI=base;G.ssr.base.CW=base;
+    G.ssr.steps.SI=steps('Wires Sa and Sb, which plug onto the two leads that came off the steam thermostat, go under the two load screws, either way round. Forks under the clamp plates are the tidy way; the stock guide also allows bare wire looped under the plate.','ssrW');
+    G.ssr.steps.CW=steps([['Classic Pro family: the right screw takes AC2 from the power switch and AC4 to the PCB\'s L, both in one two-wire (SV2) fork; the left screw takes AC11 to the boiler fuse (AC17 at 120 V, or AC16 at 230 V, with the optional resettable fuse).','fam:GCP'],['Original Classic: the right screw takes AC2 from the On/Off common and AC3 to the PCB\'s L in one two-wire (SV2) fork; the left screw takes AC6 to the boiler fuse (or to the optional resettable fuse, which AC6 and AC7 move to).','fam:GC']],'cw');
+  })();
+
+  G.sw={vars:[{k:'GCP',l:'Pro, Evo, E24'},{k:'GC',l:'Original Classic'}],def:function(){return famOf()||'GCP'},mpath:'SI',
+    svgs:{GCP:'pg-swp',GC:'pg-swc'},
+    base:{
+      GCP:{blk:{o:0},bc0:{y:0},bc1:{y:0},bc2:{y:0},bc3:{y:0},bs0:{o:0},bs1:{o:0},bs2:{o:0},bs3:{o:0},swv:{o:1},swm:{o:0},b4t:{o:0},s4t:{o:0},s5t:{o:0},b4:{x:0,y:0},s4:{x:0},s5:{x:0,y:0},s5s:{o:0},b4note:{o:0},lv1:{o:0},lv2:{o:0},lv3:{o:0},lv4:{o:0},lvcap:{o:0}},
+      GC:{swv:{o:1},swm:{o:0},cp12t:{o:0},c1t:{o:0},c2t:{o:0},c3t:{o:0},cp34t:{o:0},cp12:{x:0,y:0},c1:{y:0},c2:{y:0},c3:{y:0},cp34:{x:0},c1s:{o:0},c2s:{o:0},c3s:{o:0},cp34s:{o:0},park:{o:0},lv1:{o:0},lv2:{o:0},lv3:{o:0},lv4:{o:0},lvcap:{o:0}}
+    },
+    steps:{
+      GCP:[
+        {t:'Evo and E24: split the connector block',when:'model:EVO,E24',d:'Most Evo and E24 machines have one; skip this if yours has single connectors. Easier with the switch or boiler out. Press each connector\'s locking tab with a small screwdriver, pull it out the back, cover it with silicone tape or 6 mm silicone heat shrink, and label it (an oil-based marker writes on silicone). One at a time.',
+         a:[['swv',{o:0},0,250],['blk',{o:1},150,300],['bc0',{y:70},500,500],['bs0',{o:1},1000,300],['bc1',{y:70},1300,500],['bs1',{o:1},1800,300],['bc2',{y:70},2100,500],['bs2',{o:1},2600,300],['bc3',{y:70},2900,500],['bs3',{o:1},3400,300]],ph:PH.cci},
+        {t:'Label the three that move',d:'B4 on brew spade 4, and S4 and S5 on steam spades 4 and 5. The wire labels page prints them.',
+         a:[['blk',{o:0},0,250],['swv',{o:1},150,300],['b4t',{o:1},500,300],['s4t',{o:1},750,300],['s5t',{o:1},1000,300]],links:[['Wire labels','wire-labels.html']],map:[['Brew switch on the wiring map','part:swB'],['Steam switch','part:swS']]},
+        {t:'Brew: B4 onto wire L',d:'Unplug B4 from brew spade 4 and plug it onto wire L, which runs to the PCB\'s J11. Spade 4 stays empty, but it\'s live whenever brew is on and the valve is open: keep it clear.',
+         a:[['b4',{x:35,y:-65},0,1100],['b4note',{o:1},1100,300]],ph:PH.swL,map:[['Wire L on the wiring map','run:L']]},
+        {t:'Steam: S4 to spade 1',d:'Move S4 from steam spade 4 to spade 1. Steam spades 1, 2 and 3 now all carry mains.',
+         a:[['s4',{x:-80},0,1000]],map:[['S4 on the wiring map','part:f:S4']]},
+        {t:'Park S5',d:'Unplug S5. It stays live: cover its end with silicone tape or heat shrink, and tie it down where it can\'t touch anything.',
+         a:[['s5',{x:-10,y:-117},0,1100],['s5s',{o:1},1100,400]],map:[['S5 on the wiring map','part:f:S5']]},
+        {t:'Low-voltage wires on the freed spades',d:'Only on brew 1 and 2 and steam 4 and 5. J7 B goes on brew 1; J7 GND and a jumper share one spade on brew 2, and the jumper runs on to steam 5; J7 S on steam 4.',
+         a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,300],['lv4',{o:1},800,500],['lvcap',{o:1},1100,300]],ph:PH.swLV,map:[['On the wiring map','short:J7 B,J7 GND,J7 S,Brew sw 2 →',null,'Switch signal wires']]},
+        {t:'Check it',d:'Unplugged, with the J7 plug off: brew on shows continuity (close to 0 Ω) from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the steam lamp lights when the boiler isn\'t heating, and the brew lamp stays dark.',
+         a:[['swv',{o:0},0,250],['swm',{o:1},150,300]],chk:[['f1','Brew ON'],['f2','Brew OFF'],['f3','Steam ON'],['f4','Steam OFF']]}
+      ],
+      GC:[
+        {t:'Label the connectors',d:'P1-2 (the brew switch\'s common), 1, 2, 3 and P3-4 on the switch housing. The wire labels page prints them.',
+         a:[['cp12t',{o:1},300,300],['c1t',{o:1},500,300],['c2t',{o:1},700,300],['c3t',{o:1},900,300],['cp34t',{o:1},1100,300]],links:[['Wire labels','wire-labels.html']],map:[['The switch housing on the wiring map','part:housing']]},
+        {t:'P1-2 onto wire L',d:'Unplug P1-2 and plug it onto wire L, which runs to the PCB\'s J11.',
+         a:[['cp12',{x:-35,y:-115},0,1100]],ph:PH.swLc,map:[['Wire L on the wiring map','run:L']]},
+        {t:'Park 1, 2, 3 and P3-4',d:['All four stay live: cover each end and tie it down. Where a connector holds two wires, leave them joined in it.',['At 120 V, 2 and 3 still join wires that carry heater current (3 links the power switch to Ba, 2 links Sa to an element): don\'t cut either off.','volts:120'],['At 230 V, 3 still joins the power switch to P1-2, so L\'s feed passes through it: don\'t cut it off.','volts:230']],
+         a:[['c1',{y:-34},0,800],['c3',{y:-34},100,800],['c2',{y:34},200,800],['cp34',{x:50},300,800],['c1s',{o:1},1000,300],['c3s',{o:1},1100,300],['c2s',{o:1},1200,300],['cp34s',{o:1},1300,300],['park',{o:1},1500,300]],map:[['Parked connectors on the wiring map','part:housing']]},
+        {t:'Low-voltage wires on the freed spades',d:'Only on 1, 3, P(1-2) and P(3-4). J7 B on brew 1; J7 S on steam 3; J7 GND and a jumper share one spade on steam P(3-4), and the jumper runs on to brew P(1-2). Steam P(5-6) and 6 still carry mains for the valve.',
+         a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,500],['lv4',{o:1},900,300],['lvcap',{o:1},1100,300]],ph:PH.swLVc,map:[['On the wiring map','short:J7 B,J7 S,J7 GND,Steam sw P(3-4) →',null,'Switch signal wires']]},
+        {t:'Check it',d:'Unplugged, with the J7 plug off: brew on shows continuity (close to 0 Ω) from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the boiler lamp inside the housing stays dark; the power lamp works as before.',
+         a:[['swv',{o:0},0,250],['swm',{o:1},150,300]],chk:[['f1','Brew ON'],['f2','Brew OFF'],['f3','Steam ON'],['f4','Steam OFF']]}
+      ]
+    }};
+
+
+      return G;
+    })();
+    var RB=(function(){
+/* Sections of the official Gaggiuino docs (docsify: #/page?id=heading-slug). Headings checked against the docs source, Sept 2026. */
+  var O='https://gaggiuino.github.io/#/',SI=O+'guides-stm32/3pln-stock-wiring-integration',CW=O+'guides-stm32/3pln-custom-wiring',MS=O+'guides/machine-specific-guide',MAN=O+'learning/user-manual-gen3';
+  var OFF={
+    home:O,compat:O+'?id=compatibility',build:O+'?id=build-process',bom:O+'?id=bill-of-materials',
+    pcbtest:O+'guides-stm32/pcb-guide?id=pre-install-test',verify:O+'guides-stm32/pcb-guide?id=verification',flash:O+'guides-stm32/mcu-flashing',
+    si:SI,siSchem:SI+'?id=schematics',siWires:SI+'?id=integration-wires',siOpen:SI+'?id=open-machine',siBrew:SI+'?id=brew-thermostat-replacement',
+    siPump:SI+'?id=pump-area',siSsr:SI+'?id=ssr',siSwitch:SI+'?id=switch',siPt:SI+'?id=pressure-transducer',siFinish:SI+'?id=internal-finishing-touches',
+    cw:CW,cwAlt:CW+'?id=alternate-components',cwSchem:CW+'?id=custom-wire-harness-schematics',cwTc:CW+'?id=thermocouple',cwSsr:CW+'?id=ssr',
+    cwPt:CW+'?id=pressure-transducer',cwFinish:CW+'?id=internal-finishing-touches',
+    ms:MS,opv:MS+'?id=_10-12-bar-opv',psm:MS+'?id=power-switch-mod',cci:MS+'?id=combined-connector-insulation',ground:MS+'?id=grounding',
+    screen:O+'guides/interface-screen?id=assembly',manual:MAN,wifi:MAN+'?id=connecting-to-webui',start:MAN+'?id=initial-startup',
+    pz:MAN+'?id=pz-calibration',boiler:MAN+'?id=boiler',clean:MAN+'?id=cleaning',
+    scales:O+'accessories/hw-scales',tof:O+'accessories/tofnled',community:O+'community/community-media',
+    releases:'https://github.com/Zer0-bit/gaggiuino/releases/latest'
+  };
+
+/* The install, phase by phase. Each step: id, t (title), d (detail), src (Official = the official guide's own instruction, summarized;
+     Practice = ordinary bench practice added here), off [label, url] or offp {SI:[..],CW:[..]} for the official section,
+     link [label, key] for a page on this site, map (a wiring-map target, or [[label, target, when, set label], ...]; see maplink.js),
+     w (which machines; see machine.js), stop (the checklist gate). */
+  var PHASES=[
+    {id:'p0',n:'Phase 0',name:'Before you start',goal:'Know your machine, pick your install path, and line up the mods your model needs before anything is opened.',steps:[
+      {id:'p0v',t:'Identify your Gaggia',d:'Model and mains voltage decide which official schematic and which machine-specific mods apply. The rating label under the machine gives the model number (SIN035R, RI9380 and so on) and the voltage. Set them in the top bar so this page only shows your steps.',src:'Official',off:['Compatibility table',OFF.compat],link:['Which Gaggia','which']},
+      {id:'p0x',t:'Rule out the 2015 to 2018 Classic',d:'The 230 V Classic sold from 2015 to 2018 (SIN035U, RI9403) has no 3-way valve, and the official docs list it as not compatible. Check the label before you buy parts.',src:'Official',off:['Compatibility table',OFF.compat],w:'model:GC;volts:230'},
+      {id:'p0p',t:'Choose stock wiring or custom wiring',d:'Stock wiring integration keeps the machine\'s harness and adds seven short wires. Custom wiring replaces the harness: more work, but a cleaner, more straightforward install. Read both guides before you decide.',src:'Official',off:['Build process',OFF.build],w:'siok'},
+      {id:'p0e',t:'Eco board: plan on custom wiring and the switch mod',d:'230 V Pro-family machines with the Eco board turn themselves off after 20 idle minutes and have a power switch that springs back. The official guide recommends custom wiring for them, and the switch needs a small mod so it stays on.',src:'Official',off:['Compatibility table',OFF.compat],w:'eco:yes'},
+      {id:'p0w',t:'230 V Pro family: plan on custom wiring',d:'The official stock-integration schematics cover the 120 V Pro family and both Classics, not a 230 V Pro-family machine, with or without the Eco board. Follow the custom wiring guide. Once your model and voltage are set, this runbook and the wiring, cut list, labels and checks all show custom wiring for it.',src:'Official',off:['Stock wiring integration: Schematics',OFF.siSchem],w:'path:SI;fam:GCP;volts:230'},
+      {id:'p0g',t:'Plan to ground the machine',d:'Most US Classics were sold with a two-prong cord and an ungrounded case. The machine-specific guide fits a three-pin inlet, a grounded cord and ground wires. Order those parts with the rest.',src:'Official',off:['Grounding',OFF.ground],w:'ground'},
+      {id:'p0o',t:'Order a 12 bar OPV spring or M3 washers',d:'US Evo Pro and E24 machines come with a 9 bar OPV. Gaggiuino needs it at 10 to 12 bar, at least 1 bar above your highest shot pressure, because it can\'t tell when the OPV starts to open. Either a 12 bar spring, or 3 or 4 M3 stainless washers to preload the 9 bar one.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
+      {id:'p0c',t:'Get silicone tape for the switch connector block',d:'Most Evo and E24 machines gather each switch\'s connectors in one combined block. Each connector comes out, gets its own self-fusing silicone tape or 6 mm silicone heat shrink, and a label.',src:'Official',off:['Combined Connector Insulation',OFF.cci],w:'model:EVO,E24'},
+      {id:'p0h',t:'If you want help, open one Discord thread',d:[['One thread per person and machine: #install-help-gc for a Classic, #install-help-gcp for the Pro family.','unset:model'],['One thread per person and machine, in #install-help-gc for the Classic.','set:model;fam:GC'],['One thread per person and machine, in #install-help-gcp for the Pro family.','set:model;fam:GCP'],'Title it [username][machine][control system] plus a short title, and rename it as your questions change.'],src:'Official',off:['Build process',OFF.build]},
+      {id:'p0t',t:'Get the tools on the bench',d:'A multimeter, a crimper for 6.3 mm spades and fork terminals, wire strippers, a heat gun, self-fusing silicone tape, an oil-based marker (it writes on silicone), Kapton tape and zip ties.',src:'Practice'},
+      {id:'p0l',t:'Print the labels',d:'The guide suggests labeling every stock connector before you move it, so the work can be traced and undone. The wire labels page prints the guide\'s own names.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels']}
+    ]},
+    {id:'p1',n:'Phase 1',name:'Bench test',goal:'Prove the PCB, screen and sensors on the bench before anything goes into the machine. Faults are far easier to find here.',steps:[
+      {id:'p1a',t:'Lay the electronics out safely',d:'In their housings, or on a non-conductive surface, before any power is connected.',src:'Official',off:['Pre-install test',OFF.pcbtest]},
+      {id:'p1b',t:'Connect the bench set',d:'Thermocouple to J4, pressure transducer to J6, screen to J1, SSR control to J9, and the ToFnLED to J2 if you have one, as the PCB guide\'s low-voltage schematic shows.',src:'Official',off:['Pre-install test',OFF.pcbtest],map:[['On the wiring map','runs:TC,PS,SCR;short:J9',null,'The bench set: sensors, screen and SSR control']]},
+      {id:'p1c',t:'Fold the thermocouple wires',d:'Fold each bare wire over before clamping it, and keep the insulation out of the clamp.',src:'Official',off:['Pre-install test',OFF.pcbtest],map:'run:TC'},
+      {id:'p1d',t:'Check the screen cable by pin, not color',d:'Blue and yellow can be swapped between cable revisions. Don\'t take a pre-made cable apart.',src:'Official',off:['Pre-install test',OFF.pcbtest],map:'run:SCR'},
+      {id:'p1e',t:'Power it from the PCB\'s USB-C',d:'No mains anywhere near it yet.',src:'Official',off:['Pre-install test',OFF.pcbtest]},
+      {id:'p1f',t:'Watch it boot',d:'"Initialization in progress" clears in a few seconds, then "Filling boiler" shows and a red LED under the PCB lights.',src:'Official',off:['Verification',OFF.verify]},
+      {id:'p1g',t:'Warm the thermocouple',d:'The temperature should show and rise as you warm the probe in your hand. If it falls instead, the two thermocouple wires are swapped.',src:'Official',off:['Verification',OFF.verify]},
+      {id:'p1h',t:'Check the SSR light and pressure',d:'The SSR light is on below the setpoint and flashes near it. Pressure reads 0.0 bar and holds steady. The target is brew temperature, not steam.',src:'Official',off:['Verification',OFF.verify]},
+      {id:'p1j',t:'Join it to your Wi-Fi',d:'Connect to the Gaggiuino AP (the password is the network name with a zero for the "o" and no space), open gaggiuino.local, then Settings, System, Connect, and pick a 2.4 GHz network.',src:'Official',off:['Connecting to WebUI',OFF.wifi]},
+      {id:'p1i',t:'Match the firmware versions',d:'Settings, About: the core and screen build numbers match each other and the latest release. If not, update over the air from gaggiuino.local in this order: core, then ui-embedded, then ui-web.',src:'Official',off:['MCU Flashing',OFF.flash]}
+    ]},
+    {id:'p2',n:'Phase 2',name:'Open up and prep',goal:'Open the machine, label what\'s there, and do your model\'s mods while everything is easy to reach.',steps:[
+      {id:'p2a',t:'Unplug and take the top off',d:'Cord out of the wall, then the two screws that hold the top cover.',src:'Official',off:['Open machine',OFF.siOpen]},
+      {id:'p2b',t:'Label the stock connectors',d:'With an oil-based marker, using the guide\'s names: switches P (power), B (brew) and S (steam) with positions 1 to 6, heaters H1 to H4, steam thermostat Sa and Sb, brew thermostat Ba and Bb, valve Va and Vb, pump Pa and Pb.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels'],w:'fam:GCP',map:[['The stock connectors on the wiring map','','wpath:SI',null,'SI']]},
+      {id:'p2b2',t:'Label the stock connectors',d:'With an oil-based marker, using the guide\'s names: the switch assembly\'s numbered positions, heaters H1 to H4, steam thermostat Sa and Sb, brew thermostat Ba and Bb, valve Va and Vb, pump Pa and Pb, and the pump fuse F.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels'],w:'fam:GC',map:[['The stock connectors on the wiring map','','wpath:SI',null,'SI']]},
+      {id:'p2c',t:'Compare your wiring with the schematic',d:'Stock wire colors and connector positions, especially at the pump, don\'t always match the drawings. Check your machine against the schematic for your model before moving anything, and ask in your help thread if anything is unclear.',src:'Official',off:['Schematics',OFF.siSchem],w:'wpath:SI',map:''},
+      {id:'p2d',t:'Split and insulate the switch connector block',d:'Easier with the switch or boiler out. Press each connector\'s locking tab with a small screwdriver, pull it out the back, insulate it with silicone tape or 6 mm heat shrink, and label it. Do them one at a time.',src:'Official',off:['Combined Connector Insulation',OFF.cci],w:'model:EVO,E24'},
+      {id:'p2e',t:'Do the power switch mod',d:'Take the power switch out, release its side walls with a thin pry tool, remove the third spring and reassemble. The switch then stays on when pressed instead of springing back.',src:'Official',off:['Power Switch Mod',OFF.psm],w:'eco:yes'},
+      {id:'p2f',t:'Fit the grounded inlet and ground wires',d:'A three-pin C14 inlet in place of the two-pin socket, a grounded cord, and ground wires from the inlet to the boiler fuse clip and on to the cup warmer, with uninsulated spades at the boiler. Note which inlet wire is line and which is neutral; on some machines they\'re swapped. Earth never connects to the PCB\'s 5 V ground.',src:'Official',off:['Grounding',OFF.ground],w:'ground',map:[['Earth wires on the wiring map','layer:E','wpath:CW',null,'CW']]},
+      {id:'p2g',t:'Raise the OPV to 10 to 12 bar',d:'Open the OPV and fit the 12 bar spring, or put M3 washers behind the 9 bar spring: 4 if they\'re 0.5 mm thick, 3 if they\'re 0.8 mm. You\'ll check it with a blank basket in Phase 5.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
+      {id:'p2h',t:'Build the new harness',d:'From the custom wiring schematic for your model and voltage, reusing components from the stock harness on new wire. Cut each run from the cut list and label both ends before crimping.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],link:['Cut list','cut'],w:'wpath:CW',map:[['Every run on the wiring map','']]},
+      {id:'p2i',t:'Fork terminals on all four SSR terminals',d:'Two load, two control. The schematic calls for them.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],w:'wpath:CW',map:'part:ssr'},
+      {id:'p2j',t:'High-temperature ends at the boiler',d:'Uninsulated spades crimped with an open-barrel crimper, then silicone heat shrink or self-fusing silicone tape over them. Nylon-insulated spades are rated to only 105 °C.',src:'Official',off:['Alternate Components',OFF.cwAlt],w:'wpath:CW',map:'part:boiler'},
+      {id:'p2k',t:'Pull-test every crimp',d:'A firm tug. Redo any that move.',src:'Practice'}
+    ]},
+    {id:'p3',n:'Phase 3',name:'Sensors',goal:'Thermocouple and pressure transducer in. Both are easier with the boiler tipped up.',guide:['Each step drawn on Part guides','part-guides.html'],steps:[
+      {id:'p3a',t:'Take out the brew thermostat',d:'Unscrew it from the side of the boiler; the thermocouple goes into its hole. The boiler\'s thermal fuse stays in the circuit.',src:'Official',offp:{SI:['Brew Thermostat Replacement',OFF.siBrew],CW:['Thermocouple',OFF.cwTc]},map:'run:TC'},
+      {id:'p3b',t:'Jumper the brew thermostat wires',d:'A short wire with a male spade on each end joins Ba and Bb, so that path is always closed. The joints sit at the boiler, so use uninsulated spades and cover each joint with silicone heat shrink or self-fusing silicone tape: nylon-insulated spades melt there.',src:'Official',off:['Brew Thermostat Replacement',OFF.siBrew],w:'wpath:SI',map:'run:J'},
+      {id:'p3c',t:'Fit the thermocouple',d:'M4 ungrounded K-type, into the brew thermostat\'s hole with thermal paste rated to 180 °C or more. Barely finger tight, never more, with the wire free to rotate as it goes in. Lifting the boiler (four screws up from below, plus the steam knob and wand) makes this much easier.',src:'Official',offp:{SI:['Brew Thermostat Replacement',OFF.siBrew],CW:['Thermocouple',OFF.cwTc]},map:'run:TC'},
+      {id:'p3d',t:'Route the thermocouple lead',d:'Around the front of the boiler and back to the control enclosure on the right, away from the pump area.',src:'Official',offp:{SI:['Brew Thermostat Replacement',OFF.siBrew],CW:['Thermocouple',OFF.cwTc]},map:'run:TC'},
+      {id:'p3e',t:'Pick how the pressure transducer connects',d:'A T-fitting cut into the hose from the pump to the boiler, or a pressure tap block clamped between the group and its inlet fitting. Both fit every Classic and Pro-family model.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p3f',t:'T-fitting: cut the PTFE line',d:'Between pump and boiler, nearer the boiler but high enough that the T sits mostly upright. Cut square and push the tube fully past both the teeth and the O-ring of the push-to-connect T. Then 200 to 250 mm of tube to the transducer fitting.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]},w:'fam:GC'},
+      {id:'p3g',t:'T-fitting: cut the braided hose',d:'About 65 mm above the boiler connection. A loose clamp on each cut end, the barbed T in, clamps over the middle of the barbs. Then 200 to 250 mm of hose to the transducer fitting, clamped the same way. A rubber glove helps grip the hose; a little water-based lubricant helps it on.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]},w:'fam:GCP'},
+      {id:'p3h',t:'Or: fit the pressure tap block',d:['40 mm of square-cut PTFE tube in the block\'s fitting, with the fitting\'s thread protruding less than 1 mm into the water path.',['Then clamp the block between the group and the inlet connector (the metal OPV on a Classic) with both O-rings facing the group.','unset:model'],['Then clamp the block between the group and its metal OPV, with both O-rings facing the group.','set:model;fam:GC'],['Then clamp the block between the group and the inlet connector, with both O-rings facing the group.','set:model;fam:GCP']],src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p3i',t:'Seal the transducer on its O-ring',d:'Press the small white O-ring flush into the fitting first, because many fittings are too short for the sensor\'s own base O-ring to seal. Hand tight plus at most a quarter turn: overtightening damages the O-ring or stops the reading.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p3j',t:'Park the transducer low',d:'At the base of the machine, below the T and not touching metal. If readings turn out noisy, wrap it in foam or fix it to the frame.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]},map:[['Its cable on the wiring map','run:PS']]}
+    ]},
+    {id:'p4',n:'Phase 4',name:'Wire and check',goal:'Make the mains connections for your path, then the low-voltage ones, then prove everything with the meter before the cord goes near the wall.',steps:[
+      {id:'p4a',t:'Mount the SSR on the back wall',d:'An M4 or 8-32 screw, washer and nut. On a Pro, leave room above it for the funnel piece and its screw.',src:'Official',off:['SSR',OFF.siSsr],w:'wpath:SI',map:'part:ssr'},
+      {id:'p4b',t:'Steam thermostat connectors to the SSR',d:'Unplug Sa and Sb from the steam thermostat and connect them to the SSR\'s two AC terminals, either way round, through the Sa and Sb integration wires (fork terminal at the SSR). The thermostat itself can come out.',src:'Official',off:['SSR',OFF.siSsr],link:['Cut list','cut'],w:'wpath:SI',map:[['On the wiring map','runs:Sa,Sb',null,'Sa and Sb, to the SSR']]},
+      {id:'p4c',t:'Pump area: three connections',d:'Unplug the stock pump wire Pb from the pump and join it to the new 3 wire, which goes to the PCB\'s valve output. Plug the new P wire onto the pump where Pb was. Piggyback the new N wire onto the neutral at Pa.',src:'Official',off:['Pump Area',OFF.siPump],w:'wpath:SI',map:[['On the wiring map','runs:3,P,N',null,'Pump area: 3, P and N']]},
+      {id:'p4d',t:'Switches: line to the brew switch source',d:'Disconnect the switch wires the schematic marks as changing, and connect the new L wire to the brew switch source wire.',src:'Official',off:['Switch',OFF.siSwitch],w:'wpath:SI;fam:GC',map:[['Wire L on the wiring map','run:L']]},
+      {id:'p4e',t:'Switches: move the mains wires',d:'Move the wires on the brew and steam switches as the schematic shows, with the brew switch wire joined to the new L wire. You should end with one empty column of spades on each of the brew and steam switches.',src:'Official',off:['Switch',OFF.siSwitch],w:'wpath:SI;fam:GCP',map:[['Wire L on the wiring map','run:L'],['Brew switch','part:swB'],['Steam switch','part:swS']]},
+      {id:'p4f',t:'Switches: add the low-voltage wires',d:'GND, brew and steam signal wires from J7 onto the spades you just freed, as the schematic shows.',src:'Official',off:['Switch',OFF.siSwitch],w:'wpath:SI',map:[['On the wiring map','short:J7,Brew sw 2 →,Steam sw P(3-4) →',null,'Switch signal wires']]},
+      {id:'p4g',t:'Insulate every connector left loose',d:'Stock connectors that are now unplugged stay in the machine. Insulate each one and tie it so it can\'t touch anything.',src:'Official',off:['Internal Finishing Touches',OFF.siFinish],w:'wpath:SI',map:[['Parked connectors on the wiring map','part:f:S5|housing']]},
+      {id:'p4h',t:'Mount the SSR through a vent slot',d:'An M4 or 8-32 screw, washer and nut on the back wall, with room above for the funnel piece and its screw, and clear of the pump and its housing.',src:'Official',off:['SSR',OFF.cwSsr],w:'wpath:CW',map:'part:ssr'},
+      {id:'p4i',t:'Fit the harness run by run',d:'Against the schematic for your model and voltage. Tick each run off the cut list as it goes in.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],w:'wpath:CW',map:[['Every run on the wiring map','']]},
+      {id:'p4k',t:'Keep mains and low voltage apart',d:[['The stock integration guide suggests','!wpath:CW'],['The official guide suggests','set:path;path:CW'],['The official guide suggests','set:path,model,volts;path:SI;wpath:CW'],'AC wires on the left side of the case, above the thermocouple wire, and DC wires and sensors on the right. Nothing but silicone-jacketed wire rated to 200 °C may touch the boiler or the steam wand.'],src:'Official',offp:{SI:['Switch',OFF.siSwitch],CW:['Internal Finishing Touches',OFF.cwFinish]},map:[['Low-voltage wires on the wiring map','layer:lv']]},
+      {id:'p4l',t:'Feed the screen and ST-Link wires out the back',d:'Take the pins out of the screen connector, sleeve the bundle in heat shrink where it passes the sharp vent (don\'t shrink it), feed it out through the back vents, and stick the ST-Link down with double-sided tape.',src:'Official',offp:{SI:['Internal Finishing Touches',OFF.siFinish],CW:['Internal Finishing Touches',OFF.cwFinish]},map:'run:SCR'},
+      {id:'p4m',t:'Tie the bundles down',d:'Zip ties, with nothing able to drift onto the boiler, the wand or a spade.',src:'Official',offp:{SI:['Internal Finishing Touches',OFF.siFinish],CW:['Internal Finishing Touches',OFF.cwFinish]}},
+      {id:'p4z',t:'Pass the power-on checks',d:'Every section up to Covers on, all unplugged. Have someone else trace the wiring against the schematic too. The last section waits until the covers are back on in Phase 5.',src:'Practice',link:['Power-on checks','checks'],stop:true}
+    ]},
+    {id:'p5',n:'Phase 5',name:'Screen and first power-on',goal:'Mount the screen, close up, then mains for the first time: fill the boiler, prime the sensor line and test the pressure.',stop:'Don\'t plug in until every check on the power-on checklist passes.',steps:[
+      {id:'p5a',t:'Mount the screen',d:'Front, funnel or rear mount, as the screen guide shows for the mount you have. Plug the small screen connectors in first; they pass through the housing gaps more easily than the other end.',src:'Official',off:['Interface: Screen',OFF.screen],map:'run:SCR'},
+      {id:'p5b',t:'Funnel and cup warmer back on, then the last checks',d:'Reconnect their earth wires as each part goes on, as the screen guide reminds you. Then run Covers on, the last section of the power-on checks, before anything gets plugged in.',src:'Official',off:['Interface: Screen',OFF.screen],link:['Power-on checks','checks']},
+      {id:'p5c',t:'Tank full, drip tray in',d:'Portafilter out, a cup under the group.',src:'Practice'},
+      {id:'p5d',t:'Plug in and switch on',d:'Use a {outlet}. Stay by the plug. At any smell, smoke, trip or odd noise, unplug first and investigate after.',src:'Practice'},
+      {id:'p5e',t:'Fill the boiler first',d:'Before anything else: turn on Flush and run it until water comes out of the group for 5 seconds or more.',src:'Official',off:['Initial Startup',OFF.start]},
+      {id:'p5f',t:'Watch the temperature rise',d:'Once the boiler is full, the temperature must climb while the SSR light is on. If it falls instead, switch off and unplug: the thermocouple wires are reversed.',src:'Practice',map:'run:TC'},
+      {id:'p5g',t:'T-fitting: run [UT] Tube Fill',d:'From Community Profiles in the web UI. It fills the sensor line so there\'s no air in it.',src:'Official',off:['Initial Startup',OFF.start]},
+      {id:'p5h',t:'Tap block: flush, then test',d:'Run Flush for 10 seconds with the group open to fill the system, then flush with a blank basket to test pressure.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
+      {id:'p5i',t:'Run [UT] Test OPV with a blank basket',d:'It passes at a peak of 10.5 to 13 bar, with water moving through the OPV tubing and no leaks. That range, from the Gen 3 manual, is the pass mark on every model.',src:'Official',off:['Initial Startup',OFF.start]},
+      {id:'p5j',t:'If the OPV peaks below 10.5 bar, add a washer',d:'On a US Evo Pro or E24 with the washer method, add one more M3 washer and run [UT] Test OPV again. The machine-specific guide aims the OPV itself at 10 to 12 bar; the test above is the one to pass.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
+      {id:'p5k',t:'Check for leaks, unplugged',d:'Switch off and unplug first. Lift the cup warmer and touch a dry paper towel to the T or tap block, the transducer and the thermocouple. Close it up and rerun h1 to h6 of the power-on checks before you plug back in.',src:'Practice',link:['Power-on checks','checks']},
+      {id:'p5l',t:'Try each switch',d:'Brew runs the pump, steam switches the target to steam temperature, and brew and steam together start hot water mode.',src:'Official',off:['Gaggiuino Tips',OFF.manual+'?id=gaggiuino-tips']},
+      {id:'p5m',t:'Let it heat and settle',d:'Give it 10 to 15 minutes to reach thermal equilibrium. Anything odd: the troubleshooting page goes symptom by symptom.',src:'Official',link:['Troubleshooting','trouble']}
+    ]},
+    {id:'p6',n:'Phase 6',name:'Calibrate',goal:'Tune Gaggiuino to this pump and boiler.',note:'Leave Settings, Boiler on the defaults. The Gen 3 manual recommends them for the Gaggia Classic and the Classic Pro family.',steps:[
+      {id:'p6a',t:'Run [UT] PZ Cal',d:'Calibrates Pump Zero, the water moved per pump pulse at 0 bar. Follow the profile\'s own instructions.',src:'Official',off:['PZ Calibration',OFF.pz]},
+      {id:'p6b',t:'Keep the boiler settings on default',d:'Steam temperature, Brew Delta and the advanced heating values all start from the defaults on a Gaggia.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
+      {id:'p6c',t:'Temperature offset only against a real measurement',d:'Change it only if you can measure at the group head, for example with a Scace-type device.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
+      {id:'p6d',t:'Set the time zone, add a microSD card',d:'Shot history needs a microSD card (1 to 8 GB, FAT32), and a network connection with the time zone offset set for the right date and time.',src:'Official',off:['User Manual Gen 3',OFF.manual]},
+      {id:'p6e',t:'Calibrate hardware scales, if fitted',d:'From the web UI, as the scales guide describes.',src:'Official',off:['Hardware Scales',OFF.scales]},
+      {id:'p6f',t:'Check the ToFnLED, if fitted',d:'Tank level on the home screen, and the LED settings.',src:'Official',off:['ToFnLED',OFF.tof]}
+    ]},
+    {id:'p7',n:'Phase 7',name:'Finish',goal:'Tidy up, write down what you ended with, and learn the cleaning routines.',steps:[
+      {id:'p7a',t:'Final tidy, unplugged',d:'Zip ties where they\'re needed and Kapton tape on the screen cable. Close it up again and rerun h1 to h6 of the power-on checks before you plug back in.',src:'Practice',link:['Power-on checks','checks']},
+      {id:'p7b',t:'Post your first start and first shot',d:'The official build process asks you to record both and post them to #first-start and #first-shot on Discord.',src:'Official',off:['Build process',OFF.build]},
+      {id:'p7c',t:'Learn the cleaning routines',d:'Backflush with a blind basket in Flush mode. Descale from the Descale button, about 30 minutes a tank, then a second tank of clean water.',src:'Official',off:['Cleaning',OFF.clean]},
+      {id:'p7d',t:'Write down your final settings',d:'In the notes below, along with anything you\'d do differently.',src:'Practice'},
+      {id:'p7e',t:'Hardware scales or ToFnLED (optional)',d:'Each one is independent of the core install and has its own official guide.',src:'Official',off:['Hardware Scales',OFF.scales]}
+    ]}
+  ];
+
+      return PHASES;
+    })();
+    var TR=(function(){
+  /* Troubleshooting symptoms, shared by trouble.tpl.html and the wiring page's back-links (wiring-refs.js).
+     Each: c (category), s (symptom), causes, check, src; d marks unplug-now; w limits it to some machines; map links
+     its wiring on the wiring map (see maplink.js). */
+  var T=[
+    {c:'power',d:1,s:'The breaker or {gfci} trips when you plug in or switch on',
+     causes:['Line or neutral touching earth: a bare spade, or a wire pinched against the frame.','An element leaking to the boiler.','Water on the wiring, often from a leak at the pump, the boiler seal or the steam valve.'],
+     check:['Leave it unplugged; don\'t keep resetting the breaker.','With the covers on, rerun [h3] and [h4]. Then open it up and rerun [d1], [d2], [d5], [d6] and [c2].','Look for wet or crushed insulation near the boiler, the valve, the pump and under the drip tray.'],src:'Official grounding guide, meter checks, Whole Latte Love'},
+    {c:'power',s:'Nothing happens when you switch on',map:[['The power socket on the wiring map','part:sock']],
+     causes:['No supply getting through the power switch: inlet leads loose or on the wrong spades.',{t:'With stock integration, the boiler\'s thermal fuse has blown: on the Classic it sits in the neutral feed to the whole machine, and on the Pro the PCB\'s line comes from after it. In custom wiring it only feeds the heater, so it can\'t cause this.',w:'unset:model,path'},
+       {t:'The boiler\'s thermal fuse has blown: with stock integration on the Classic it sits in the neutral feed to the whole machine.',w:'set:model,path;fam:GC;wpath:SI'},
+       {t:'The boiler\'s thermal fuse has blown: with stock integration on the Pro family, the PCB\'s line comes from after it.',w:'set:model,path;fam:GCP;wpath:SI'},'The cord or the outlet.'],
+     check:['Unplugged, rerun the path continuity checks on the power-on checks page.','Rerun [c3] across the fuse. A blown fuse means the boiler overheated, so find out why before replacing it.','Try the cord on another appliance.'],src:'Meter checks, the official schematics'},
+    {c:'power',w:'eco:yes',s:'The power button won\'t stay on',
+     causes:['The Eco board\'s button springs back unless the power switch mod is done.'],
+     check:['Do the official power switch mod: one spring out, so the rocker latches.','Then custom wiring, which leaves the Eco board out of the circuit.'],src:'Official machine-specific guide'},
+    {c:'power',w:'eco:yes',s:'It still turns itself off after 20 minutes',
+     causes:['The Eco board is still in the circuit.'],
+     check:['Custom wiring takes it out: the inlet goes straight to the power switch, with nothing to the board. Trace yours against the schematic.'],src:'Official custom wiring schematic, Gaggia service manual'},
+    {c:'screen',s:'The screen stays black',map:'run:SCR',
+     causes:['The J1 cable wired by color rather than by pin; blue and yellow vary between cable revisions.','The cable not fully seated at either end.','No power to the PCB: USB-C on the bench, mains in the machine.'],
+     check:['Check J1 pin by pin: GND, TX, RX, 5V.','Don\'t take a pre-made cable apart; reseat it.','On the bench, power from the PCB\'s USB-C and try again.'],src:'Official PCB guide'},
+    {c:'screen',s:'"Initialization in progress" never clears',map:'run:SCR',
+     causes:['The screen and PCB aren\'t talking: TX and RX crossed wrong on J1.','The core and screen firmware are from different releases.'],
+     check:['Check J1 by pin against the PCB order.','Bring both to the same release: core first, then the screen. The core can also be flashed with the ST-Link.'],src:'Official PCB guide, MCU flashing'},
+    {c:'screen',s:'You can\'t find the Gaggiuino network or gaggiuino.local',
+     causes:['The access point can show up as ESP_xxxxxx at first instead of Gaggiuino AP.','Your Wi-Fi is 5 GHz only; Gaggiuino joins 2.4 GHz networks.','Some phones and browsers don\'t open .local addresses.'],
+     check:['Join the access point directly.','In Settings, System, Connect, pick a 2.4 GHz network.','Find the machine\'s address in your router\'s device list and open that instead.'],src:'Official Gen 3 manual'},
+    {c:'heat',d:1,s:'The temperature falls while the boiler heats',map:'run:TC',
+     causes:['The thermocouple is reversed at J4. The controller sees a falling temperature and may keep heating. The public Gen 2 firmware cuts the heater once the reading reaches 0 °C; Gen 3\'s behavior isn\'t published, and the boiler\'s thermal fuse is the last line.'],
+     check:['Switch off and unplug now.','Swap the two thermocouple wires at J4, folding the bare ends over again.','Retest on the bench: warm the thermocouple in your hand and the reading must rise. If the fuse blew, replace it.'],src:'Official PCB guide'},
+    {c:'heat',s:'The temperature reading is jumpy, stuck or far off',map:'run:TC',
+     causes:['Insulation clamped in J4 instead of bare wire.','A grounded thermocouple, or earth touching the 5 V ground. The low-voltage side has to float.','A broken thermocouple or lead.','The lead routed alongside mains wires.'],
+     check:['Refit J4 with the bare wire folded over and no insulation in the clamp.','Rerun [b6], [b7] and [c7].','Route the lead around the front of the boiler, with the mains wires on the left of the case, above it.'],src:'Official PCB, stock integration and grounding guides'},
+    {c:'heat',s:'The SSR light comes on but the boiler doesn\'t heat',w:'wpath:CW',map:'part:ssr',
+     causes:['The boiler\'s thermal fuse has blown, or the optional resettable one has tripped. In custom wiring it sits in the heater\'s own line, so the PCB stays on.','A break in a heater run or splice.','The SSR failed open: its light comes on but it never switches the load.','An open element.'],
+     check:['Unplugged, rerun [c3] and [c1], then the path continuity checks.','If every check passes, replace the SSR.'],src:'Meter checks, the official schematics, Whole Latte Love'},
+    {c:'heat',s:'The SSR light comes on but the boiler doesn\'t heat',w:'wpath:SI',map:[['The SSR on the wiring map','part:ssr'],['Jumper J','run:J']],
+     causes:['A break in the heater circuit: J, Sa or Sb, or the stock connectors they plug into.','The SSR failed open: its light comes on but it never switches the load.','An open element.'],
+     check:['Not the boiler\'s thermal fuse: in stock integration the PCB is fed through it, so a blown fuse leaves the screen dark too.','Unplugged, rerun [c1], then the path continuity checks through J, Sa and Sb.','If every check passes, replace the SSR.'],src:'Meter checks, the official schematics, Whole Latte Love'},
+    {c:'heat',s:'The SSR light never comes on',map:[['On the wiring map','short:J9 R1,J9 GND',null,'SSR control wires']],
+     causes:['SSR control reversed or open: J9 R1 to SSR +, J9 GND to SSR −.','The temperature is already above the target.'],
+     check:['Rerun [f5] and [f6].','Read the temperature on the screen before chasing wiring.'],src:'Official schematics'},
+    {c:'heat',d:1,s:'It keeps heating past the target',map:'part:ssr',
+     causes:['A reversed thermocouple (see above), or one loose and out of contact so the reading lags.','The SSR failed closed.','The elements wired around the SSR.'],
+     check:['Switch off and unplug.','Rerun [d7]: with the switch on, L to N must not read near the heater\'s resistance.','Check the SSR\'s load wires against the wiring page.'],src:'Meter checks'},
+    {c:'heat',d:1,s:'The boiler\'s thermal fuse blew',map:'run:TC',
+     causes:['A reversed or loose thermocouple, or an SSR stuck on, let the boiler overheat.','The boiler heated dry: after it\'s been drained, fill it before it heats.','Flashing an older STM32F411 board (PCB v2 to v3.1) with the machine powered: some switch the heater on while the programmer is connected.'],
+     check:['Find the cause before fitting a new one: the stock fuse is one-shot.',{t:'If you fitted the optional resettable fuse in custom wiring, it trips instead; find the cause before resetting it.',w:'!wpath:SI'},'Never bridge it.','Recheck the thermocouple direction on the bench, and rerun [d7].'],src:'Official PCB upgrade and flashing guides, Whole Latte Love'},
+    {c:'heat',s:'The temperature swings or overshoots in normal use',
+     causes:['Settings changed from the defaults: the Gen 3 manual recommends them for the Classic and the Pro family.','Poor contact at the thermocouple: no paste, or not finger tight.'],
+     check:['Put Settings, Boiler back on the defaults.','Refit the thermocouple with fresh paste rated for 180 °C or more.','Change Temperature Offset only against a real group-head measurement.'],src:'Official Gen 3 manual'},
+    {c:'pressure',s:'Pressure reads 0.0 bar during a shot',map:'run:PS',
+     causes:['J6 wired out of order: 5V, GND, P.','The sensor screwed in too far: overtightening can damage its O-ring and stop it reading.','Air in the sensor line.'],
+     check:['Check J6 pin by pin against the sensor: 5V, GND and OUT to P.','Back it off to hand tight plus at most a quarter turn.','T-fitting: run [UT] Tube Fill. Tap block: flush for 10 seconds with the group open.'],src:'Official stock integration guide'},
+    {c:'pressure',s:'The pressure reading is noisy',map:'run:PS',
+     causes:['Pump vibration through the sensor, or the sensor touching the housing.','Sensor wires bundled with mains.'],
+     check:['Mount the sensor low in the machine, below the T and off metal; a wrap of foam or a fixing to the frame helps.','Route its wires on the right of the case, away from mains.'],src:'Official stock integration guide'},
+    {c:'pressure',s:'Pressure never reaches the target, or Test OPV peaks below 10.5 bar',
+     causes:[{t:'A 9 bar OPV: stock on US Evo Pros and E24s, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'unset:model'},
+       {t:'A 9 bar OPV: stock on US machines, or a past owner\'s spring swap. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model;unset:volts;model:EVO,E24'},
+       {t:'The stock 9 bar OPV, not raised to 10 to 12 bar yet. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model,volts;opv9'},
+       {t:'A 9 bar spring from a past owner\'s swap. Gaggiuino can\'t tell when the valve opens, so shots fall short.',w:'set:model;model:GCP'},{t:'A 9 bar spring from a past owner\'s swap. Gaggiuino can\'t tell when the valve opens, so shots fall short.',w:'set:model,volts;model:EVO,E24;volts:230'},
+       {t:'The valve turned down: the original Classic\'s metal OPV adjusts under its cap, and owners often set it to 9 bar. Gaggiuino can\'t tell when it opens, so shots fall short.',w:'set:model;fam:GC'},
+       'The blank basket or group gasket not sealing.'],
+     check:[{t:'On the Pro family, raise it to 10 to 12 bar: a 12 bar spring, or three or four M3 washers behind the old one. Add a washer if it still peaks low.',w:'fam:GCP'},{t:'On the original Classic, turn the valve up: cap off (17 mm), then the 5 mm hex inside, a little at a time, rerunning [UT] Test OPV until it peaks at 10.5 to 13 bar.',w:'fam:GC'},'Reseat the basket and gasket and rerun [UT] Test OPV.'],src:'Official machine-specific guide and startup steps'},
+    {c:'pressure',s:'Test OPV peaks above 13 bar',
+     causes:[{t:'An older Classic\'s metal valve set high: owners report about 14 bar from the factory.',w:'fam:GC'},{t:'Too many washers, or too stiff a spring, added behind the 9 bar valve.',w:'set:model,volts;opv9'},{t:'The stock spring: reviewers have measured Classic Pros at 12 to 14 bar, above Gaggia\'s 11 bar figure.',w:'fam:GCP;!model:EVO,E24'},{t:'Washers or a stiffer spring added by a past owner.',w:'fam:GCP;!opv9'}],
+     check:[{t:'The old Classic\'s valve adjusts: cap off (17 mm), then the 5 mm hex inside. Turn it down a little at a time and rerun [UT] Test OPV.',w:'fam:GC'},{t:'On the Pro family, take out a washer at a time and rerun [UT] Test OPV. If it\'s a stock spring with no washers and still peaks above 13 bar, ask in your help thread before changing it.',w:'fam:GCP'}],src:'Official startup steps, Coffee Forums'},
+    {c:'pressure',s:'The pump doesn\'t run',map:[['J7 B on the wiring map','short:J7 B'],['The pump','part:pump']],
+     causes:['The brew input isn\'t reaching J7 B.',{t:'An open pump thermal fuse.',w:'!fam:GC'},{t:'An open pump thermal fuse.',w:'set:model;fam:GC;!volts:230'},{t:'An open pump thermal fuse, if yours has one: the 230 V Classic\'s stock-integration drawing shows none.',w:'set:model,volts;fam:GC;volts:230'},'J12 or the pump wire not connected.'],
+     check:[{t:'Rerun [f1], [f2] and [c5], plus [c4] where your schematic has the pump fuse, then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'unset:model'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model;fam:GCP'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model;fam:GC;!volts:230'},{t:'Rerun [f1], [f2], [c4] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model,volts,path;fam:GC;volts:230;path:CW'},{t:'Rerun [f1], [f2] and [c5], then the path continuity checks. Measure the pump coil both ways; its diode reads OL one way.',w:'set:model,volts;fam:GC;volts:230;!path:CW'},'Gen 3\'s Maintenance page can run the pump on its own, which splits wiring faults from settings.'],src:'Meter checks, official Gen 3 docs'},
+    {c:'pressure',s:'The pump runs but no water reaches the group',
+     causes:['Tank empty, or its intake out of the water.','An air lock.',{t:'The 3-way valve not opening: J13, its wire or the coil. In stock integration the valve\'s circuit still runs through the steam switch, so steam must be off.',w:'!wpath:CW'},{t:'The 3-way valve not opening: J13, its wire or the coil.',w:'set:path;path:CW'},{t:'The 3-way valve not opening: J13, its wire or the coil.',w:'set:path,model,volts;path:SI;wpath:CW'}],
+     check:['Prime it: open the steam knob and run Flush until water flows steadily from the wand.',{t:'Turn steam off, then rerun [c6] and the valve checks under path continuity.',w:'!wpath:CW'},{t:'Rerun [c6] and the valve checks under path continuity.',w:'set:path;path:CW'},{t:'Rerun [c6] and the valve checks under path continuity.',w:'set:path,model,volts;path:SI;wpath:CW'}],src:'Meter checks, Whole Latte Love'},
+    {c:'pressure',s:'Wet pucks, and no whoosh into the drip tray after a shot',map:[['The valve on the wiring map','part:sol']],
+     causes:['The 3-way valve jammed open with scale or debris.'],
+     check:['Strip and descale the valve, or replace it. Whole Latte Love\'s guide covers both.'],src:'Whole Latte Love, Coffee Forums'},
+    {c:'pressure',s:'Leaks at the T-fitting, tap block or sensor',
+     causes:[{t:'The braided hose not clamped over the middle of the barb, or the clamp not tight.',w:'set:model;fam:GCP'},{t:'Tubing not cut square, or not pushed fully through the push-to-connect fitting\'s teeth and O-ring.',w:'fam:GC'},{t:'On the Pro family, the braided hose not clamped over the middle of the barb.',w:'unset:model'},'The sensor sealing on its threads: the small O-ring has to sit flush inside the fitting.','The tap block\'s fitting thread sticking more than 1 mm into the water path, or its O-rings not facing the group.'],
+     check:['Unplug and let it cool before touching fittings.',{t:'Recut the tube square and reseat it; a rubber glove helps your grip.',w:'fam:GC'},{t:'Reseat the hose over the barb and clamp it over the middle.',w:'fam:GCP'},'Sensor hand tight, plus a quarter turn at most.'],src:'Official stock integration and custom wiring guides'},
+    {c:'switch',s:'A switch does nothing',map:[['On the wiring map','short:J7,Brew sw 2 →,Steam sw P(3-4) →,Brew sw P(1-2) →',null,'Switch signal wires']],
+     causes:['Signal and ground on the wrong spades.','A break in the ground jumper between the switches.'],
+     check:['Rerun [f1] to [f4] with the plugs off the PCB.','Gen 3\'s Maintenance page shows the raw brew and steam pin levels as you flip each switch.'],src:'Official schematics, official Gen 3 docs'},
+    {c:'switch',s:'A switch acts as if it\'s always on',map:[['On the wiring map','short:J7,Brew sw 2 →,Steam sw P(3-4) →,Brew sw P(1-2) →',null,'Switch signal wires']],
+     causes:['Signal and ground on two spades that are always connected.'],
+     check:['Compare the spade numbers with the wiring page, then rerun the OFF checks [f2] and [f4].'],src:'Official schematics'},
+    {c:'switch',s:'The lamps don\'t do what they used to',map:[['The lamp on the wiring map','part:lampS|lampP']],
+     causes:[{t:'Expected. On the Pro family the steam lamp becomes a boiler lamp, lit while the boiler isn\'t heating, and the brew lamp stays dark.',w:'fam:GCP'},{t:'On the Classic, stock integration leaves the internal boiler lamp dark; custom wiring turns the power lamp into the boiler lamp.',w:'unset:model'},{t:'Expected. On the Classic, stock integration leaves the internal boiler lamp dark; custom wiring turns the power lamp into the boiler lamp.',w:'set:model;fam:GC'}],
+     check:['Nothing to fix. If the boiler lamp never changes, check its wires against the wiring page.'],src:'Official schematics'},
+    {c:'switch',w:'wpath:SI',d:1,s:'A spark, smell or buzz near the switches',map:[['Parked connectors on the wiring map','part:f:S5|housing']],
+     causes:['A parked connector touching metal: in stock integration they stay live.','A low-voltage wire on a mains spade.'],
+     check:['Switch off and unplug.','Check every parked connector is insulated and tied down.','Rerun [f8] and [f9].'],src:'Official stock integration guide'},
+    {c:'fw',s:'An over-the-air update fails',
+     causes:['A release that needs an earlier breaking update first: builds before February 16, 2025 need 616ea70 before the latest.','The network dropping during upload.','Files flashed out of order.'],
+     check:['Don\'t power down during an update; a failed or canceled one reverts by itself.','Connect your device straight to the Gaggiuino access point and retry.','Core first, then the screen. Note your PZ and scale factors first; some settings reset.'],src:'Official MCU flashing guide, release notes'},
+    {c:'fw',s:'The ST-Link won\'t connect',
+     causes:['The PCB\'s USB-C is plugged in.','A wiring slip on 3.3V, SWDIO, SWCLK and GND.','STM32CubeProgrammer not working with your ST-Link.'],
+     check:['Unplug the USB-C, check the four wires, and try the older ST-Link utility if CubeProgrammer won\'t see it.'],src:'Official MCU flashing guide'},
+    {c:'extras',s:'The tank level reads wrong',
+     causes:['The sensor off center, or tubing in its view: it sees a cone, not a line.','Water sloshing as the pump draws.'],
+     check:['Center it over the water, clear of the tubes. Joining the intake and OPV tubes above the tank with a T keeps them out of its view.','Then set the ranges in the ToFnLED settings and check at known fill levels.'],src:'Official ToFnLED guide'},
+    {c:'extras',s:'The scales stay at 0',
+     causes:['Hardware scales not turned on in the settings.','No 5 V at the HX711 board.','The cable wired out of order against J8: D2, 5V, GND, CLK, D1.'],
+     check:['Turn on hardware scales in the settings, then measure 5 V at the board.','Check the cable pin by pin, then calibrate.'],src:'Official HW scales guide'},
+    {c:'extras',s:'The scales drift or jump',
+     causes:['Not calibrated.','Magnets proud of the surface, or load cell adhesive clamped by the housing.','An older green HX711 board with no tie between E- and GND.','Scale wires next to mains.'],
+     check:['Calibrate with a 200 to 400 g object, and repeat if it\'s off by more than 0.2 g.','Magnets flush, and clearance all round the load plates.','On a green board, a fine jumper from E- to GND steadies it.'],src:'Official HW scales guide'}
+  ];
+
+      return T;
+    })();
+    var CK=(function(){
+  /* Shared by checks.tpl.html and the wiring page's back-links (wiring-refs.js). */
+  function idl(v,res){var out=[];res.forEach(function(re){v.runs.forEach(function(r){if(re.test(r.short)&&out.indexOf(r.id)<0)out.push(r.id)})});return out}
+  /* where each check sits on the wiring map (see maplink.js); a function gets the schematic, so path checks light
+     the same runs their text names */
+  function rs(res){return function(v){var a=idl(v,res);return a.length?'runs:'+a.join(','):''}}
+  var SWL='short:J7,Brew sw 2 →,Steam sw P(3-4) →,Brew sw P(1-2) →';
+  /* each switch's signal wire plus the ground and its jumper */
+  var GJ='J7 GND,Brew sw 2 →,Steam sw P(3-4) →,Brew sw P(1-2) →',BRL='short:J7 B,'+GJ,STL='short:J7 S,'+GJ;
+  function E(v){return v.path==='CW'?'layer:E':null}
+  var MAPS={a3:'',a4:E,b1:E,b2:E,b3:E,b5:E,b7:'run:TC',
+    c1:'part:boiler',c2:'part:boiler',c3:'part:boiler',c4:'part:pump',c5:'part:pump',c6:'part:sol',c7:'run:TC',c8:function(v){return v.path==='SI'?'runs:3,P':'part:pump'},
+    d3:'short:J7',d4:'short:J7',d5:'short:J12',d6:'short:J13',
+    e1:rs([/^Socket L/,/^Power sw (4|P\(7-8\)) → SSR load R/,/^SSR load R → J11/]),e2:rs([/^Socket L/,/^Power sw (4|P\(7-8\)) → SSR load R/,/^SSR load R → J11/]),
+    e3:rs([/^Socket N → Pump fuse spade/,/^Pump fuse spade → J10/,/^Socket N → J10/]),e4:rs([/^SSR load L → Fuse/,/^Fuse left →/,/^SSR load L → Reset fuse/,/^Reset fuse left →/]),
+    e5:rs([/^BN2 element splice → Socket N/,/^Element (TR|BR) → BN2/]),e6:rs([/^J13 3 →/]),e7:rs([/^J12 P →/]),e8:rs([/^BN2 element splice → Valve N/,/^BN2 element splice → Socket N/]),
+    e9:rs([/^Pump N → Pump fuse/,/^Pump fuse → Pump N/,/^Pump fuse spade → Pump fuse/,/^Pump fuse → Pump fuse spade/,/^Socket N → Pump fuse spade/,/^Valve N → Pump fuse spade/]),
+    e11:'run:L',e12:'run:L',e13:'run:N',e14:'run:N',e15:'runs:Sb,J',e16:'part:boiler',e17:'run:3',e18:'run:P',e19:'part:swS',
+    e21:'run:L',e22:'run:L',e23:'run:N',e24:'runs:J,Sb',e25:'part:boiler',e26:'run:3',e27:'run:P',e28:'part:sol',
+    f1:BRL,f2:BRL,f3:STL,f4:STL,f5:'short:J9 R1',f6:'short:J9 GND',f7:SWL,f8:SWL,f9:SWL,
+    g1:'part:boiler',g4:'part:ssr',g5:'runs:J,Sa,Sb',g6:'part:rf|boiler',g7:'part:f:S5|housing',g8:'part:swB',g10:'part:pcb',g11:'layer:lv',g12:'run:TC',g13:'run:SCR',g16:'',g17:'part:pcb',g18:'run:TC',
+    h1:E,h2:E};
+
+      return MAPS;
+    })();
+    var CKT=[["a1", "Cord out of the wall and out of the machine", ""], ["a2", "Meter set to resistance or continuity", ""], ["a3", "Wiring complete and every connector seated", ""], ["a4", "Three-pin inlet and earth wiring fitted", "GC 120"], ["b1", "Inlet earth pin ↔ bare chassis metal", ""], ["b2", "Inlet earth pin ↔ boiler earth spade", ""], ["b3", "Inlet earth pin ↔ valve earth spade", "CW|GCP"], ["b4", "Inlet earth pin ↔ group head", ""], ["b5", "Inlet earth pin ↔ the cup warmer's earth wire", ""], ["b6", "Inlet earth pin ↔ PCB 5 V ground (J7 GND pin)", ""], ["b7", "Thermocouple lead ↔ boiler body", ""], ["c1", "Both heating elements together", ""], ["c2", "Element terminal ↔ boiler body", ""], ["c3", "Boiler thermal fuse, across it", ""], ["c4", "Pump thermal fuse (110 °C), across it", "CW|GCP|120"], ["c5", "Pump coil", ""], ["c6", "Valve coil", ""], ["c7", "Thermocouple loop", ""], ["c8", "Pump and valve leads back on", ""], ["d1", "Inlet L ↔ inlet earth", ""], ["d2", "Inlet N ↔ inlet earth", ""], ["d3", "Inlet L ↔ J7 GND (5 V side)", ""], ["d4", "Inlet N ↔ J7 GND (5 V side)", ""], ["d5", "PCB J12 spade ↔ inlet earth", ""], ["d6", "PCB J13 spade ↔ inlet earth", ""], ["d7", "Inlet L ↔ inlet N", ""], ["e1", "Inlet L ↔ PCB J11 spade", "CW"], ["e2", "Inlet L ↔ PCB J11 spade, switch off", "CW"], ["e3", "Inlet N ↔ PCB J10 spade", "CW"], ["e4", "SSR load-side screw ↔ element terminal on the fuse side", "CW"], ["e5", "Inlet N ↔ element terminal on the neutral side", "CW"], ["e6", "PCB J13 ↔ valve coil spade", "CW"], ["e7", "PCB J12 ↔ pump terminal", "CW"], ["e8", "Valve's other spade ↔ inlet N", "CW"], ["e9", "Pump's other terminal ↔ inlet N", "CW"], ["e11", "Inlet L ↔ PCB J11 spade", "SI GCP"], ["e12", "Inlet L ↔ PCB J11 spade, switch off", "SI GCP"], ["e13", "Inlet N ↔ PCB J10 spade", "SI GCP"], ["e14", "Inlet N ↔ PCB J10 spade, switch off", "SI GCP"], ["e15", "Inlet N ↔ the SSR screw with wire Sb", "SI GCP"], ["e16", "Inlet L ↔ element terminal on the fuse side", "SI GCP"], ["e17", "PCB J13 ↔ valve coil spade on Pb's wire", "SI GCP"], ["e18", "PCB J12 ↔ the pump terminal Pb came off", "SI GCP"], ["e19", "Valve's orange wire ↔ inlet N", "SI GCP"], ["e21", "Inlet L ↔ PCB J11 spade", "SI GC"], ["e22", "Inlet L ↔ PCB J11 spade, switch off", "SI GC"], ["e23", "Inlet N ↔ PCB J10 spade", "SI GC"], ["e24", "Inlet L ↔ the SSR screw with wire Sb", "SI GC"], ["e25", "Inlet N ↔ element terminal", "SI GC"], ["e26", "PCB J13 ↔ valve coil spade", "SI GC"], ["e27", "PCB J12 ↔ the pump terminal Pb came off", "SI GC"], ["e28", "Valve's right spade ↔ inlet N", "SI GC"], ["f1", "Brew ON: J7 B ↔ J7 GND", ""], ["f2", "Brew OFF: J7 B ↔ J7 GND", ""], ["f3", "Steam ON: J7 S ↔ J7 GND", ""], ["f4", "Steam OFF: J7 S ↔ J7 GND", ""], ["f5", "J9 R1 pin ↔ SSR + terminal", ""], ["f6", "J9 GND pin ↔ SSR − terminal", ""], ["f7", "Each J7 pin ↔ chassis", ""], ["f8", "Each J7 pin ↔ inlet L, then inlet N, brew and steam on", ""], ["f9", "Each J7 pin ↔ inlet L, then inlet N, brew and steam off", ""], ["g1", "Every crimp on or beside the boiler is bare, under silicone sleeve", ""], ["g2", "Terminals with two wires use parts sized for two", ""], ["g3", "Every crimp survives a firm tug", ""], ["g4", "SSR: fork terminals on all four screws, screws tight", ""], ["g5", "Brew thermostat replaced by J; steam thermostat disconnected", "SI"], ["g6", "Boiler thermal fuse in the heater line, pump fuse in the pump's path", "CW"], ["g7", "Parked connectors insulated and tied down", "SI"], ["g8", "Switch connectors out of the combined block, each insulated and labeled", "SI GCP EVO|E24"], ["g9", "The power switch stays on by itself", "GCP 230 ECO"], ["g10", "J10 N, J11 L, J12 P and J13 3 match the wiring page", ""], ["g11", "Nothing but 200 °C silicone wire touches the boiler or steam wand", ""], ["g12", "Thermocouple finger tight, lead free to rotate", ""], ["g13", "Screen cable sleeved where it passes the back vent", ""], ["g14", "No stray strands or bare metal anywhere", ""], ["g15", "Pressure sensor plumbing snug and dry", ""], ["g16", "Someone else traced the wiring against the wiring page", ""], ["g17", "Everything plugged back in", ""], ["g18", "Stop at once if the temperature falls while heating", ""], ["h1", "Cup warmer and funnel earth wires reconnected", ""], ["h2", "Inlet earth pin ↔ cup warmer plate", ""], ["h3", "Inlet L ↔ inlet earth", ""], ["h4", "Inlet N ↔ inlet earth", ""], ["h5", "Inlet earth pin ↔ ST-Link GND pin", ""], ["h6", "Inlet L, then inlet N ↔ ST-Link GND pin", ""]];
+    var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches'};
+    var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic'};
+    function GMo(){return window.GaggiaMachine||null}
+    function e(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+    /* a machine.js condition, with the install path, family and voltage taken from the drawing on show */
+    function okFor(w,v){
+      if(!w)return true;
+      return w.split(';').every(function(cl){
+        var neg=cl.charAt(0)==='!',c=neg?cl.slice(1):cl,i=c.indexOf(':'),k=c.slice(0,i),vals=c.slice(i+1).split(','),r;
+        if(k==='wpath'||k==='path')r=vals.indexOf(v.path)>=0;
+        else if(k==='fam')r=vals.indexOf(v.fam)>=0;
+        else if(k==='volts')r=vals.indexOf(String(v.volts))>=0;
+        else{var m=GMo();return !m||m.matches(cl)}
+        return neg?!r:r;
+      });
+    }
+    /* the checks' own condition tokens (as in checks.tpl.html) */
+    function okCheck(when,v){
+      if(!when)return true;
+      var m=GMo(),p=m&&m.get(),model=p&&p.model;
+      return when.split(' ').every(function(tok){return tok.split('|').some(function(a){
+        if(a==='SI'||a==='CW')return v.path===a;
+        if(a==='GC'||a==='GCP')return v.fam===a;
+        if(a==='120'||a==='230')return String(v.volts)===a;
+        if(a==='ECO'){var x=m&&m.eco&&m.eco();return x!==false}
+        return !model||model===a;
+      })});
+    }
+    function targets(map){if(map==null)return [];return typeof map==='string'?[[null,map]]:map}
+    function resolve(t,c){
+      var out={runs:[],part:null};
+      String(t||'').split(';').forEach(function(x){
+        var i=x.indexOf(':');if(i<0)return;var k=x.slice(0,i),val=x.slice(i+1);
+        if(k==='run')val.split('|').some(function(id){if(c.hasRun(id)){out.runs.push(id);return true}return false});
+        else if(k==='part')val.split('|').some(function(id){if(c.hasPart(id)){out.part=id;return true}return false});
+        else if(k==='runs')val.split(',').forEach(function(id){if(c.hasRun(id))out.runs.push(id)});
+        else if(k==='short')val.split(',').forEach(function(p){c.v.runs.forEach(function(r){if(r.short&&r.short.indexOf(p)===0&&c.hasRun(r.id))out.runs.push(r.id)})});
+      });
+      return out;
+    }
+    /* does a resolved target cover the pick? A part covers the runs that land on it, except the PCB, where everything lands */
+    function covers(res,sel,c){
+      var runs=res.runs.slice();
+      if(res.part&&res.part!=='pcb')runs=runs.concat(c.landing(res.part));
+      if(sel.t==='run')return runs.indexOf(sel.id)>=0;
+      if(sel.t==='part'){if(res.part===sel.id)return true;if(sel.id==='pcb')return false;var l=c.landing(sel.id);return res.runs.some(function(r){return l.indexOf(r)>=0})}
+      if(sel.t==='set')return runs.some(function(r){return sel.ids.indexOf(r)>=0});
+      return false;
+    }
+    function hit(map,sel,c){return targets(map).some(function(x){return okFor(x[2],c.v)&&covers(resolve(x[1],c),sel,c)})}
+    function tslug(i){var s='t-'+TR[i].s.toLowerCase().replace(/\{[a-z]+\}/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60),n=0;for(var j=0;j<i;j++)if(TR[j].s===TR[i].s)n++;return n?s+'-'+(n+1):s}
+    function fillT(s){var m=GMo();return String(s).replace(/\{gfci\}/g,m?m.text('gfci'):'GFCI or RCD').replace(/\{outlet\}/g,m?m.text('outlet'):'GFCI- or RCD-protected outlet').replace(/\{volts\}/g,m?m.text('volts'):'your mains voltage')}
+    function html(sel,c){
+      if(!sel||!c.v)return '';
+      var v=c.v,groups=[];
+      /* part guides: one link per guide, to the first step that covers it */
+      var pg=[];
+      Object.keys(PGD).forEach(function(k){
+        var d=PGD[k],vars=d.vars?d.vars.map(function(x){return x.k}):['all'];
+        vars.forEach(function(vk){
+          if((vk==='SI'||vk==='CW')&&vk!==v.path)return;
+          if((vk==='GC'||vk==='GCP')&&(vk!==v.fam||(d.mpath&&d.mpath!==v.path)))return;
+          var all=(d.steps[vk]||d.steps.all||[]),m=GMo(),shown=all.filter(function(s){return !s.when||!m||m.matches(s.when)});
+          for(var i=0;i<shown.length;i++){var s=shown[i];if(okFor(s.when,v)&&hit(s.map,sel,c)){
+            var lab=GNAME[k]+(vars.length>1&&k==='ps'?' ('+VNAME[vk]+')':'')+', step '+(i+1)+': '+s.t;
+            pg.push('<a href="part-guides.html#'+k+(vars.length>1?'/'+vk:'')+'/'+(i+1)+'">'+e(lab)+'</a>');break}}
+        });
+      });
+      /* every new wire: how to make it, and the boiler-end step when it has one */
+      if(sel.t==='run'){
+        var r=c.runOf(sel.id);
+        if(r&&!r.stock){
+          var bare=!!(r.k&&(['b','mb'].indexOf(r.k[0])>=0||['b','mb'].indexOf(r.k[1])>=0)),ws=(PGD.wire.steps.all||[]).filter(function(s){var m=GMo();return !s.when||!m||m.matches(s.when)}),bi=-1;
+          ws.forEach(function(s,i){if(bi<0&&/^Bare spades/.test(s.t))bi=i});
+          pg.push(bare&&bi>=0?'<a href="part-guides.html#wire/'+(bi+1)+'">'+e('Making the wires, step '+(bi+1)+': '+ws[bi].t)+'</a>':'<a href="part-guides.html#wire">Making the wires</a>');
+        }
+      }
+      if(pg.length)groups.push(['Part guides',pg]);
+      /* runbook steps */
+      var rb=[];
+      RB.forEach(function(p,pi){p.steps.forEach(function(s){
+        if(s.map==null||!okFor(s.w,v))return;
+        var m=GMo();if(s.w&&m&&!m.matches(s.w))return;
+        if(hit(s.map,sel,c)){var t=Array.isArray(s.t)?s.t.map(function(x){return typeof x==='string'?x:x[0]}).join(' '):s.t;rb.push('<a href="runbook.html#'+s.id+'">'+e('Phase '+pi+': '+fillT(t))+'</a>')}
+      })});
+      if(rb.length)groups.push(['Runbook',rb]);
+      /* power-on checks for this schematic */
+      var ck=[];
+      CKT.forEach(function(x){
+        if(!(x[0] in CK)||!okCheck(x[2],v))return;
+        var t=CK[x[0]];if(typeof t==='function')t=t(v);if(!t)return;
+        if(covers(resolve(t,c),sel,c))ck.push('<a href="power-on-checks.html#'+x[0]+'" title="'+e(x[1])+'">'+x[0]+'</a>');
+      });
+      if(ck.length)groups.push(['Power-on checks',ck]);
+      /* troubleshooting */
+      var tr=[];
+      TR.forEach(function(t,i){
+        if(t.map==null||!okFor(t.w,v))return;
+        if(hit(t.map,sel,c))tr.push('<a href="troubleshooting.html#'+tslug(i)+'">'+e(fillT(t.s))+'</a>');
+      });
+      if(tr.length)groups.push(['Troubleshooting',tr]);
+      if(!groups.length)return '';
+      return '<div class="d-refs"><span class="k">Elsewhere on the site</span><ul>'+groups.map(function(g){
+        return '<li><span class="rg">'+g[0]+'</span>'+g[1].join(g[0]==='Power-on checks'?' ':'<span class="sep"> · </span>')+'</li>';
+      }).join('')+'</ul></div>';
+    }
+    return {html:html};
+  })();
+
   /* ---------- the wiring map ----------
      WM holds one drawing per schematic (built by wiring_map.py): the SVG, its parts and which parts each run joins.
      Tap a wire or its tag for that run, a part for everything that lands on it; the layer chips, the stepper and the
@@ -811,7 +1413,14 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
       if(v.runs.some(function(r){return r.opt}))h+='<span><i style="border-top-style:dashed"></i>Optional run</span>';
       el('mlegend').innerHTML=h;
     }
+    /* the card, then the back-links: where else the site covers what's picked (wiring-refs.js) */
     function detail(){
+      detail0();
+      if(!sel||typeof REFS==='undefined')return;
+      var c={v:v,hasRun:hasRun,hasPart:hasPart,runOf:runOf,landing:function(p){return Object.keys(mp.ends).filter(function(id){return ends(id).indexOf(p)>=0&&hasRun(id)})}};
+      var h=REFS.html(sel,c);if(h)el('mdetail').insertAdjacentHTML('beforeend',h);
+    }
+    function detail0(){
       var d=el('mdetail');
       if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it. Step through with the arrows to go run by run.</p>';return}
       var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+'<button type="button" class="chip" data-mclear>Show everything</button></span>';

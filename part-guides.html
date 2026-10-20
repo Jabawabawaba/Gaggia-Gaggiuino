@@ -839,6 +839,8 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
   }
 
 
+  /* Part guides data: photo links (PH) and the guides (G). Shared by part-guides.js and the wiring page's
+     back-links (wiring-refs.js), so a step's map target is written once. Needs GM, prof() and famOf() in scope. */
   var PH={
     tc:'https://github.com/user-attachments/assets/7eef096a-bcce-4d98-8a7d-ae898c3afec3',
     xf:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/78d801f3-9c4f-4c17-8105-74e32711af09',
@@ -1047,6 +1049,8 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       ]
     }};
 
+
+
   /* ---------------- engine ---------------- */
   function num(v,d){return v==null?d:v}
   function tf(s){return 'translate('+num(s.x,0)+'px,'+num(s.y,0)+'px) rotate('+num(s.r,0)+'deg) scale('+num(s.sx,num(s.s,1))+','+num(s.sy,num(s.s,1))+')'}
@@ -1207,6 +1211,16 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     where();
     ['tc','ps','fuse','wire','ssr','sw'].forEach(function(k){guides[k]=new Guide(k,G[k])});
     window.addEventListener('gaggia-machine',function(){where();for(var k in guides)if(guides[k].root)guides[k].setup(false)});
+    window.addEventListener('hashchange',fromHash);fromHash();
+  }
+  /* links from other pages (the wiring map's back-links): #tc/5 opens step 5, #ssr/CW/3 the custom wiring version's step 3 */
+  function fromHash(){
+    var h=(location.hash||'').slice(1).split('/'),g=guides[h[0]];if(!g||!g.root||h.length<2)return;
+    if(h.length>2&&g.def.vars&&g.def.vars.some(function(x){return x.k===h[1]})){g.pick=h[1];g.setup(false)}
+    var n=parseInt(h[h.length-1],10)-1;if(!(n>=0))n=0;n=Math.min(n,g.steps.length-1);
+    var sec=g.root.closest('section')||g.root;sec.scrollIntoView({block:'start'});
+    g.played=true;g.go(n,true);
+    var li=g.list.children[n];if(li&&window.matchMedia&&matchMedia('(max-width:860px)').matches)setTimeout(function(){g.root.querySelector('.pg-fig').scrollIntoView({block:'start'})},60);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
