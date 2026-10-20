@@ -76,8 +76,8 @@ var TY=(function(){
   })();
   var CKT=%%CHECK_INDEX%%;
   var GL=%%GLOSSARY_INDEX%%;
-  var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches'};
-  var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic'};
+  var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches',scr:'Screen housing',tof:'ToFnLED',fw:'Firmware updates',scl:'Hardware scales'};
+  var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic',front:'front mount',funnel:'funnel mount',rear:'rear mount',ota:'over Wi-Fi',wired:'by wire'};
   function andList(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
   function stepT(t){t=typeof t==='function'?t():t;return Array.isArray(t)?t.map(function(x){return typeof x==='string'?x:x[0]}).join(' '):String(t||'')}
   function fillT(s){return String(s).replace(/\{gfci\}/g,GM?GM.text('gfci'):'GFCI or RCD').replace(/\{outlet\}/g,GM?GM.text('outlet'):'GFCI- or RCD-protected outlet').replace(/\{volts\}/g,GM?GM.text('volts'):'your mains voltage')}
@@ -116,7 +116,7 @@ var TY=(function(){
       var list=(d.vars?d.steps[v]:d.steps.all)||d.steps.all||[];
       var shown=list.filter(function(s){return !s.when||ok(s.when)});
       for(var j=0;j<shown.length;j++)if(stepT(shown[j].t)===r[3]){
-        return {h:'part-guides.html#'+r[1]+(d.vars?'/'+v:'')+'/'+(j+1),l:'Part guides: '+GNAME[r[1]]+(d.vars&&r[1]==='ps'?' ('+VNAME[v]+')':'')+', step '+(j+1)+': '+r[3]};
+        return {h:'part-guides.html#'+r[1]+(d.vars?'/'+v:'')+'/'+(j+1),l:'Part guides: '+GNAME[r[1]]+(d.vars&&/ps|scr|fw/.test(r[1])?' ('+VNAME[v]+')':'')+', step '+(j+1)+': '+r[3]};
       }
       return {h:'part-guides.html#'+r[1],l:'Part guides: '+GNAME[r[1]]};
     }

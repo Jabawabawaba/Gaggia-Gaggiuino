@@ -9,10 +9,10 @@
 %%INCLUDE:part-defs.svg.html%%
 <div class="wrap">
   <header class="top">
-    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Install</b></span><span>Part guides</span><span>six guides, drawn step by step</span><span class="rivet" aria-hidden="true"></span></div>
+    <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Install</b></span><span>Part guides</span><span>ten guides, drawn step by step</span><span class="rivet" aria-hidden="true"></span></div>
     <h1>Part Guides</h1>
-    <p class="lede">The thermocouple, the pressure sensor, the resettable fuse, the wires themselves, the SSR and the switches, each drawn step by step. Tap a step to watch it, or step through with the arrows. The runbook has the same work in order with everything else.</p>
-    <nav class="pg-jump" aria-label="Guides on this page"><a class="chip" href="#tc">Thermocouple</a><a class="chip" href="#ps">Pressure sensor</a><a class="chip" href="#fuse">Resettable fuse</a><a class="chip" href="#wire">Making the wires</a><a class="chip" href="#ssr">SSR</a><a class="chip" href="#sw">Switches</a></nav>
+    <p class="lede">The thermocouple, the pressure sensor, the resettable fuse, the wires themselves, the SSR and the switches, then the screen housing, the ToFnLED, firmware updates and the hardware scales, each drawn step by step. Tap a step to watch it, or step through with the arrows. The runbook has the same work in order with everything else.</p>
+    <nav class="pg-jump" aria-label="Guides on this page"><a class="chip" href="#tc">Thermocouple</a><a class="chip" href="#ps">Pressure sensor</a><a class="chip" href="#fuse">Resettable fuse</a><a class="chip" href="#wire">Making the wires</a><a class="chip" href="#ssr">SSR</a><a class="chip" href="#sw">Switches</a><a class="chip" href="#scr">Screen</a><a class="chip" href="#tof">ToFnLED</a><a class="chip" href="#fw">Firmware</a><a class="chip" href="#scl">Scales</a></nav>
   </header>
 
   <div class="warn"><strong>Cord out, boiler cold</strong><p>Unplug the machine and let the boiler cool before you open it. The drawings show what your hands do, not to scale; steps with a photo in the official guide link to it.</p></div>
@@ -138,6 +138,84 @@
     </div>
   </section>
 
+  <h2 class="pg-group" id="more">The screen, accessories and firmware</h2>
+  <p class="pg-gnote">Not wiring, but part of the build. The official guides have the full detail; each step here links to its photo.</p>
+
+  <section class="block" id="scr" aria-labelledby="h-scr">
+    <div class="sec-h"><h2 id="h-scr">Screen housing</h2><span class="sum">Gen 3, 4.3"</span></div>
+    <p class="pg-where" id="pg-scr-where"></p>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>The screen and its cable, already tested on the bench</li><li>The printed housing (back, front cover) and the mount you chose: front, funnel or rear</li><li data-pv="front">Six 20 × 10 × 3 mm rectangular magnets and super glue or epoxy (80 °C double-sided tape on a machine that isn't magnetic)</li><li data-pv="funnel,rear">The adjustable plate</li><li data-pv="funnel">Three M3 × 30 mm socket head screws, five M3 washers (7 mm OD or less), five split lock washers and two M3 nylock nuts</li><li data-pv="funnel">The funnel cover, its latch, an M3 heat-set insert (4.5 or 4.6 mm OD, 5 or 6 mm long) and a soldering iron</li><li data-pv="rear">Two M3 × 30 mm socket head screws, four M3 washers (7 mm OD or less), four split lock washers and two M3 nylock nuts</li><li>Kapton tape (20 mm) or other high-temperature tape</li></ul></div>
+      <div><span class="k">What it does</span><p>It holds the screen where you can reach it and keeps its cable out of the way. Front: magnets on the machine's front. Funnel: on the funnel, swinging aside to fill the tank. Rear: hooked into the back vent.</p></div>
+    </div>
+    <div class="pg" id="pg-scr-g">
+      <div class="pg-figcol">
+        <div class="pg-vars" role="group" aria-label="Which mount"></div>
+        <figure class="pg-fig">%%INCLUDE:part-scr.svg.html%%
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="tof" aria-labelledby="h-tof">
+    <div class="sec-h"><h2 id="h-tof">ToFnLED</h2><span class="sum">optional · tank level and light</span></div>
+    <p class="pg-where" id="pg-tof-where"></p>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>The ToFnLED board (NCP5623 or PCA9632 LED controller)</li><li>A Qwiic cable (JST-SH, 4-pin), 250 mm or more</li><li>The printed housing, two 5 × 1 mm disc magnets and super glue (or 80 °C double-sided tape)</li><li>Optional: a 6 mm barbed T to join the tank tubes</li></ul></div>
+      <div><span class="k">What it does</span><p>A time-of-flight sensor measures the distance down to the water, so the screen shows the tank level, and an RGB LED lights the tank. It talks to the PCB over I2C on J2.</p></div>
+    </div>
+    <div class="pg" id="pg-tof-g">
+      <div class="pg-figcol">
+        <figure class="pg-fig">%%INCLUDE:part-tof.svg.html%%
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="fw" aria-labelledby="h-fw">
+    <div class="sec-h"><h2 id="h-fw">Firmware updates</h2><span class="sum">Gen 3 · PCB v4</span></div>
+    <p class="pg-where" id="pg-fw-where"></p>
+    <div class="pg-note"><p><b>PCB v3.x board repair.</b> Some PCB v3.1, v3 and v2 boards can switch the heaters on while a debugger is connected. The official PCB upgrade page has a test and a resistor fix; without it, flash those boards with the machine unplugged. PCB v4 doesn't need it. <a href="https://gaggiuino.github.io/#/guides-upgrade/pcb-upgrade?id=pa15-pulldown-rework">PA15 pull-down rework</a></p></div>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li data-pv="ota">A phone or computer on the machine's Wi-Fi</li><li data-pv="ota">The three files from the official release</li><li data-pv="ota">A screen or headless board enabled for Gen 3 by an official supplier, as the official flashing page requires</li><li data-pv="wired">A computer with STM32CubeProgrammer</li><li data-pv="wired">A WeAct Mini Debugger or an ST-Link, with four jumper wires</li></ul></div>
+      <div><span class="k">What it does</span><p>Updates the core (the STM32 on the PCB) and the screen (its ESP32 and the web UI). On PCB v4 all three go over Wi-Fi; the wire is the fallback for the core, and the only way on PCB v3.1.</p></div>
+    </div>
+    <div class="pg" id="pg-fw-g">
+      <div class="pg-figcol">
+        <div class="pg-vars" role="group" aria-label="How"></div>
+        <figure class="pg-fig">%%INCLUDE:part-fwo.svg.html%%%%INCLUDE:part-fww.svg.html%%
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
+  <section class="block" id="scl" aria-labelledby="h-scl">
+    <div class="sec-h"><h2 id="h-scl">Hardware scales</h2><span class="sum">optional · weight in the cup</span></div>
+    <p class="pg-where" id="pg-scl-where"></p>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>The printed scales base, center cover and the tray adapter for your tray</li><li>Two 750 g load cells (buy three or four: quality varies)</li><li>Two HX711 boards and a 1 kΩ resistor, or a dualScaleBoard, or the FPC dualScaleBoard with its cable adapter board and a 600 mm FPC cable (0.5 mm, 10P, forward direction)</li><li>M3 flat-head screws (two magnetic), two self-tapping screws, twenty 5 × 2 mm magnets, gap-filling super glue</li><li>Stripboard, five right-angle header pins, 26 AWG wire, a 5-pin JST-XH and a 5-pin JST-PH (FPC board: no stripboard, a JST-XH to PH lead of 150 mm or more, and 80 °C double-sided tape)</li><li>A 200 to 400 g object and an accurate scale, for calibration</li></ul></div>
+      <div><span class="k">What it does</span><p>Weighs the shot as it runs, through J8. Without them Gaggiuino estimates the weight (predictive scales), which is enough for most; the official guide calls this an advanced build that needs accurate prints.</p></div>
+    </div>
+    <div class="pg" id="pg-scl-g">
+      <div class="pg-figcol">
+        <figure class="pg-fig">%%INCLUDE:part-scl.svg.html%%
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
   <section class="block" id="src" aria-labelledby="h-src">
     <div class="sec-h"><h2 id="h-src">Sources</h2></div>
     <ul class="pg-src">
@@ -146,6 +224,7 @@
       <li>Gaggiuino, <a href="https://gaggiuino.github.io/#/learning/wiring-basics?id=thermal-fuse">wiring basics: thermal fuse</a>, and the machine-specific guide's <a href="https://gaggiuino.github.io/#/guides/machine-specific-guide?id=grounding">grounding</a> (the fuse clip as the earth point).</li>
       <li>Gaggiuino, <a href="https://gaggiuino.github.io/#/learning/wiring-basics">wiring basics</a> (connectors, crimping, stripping), stock wiring integration's <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=pump-area">pump area</a>, <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=ssr">SSR</a> and <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration?id=switch">switch</a> sections, and the machine-specific guide's <a href="https://gaggiuino.github.io/#/guides/machine-specific-guide?id=combined-connector-insulation">combined connector insulation</a>.</li>
       <li>Gaggiuino <a href="https://gaggiuino.github.io/#/?id=bill-of-materials">parts list</a>: the fittings, the tap block's 010 O-ring (6 mm inside, 1.8 mm thick), the flat O-ring and the M5 × 25 screws; the custom wiring guide's bare BN1.25 splices. Docs read October 2026.</li>
+      <li>Gaggiuino, <a href="https://gaggiuino.github.io/#/guides/interface-screen?id=assembly">Interface: Screen</a>, <a href="https://gaggiuino.github.io/#/accessories/tofnled">Accessory: ToFnLED</a>, <a href="https://gaggiuino.github.io/#/guides-stm32/mcu-flashing">MCU Flashing</a>, <a href="https://gaggiuino.github.io/#/guides-upgrade/pcb-upgrade">PCB Upgrade Guide</a>, <a href="https://gaggiuino.github.io/#/accessories/hw-scales">Accessory: Hardware Scales</a> and the <a href="https://gaggiuino.github.io/#/learning/user-manual-gen3">Gen 3 user manual</a>, with their photos.</li>
       <li>Part names as Peak Coffee lists them in its <a href="https://www.peakcoffee.cc/product/gaggiuino-v4-kit/">V4 kit</a>.</li>
       <li>On this site: the stock-integration moves and every run in <a href="wiring.html">Wiring</a>, <a href="runbook.html">Runbook</a> phases 2 and 3, <a href="power-on-checks.html">Power-on checks</a>, <a href="model-notes.html">model notes</a>.</li>
     </ul>

@@ -208,3 +208,177 @@
       ]
     }};
 
+  /* ---------------- the screen, the ToFnLED, firmware and the hardware scales (official guides: Interface: Screen,
+     Accessory: ToFnLED, MCU Flashing, Accessory: Hardware Scales; read October 2026) ---------------- */
+  var SP={ov:'https://github.com/user-attachments/assets/888b31f2-d0e5-48d8-af31-7133bd122f70',fMag:'https://github.com/user-attachments/assets/ead5c319-6b55-48c7-8b6b-0f29e8354e0f',fGap:'https://github.com/user-attachments/assets/588d2c45-c75d-4f03-a2a2-f3a7fb753912',fPlug:'https://github.com/user-attachments/assets/028e9195-825e-48e4-b37b-14276b37e91b',
+    uLid:'https://github.com/user-attachments/assets/99be6c31-095a-4fbf-ba57-a0f48e4b8bd4',uIns:'https://github.com/user-attachments/assets/6b5498d2-14ce-473d-86b5-116dd9999caa',uVent:'https://github.com/user-attachments/assets/8c1e694a-89a4-4cce-9641-f92db90aab87',uPlug:'https://github.com/user-attachments/assets/99454a58-6f10-4422-9010-ad2a61bfa8cc',
+    rVent:'https://github.com/user-attachments/assets/1ecfdfb7-cd2e-49c0-895f-76fc201f7e7c',rPlug:'https://github.com/user-attachments/assets/8724315e-99c0-4e59-8242-e98b0531ee6c',posts:'https://github.com/user-attachments/assets/2d059c58-a688-409c-9bd9-183443854bc7',cover:'https://github.com/user-attachments/assets/fc37622f-ee69-4ec3-af85-874e8c00d273',
+    fClip:'https://github.com/user-attachments/assets/343d150b-3509-481a-80a5-b4e811b0ea3c',fOn:'https://github.com/user-attachments/assets/2a1c65f7-1ec7-46a0-bfa5-59710317190d',fTop:'https://github.com/user-attachments/assets/44cd4587-2e95-4c72-bc0c-595ed9d91755',
+    plate:'https://github.com/user-attachments/assets/d9653f52-dd7f-4593-b4bb-dfeb9fba9cd2',swiv:'https://github.com/user-attachments/assets/9bc40925-76a9-4868-bed5-2a554826f1b7',zip:'https://github.com/user-attachments/assets/bc3a08cb-6f48-489a-9d2c-367b53e5f1c9',uOn:'https://github.com/user-attachments/assets/8f151c1e-93fa-4e46-81d0-cb45a3dc9d63',
+    rPl:'https://github.com/user-attachments/assets/69b796ea-27e1-4fb2-a55e-b474187ac989',rOn1:'https://github.com/user-attachments/assets/d8067907-8ccb-4b46-b1b2-455515eea056',rOn2:'https://github.com/user-attachments/assets/e498133e-9f96-4136-bac3-5a3531091e48',
+    bench:'https://github.com/user-attachments/assets/5ea67541-0cf4-4064-9f87-19ad900bef8b',
+    tMag:'https://user-images.githubusercontent.com/117388662/256454738-f7717135-2389-451c-b2c9-9439c2159eee.png',tOn:'https://user-images.githubusercontent.com/117388662/256464601-0d54fd7a-0f65-495e-8169-83fe9bd14a53.png',tFilm:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/007150d8-7a48-4bce-859a-5bb903692cf6',
+    tTape:'https://user-images.githubusercontent.com/117388662/265826223-1f28003f-5d1a-4046-ab25-c19f5b2376f6.png',tCone:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/b59cf346-f689-4e5c-b32d-8c6abc9468b5',tCtl:'https://user-images.githubusercontent.com/117388662/274979976-ae9f02ab-8c61-438e-81ea-adfabdff183b.png',
+    tT:'https://user-images.githubusercontent.com/117388662/256653622-6f84ea94-ee0c-4dbe-aae4-88dc015f8d03.png',tV:'https://user-images.githubusercontent.com/117388662/256655744-be96feb6-40d0-4f12-91cb-79502fb5027e.png',labels:'https://gaggiuino.github.io/schematics/stm32_pcbv3_1_board_labels.png',
+    ledset:'https://gaggiuino.github.io/manual/gen3/mbed/003_005_settings_led.png',
+    oAp:'https://github.com/user-attachments/assets/af24bb4e-1608-4b45-b78d-ccb7d15bec18',oSet:'https://github.com/user-attachments/assets/0c7114ec-6e85-4894-bfc8-d779a8de38b5',oUp:'https://github.com/user-attachments/assets/f70a4726-daa2-459b-aacc-4167444edf87',oWait:'https://github.com/user-attachments/assets/ae9f802d-d9a1-4b26-a504-dbecb29cdab7',oDone:'https://github.com/user-attachments/assets/faba0d3e-15fd-4324-a28f-f170c0950757',
+    about:'https://gaggiuino.github.io/manual/gen3/mbed/003_006_settings_about.png',wFile:'https://github.com/user-attachments/assets/fee8093d-cabe-4158-bfdf-40ce2cc233a3',wPcb:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/58377fd5-49f2-47f2-98d6-7c800eb6e712',wBp:'https://user-images.githubusercontent.com/117388662/262874364-c44f2eea-6a64-4731-adb8-a0c1a16089d6.png',wGo:'https://github.com/user-attachments/assets/13df020c-9989-4ae9-ac7b-abaf5ce19d6c',
+    sAdh:'https://user-images.githubusercontent.com/117388662/256964354-bca6c07c-4a85-4b3a-b499-7e2b3032d524.png',sFit:'https://user-images.githubusercontent.com/117388662/256964444-025e6320-b85b-433e-99ba-829ea5907b91.png',sChk2:'https://user-images.githubusercontent.com/117388662/256964641-3acbc0d1-9491-4017-852f-5f5b65086ada.png',sChkD:'https://user-images.githubusercontent.com/117388662/256964653-13ea4859-a5e9-4153-9c0a-796def530f7f.png',sChkF:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/3c661e2a-6888-4adb-9d01-0e69c97f2c83',
+    sCut2:'https://user-images.githubusercontent.com/117388662/256964791-0b282d78-d4fb-4158-b2d2-5aa005f3e443.png',sCutD:'https://user-images.githubusercontent.com/117388662/256964801-62946762-2394-4d70-b601-50f07f1cff0c.png',sJp11:'https://user-images.githubusercontent.com/117388662/256964853-8b8c8c03-a83c-412a-989c-739abae6975f.png',
+    sStr2:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/58e57bcd-a5f6-4057-839d-e0c8096b1ae9',sStrD:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/2e791cc1-157b-4c02-8e98-080b46ae99a9',sDone2:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/5d5141a2-c5ab-4270-a4cd-cc8d902273d4',sDoneD:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/92927dc9-2266-4f6e-9814-4574f6d78684',sDoneF:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/5c6976a2-43b7-4867-9a70-1909f626b2b3',
+    sMag:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/170b36e7-43d6-47af-8bd2-ca8c6598fa56',sMag2:'https://user-images.githubusercontent.com/117388662/257019766-5bf71df5-d363-4e2c-8d49-f4f217209356.png',sTrayCut:'https://user-images.githubusercontent.com/117388662/257088268-c1ab40c7-4c69-4b48-a10c-3b890e8cc97b.png',sTrayAd:'https://user-images.githubusercontent.com/117388662/267475732-14dbea6c-ff72-45ff-959c-9a5ef89ce215.png',sSpacer:'https://user-images.githubusercontent.com/117388662/257087801-911f627f-ac5b-4011-802c-8ee73655e872.png',
+    sXH:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/8e9a1b4d-c7b5-40e6-a3a2-208fceedeef2',sRoute:'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/3a2590cf-f572-4f2c-93c0-45c246a23b9e',sPar:'https://user-images.githubusercontent.com/117388662/257089574-2004216e-7231-4c33-b8eb-ff90b93f4dfa.png',sSnap:'https://user-images.githubusercontent.com/117388662/257089656-57ecccf3-1225-4ff7-a387-01ace2999414.png',sClr:'https://user-images.githubusercontent.com/117388662/257089747-74fd447d-a299-4d65-a408-b325f09ec326.png',
+    sPlates:'https://github.com/user-attachments/assets/018a0a44-ac59-4ced-9f2d-6c56f6de97ef',s2500:'https://github.com/user-attachments/assets/6487f076-fbb9-44a5-bfa1-153c4965f1c4',sSign:'https://github.com/user-attachments/assets/706d466d-bffa-43f5-b1f4-ac8d25a39c4b',sDoneT:'https://user-images.githubusercontent.com/117388662/257110758-a6eae8c8-c12e-41eb-bfa3-586ae03dd88a.png'};
+
+  /* the screen housing: front, funnel or rear mount */
+  var SCB={hb:{o:1},hbl:{o:1},gap:{o:0},scr:{y:-46,o:0},scab:{d:1},hf:{o:0,s:.94},topf:{o:0},tape1:{o:0},onF:{o:0},onU:{o:0},onR:{o:0},rcF:{d:1},rcU:{d:1},rcR:{d:1},tapeF:{o:0},ties:{o:0},gnd:{o:0},lift:{o:0},cw:{y:0,o:1},fn:{y:0,o:1},fnl:{o:1}};
+  function scb(extra){var o={};for(var k in SCB)o[k]=SCB[k];for(var e in extra)o[e]=extra[e];return o}
+  var S_WIRE={t:'Wire it first',d:'Plug the cable into the PCB first, as on the bench test, before it goes through anything: the two small screen connectors slip through the housing gaps, the other end often can\'t.',
+       a:[['scab',{d:0},0,1200],['gap',{o:1},1000,300]],links:[['Bench test','https://gaggiuino.github.io/#/guides-stm32/pcb-guide?id=pre-install-test']]};
+  var S_POSTS={t:'Screen onto the upper posts first',d:'They have a retention feature. Check the wires sit below the surface of the housing and the screen PCB, and aren\'t pinched under the connectors.',
+       a:[['gap',{o:0},0,200],['scr',{o:1},0,250],['scr',{y:0},200,1000]],ph:SP.posts};
+  var S_COVER={t:'Front cover: top edge first',d:'Start with the top side, the one with the thinner bezel, check no wires are in the way, then snap the lower side on. To take it off again, use the fingernail slots.',
+       a:[['hbl',{o:0},0,300],['hf',{o:1},0,300],['topf',{o:1},0,300],['hf',{s:1},300,700],['topf',{o:0},1200,300]],ph:SP.cover};
+  function sPlug(ph,extra){return {t:'Cable through the back, then plug in',d:'Feed the cable through the mount (if it has a hole for it) and the housing back, then plug it into the screen by the schematic, pin by pin, not by color. Keep the wires off the big components; Kapton tape can hold them.',
+       a:[['gap',{o:1},0,300],['scr',{o:1},200,300]].concat(extra||[]),ph:ph}}
+  G.scr={vars:[{k:'front',l:'Front mount'},{k:'funnel',l:'Funnel mount'},{k:'rear',l:'Rear mount'}],def:function(){return 'front'},svg:'pg-scr',
+    base:{front:scb({mtF:{o:0,y:20},mgs:{o:0,y:-16},glue:{o:0}}),
+          funnel:scb({fcov:{o:0},lid:{x:0,o:0},pry:{o:0,x:20},hsi:{o:0,y:-20},iron:{o:0,y:-20},lat:{o:0,x:-14},ap:{o:0,y:-12},sw:{o:0}}),
+          rear:scb({ap:{o:0,y:-12},rm:{o:0,y:24}})},
+    steps:{
+      front:[S_WIRE,
+        {t:'Magnets into the front mount',d:'Over a magnetic surface, glue two magnets into each pocket with super glue or epoxy so they sit flat. On a machine that isn\'t magnetic, use double-sided tape rated for 80 °C or more instead.',
+         a:[['gap',{o:0},0,200],['mtF',{o:1,y:0},0,600],['glue',{o:1},600,300],['mgs',{o:1},800,200],['mgs',{y:0},800,700],['glue',{o:0},1500,200]],ph:SP.fMag},
+        {t:'Wires through the housing gap',d:'Route them through the gap in the housing as the official photo shows.',a:[['gap',{o:1},0,300]],ph:SP.fGap},
+        sPlug(SP.fPlug),S_POSTS,S_COVER,
+        {t:'Clip the mount on',d:'Line the mount up with the housing, press the clip down gently, then push the mount forward until the clip springs back. Keep the wires centered without much slack so they don\'t get pinched.',
+         a:[['mtF',{y:-120,o:0},0,1100]],ph:SP.fClip},
+        {t:'Onto the machine',d:'With the cup warmer off, set it on the front of the machine, tidy the cable as the official photo shows and feed the spare length back inside. Tape the cable down with Kapton or another high-temperature tape.',
+         a:[['hb',{o:0},0,400],['hf',{o:0},0,400],['scr',{o:0},0,400],['scab',{o:0},0,400],['cw',{y:-16,o:.4},0,500],['fn',{y:-16,o:.4},0,500],['fnl',{y:-16,o:.4},0,500],['onF',{o:1},400,500],['rcF',{d:0},600,1200],['tapeF',{o:1},1700,300]],
+         ph:SP.fOn,map:'run:SCR',chk:[['g13','Screen cable sleeved where it passes the back vent']]},
+        {t:'Funnel and cup warmer back on',d:'Once everything sits where you want it. Reconnect their earth wires: they keep the metal top bonded to earth.',
+         a:[['cw',{y:0,o:1},0,600],['fn',{y:0,o:1},0,600],['fnl',{y:0,o:1},0,600],['gnd',{o:1},600,400]],ph:SP.fTop,chk:[['h1','Cup warmer and funnel earth wires reconnected'],['h2','Inlet earth pin to cup warmer plate']]}
+      ],
+      funnel:[S_WIRE,
+        {t:'Open the funnel cover',d:'Put a screwdriver in the pry slot on the back of the funnel cover and gently slide the lid off.',
+         a:[['gap',{o:0},0,200],['fcov',{o:1},0,400],['lid',{o:1},0,400],['pry',{o:1},300,300],['pry',{x:0},500,400],['lid',{x:60,o:0},900,900],['pry',{o:0},1600,300]],ph:SP.uLid},
+        {t:'Heat-set insert, then the latch',d:'If the insert isn\'t already in, set it with a soldering iron. Then press the latch into the cover plate by hand: it locks the screen\'s rotation, and pressing it lets you swing the screen out of the way to fill the tank.',
+         a:[['iron',{o:1},0,300],['hsi',{o:1},0,300],['iron',{y:0},300,700],['hsi',{y:0},300,700],['iron',{o:0,y:-20},1100,400],['lat',{o:1},1300,300],['lat',{x:0},1300,700]],ph:SP.uIns},
+        {t:'Wires through the vent',d:'Route them through the vent as the official photo shows, sleeved where they pass its edge. Centered works, but shifting them over gives more clearance from the mains wiring.',
+         a:[['rcU',{d:0},0,1400]],ph:SP.uVent,map:'run:SCR',chk:[['g13','Screen cable sleeved where it passes the back vent']]},
+        sPlug(SP.uPlug),S_POSTS,S_COVER,
+        {t:'Tape the wires, clip on the plate',d:'Tape the wires in place, line the adjustable plate up with the housing, press the clip down gently and push the plate forward until the clip springs back. Check the wires are in the gap, then take the tape off.',
+         a:[['tape1',{o:1},0,300],['ap',{o:1,y:0},300,700],['tape1',{o:0},1300,300]],ph:SP.plate},
+        {t:'The swivel',d:'Screw the swivel to the plate with the screws, washers, lock washers and lock nuts, in the washer order the official photo shows so the lock washers can\'t cut into the print. They act as springs: tighten until the angle moves by hand and stays put. If the vertical screw works loose later, a tiny drop of plastic-safe threadlocker on the insert holds it.',
+         a:[['sw',{o:1},0,500]],ph:SP.swiv},
+        {t:'Onto the funnel',d:'Zip-tie the wires if you like. Put the funnel and cup warmer back, reconnecting their earth wires, then set the mount on the funnel.',
+         a:[['hb',{o:0},0,400],['hf',{o:0},0,400],['scr',{o:0},0,400],['scab',{o:0},0,400],['ap',{o:0},0,400],['sw',{o:0},0,400],['fcov',{o:0},0,400],['lat',{o:0},0,400],['hsi',{o:0},0,400],
+            ['fnl',{o:0},0,300],['onU',{o:1},400,500],['ties',{o:1},800,300],['gnd',{o:1},1100,400]],ph:[SP.zip,SP.uOn],chk:[['h1','Cup warmer and funnel earth wires reconnected'],['h2','Inlet earth pin to cup warmer plate']]}
+      ],
+      rear:[S_WIRE,
+        {t:'Wires through the vent',d:'Route them through the back vent in the exact spot, and on the side of the rear mount, that the official photo shows: that\'s what centers the screen.',
+         a:[['gap',{o:0},0,200],['rcR',{d:0},0,1400]],ph:SP.rVent,map:'run:SCR',chk:[['g13','Screen cable sleeved where it passes the back vent']]},
+        sPlug(SP.rPlug,[['rm',{o:1,y:0},0,600]]),S_POSTS,S_COVER,
+        {t:'Tape the wires, clip on the plate',d:'Tape the wires in place, line the adjustable plate up with the housing, press the clip down gently and push the plate forward until the clip springs back. Check the wires are in the gap, then take the tape off.',
+         a:[['tape1',{o:1},0,300],['ap',{o:1,y:0},300,700],['tape1',{o:0},1300,300]],ph:SP.plate},
+        {t:'Rear mount onto the plate',d:'With the screws, washers, lock washers and lock nuts, in the washer order the official photo shows. The lock washers act as springs: tighten until the angle moves by hand and stays put.',
+         a:[['rm',{y:-24},0,700]],ph:SP.rPl},
+        {t:'Cup warmer on, then hook it in',d:'Put the funnel and cup warmer back first, reconnecting their earth wires; it\'s much easier without the mount in place. Then fit the mount\'s upper features into the vent, clip the bottom in, and push on the back of the latch handles until they\'re fully home.',
+         a:[['hb',{o:0},0,400],['hf',{o:0},0,400],['scr',{o:0},0,400],['scab',{o:0},0,400],['ap',{o:0},0,400],['rm',{o:0},0,400],['gnd',{o:1},300,400],['onR',{o:1},800,500]],
+         ph:[SP.rOn1,SP.rOn2],chk:[['h1','Cup warmer and funnel earth wires reconnected'],['h2','Inlet earth pin to cup warmer plate']]}
+      ]
+    }};
+
+  /* the ToFnLED */
+  G.tof={svg:'pg-tof',
+    base:{tofh:{o:0,y:-30},tmag:{o:0,y:-10},tglue:{o:0},film:{o:0},filmL:{o:0},qc:{d:1},pcbT:{o:1},cone:{o:0},glow:{o:0},mtape:{o:0},tT:{o:0},tub:{o:1},fwc:{o:0},lvl:{o:0},cpk:{o:0},wat:{o:1}},
+    steps:{all:[
+      {t:'Magnets into the housing',d:'Scratch up the magnet pockets with a craft blade so the glue grips, add a drop of cyanoacrylate and set each magnet flat. On a machine that isn\'t magnetic, use double-sided tape rated for 80 °C or more instead.',
+       a:[['tofh',{o:1,y:0},0,600],['tglue',{o:1},500,300],['tmag',{o:1},700,200],['tmag',{y:0},700,600],['tglue',{o:0},1400,300]],ph:SP.tMag},
+      {t:'Cable into J2',d:'The Qwiic cable (JST-SH, 250 mm or more) plugs into J2, the Qwiic socket on the back of the PCB.',
+       a:[['pcbT',{s:1.06},0,300],['pcbT',{s:1},300,300]],ph:SP.labels},
+      {t:'Down the side, then over the tank',d:'Run the cable down through the gap on the right side of the machine\'s sheet metal, plug it into the ToFnLED, put the board in its housing and stick the housing above the water tank.',
+       a:[['qc',{d:0},0,1600],['film',{o:1},1200,300]],ph:SP.tOn},
+      {t:'Peel off the sensor\'s film',d:'The sensor may still have a clear protective film on it. It spoils the readings, so take it off.',
+       a:[['filmL',{o:1},0,300],['film',{y:30,o:0},300,900],['filmL',{o:0},1400,300]],ph:SP.tFilm},
+      {t:'Core firmware to match its LED',d:'Flash the core file whose name matches the board\'s LED controller: pca or ncp. Most are PCA; the official photo shows how to tell. ToF presence is detected on its own.',
+       a:[['fwc',{o:1},0,400]],ph:SP.tCtl,links:[['Firmware updates','#fw']]},
+      {t:'Pick a color and brightness',d:'In the LED settings, on the screen or in the web UI: Enable it, then choose the color. Some colors with some themes make the screen\'s controls harder to see.',
+       a:[['fwc',{o:0},0,300],['cpk',{o:1},0,400],['glow',{o:1},300,800]],ph:SP.ledset},
+      {t:'Check the tank level',d:'It shows on the home screen in percent, with a reminder below 20%. The sensor sees a cone, not a line: keep it centered and the tubing out of the cone. If reflections from the housing confuse it as the level drops, a matte piece of tape below the sensor helps.',
+       a:[['cpk',{o:0},0,300],['cone',{o:1},0,500],['lvl',{o:1},400,400],['mtape',{o:1},900,400]],ph:[SP.tCone,SP.tTape]},
+      {t:'Optional: one tube into the tank',d:'A 6 mm barbed T above the tank joins the intake and OPV tubes, so the tank churns less and the OPV tube is hidden. The intake should end up about 175 mm long: cut it to about 190 mm, trim to fit, and cut the end in a very shallow V so it can\'t suck onto the tank bottom. Afterwards, prime the pump with a flush through the open group, run a few flushes into a blank basket to cycle water through the OPV line, then one more flush with the group open.',
+       a:[['cone',{o:0},0,300],['lvl',{o:0},0,300],['mtape',{o:0},0,300],['tub',{o:0},0,400],['tT',{o:1},300,600]],ph:[SP.tT,SP.tV]},
+      {t:'Close it up',d:'Funnel and cup warmer back on with their earth wires, and the covers-on checks passed, before it goes back on mains.',a:[],chk:[['h1','Cup warmer and funnel earth wires reconnected'],['h2','Inlet earth pin to cup warmer plate']]}
+    ]}};
+
+  /* firmware updates: over Wi-Fi (OTA) or by wire */
+  G.fw={vars:[{k:'ota',l:'Over Wi-Fi'},{k:'wired',l:'By wire (ST-Link)'}],def:function(){return 'ota'},svgs:{ota:'pg-fwo',wired:'pg-fww'},
+    base:{ota:{about:{o:1},blk:{o:0},okv:{o:0},ap:{o:0},url:{o:0},otap:{o:0},selC:{o:0},selL:{o:0},btns:{o:0},bar:{sx:0},done:{o:0},rel:{o:1},f1:{o:.35},f2:{o:.35},f3:{o:.35}},
+          wired:{cube:{o:1},tick:{o:0},bconn:{o:1},bprog:{o:1},okp:{o:0},dbg:{o:0,x:-30},usb:{d:1},w3v:{d:1},wio:{d:1},wck:{d:1},wgd:{d:1},nousb:{o:0},plug:{o:1},plx:{o:0}}},
+    steps:{
+      ota:[
+        {t:'Check what you\'re on',d:'Settings, About: the core, screen (Mbed) and web builds. All three should match each other and the latest release.',
+         a:[['about',{s:1.04},0,300],['about',{s:1},300,300]],ph:SP.about},
+        {t:'Get the three files',d:'From the official latest release: the core file for PCB v4 (performance, pcb, then pca or ncp for your LED controller; without a ToFnLED either works), ui-embedded.bin and ui-web.bin (a headless build uses ui-headless.bin instead). Core over Wi-Fi needs an STM32U585 (PCB v4, or a U585 core board): on a BlackPill, flash the core by wire and do just the two screen files here. If your build is older than 2025-02-16, flash breaking update 616ea70 first.',
+         a:[['f1',{o:1},0,300],['f2',{o:1},200,300],['f3',{o:1},400,300]],links:[['Releases (latest)','https://github.com/Zer0-bit/gaggiuino/releases/latest'],['Breaking update 616ea70','https://github.com/Zer0-bit/gaggiuino/releases/tag/dev-616ea70']]},
+        {t:'Connect and open gaggiuino.local',d:'From a device on the same network, or join the Gaggiuino AP: its password is the network name with a zero for the o and the space taken out.',
+         a:[['ap',{o:1},0,400],['url',{o:1},300,400]],loop:['wifi'],ph:SP.oAp},
+        {t:'Upload the core file',d:'Settings, OTA Update: choose Core Upgrade Package, SELECT FILE, pick the core file, then UPLOAD.',
+         a:[['otap',{o:1},0,300],['selC',{o:1},300,200],['btns',{o:1},400,300],['f1',{x:-60,o:0},700,700],['bar',{sx:1},900,1600]],loop:['wifi'],ph:[SP.oSet,SP.oUp]},
+        {t:'Wait it out',d:'The screen stays black while it uploads, flashes and reboots. Don\'t switch off: a failed or cancelled update falls back to the old firmware on its own.',
+         a:[['blk',{o:1},0,400],['blk',{o:0},2400,400],['done',{o:1},2600,300]],ph:SP.oWait},
+        {t:'Then the two screen files',d:'START OVER, choose LCD Upgrade Package, and upload ui-embedded.bin; then START OVER again for ui-web.bin. Refresh the browser after ui-web. Core first, then ui-embedded, then ui-web, unless the release notes say otherwise.',
+         a:[['done',{o:0},0,200],['bar',{sx:0},0,10],['selC',{o:0},0,200],['selL',{o:1},200,200],['f2',{x:-60,o:0},400,600],['bar',{sx:1},700,900],['f3',{x:-60,o:0},1700,600],['done',{o:1},2400,300]],loop:['wifi'],ph:SP.oDone},
+        {t:'Check they match',d:'Back in About, all three builds should now match. If updates fail while it\'s on your home network, disconnect Gaggiuino from the network and join its AP directly. If core updates were flashed out of order, the board may need flashing by wire.',
+         a:[['ap',{o:0},0,300],['okv',{o:1},300,400]],ph:SP.about}
+      ],
+      wired:[
+        {t:'When you need it',d:'PCB v4 updates over Wi-Fi; a wire is the fallback if a core update goes wrong. PCB v3.1 and BlackPill boards are always flashed this way. It flashes the core only; the screen files go over Wi-Fi.',a:[]},
+        {t:'STM32CubeProgrammer and the core file',d:'Install STM32CubeProgrammer from ST (it asks for an email sign-up) and download the core file for your board from the latest release.',
+         a:[['cube',{s:1.03},0,300],['cube',{s:1},300,300]],links:[['Releases (latest)','https://github.com/Zer0-bit/gaggiuino/releases/latest']]},
+        {t:'Machine unplugged, USB-C out',d:'Unplug the machine, and leave the PCB\'s own USB-C port empty. On PCB v3.1 and BlackPill boards this matters: unless the PA15 fix is confirmed, the heaters can come on while the debugger is connected. PCB v4 doesn\'t have that problem.',
+         a:[['plx',{o:1},0,400],['nousb',{o:1},400,400]],links:[['PA15 check and fix (official)','https://gaggiuino.github.io/#/guides-upgrade/pcb-upgrade?id=pa15-pulldown-rework']]},
+        {t:'Debugger to J27',d:'A WeAct Mini Debugger or an ST-Link, on four wires to the top row of J27: 3.3 V, SWDIO, SWCLK and GND. The bottom row (NRST, RX, TX, BOOT0) isn\'t used.',
+         a:[['dbg',{o:1,x:0},0,500],['w3v',{d:0},400,600],['wio',{d:0},550,600],['wck',{d:0},700,600],['wgd',{d:0},850,600]],ph:[SP.labels,SP.wPcb,SP.wBp]},
+        {t:'Pick the file, verify on',d:'In Erasing & programming, browse to the core file. Verify programming on; Skip flash erase before programming off.',
+         a:[['tick',{o:1},0,300]],ph:SP.wFile},
+        {t:'Connect, then Start Programming',d:'Plug the debugger into the computer, click Connect, then Start Programming.',
+         a:[['usb',{d:0},0,800],['bconn',{s:.94},800,200],['bconn',{s:1},1000,200],['bprog',{s:.94},1400,200],['bprog',{s:1},1600,200],['okp',{o:1},2200,400]],ph:SP.wGo},
+        {t:'Disconnect, then the screen files',d:'Acknowledge the messages, click Disconnect and unplug the debugger. If you opened the machine, close it up and pass the covers-on checks before it goes back on mains. Then, if they\'re behind, update ui-embedded.bin and ui-web.bin over Wi-Fi (skip the core upload there), and check About.',
+         a:[['usb',{d:1},0,600],['okp',{o:0},600,300]],links:[['Over Wi-Fi: the screen files','#fw/ota/6']],chk:[['h1','Cup warmer and funnel earth wires reconnected'],['h5','Inlet earth pin to ST-Link GND pin'],['h6','Inlet L, then inlet N to ST-Link GND pin']]}
+      ]
+    }};
+
+  /* the hardware scales */
+  G.scl={svg:'pg-scl',
+    base:{hL:{o:0},hR:{o:0},lcL:{o:0,y:-20},lcR:{o:0,y:-20},adhL:{o:0},adhR:{o:0},scL:{o:0},scR:{o:0},lpL:{o:0},lpR:{o:0},mgL:{o:0},mgR:{o:0},ctr:{o:0},hx:{o:0},strip:{o:0},res:{o:0},wL:{d:1},wR:{d:1},cut:{o:0},cov:{o:0},j8:{d:1},j8l:{o:0},tray:{o:0},clr:{o:0},cal:{o:0},rd:{o:0}},
+    steps:{all:[
+      {t:'Trim the load cells\' adhesive',d:'There\'s often glue where it shouldn\'t be. With a sharp razor blade, cut it away from the screw holes without nicking a wire or the sensing area.',
+       a:[['lcL',{o:1,y:0},0,500],['lcR',{o:1,y:0},100,500],['adhL',{o:1},600,300],['adhR',{o:1},600,300],['adhL',{o:0},1300,500],['adhR',{o:0},1300,500]],ph:SP.sAdh},
+      {t:'Load cells into their housings',d:'M3 × 5 mm screws on top hold each cell to its housing; M3 × 4 mm screws underneath hold the flex limiter. The load plate takes one magnetic and one stainless screw, as noted, with a gap all the way round it.',
+       a:[['hL',{o:1},0,400],['hR',{o:1},0,400],['scL',{o:1},400,300],['scR',{o:1},400,300],['lpL',{o:1},800,400],['lpR',{o:1},800,400]],ph:SP.sFit},
+      {t:'Fit-check the base',d:'The side housings are meant to be a little loose. Slide the board retainer to check the board or boards lock in; if it\'s tight, stop and sand it rather than force it.',
+       a:[['lpL',{o:0},0,300],['lpR',{o:0},0,300],['ctr',{o:1},0,400],['hx',{o:1},300,400]],ph:[SP.sChk2,SP.sChkD,SP.sChkF]},
+      {t:'Cut the load cell wires',d:'Cut them as the official photos show, leaving extra for strain relief, and keep the offcuts: they wire the stripboard. On the dualScaleBoard, also cut jumper JP11. The FPC board needs no offcuts.',
+       a:[['cut',{o:1},0,400]],ph:[SP.sCut2,SP.sCutD,SP.sJp11]},
+      {t:'Stripboard',d:'Solder the offcut wires and five right-angle header pins to a small piece of stripboard, plus the 1 kΩ SCK pull-up if you use two HX711 boards. The wire order changed on 2024-05-05 to match the PCB connector (D2, 5V, GND, CLK, D1 on J8); if you built before then, check it before powering up. In the housing the stripboard order looks reversed from the dualScaleBoard: that\'s intended, to line up the wiring to the PCB. The FPC board skips this step.',
+       a:[['cut',{o:0},0,300],['strip',{o:1},0,400],['res',{o:1},400,300]],ph:[SP.sStr2,SP.sStrD]},
+      {t:'Solder outside the housing',d:'Cut the wires to length, take the boards out to solder them (the housing would melt), then put everything back. The load cell wire colors are printed on the back of the board. On the older green HX711 boards, a 30 AWG jumper from E- to GND steadies the readings. On the FPC board, lift the lever, push the flat cable fully in (contacts down) and close the lever. Slide the center cover on and fix it with the two self-tapping screws.',
+       a:[['wL',{d:0},0,900],['wR',{d:0},200,900],['cov',{o:1},1200,400]],ph:[SP.sDone2,SP.sDoneD,SP.sDoneF]},
+      {t:'Magnets',d:'First make sure every bottom surface is smooth and free of print debris. Glue the magnets in with gap-filling cyanoacrylate, two small drops on the pocket wall below the surface. Flush or just below on every part except the load plates. Match their poles to the drip tray\'s so it snaps on: do the load plates last, holding each against the tray first.',
+       a:[['lpL',{o:1},0,300],['lpR',{o:1},0,300],['mgL',{o:1},300,400],['mgR',{o:1},300,400]],ph:[SP.sMag,SP.sMag2]},
+      {t:'Prepare the drip tray',d:'Pro family tray: cut its sides as the official photo marks, for clearance to the load cell housings, then slide the adapters on (labeled F, and L or R as you face the machine) until they seat under the tray\'s top. Classic or low-profile tray: push the spacers fully into the adapter, flat side down.',
+       a:[],ph:[[SP.sTrayCut,'fam:GCP'],[SP.sTrayAd,'fam:GCP'],[SP.sSpacer,'fam:GC']]},
+      {t:'Cable to J8',d:'600 mm or more of 26 AWG: cut the latches off a 5-pin JST-XH plug for the scales end and crimp a JST-PH at the PCB end. (FPC board: route the flat cable instead, and stick the FPC-to-JST board near the PCB with 80 °C double-sided tape.) Run it inside behind the water tank, or out and back in through a vent, with slack so the scales can come out. Sleeve it where it passes the housing, keep the tank from rubbing the tray, and keep it away from mains wires.',
+       a:[['j8',{d:0},0,1400],['j8l',{o:1},1200,400]],ph:[SP.sXH,SP.sRoute,'https://github.com/GAGGIUINO/gaggiuino.github.io/assets/117388662/8edae9b9-3c1d-4d68-accf-dd20d7e242df'],links:[['J8 on the board labels','https://gaggiuino.github.io/schematics/stm32_pcbv3_1_board_labels.png']]},
+      {t:'Check the fit',d:'In the machine: the side housings parallel to each other and the machine\'s sides; the tray or adapter snapping on magnetically with even gaps, touching neither the sides nor the tank; and at least 0.5 mm clearance under its front lip and at the sides.',
+       a:[['tray',{o:1},0,500],['clr',{o:1},400,400]],ph:[SP.sPar,SP.sSnap,SP.sClr]},
+      {t:'Calibrate: find each cell',d:'In the web UI, Settings, Scales: enable hardware scales, turn the other scale types off, and open Calibrate. Take both load plates off, noting which screws are the magnetic ones, and detach the side housings from the center one for room. Set both factors to 2500 and wait for Updated running settings; press each cell gently and note its sign. Set factor 2 to -2500 and press again: the cell whose sign stayed the same is LC1. Mark the cells, and adjust signs so both read positive.',
+       a:[['tray',{o:0},0,300],['clr',{o:0},0,300],['lpL',{o:0},0,300],['lpR',{o:0},0,300],['rd',{o:1},300,400]],ph:[SP.sPlates,SP.s2500,SP.sSign]},
+      {t:'Calibrate: weigh something known',d:'Weigh a flat-bottomed 200 to 400 g object (a tamper works) on an accurate scale. For each cell: calibration plate on, Tare, object on, then new factor = reported weight × old factor ÷ actual weight. Enter it; it should then read within 0.2 g, or repeat. Do both cells, then Save and wait for Persisted settings.',
+       a:[['cal',{o:1},0,500]],count:['rdt',0,312.4,' g',500,1400]},
+      {t:'Plates and tray back on',d:'Each screw back where it came from, then the tray. On a stock tray, filing about 2 mm off the 3-way valve\'s drain tube, to 130 mm, makes the tray easier to take out.',
+       a:[['cal',{o:0},0,300],['rd',{o:0},0,300],['lpL',{o:1},300,400],['lpR',{o:1},300,400],['tray',{o:1},700,500]],ph:SP.sDoneT},
+      {t:'Close it up',d:'If you opened the machine to run the cable, funnel and cup warmer back on with their earth wires, and pass the covers-on checks, before it goes back on mains.',a:[],chk:[['h1','Cup warmer and funnel earth wires reconnected'],['h2','Inlet earth pin to cup warmer plate']]}
+    ]}};

@@ -550,7 +550,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
 
 <script>
 (function(){
-  var L={wiring:'wiring.html',labels:'wire-labels.html',checks:'power-on-checks.html',which:'which-gaggia.html',cut:'cut-list.html',trouble:'troubleshooting.html',models:'model-notes.html'};
+  var L={wiring:'wiring.html',labels:'wire-labels.html',checks:'power-on-checks.html',which:'which-gaggia.html',cut:'cut-list.html',trouble:'troubleshooting.html',models:'model-notes.html',gscr:'part-guides.html#scr',gtof:'part-guides.html#tof',gfw:'part-guides.html#fw',gscl:'part-guides.html#scl'};
   /* Sections of the official Gaggiuino docs (docsify: #/page?id=heading-slug). Headings checked against the docs source, Sept 2026. */
   var O='https://gaggiuino.github.io/#/',SI=O+'guides-stm32/3pln-stock-wiring-integration',CW=O+'guides-stm32/3pln-custom-wiring',MS=O+'guides/machine-specific-guide',MAN=O+'learning/user-manual-gen3';
   var OFF={
@@ -595,7 +595,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p1g',t:'Warm the thermocouple',d:'The temperature should show and rise as you warm the probe in your hand. If it falls instead, the two thermocouple wires are swapped.',src:'Official',off:['Verification',OFF.verify]},
       {id:'p1h',t:'Check the SSR light and pressure',d:'The SSR light is on below the setpoint and flashes near it. Pressure reads 0.0 bar and holds steady. The target is brew temperature, not steam.',src:'Official',off:['Verification',OFF.verify]},
       {id:'p1j',t:'Join it to your Wi-Fi',d:'Connect to the Gaggiuino AP (the password is the network name with a zero for the "o" and no space), open gaggiuino.local, then Settings, System, Connect, and pick a 2.4 GHz network.',src:'Official',off:['Connecting to WebUI',OFF.wifi]},
-      {id:'p1i',t:'Match the firmware versions',d:'Settings, About: the core and screen build numbers match each other and the latest release. If not, update over the air from gaggiuino.local in this order: core, then ui-embedded, then ui-web.',src:'Official',off:['MCU Flashing',OFF.flash]}
+      {id:'p1i',t:'Match the firmware versions',d:'Settings, About: the core and screen build numbers match each other and the latest release. If not, update over the air from gaggiuino.local in this order: core, then ui-embedded, then ui-web.',link:['Part guide: firmware updates','gfw'],src:'Official',off:['MCU Flashing',OFF.flash]}
     ]},
     {id:'p2',n:'Phase 2',name:'Open up and prep',goal:'Open the machine, label what\'s there, and do your model\'s mods while everything is easy to reach.',steps:[
       {id:'p2a',t:'Unplug and take the top off',d:'Cord out of the wall, then the two screws that hold the top cover.',src:'Official',off:['Open machine',OFF.siOpen]},
@@ -639,7 +639,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p4z',t:'Pass the power-on checks',d:'Every section up to Covers on, all unplugged. Have someone else trace the wiring against the schematic too. The last section waits until the covers are back on in Phase 5.',src:'Practice',link:['Power-on checks','checks'],stop:true}
     ]},
     {id:'p5',n:'Phase 5',name:'Screen and first power-on',goal:'Mount the screen, close up, then mains for the first time: fill the boiler, prime the sensor line and test the pressure.',stop:'Don\'t plug in until every check on the power-on checklist passes.',steps:[
-      {id:'p5a',t:'Mount the screen',d:'Front, funnel or rear mount, as the screen guide shows for the mount you have. Plug the small screen connectors in first; they pass through the housing gaps more easily than the other end.',src:'Official',off:['Interface: Screen',OFF.screen],map:'run:SCR'},
+      {id:'p5a',t:'Mount the screen',d:'Front, funnel or rear mount, as the screen guide shows for the mount you have. Plug the small screen connectors in first; they pass through the housing gaps more easily than the other end.',link:['Part guide: screen housing','gscr'],src:'Official',off:['Interface: Screen',OFF.screen],map:'run:SCR'},
       {id:'p5b',t:'Funnel and cup warmer back on, then the last checks',d:'Reconnect their earth wires as each part goes on, as the screen guide reminds you. Then run Covers on, the last section of the power-on checks, before anything gets plugged in.',src:'Official',off:['Interface: Screen',OFF.screen],link:['Power-on checks','checks']},
       {id:'p5c',t:'Tank full, drip tray in',d:'Portafilter out, a cup under the group.',src:'Practice'},
       {id:'p5d',t:'Plug in and switch on',d:'Use a {outlet}. Stay by the plug. At any smell, smoke, trip or odd noise, unplug first and investigate after.',src:'Practice'},
@@ -658,8 +658,8 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p6b',t:'Keep the boiler settings on default',d:'Steam temperature, Brew Delta and the advanced heating values all start from the defaults on a Gaggia.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
       {id:'p6c',t:'Temperature offset only against a real measurement',d:'Change it only if you can measure at the group head, for example with a Scace-type device.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
       {id:'p6d',t:'Set the time zone, add a microSD card',d:'Shot history needs a microSD card (1 to 8 GB, FAT32), and a network connection with the time zone offset set for the right date and time.',src:'Official',off:['User Manual Gen 3',OFF.manual]},
-      {id:'p6e',t:'Calibrate hardware scales, if fitted',d:'From the web UI, as the scales guide describes.',src:'Official',off:['Hardware Scales',OFF.scales]},
-      {id:'p6f',t:'Check the ToFnLED, if fitted',d:'Tank level on the home screen, and the LED settings.',src:'Official',off:['ToFnLED',OFF.tof]}
+      {id:'p6e',t:'Calibrate hardware scales, if fitted',d:'From the web UI, as the scales guide describes.',link:['Part guide: hardware scales','gscl'],src:'Official',off:['Hardware Scales',OFF.scales]},
+      {id:'p6f',t:'Check the ToFnLED, if fitted',d:'Tank level on the home screen, and the LED settings.',link:['Part guide: ToFnLED','gtof'],src:'Official',off:['ToFnLED',OFF.tof]}
     ]},
     {id:'p7',n:'Phase 7',name:'Finish',goal:'Tidy up, write down what you ended with, and learn the cleaning routines.',steps:[
       {id:'p7a',t:'Final tidy, unplugged',d:'Zip ties where they\'re needed and Kapton tape on the screen cable. Close it up again and rerun h1 to h6 of the power-on checks before you plug back in.',src:'Practice',link:['Power-on checks','checks']},

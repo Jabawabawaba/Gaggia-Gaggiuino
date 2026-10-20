@@ -27,8 +27,8 @@
       return MAPS;
     })();
     var CKT=%%CHECK_INDEX%%;
-    var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches'};
-    var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic'};
+    var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches',scr:'Screen housing',tof:'ToFnLED',fw:'Firmware updates',scl:'Hardware scales'};
+    var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic',front:'front mount',funnel:'funnel mount',rear:'rear mount',ota:'over Wi-Fi',wired:'by wire'};
     function GMo(){return window.GaggiaMachine||null}
     function e(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
     /* a machine.js condition, with the install path, family and voltage taken from the drawing on show */
@@ -91,7 +91,7 @@
           if((vk==='GC'||vk==='GCP')&&(vk!==v.fam||(d.mpath&&d.mpath!==v.path)))return;
           var all=(d.steps[vk]||d.steps.all||[]),m=GMo(),shown=all.filter(function(s){return !s.when||!m||m.matches(s.when)});
           for(var i=0;i<shown.length;i++){var s=shown[i];if(okFor(s.when,v)&&hit(s.map,sel,c)){
-            var lab=GNAME[k]+(vars.length>1&&k==='ps'?' ('+VNAME[vk]+')':'')+', step '+(i+1)+': '+s.t;
+            var lab=GNAME[k]+(vars.length>1&&/ps|scr|fw/.test(k)?' ('+VNAME[vk]+')':'')+', step '+(i+1)+': '+s.t;
             pg.push('<a href="part-guides.html#'+k+(vars.length>1?'/'+vk:'')+'/'+(i+1)+'">'+e(lab)+'</a>');break}}
         });
       });
