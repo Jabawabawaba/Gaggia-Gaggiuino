@@ -165,6 +165,7 @@
   })();
 
 %%INCLUDE:learn-sim.js%%
+%%INCLUDE:learn-coach.js%%
 
   /* ---------- the circuit ---------- */
   %%INCLUDE:learn-ladder.js%%

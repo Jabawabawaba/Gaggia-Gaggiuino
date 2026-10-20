@@ -29,7 +29,9 @@
     var TA=21,TT=21,DT=0.05,BREW_OPEN=%%BREW_OPEN%%,BREW_CLOSE=%%BREW_CLOSE%%,STEAM_OPEN=%%STEAM_OPEN%%,STEAM_CLOSE=%%STEAM_CLOSE%%;
 
     /* ---- the machine you picked ---- */
-    var K={},S=null;
+    var K={},S=null,HOOKS=[];
+    /* the coach (learn-coach.js) listens: each step of machine time, each control used, a start over */
+    function emit(a,b,c){for(var i=0;i<HOOKS.length;i++)try{HOOKS[i](a,b,c)}catch(err){}}
     function setup(){
       var p=prof(),m=GM(),md=p.model||'GCP';
       K.gc=md==='GC';K.e24=md==='E24';
@@ -157,6 +159,7 @@
       if(s.fill>0){var a=Math.min(s.fill,600*dt);s.tank=Math.min(2100,s.tank+a);s.fill-=a;q.pour=1;if(s.tank>=2100)s.fill=0}
       s.glow+=((heat?1:0)-s.glow)*Math.min(1,dt/2.5);
       s.q=q;
+      if(HOOKS.length)emit('step',s,dt);
     }
 
     /* ---- drawing ---- */
@@ -350,8 +353,8 @@
 
     /* ---- hands on ---- */
     function act(id,fn){var e=$(id);if(!e)return;
-      e.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();fn(e);root.classList.remove('fresh');render(0)});
-      e.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();fn(e);root.classList.remove('fresh');render(0)}});
+      e.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();fn(e);root.classList.remove('fresh');render(0);emit('act',id)});
+      e.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();fn(e);root.classList.remove('fresh');render(0);emit('act',id)}});
     }
     function wiggle(e){e.classList.remove('wiggle');void e.getBoundingClientRect();e.classList.add('wiggle')}
     ['pwr','brew','steam'].forEach(function(k){
@@ -359,17 +362,18 @@
     });
     act('f-knob',function(){S.knob=S.knob?0:1});
     /* the portafilter won't come out under pressure, or with the pump running into it */
-    act('f-pf',function(e){if(S.sol||S.P>0.5||S.vent>0){wiggle(e);return}S.pf.in=0;if(S.pf.b==='dosed'&&S.pf.wet>8)S.pf.b='spent'});
+    act('f-pf',function(e){if(S.sol||S.P>0.5||S.vent>0){wiggle(e);emit('blocked','f-pf');return}S.pf.in=0;if(S.pf.b==='dosed'&&S.pf.wet>8)S.pf.b='spent'});
     act('f-pfhandle',function(){S.pf.in=1});
     act('f-pfbasket',function(){var p=S.pf;if(p.b==='spent'||p.b==='dosed'){p.b='empty';p.Sr=0}else{p.b='dosed';p.Sr=p.S0;p.E=0}p.wet=0});
     act('f-cup',function(){var c=S.cup;if(c.pos==='tray')c.pos='warm';else{c.pos='tray';if(c.v>0){c.v=0;c.s=0;c.Ew=0;c.EwT=0;c.cr=0;c.T=c.Tc}}});
     act('f-jug',function(){var j=S.jug;if(j.pos==='wand')j.pos='away';else{if(j.used){j.m=150;j.w=0;j.T=5;j.foam=0;j.used=0}j.pos='wand'}});
     ['f-tray','x-tray'].forEach(function(id){act(id,function(){S.drip=0;S.puddle=0})});
     act('x-tank',function(){if(S.tank<2090)S.fill=2100-S.tank});
-    act('sim-reset',function(){S=fresh();acc=0;[fPuff,xPuff,bub,mbub].forEach(function(p){p.clear()});root.classList.add('fresh')});
+    act('sim-reset',function(){S=fresh();acc=0;[fPuff,xPuff,bub,mbub].forEach(function(p){p.clear()});root.classList.add('fresh');emit('reset')});
     qa('[data-speed]',root).forEach(function(b){b.addEventListener('click',function(){speed=Number(b.getAttribute('data-speed'));qa('[data-speed]',root).forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})})});
-    window.addEventListener('gaggia-machine',function(){setup();render(0)});
+    window.addEventListener('gaggia-machine',function(){setup();render(0);emit('setup')});
     setup();S=fresh();root.classList.add('fresh');render(0);
     /* for the page's own checks */
-    root._sim={get:function(){return S},step:function(n){for(var i=0;i<n;i++)step(DT);render(0)},K:K};
+    root._sim={get:function(){return S},step:function(n){for(var i=0;i<n;i++)step(DT);render(0)},K:K,on:function(fn){HOOKS.push(fn)},
+      speed:function(){return speed},ready:function(){return K.gc?!!S.lamp.brew:(S.steam?!!S.lamp.steam:!!S.lamp.brew)}};
   })();
