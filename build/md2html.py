@@ -1,7 +1,7 @@
 """Small Markdown-to-HTML converter for the docs pages (standard library only).
 
 Handles what docs-*.md use: headings, paragraphs, bulleted and numbered lists (nested by two-space indents),
-tables, fenced code (also inside a list item), horizontal rules, **bold**, [links](https://...), bare URLs and `code`.
+tables, fenced code (also inside a list item), horizontal rules, **bold**, [links](https://...) and [site links](page.html#...), bare URLs and `code`.
 A code span naming a site page (e.g. `which-gaggia.html`) becomes a link to it.
 """
 import html
@@ -21,6 +21,8 @@ def inline(text):
         p = html.escape(part, quote=False)
         p = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", p)
         p = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', p)
+        # links to this site's own pages, such as [wiring map](wiring.html#map?part=ssr)
+        p = re.sub(r"\[([^\]]+)\]\(([a-z0-9-]+\.html(?:#[^)\s]*)?)\)", r'<a href="\2">\1</a>', p)
         # bare URLs become links that show without the scheme (and never swallow a sentence's closing punctuation)
         p = re.sub(r'(?<!href=")(?<!">)(https?://[^\s<]*[^\s<.,;:)])', lambda m: f'<a href="{m.group(1)}">{re.sub(r"^https?://(www\.)?", "", m.group(1))}</a>', p)
         out.append(p)

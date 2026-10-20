@@ -176,7 +176,33 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   });
   document.addEventListener('change',function(e){if(e.target.id==='opt'){showOpt=e.target.checked;save();render()}});
   window.addEventListener('gaggia-machine',function(){override=null;render()});
+  /* links from the other pages land on the map: wiring.html#map?run=TC&path=CW (maplink.js builds them).
+     path= or v= picks the drawing when it isn't the reader's own; the saved Gaggia doesn't change. */
+  function hashQ(){var h=location.hash||'';if(h.indexOf('#map')!==0)return null;var q={},i=h.indexOf('?');if(i>=0)try{new URLSearchParams(h.slice(i+1)).forEach(function(val,k){q[k]=val})}catch(e){}return q}
+  /* the drawing a link asks for: v= exactly, or the reader's own if it fits path= and fam=, else the closest that does
+     (their voltage first; the only Pro-family stock-wiring drawing is 120 V) */
+  function linkVariant(q){
+    if(q.v&&VARS[q.v])return q.v;
+    var p=(GM()&&GM().get())||{},path=q.path==='SI'||q.path==='CW'?q.path:null,fam=q.fam==='GC'||q.fam==='GCP'?q.fam:null;
+    if(!path&&!fam)return null;
+    if(!fam&&p.model)fam=p.model==='GC'?'GC':'GCP';
+    function ok(k,vv){var x=VARS[k];return (!path||x.path===path)&&(!fam||x.fam===fam)&&(!vv||!p.volts||x.volts===p.volts)}
+    var m=mineV();if(m&&ok(m,true))return m;
+    for(var i=0;i<ORDERV.length;i++)if(ok(ORDERV[i],true))return ORDERV[i];
+    for(i=0;i<ORDERV.length;i++)if(ok(ORDERV[i],false))return ORDERV[i];
+    return null;
+  }
+  function applyHash(){
+    var q=hashQ();if(!q)return;
+    var k=linkVariant(q);
+    if(k){override=k===mineV()?null:k;cur=k}
+    render();
+    MAP.deep(q);
+    var ms=$('mapsec');if(ms&&!ms.hidden)ms.scrollIntoView({block:'start'});
+  }
+  window.addEventListener('hashchange',applyHash);
   MAP.init();
   render();
+  applyHash();
 })();
 </script>

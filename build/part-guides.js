@@ -14,6 +14,7 @@
   function prof(){return (GM&&GM.get())||{}}
   function famOf(){var p=prof();return p.model?(p.model==='GC'?'GC':'GCP'):null}
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+%%INCLUDE:maplink.js%%
 
   var PH={
     tc:'https://github.com/user-attachments/assets/7eef096a-bcce-4d98-8a7d-ae898c3afec3',
@@ -45,7 +46,7 @@
       {t:'Unplug the brew thermostat',
        d:['Pull its two connectors, Ba and Bb, straight off the thermostat.',['On stock wiring they get joined later by a short jumper, J.','wpath:SI'],['On custom wiring they come out with the old harness.','wpath:CW'],
           'It\'s easier with the boiler tipped up: take off the steam knob and wand, then the four cap screws up from under the frame.'],
-       a:[['ba',{x:110,y:-34},0,800],['bb',{x:110,y:34},90,800],['j',{o:1},1000,350]]},
+       a:[['ba',{x:110,y:-34},0,800],['bb',{x:110,y:34},90,800],['j',{o:1},1000,350]],map:[['Jumper J on the wiring map','run:J','wpath:SI']]},
       {t:'Unscrew the thermostat',d:'Turn it out of the side of the boiler with a spanner on its hex. The old paste stays in the hole: leave it, unless it\'s dried out, in which case clean it out for fresh paste.',
        a:[['bt',{x:90},0,1200],['oldpaste',{o:1},250,400],['bt',{o:0},950,350]],loop:['spinR']},
       {t:'Paste on the thread',d:'Coat the thermocouple\'s thread with thermal paste rated for 180 °C or more, or reuse the old thermostat\'s if it\'s still soft. The official guide lists Thermal Grizzly Kryonaut, Noctua NT-H2, SYY-157 and GELID GC-Extreme.',
@@ -53,10 +54,10 @@
       {t:'Screw it in, barely finger tight',d:'Turn it in gently by its hex and stop as soon as it seats. No spanner: the M4 thread is small and the boiler\'s thread is soft metal. Let the lead turn with the probe so it doesn\'t twist.',
        a:[['tc',{x:0},0,1500],['nosp',{o:1},1550,350]],loop:['spinF'],ph:PH.tc},
       {t:'Route the lead',d:'Around the front of the boiler and back to the control box on the right, clear of the pump area. Mains wires run on the left side and above this lead; low-voltage wires and sensors stay on the right.',
-       a:[['close',{o:0},0,300],['route',{o:1},200,300],['rlead',{d:0},500,1900]]},
+       a:[['close',{o:0},0,300],['route',{o:1},200,300],['rlead',{d:0},500,1900]],map:'run:TC'},
       {t:'Clamp it in J4 and check it',d:['Fold each bare wire over before it goes in the clamp, keep the insulation out of it, and put + and − where they were on your bench test. Lead colors vary between makers, so trust that test: the reading must rise when you warm the probe.','With a meter: either wire to the boiler reads open (OL), because the probe is ungrounded; the two wires together read a few ohms.'],
        a:[['route',{o:0},0,300],['j4v',{o:1},200,300],['tcw',{y:0},500,900],['sc1',{r:360},500,1000],['sc2',{r:360},650,1000],['ma',{o:1},1500,300],['mb',{o:1},1900,300]],
-       chk:[['b7','Thermocouple lead to boiler body'],['c7','Thermocouple loop']]}
+       chk:[['b7','Thermocouple lead to boiler body'],['c7','Thermocouple loop']],map:'run:TC'}
     ]}};
 
   G.ps={vars:[{k:'ptb',l:'Tap block'},{k:'tee',l:'T-fitting'}],def:function(){return 'ptb'},
@@ -80,7 +81,7 @@
         {t:'Clamp the block in',d:'Fit the block between the group and the inlet fitting with the longer M5 screws (the official parts list uses 25 mm), the block\'s O-ring and the fitting\'s own O-ring both facing the group. Tighten the two screws evenly.',
          a:[['drip',{o:0},0,200],['ptb',{x:0,y:0},200,1300],['inl',{x:0},1550,800],['ls',{o:1},2350,200],['ls',{x:0},2350,900]],loop:['pulseO'],ph:PH.ptbC},
         {t:'Sensor onto the tube',d:'Push the sensor\'s fitting onto the tube until the tube is fully home. The sensor mustn\'t touch any metal.',
-         a:[['Lw',{o:1},0,300],['lcaps',{o:0},0,250],['qt',{o:0},0,250],['gap',{o:0},0,250],['sasm',{x:170,y:184,s:.55},250,1500]],ph:PH.ptbF},
+         a:[['Lw',{o:1},0,300],['lcaps',{o:0},0,250],['qt',{o:0},0,250],['gap',{o:0},0,250],['sasm',{x:170,y:184,s:.55},250,1500]],ph:PH.ptbF,map:[['Its cable on the wiring map','run:PS']]},
         {t:'Fill it and test it',d:'With the machine back together: run Flush for 10 seconds with the group open to fill the block, then flush against a blank basket to see the pressure. Then unplug and touch a dry paper towel to each joint to find any leak.',
          a:[['water',{o:1},0,900],['gauge',{o:1},500,300]],count:['pval',0,9,' bar',800,1600],chk:[['g15','Pressure sensor plumbing snug and dry']]}
       ],
@@ -94,7 +95,7 @@
         {t:'Seal the sensor',d:'Flat white O-ring flush in the sensor\'s fitting, then the sensor in hand tight plus at most a quarter turn, as on the tap block.',
          a:[['tsen',{o:1},0,250],['tsen',{x:0},150,1000]],ph:'xf'},
         {t:'Park it low',d:'At the base of the machine, lower than the T, and not touching metal. If its readings turn out noisy, wrap it in foam or fix it to the frame.',
-         a:[['foam',{o:1},0,600]],ph:PH.foam},
+         a:[['foam',{o:1},0,600]],ph:PH.foam,map:[['Its cable on the wiring map','run:PS']]},
         {t:'Fill the line',d:'Once the install is finished, run [UT] Tube Fill from the community profiles in the web UI. It fills the branch slowly and pushes the air out.',
          a:[['brw',{d:0},0,2000]],loop:['bub'],chk:[['g15','Pressure sensor plumbing snug and dry']]}
       ]
@@ -109,7 +110,7 @@
     steps:{
       SI:[
         {t:'Steam thermostat out',d:'Pull its two leads off (on stock wiring these are Sa and Sb, which go to the SSR) and unscrew the thermostat from the top of the boiler.',
-         a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR']},
+         a:[['stl',{y:40},0,800],['stl',{o:0},500,300],['st',{o:0},700,600]],loop:['spinR'],map:[['Sa and Sb on the wiring map','runs:Sa,Sb',null,'Sa and Sb, to the SSR']]},
         {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
          a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
         {t:'Cut the stock fuse out',d:['The 184 °C one-shot fuse sits across the top of the boiler with its wires crimped to it. Cut each wire just behind the old crimp, keeping all the length you can, and lift the fuse out. Leave its clip in place, and any earth wire fixed to it.',['On a grounded original Classic that clip is the boiler\'s earth point.','fam:GC']],
@@ -127,7 +128,7 @@
         {t:'Fuse in, hand tight',d:'A thin film of the same 180 °C paste on its stud and face, then screw it into the steam thermostat\'s hole by hand until it seats. Its body is ceramic: no spanner.',
          a:[['fpaste',{sy:1},0,900],['nf',{o:1},900,250],['nf',{r:0},900,1300]],loop:['spinF']},
         {t:'Wire it instead of the stock fuse',d:[['Classic Pro family: AC17, from the SSR, goes on one spade and AC18, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:120;set:volts'],['Classic Pro family: AC16, from the SSR, goes on one spade and AC17, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.','fam:GCP;volts:230;set:volts'],['Classic Pro family: the run from the SSR goes on one spade and the run to the heater splice on the other (AC17 and AC18 at 120 V, AC16 and AC17 at 230 V), instead of AC11 and AC12 to the stock fuse.','fam:GCP;unset:volts'],['Original Classic: AC6 and AC7 go on its right spade and the element lead AC8 on its left (AC8 and AC9 on a 120 V machine), instead of the stock fuse\'s ends.','fam:GC'],'Uninsulated 6.3 mm spades under silicone sleeve, and the stock fuse comes out; leave its clip and any earth wire on it in place.'],
-         a:[['of',{o:0},0,600],['ow',{o:0},0,600],['cw1',{d:0},400,1100],['cw2',{d:0},500,1100],['spc',{o:1},1500,300],['cwl',{o:1},1500,300]],ph:'cw'},
+         a:[['of',{o:0},0,600],['ow',{o:0},0,600],['cw1',{d:0},400,1100],['cw2',{d:0},500,1100],['spc',{o:1},1500,300],['cwl',{o:1},1500,300]],ph:'cw',map:'part:rf'},
         {t:'Check it',d:'Unplugged, a meter across its two spades reads under 1 Ω. In custom wiring it sits in the heater line, so if it ever trips the boiler stops heating: unplug, let it cool, find out why (an SSR stuck on, a boiler run dry), and only then press its button.',
          a:[['fm',{o:1},0,350]],loop:['press'],chk:[['c3','Boiler thermal fuse, across it'],['g6','Boiler thermal fuse in the heater line']]}
       ]
@@ -156,7 +157,7 @@
       {t:'Two wires, or a thin one',d:'Where two wires share a spade, strip both to the same length and twist them together. Two 18 AWG wires need a blue spade; two 22 AWG wires, like the low-voltage ground and its jumper, fill a red one. One 22 AWG wire on its own is too thin for any spade or fork: strip four times as much and fold the copper back on itself, or splice it to 18 AWG first. Kits often come with these ends already made.',
        a:cat(only('wv',5,8),[['tsp',{x:0},400,900],['fold',{r:180},1500,900],['fk',{o:1},2500,200],['fk',{x:0},2500,800]])},
       {t:'Piggyback on the pump',when:'wpath:SI',d:['Wire N ends in a piggyback spade. Unplug',['Pa','!model:GC'],['Pa (F on a 230 V original Classic)','model:GC'],'from the pump, push the piggyback onto that terminal, and plug the lead back onto the piggyback\'s tab. Either way round, the two share the terminal.'],
-       a:cat(only('wv',6,8),[['pgy',{x:0},400,900],['pa',{y:0},1500,800]])},
+       a:cat(only('wv',6,8),[['pgy',{x:0},400,900],['pa',{y:0},1500,800]]),map:[['Wire N on the wiring map','run:N']]},
       {t:'A butt splice, if a wire is short',d:'A bare BN1.25 splice (a BN2 takes two 18 AWG wires a side), with silicone heat shrink slid on first. Push each wire in to the middle stop, crimp each half with an uninsulated-terminal crimper, then shrink the sleeve over it. Mains wires are crimped, not soldered.',
        a:cat(only('wv',7,8),[['bl',{x:0},400,900],['br',{x:0},400,900],['bjT',{o:1},1100,250],['bjB',{o:1},1100,250],['bjT',{y:0},1400,400],['bjB',{y:0},1400,400],['bd1',{o:1},1750,150],['bjT',{y:-18},1900,300],['bjB',{y:18},1900,300],['bjT',{x:48},2200,400],['bjB',{x:48},2200,400],['bjT',{y:0},2650,400],['bjB',{y:0},2650,400],['bd2',{o:1},3000,150],['bjT',{y:-18,o:0},3150,400],['bjB',{y:18,o:0},3150,400],['hs',{x:118},3500,800],['hg2',{o:1},4200,300],['hs',{sy:.72},4300,700]]),loop:['heat2']},
       {t:'Pull-test every crimp',d:'Pull gently on each one. If it moves, cut the connector off and crimp a new one. Then cover any bare metal that\'s left.',
@@ -171,13 +172,13 @@
     var base={sv1:{o:1},sv2:{o:0},sv3:{o:0},ssr1:{x:150,o:0},clr:{o:0},scw:{x:-80},wsh:{x:50,o:0},nut:{x:60,o:0},cov:{o:1,y:0},lw1:{y:70},lw2:{y:70},cwp:{y:-60,o:0},cwm:{y:-60,o:0}};
     function steps(load,lph){return [
       {t:'Find its spot',d:'On the back wall, with room above it for the funnel piece and its screw, and not touching the pump or its housing.',
-       a:[['ssr1',{o:1},0,200],['ssr1',{x:0},100,900],['clr',{o:1},1100,300]],ph:PH.ssr},
+       a:[['ssr1',{o:1},0,200],['ssr1',{x:0},100,900],['clr',{o:1},1100,300]],ph:PH.ssr,map:'part:ssr'},
       {t:'Screw it to the wall',d:'An M4 (or 8-32) screw, washer and nut through a vent slot, with the SSR\'s metal base flat against the wall.',
        a:[['sv1',{o:0},0,250],['sv2',{o:1},150,300],['scw',{x:0},500,900],['wsh',{o:1},1400,200],['wsh',{x:0},1400,600],['nut',{o:1},1700,200],['nut',{x:0},1700,600]],loop:['nutspin']},
       {t:'Load wires on the big screws',d:load,
-       a:[['sv2',{o:0},0,250],['sv3',{o:1},150,300],['cov',{o:0,y:-24},600,600],['lw1',{y:0},1200,900],['lw2',{y:0},1300,900],['sl1',{r:360},2200,800],['sl2',{r:360},2300,800]],ph:lph},
+       a:[['sv2',{o:0},0,250],['sv3',{o:1},150,300],['cov',{o:0,y:-24},600,600],['lw1',{y:0},1200,900],['lw2',{y:0},1300,900],['sl1',{r:360},2200,800],['sl2',{r:360},2300,800]],ph:lph,map:'part:ssr'},
       {t:'Control wires: + and −',d:'J9 R1 goes on the + screw and J9 GND on −. This side has a polarity. The 22 AWG control wires need the fold-over, or a splice to 18 AWG, to sit in a fork.',
-       a:[['cwp',{o:1},0,200],['cwm',{o:1},100,200],['cwp',{y:0},0,900],['cwm',{y:0},100,900],['sc1',{r:360},1000,800],['sc2',{r:360},1100,800]],chk:[['f5','J9 R1 pin to SSR +'],['f6','J9 GND pin to SSR −']]},
+       a:[['cwp',{o:1},0,200],['cwm',{o:1},100,200],['cwp',{y:0},0,900],['cwm',{y:0},100,900],['sc1',{r:360},1000,800],['sc2',{r:360},1100,800]],chk:[['f5','J9 R1 pin to SSR +'],['f6','J9 GND pin to SSR −']],map:[['On the wiring map','short:J9 R1,J9 GND',null,'SSR control wires']]},
       {t:'Check it',d:'Every screw tight, no stray strands, no fork touching its neighbor, and the cover closed. On the bench test, the SSR\'s light comes on whenever the board calls for heat.',
        a:[['cov',{o:1,y:0},0,600]],loop:['blink']}
     ]}
@@ -186,7 +187,7 @@
     G.ssr.steps.CW=steps([['Classic Pro family: the right screw takes AC2 from the power switch and AC4 to the PCB\'s L, both in one two-wire (SV2) fork; the left screw takes AC11 to the boiler fuse (AC17 at 120 V, or AC16 at 230 V, with the optional resettable fuse).','fam:GCP'],['Original Classic: the right screw takes AC2 from the On/Off common and AC3 to the PCB\'s L in one two-wire (SV2) fork; the left screw takes AC6 to the boiler fuse (or to the optional resettable fuse, which AC6 and AC7 move to).','fam:GC']],'cw');
   })();
 
-  G.sw={vars:[{k:'GCP',l:'Pro, Evo, E24'},{k:'GC',l:'Original Classic'}],def:function(){return famOf()||'GCP'},
+  G.sw={vars:[{k:'GCP',l:'Pro, Evo, E24'},{k:'GC',l:'Original Classic'}],def:function(){return famOf()||'GCP'},mpath:'SI',
     svgs:{GCP:'pg-swp',GC:'pg-swc'},
     base:{
       GCP:{blk:{o:0},bc0:{y:0},bc1:{y:0},bc2:{y:0},bc3:{y:0},bs0:{o:0},bs1:{o:0},bs2:{o:0},bs3:{o:0},swv:{o:1},swm:{o:0},b4t:{o:0},s4t:{o:0},s5t:{o:0},b4:{x:0,y:0},s4:{x:0},s5:{x:0,y:0},s5s:{o:0},b4note:{o:0},lv1:{o:0},lv2:{o:0},lv3:{o:0},lv4:{o:0},lvcap:{o:0}},
@@ -197,27 +198,27 @@
         {t:'Evo and E24: split the connector block',when:'model:EVO,E24',d:'Most Evo and E24 machines have one; skip this if yours has single connectors. Easier with the switch or boiler out. Press each connector\'s locking tab with a small screwdriver, pull it out the back, cover it with silicone tape or 6 mm silicone heat shrink, and label it (an oil-based marker writes on silicone). One at a time.',
          a:[['swv',{o:0},0,250],['blk',{o:1},150,300],['bc0',{y:70},500,500],['bs0',{o:1},1000,300],['bc1',{y:70},1300,500],['bs1',{o:1},1800,300],['bc2',{y:70},2100,500],['bs2',{o:1},2600,300],['bc3',{y:70},2900,500],['bs3',{o:1},3400,300]],ph:PH.cci},
         {t:'Label the three that move',d:'B4 on brew spade 4, and S4 and S5 on steam spades 4 and 5. The wire labels page prints them.',
-         a:[['blk',{o:0},0,250],['swv',{o:1},150,300],['b4t',{o:1},500,300],['s4t',{o:1},750,300],['s5t',{o:1},1000,300]],links:[['Wire labels','wire-labels.html']]},
+         a:[['blk',{o:0},0,250],['swv',{o:1},150,300],['b4t',{o:1},500,300],['s4t',{o:1},750,300],['s5t',{o:1},1000,300]],links:[['Wire labels','wire-labels.html']],map:[['Brew switch on the wiring map','part:swB'],['Steam switch','part:swS']]},
         {t:'Brew: B4 onto wire L',d:'Unplug B4 from brew spade 4 and plug it onto wire L, which runs to the PCB\'s J11. Spade 4 stays empty, but it\'s live whenever brew is on and the valve is open: keep it clear.',
-         a:[['b4',{x:35,y:-65},0,1100],['b4note',{o:1},1100,300]],ph:PH.swL},
+         a:[['b4',{x:35,y:-65},0,1100],['b4note',{o:1},1100,300]],ph:PH.swL,map:[['Wire L on the wiring map','run:L']]},
         {t:'Steam: S4 to spade 1',d:'Move S4 from steam spade 4 to spade 1. Steam spades 1, 2 and 3 now all carry mains.',
-         a:[['s4',{x:-80},0,1000]]},
+         a:[['s4',{x:-80},0,1000]],map:[['S4 on the wiring map','part:f:S4']]},
         {t:'Park S5',d:'Unplug S5. It stays live: cover its end with silicone tape or heat shrink, and tie it down where it can\'t touch anything.',
-         a:[['s5',{x:-10,y:-117},0,1100],['s5s',{o:1},1100,400]]},
+         a:[['s5',{x:-10,y:-117},0,1100],['s5s',{o:1},1100,400]],map:[['S5 on the wiring map','part:f:S5']]},
         {t:'Low-voltage wires on the freed spades',d:'Only on brew 1 and 2 and steam 4 and 5. J7 B goes on brew 1; J7 GND and a jumper share one spade on brew 2, and the jumper runs on to steam 5; J7 S on steam 4.',
-         a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,300],['lv4',{o:1},800,500],['lvcap',{o:1},1100,300]],ph:PH.swLV},
+         a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,300],['lv4',{o:1},800,500],['lvcap',{o:1},1100,300]],ph:PH.swLV,map:[['On the wiring map','short:J7 B,J7 GND,J7 S,Brew sw 2 →',null,'Switch signal wires']]},
         {t:'Check it',d:'Unplugged, with the J7 plug off: brew on shows continuity (close to 0 Ω) from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the steam lamp lights when the boiler isn\'t heating, and the brew lamp stays dark.',
          a:[['swv',{o:0},0,250],['swm',{o:1},150,300]],chk:[['f1','Brew ON'],['f2','Brew OFF'],['f3','Steam ON'],['f4','Steam OFF']]}
       ],
       GC:[
         {t:'Label the connectors',d:'P1-2 (the brew switch\'s common), 1, 2, 3 and P3-4 on the switch housing. The wire labels page prints them.',
-         a:[['cp12t',{o:1},300,300],['c1t',{o:1},500,300],['c2t',{o:1},700,300],['c3t',{o:1},900,300],['cp34t',{o:1},1100,300]],links:[['Wire labels','wire-labels.html']]},
+         a:[['cp12t',{o:1},300,300],['c1t',{o:1},500,300],['c2t',{o:1},700,300],['c3t',{o:1},900,300],['cp34t',{o:1},1100,300]],links:[['Wire labels','wire-labels.html']],map:[['The switch housing on the wiring map','part:housing']]},
         {t:'P1-2 onto wire L',d:'Unplug P1-2 and plug it onto wire L, which runs to the PCB\'s J11.',
-         a:[['cp12',{x:-35,y:-115},0,1100]],ph:PH.swLc},
+         a:[['cp12',{x:-35,y:-115},0,1100]],ph:PH.swLc,map:[['Wire L on the wiring map','run:L']]},
         {t:'Park 1, 2, 3 and P3-4',d:['All four stay live: cover each end and tie it down. Where a connector holds two wires, leave them joined in it.',['At 120 V, 2 and 3 still join wires that carry heater current (3 links the power switch to Ba, 2 links Sa to an element): don\'t cut either off.','volts:120'],['At 230 V, 3 still joins the power switch to P1-2, so L\'s feed passes through it: don\'t cut it off.','volts:230']],
-         a:[['c1',{y:-34},0,800],['c3',{y:-34},100,800],['c2',{y:34},200,800],['cp34',{x:50},300,800],['c1s',{o:1},1000,300],['c3s',{o:1},1100,300],['c2s',{o:1},1200,300],['cp34s',{o:1},1300,300],['park',{o:1},1500,300]]},
+         a:[['c1',{y:-34},0,800],['c3',{y:-34},100,800],['c2',{y:34},200,800],['cp34',{x:50},300,800],['c1s',{o:1},1000,300],['c3s',{o:1},1100,300],['c2s',{o:1},1200,300],['cp34s',{o:1},1300,300],['park',{o:1},1500,300]],map:[['Parked connectors on the wiring map','part:housing']]},
         {t:'Low-voltage wires on the freed spades',d:'Only on 1, 3, P(1-2) and P(3-4). J7 B on brew 1; J7 S on steam 3; J7 GND and a jumper share one spade on steam P(3-4), and the jumper runs on to brew P(1-2). Steam P(5-6) and 6 still carry mains for the valve.',
-         a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,500],['lv4',{o:1},900,300],['lvcap',{o:1},1100,300]],ph:PH.swLVc},
+         a:[['lv1',{o:1},0,500],['lv2',{o:1},300,500],['lv3',{o:1},600,500],['lv4',{o:1},900,300],['lvcap',{o:1},1100,300]],ph:PH.swLVc,map:[['On the wiring map','short:J7 B,J7 S,J7 GND,Steam sw P(3-4) →',null,'Switch signal wires']]},
         {t:'Check it',d:'Unplugged, with the J7 plug off: brew on shows continuity (close to 0 Ω) from J7 B to GND, and open with brew off; the same for steam on J7 S. Afterwards the boiler lamp inside the housing stays dark; the power lamp works as before.',
          a:[['swv',{o:0},0,250],['swm',{o:1},150,300]],chk:[['f1','Brew ON'],['f2','Brew OFF'],['f3','Steam ON'],['f4','Steam OFF']]}
       ]
@@ -348,6 +349,10 @@
       var chk=(s.chk||[]).map(function(c){return '<a href="power-on-checks.html#'+c[0]+'">'+c[0]+' '+esc(c[1])+'</a>'}).join(' · ');
       var lk=(s.links||[]).map(function(l){return '<a href="'+l[1]+'">'+esc(l[0])+'</a>'}).join(' · ');
       if(lk)chk=chk?chk+' · '+lk:lk;
+      /* map: a wiring-map target, or [[label, target, when], ...]; guides on one install path open its drawing */
+      var mo={},gv=self.v,sw=/wpath:(SI|CW)/.exec(s.when||'');if(gv==='SI'||gv==='CW')mo.path=gv;else if(sw)mo.path=sw[1];else if(self.def.mpath)mo.path=self.def.mpath;if(gv==='GC'||gv==='GCP')mo.fam=gv;
+      var ml=(s.map==null?[]:typeof s.map==='string'?[['On the wiring map',s.map]]:s.map).filter(function(x){return m(x[2])}).map(function(x){var o={path:mo.path,fam:mo.fam};if(x[3])o.label=x[3];return '<a class="pg-map" href="'+mapHref(x[1],o)+'">'+esc(x[0])+'</a>'}).join(' · ');
+      if(ml)chk=chk?chk+' · '+ml:ml;
       return '<li data-n="'+(i+1)+'"><button type="button" class="pg-sb" data-i="'+i+'"><span class="pg-n">'+(i+1)+'</span><span class="pg-t">'+esc(s.t)+'</span></button>'
         +'<p>'+esc(T(s.d))+'</p>'+((ph||chk)?'<p class="pg-links">'+(ph?'<a href="'+ph+'" target="_blank" rel="noopener">'+phl+'</a>':'')+(ph&&chk?' · ':'')+(chk?((s.chk&&s.chk.length)?'Check: ':'')+chk:'')+'</p>':'')+'</li>';
     }).join('');

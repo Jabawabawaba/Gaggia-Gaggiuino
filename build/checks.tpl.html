@@ -94,6 +94,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
 .item.hit{background:var(--accent-soft)}
 .i-how{margin:0;color:var(--muted);font-size:14.5px;max-width:62ch}
 .i-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.maplk{font-size:13.5px;margin-left:4px}
 .tag{font:600 10.5px/1 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted)}
 .tag.on{background:var(--accent-soft);color:var(--accent-ink)}
 .exp{font:500 13px var(--f-mono);color:var(--ink)}
@@ -128,7 +129,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   @page{margin:12mm 11mm}
   body{background:#fff;color:#000;font-size:10pt;line-height:1.3}
   .wrap{max-width:none;padding:0}
-  .lede,.bar,.runrow,.i-side,.foot,[data-print],.fix{display:none!important}
+  .lede,.bar,.runrow,.i-side,.foot,[data-print],.fix,.maplk{display:none!important}
   .print-only{display:block}
   #print-for{display:block;font-size:10pt}
   h1{font-size:22pt}
@@ -230,6 +231,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     var out=[];res.forEach(function(re){v.runs.forEach(function(r){if(re.test(r.short)&&out.indexOf(r.id)<0)out.push(r.id)})});
     return out.length>1?out.slice(0,-1).join(', ')+' and '+out[out.length-1]:out.join('');
   }
+  function idl(v,res){var out=[];res.forEach(function(re){v.runs.forEach(function(r){if(re.test(r.short)&&out.indexOf(r.id)<0)out.push(r.id)})});return out}
   function joinp(parts){parts=parts.filter(Boolean);return parts.length?parts.join(', ')+'.':''}
   var SECTIONS=[
     {id:'a',name:'Before you measure',intro:'Get the machine safe and the meter ready.',items:[
@@ -338,6 +340,30 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     ]}
   ];
   var ITEMS={};SECTIONS.forEach(function(s){s.items.forEach(function(i){ITEMS[i.id]=i})});
+  %%INCLUDE:maplink.js%%
+  /* where each check sits on the wiring map (see maplink.js); a function gets the schematic, so path checks light
+     the same runs their text names */
+  function rs(res){return function(v){var a=idl(v,res);return a.length?'runs:'+a.join(','):''}}
+  var SWL='short:J7,Brew sw 2 →,Steam sw P(3-4) →,Brew sw P(1-2) →';
+  function E(v){return v.path==='CW'?'layer:E':null}
+  var MAPS={a3:'',a4:E,b1:E,b2:E,b3:E,b5:E,b7:'run:TC',
+    c1:'part:boiler',c2:'part:boiler',c3:'part:boiler',c4:'part:pump',c5:'part:pump',c6:'part:sol',c7:'run:TC',c8:function(v){return v.path==='SI'?'runs:3,P':'part:pump'},
+    d3:'short:J7',d4:'short:J7',d5:'short:J12',d6:'short:J13',
+    e1:rs([/^Socket L/,/^Power sw (4|P\(7-8\)) → SSR load R/,/^SSR load R → J11/]),e2:rs([/^Socket L/,/^Power sw (4|P\(7-8\)) → SSR load R/,/^SSR load R → J11/]),
+    e3:rs([/^Socket N → Pump fuse spade/,/^Pump fuse spade → J10/,/^Socket N → J10/]),e4:rs([/^SSR load L → Fuse/,/^Fuse left →/,/^SSR load L → Reset fuse/,/^Reset fuse left →/]),
+    e5:rs([/^BN2 element splice → Socket N/,/^Element (TR|BR) → BN2/]),e6:rs([/^J13 3 →/]),e7:rs([/^J12 P →/]),e8:rs([/^BN2 element splice → Valve N/,/^BN2 element splice → Socket N/]),
+    e9:rs([/^Pump N → Pump fuse/,/^Pump fuse → Pump N/,/^Pump fuse spade → Pump fuse/,/^Pump fuse → Pump fuse spade/,/^Socket N → Pump fuse spade/,/^Valve N → Pump fuse spade/]),
+    e11:'run:L',e12:'run:L',e13:'run:N',e14:'run:N',e15:'runs:Sb,J',e16:'part:boiler',e17:'run:3',e18:'run:P',e19:'part:swS',
+    e21:'run:L',e22:'run:L',e23:'run:N',e24:'runs:J,Sb',e25:'part:boiler',e26:'run:3',e27:'run:P',e28:'part:sol',
+    f1:'part:swB|housing',f2:'part:swB|housing',f3:'part:swS|housing',f4:'part:swS|housing',f5:'short:J9 R1',f6:'short:J9 GND',f7:SWL,f8:SWL,f9:SWL,
+    g1:'part:boiler',g4:'part:ssr',g5:'runs:J,Sa,Sb',g6:'part:rf|boiler',g7:'part:f:S5|housing',g8:'part:swB',g10:'part:pcb',g11:'layer:lv',g12:'run:TC',g13:'run:SCR',g16:'',g17:'part:pcb',g18:'run:TC',
+    h1:E,h2:E};
+  function mapLink(it){
+    if(!(it.id in MAPS))return '';
+    var t=MAPS[it.id];if(typeof t==='function')t=t(V());
+    if(t==null)return '';
+    return '<a class="maplk" href="'+esc(mapHref(t,{v:curKey(),label:it.id+': '+val(it.t)}))+'">Show on the map</a>';
+  }
   /* which schematic the checks follow: the reader's, unless they pick another here */
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
@@ -458,7 +484,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     }
     return '<div class="item" id="'+it.id+'" data-item="'+it.id+'" data-r="'+(res||'')+'">'+
       '<div class="i-main"><div class="i-title"><span class="cid">'+it.id+'</span>'+esc(val(it.t))+'</div>'+(val(it.how)?'<p class="i-how">'+esc(val(it.how))+'</p>':'')+
-      '<div class="i-tags">'+tags+(it.type!=='check'?'<span class="exp" data-exp="'+it.id+'">'+esc(expText(it,r))+'</span>':'')+'</div></div>'+
+      '<div class="i-tags">'+tags+(it.type!=='check'?'<span class="exp" data-exp="'+it.id+'">'+esc(expText(it,r))+'</span>':'')+mapLink(it)+'</div></div>'+
       '<div class="i-side">'+side+'</div>'+
       '<div class="pline print-only" data-pline="'+it.id+'">'+plineHtml(it,r)+'</div>'+
       '<p class="fix" data-fix="'+it.id+'"'+(res==='fail'&&it.fix?'':' hidden')+'>'+esc(val(it.fix)||'')+'</p></div>';

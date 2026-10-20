@@ -2,7 +2,7 @@
 :root{--pcb:#E8EFE8;--w-l:#B03A2E;--w-h:#C77800;--w-n:#2F5FB3;--w-e:#2D7A4C;--w-lv:#7046B8;--w-lvg:#59616A;--w-s:#1F7F86;--w-opt:#8A6D3B}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--pcb:#17201A;--w-l:#F0735F;--w-h:#F2A33A;--w-n:#79A6F2;--w-e:#63C08A;--w-lv:#B595F2;--w-lvg:#9BA2AA;--w-s:#5CC3C9;--w-opt:#D2B27A}}
 :root[data-theme="dark"]{--pcb:#17201A;--w-l:#F0735F;--w-h:#F2A33A;--w-n:#79A6F2;--w-e:#63C08A;--w-lv:#B595F2;--w-lvg:#9BA2AA;--w-s:#5CC3C9;--w-opt:#D2B27A}
-.mapsec{margin-top:26px;--mw:min(1360px,calc(100vw - 48px));width:var(--mw);margin-left:calc((100% - var(--mw)) / 2)}
+.mapsec{margin-top:26px;scroll-margin-top:12px;--mw:min(1360px,calc(100vw - 48px));width:var(--mw);margin-left:calc((100% - var(--mw)) / 2)}
 @media (max-width:1040px){.mapsec{width:auto;margin-left:0}}
 .mdetail .ids button.o{border-style:dashed}
 .mtool{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;margin:4px 0 10px}

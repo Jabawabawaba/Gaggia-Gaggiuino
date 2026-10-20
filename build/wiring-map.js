@@ -46,6 +46,7 @@
       Array.prototype.forEach.call(svg.querySelectorAll('.run'),function(g){
         var id=g.getAttribute('data-run'),on;
         if(sel&&sel.t==='run')on=id===sel.id;
+        else if(sel&&sel.t==='set')on=sel.ids.indexOf(id)>=0;
         else if(sel&&sel.t==='part')on=ends(id).indexOf(sel.id)>=0;
         else on=inLayer(id,layer);
         lit[id]=on;if(on&&sel)ends(id).forEach(function(p){partsLit[p]=1});
@@ -59,7 +60,7 @@
       Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag'),function(g){
         var id=g.getAttribute('data-run');
         g.classList.toggle('off',!lit[id]);
-        g.classList.toggle('sel',!!(sel&&sel.t==='run'&&sel.id===id));
+        g.classList.toggle('sel',!!(sel&&((sel.t==='run'&&sel.id===id)||(sel.t==='set'&&sel.ids.indexOf(id)>=0))));
       });
       Array.prototype.forEach.call(svg.querySelectorAll('.part'),function(g){
         var id=g.getAttribute('data-part');
@@ -79,6 +80,7 @@
     function summary(){
       var e=el('msel'),r=sel&&sel.t==='run'?runOf(sel.id):null;
       if(!sel){e.textContent='';return}
+      if(sel.t==='set'){e.innerHTML=(sel.label?'<span class="rt">'+esc(sel.label)+'</span>: ':'')+sel.ids.map(function(id){return '<b>'+esc(id)+'</b>'}).join(' ');return}
       if(sel.t==='part'){var p=mp.parts[sel.id]||{name:sel.id},n=Object.keys(mp.ends).filter(function(id){return ends(id).indexOf(sel.id)>=0}).length;e.innerHTML='<span class="rt">'+esc(p.name)+'</span>: '+(n?n+(n===1?' run lands here':' runs land here'):'nothing new connects here');return}
       if(!r){e.innerHTML='<b>'+esc(sel.id)+'</b><span class="rt">'+esc((mp.cables||{})[sel.id]||'')+'</span>';return}
       e.innerHTML='<b>'+esc(r.id)+'</b><span class="rt">'+esc(r.short||(r.frm+' → '+r.to))+'</span> · '+esc(lenTxt(r));
@@ -95,6 +97,11 @@
       var d=el('mdetail');
       if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it. Step through with the arrows to go run by run.</p>';return}
       var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+'<button type="button" class="chip" data-mclear>Show everything</button></span>';
+      if(sel.t==='set'){
+        d.className='mdetail';d.style.borderLeftColor='var(--accent)';
+        d.innerHTML='<div class="d-head"><span class="d-route">'+esc(sel.label||'The runs that page pointed to')+'</span>'+acts+'</div><div><span class="k">'+sel.ids.length+' runs, in order</span><div class="ids" style="margin-top:4px">'+sel.ids.map(function(id){return '<button type="button" data-mrun="'+esc(id)+'">'+esc(id)+'</button>'}).join('')+'</div></div><p style="color:var(--muted)">Tap one to see it on its own.</p>';
+        return;
+      }
       if(sel.t==='part'){
         var p=mp.parts[sel.id]||{name:sel.id},ids=Object.keys(mp.ends).filter(function(id){return ends(id).indexOf(sel.id)>=0});
         d.className='mdetail';d.style.borderLeftColor='var(--accent)';
@@ -124,8 +131,8 @@
     function center(){
       if(!svg||!sel)return;
       var sc=el('mscroll');if(sc.scrollWidth<=sc.clientWidth+2)return;
-      var g=sel.t==='run'?svg.querySelector('.run[data-run="'+sel.id+'"]'):svg.querySelector('.part[data-part="'+sel.id+'"]');
-      try{var bb=g.getBBox(),ratio=svg.clientWidth/1400;sc.scrollTo({left:Math.max(0,(bb.x+bb.width/2)*ratio-sc.clientWidth/2),behavior:'smooth'})}catch(e){}
+      var gs=sel.t==='set'?sel.ids.map(function(id){return svg.querySelector('.run[data-run="'+id+'"]')}):[sel.t==='run'?svg.querySelector('.run[data-run="'+sel.id+'"]'):svg.querySelector('.part[data-part="'+sel.id+'"]')];
+      try{var x0=1e9,x1=-1e9;gs.forEach(function(g){if(!g)return;var bb=g.getBBox();x0=Math.min(x0,bb.x);x1=Math.max(x1,bb.x+bb.width)});var ratio=svg.clientWidth/1400;sc.scrollTo({left:Math.max(0,(x0+x1)/2*ratio-sc.clientWidth/2),behavior:'smooth'})}catch(e){}
     }
     function pickRun(id,toggle){sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
     function pickPart(id){sel=(sel&&sel.t==='part'&&sel.id===id)?null:{t:'part',id:id};paint();center()}
@@ -152,5 +159,27 @@
     }
     /* from the list: show one run on the map */
     function focus(id){if(!mp)return;pickRun(id,false);el('mapsec').scrollIntoView({behavior:'smooth',block:'start'})}
-    return {show:show,init:init,focus:focus};
+    function hasRun(id){return !!(svg&&svg.querySelector('.run[data-run="'+id+'"]'))}
+    function hasPart(id){return !!(svg&&svg.querySelector('.part[data-part="'+id+'"]'))}
+    /* a link from another page (see maplink.js): run=TC, part=ssr (| between alternatives, the first on this drawing wins),
+       runs=AC1,AC2 or short=J9 R1,J9 GND (every run whose name starts that way) for a set, layer=E for a layer.
+       Returns false when nothing it asked for is on this drawing; the whole map shows instead. */
+    function deep(q){
+      if(!mp)return false;
+      var found=null,ids=[],asked=!!(q.run||q.part||q.runs||q.short||q.layer);
+      if(q.run)q.run.split('|').some(function(id){if(hasRun(id)){found={t:'run',id:id};return true}return false});
+      if(!found&&q.part)q.part.split('|').some(function(id){if(hasPart(id)){found={t:'part',id:id};return true}return false});
+      if(!found&&(q.runs||q.short)){
+        if(q.runs)q.runs.split(',').forEach(function(id){if(hasRun(id)&&ids.indexOf(id)<0)ids.push(id)});
+        if(q.short)q.short.split(',').forEach(function(p){v.runs.forEach(function(r){if(r.short&&r.short.indexOf(p)===0&&hasRun(r.id)&&ids.indexOf(r.id)<0)ids.push(r.id)})});
+        if(ids.length===1)found={t:'run',id:ids[0]};else if(ids.length)found={t:'set',ids:ids,label:q.label||''};
+      }
+      sel=found;layer='all';
+      if(!found&&q.layer&&Array.prototype.some.call(svg.querySelectorAll('.run'),function(g){return inLayer(g.getAttribute('data-run'),q.layer)})){layer=q.layer;found=true;sel=null}
+      paint();center();
+      if(found===true){var ln=LAYERS.filter(function(l){return l[0]===q.layer})[0];el('msel').innerHTML=(q.label?'<span class="rt">'+esc(q.label)+'</span>: ':'')+esc(ln?ln[1]:'')+' runs lit'}
+      if(asked&&!found)el('msel').innerHTML='<span class="rt">'+esc(q.label?q.label+': not':'Not')+' on this drawing, so the whole map is showing.</span>';
+      return !asked||!!found;
+    }
+    return {show:show,init:init,focus:focus,deep:deep};
   })();

@@ -187,6 +187,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   var L={wiring:'%%LINK_WIRING%%',labels:'%%LINK_LABELS%%',checks:'%%LINK_CHECKS%%',which:'%%LINK_WHICH%%',cut:'%%LINK_CUTLIST%%',trouble:'%%LINK_TROUBLE%%',models:'%%LINK_MODELS%%'};
   %%INCLUDE:official-links.js%%
   %%INCLUDE:runbook-phases.js%%
+  %%INCLUDE:maplink.js%%
   var ALL=[];PHASES.forEach(function(p,i){p.steps.forEach(function(s){s.phase=i;ALL.push(s)})});
   var KEY='gaggia-install-runbook-v1';
   function $(id){return document.getElementById(id)}
@@ -199,6 +200,12 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   var FALLBACK={outlet:'GFCI-protected outlet (an RCD outside North America)',gfci:'GFCI',volts:'120 V'};
   function fill(t){var m=M();if(Array.isArray(t))t=m?m.txt(t):t.map(function(x){return typeof x==='string'?x:x[0]}).join(' ');return String(t).replace(/\{(outlet|gfci|volts)\}/g,function(_,k){return m?m.text(k):FALLBACK[k]})}
   %%INCLUDE:wlabel.js%%
+  /* links to the step's wiring on the wiring map; a step for one install path opens that path's drawing */
+  function mapLinks(s){
+    if(s.map==null)return '';
+    var m=M(),pm=/wpath:(SI|CW)/.exec(s.w||''),o=pm?{path:pm[1]}:{};
+    return (typeof s.map==='string'?[['On the wiring map',s.map]]:s.map).filter(function(x){return !x[2]||!m||m.matches(x[2])}).map(function(x){var oo={path:x[4]||o.path};if(x[3])oo.label=x[3];return '<a class="maplk" href="'+esc(mapHref(x[1],oo))+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join('');
+  }
   function wtag(s){var m=M();if(!s.w||(m&&m.decided&&m.decided(s.w)))return '';return '<span class="vtag">'+esc(wlabel(s.w))+'</span>'}
 
   /* ---------- state ---------- */
@@ -228,7 +235,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     if(p.note)h+='<div class="pnote" role="note">'+esc(p.note)+'</div>';
     h+='<ol class="steps">'+stepsOf(i).map(function(s){
       var d=state.done[s.id];
-      var o=offOf(s),link=(o?'<a class="off" href="'+esc(o[1])+'" target="_blank" rel="noopener">Official: '+esc(o[0])+'</a>':'')+(s.link?'<a href="'+esc(L[s.link[1]])+'" target="_blank" rel="noopener">'+esc(s.link[0])+'</a>':'');
+      var o=offOf(s),link=(o?'<a class="off" href="'+esc(o[1])+'" target="_blank" rel="noopener">Official: '+esc(o[0])+'</a>':'')+(s.link?'<a href="'+esc(L[s.link[1]])+'" target="_blank" rel="noopener">'+esc(s.link[0])+'</a>':'')+mapLinks(s);
       return '<li class="step'+(d?' done':'')+(s.stop?' stopstep':'')+'" data-step="'+s.id+'"><input type="checkbox" id="c-'+s.id+'" data-tick="'+s.id+'"'+(d?' checked':'')+'><label for="c-'+s.id+'"><span class="st-t">'+esc(fill(s.t))+wtag(s)+'</span><span class="st-d">'+esc(fill(s.d))+'</span></label>'+
         '<div class="st-meta"><span class="src">'+esc(s.src)+'</span>'+link+'<span class="when" data-done="'+s.id+'">'+(d?'Done '+fmtDate(d):'')+'</span></div></li>';
     }).join('')+'</ol>';
