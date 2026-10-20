@@ -4,7 +4,7 @@
   "k": "gaggia",
   "q": "What does the over-pressure valve (OPV) do on a stock Gaggia?",
   "a": [
-   "Returns water to the tank above its setting",
+   "Returns water to the tank once pressure passes its setting",
    "Vents the group into the drip tray after a shot",
    "Cuts the pump's power if its coil overheats",
    "Lets steam out of the boiler when it's too hot"
@@ -220,12 +220,12 @@
   "k": "gaggia",
   "q": "You've just steamed milk. What should you do before pulling the next shot?",
   "a": [
-   "Steam off, flush the group until the ready light returns",
+   "Steam off, portafilter out, run water through the group",
    "Pull the shot at once, while the boiler is at its hottest",
    "Leave steam on so the group stays warm for the shot",
    "Open the steam knob and let the boiler blow off its steam"
   ],
-  "why": "Straight after steaming the boiler is near steam temperature, so water flashes to steam at the group, which can scald, and the coffee comes out burnt. Running water through the group, portafilter out, refills the boiler and brings it back to brew temperature.",
+  "why": "Straight after steaming the boiler is far above brew temperature and its ready light is already on, so the light is no cue yet. Run water through the group, as Gaggia's manual says: the light goes out as the boiler cools and starts heating again, and comes back on at brew temperature. Brewing straight away flashes water to steam at the group, which can scald, and burns the coffee.",
   "r": [
    [
     "url",
@@ -287,7 +287,7 @@
   "a": [
    "Brew off, then wait a couple of seconds",
    "Force it out; the gasket is just tight",
-   "Switch steam on to release the pressure",
+   "Leave brew on until the pressure drops",
    "Open the steam knob to vent the group"
   ],
   "why": "Brew off lets the 3-way valve vent the group's pressure into the drip tray. Forced out under pressure, a portafilter sprays scalding water and grounds.",
@@ -571,7 +571,7 @@
    "It heats faster and swings less",
    "It behaves just the same as aluminum"
   ],
-  "why": "Brass holds more heat than aluminum: about 90 seconds to brew-ready in Whole Latte Love's test, against about 70 for the Evo Pro, but steadier once there.",
+  "why": "In Whole Latte Love's test it took about 90 seconds to brew-ready, against about 70 for the Evo Pro. Once hot, the heavier brass boiler reheated less often and held a steadier shot temperature.",
   "r": [
    [
     "url",
@@ -735,7 +735,7 @@
    "The 3-way valve loses 1 bar on the way to the group",
    "The OPV has to stay shut during steaming"
   ],
-  "why": "The OPV still sits above every profile: whatever a profile asks for, the pressure can't pass its setting. If it opens below your target, shots fall short of it.",
+  "why": "OPVs open gradually: the official guide says a 9 bar spring can start opening around 8.2 bar. The PCB can't see water going back to the tank, and whatever a profile asks for, the pressure can't pass the OPV, so if it opens below your target, shots fall short of it.",
   "r": [
    [
     "url",
@@ -833,7 +833,7 @@
    "Only while the pump or valve is running",
    "Only while the elements are heating"
   ],
-  "why": "Mains comes in on J10 and J11 and feeds the board's supply, and its mains section is live whenever the machine is plugged in. Every power-on check starts with the cord out of the wall.",
+  "why": "Mains comes in on J10 and J11 and feeds the board's supply. The power switch isn't a safe isolator: on the original Classic it breaks line only, and some inlets have line and neutral swapped. So treat it as live whenever the machine is plugged in. Every power-on check starts with the cord out.",
   "r": [
    [
     "url",
@@ -851,7 +851,7 @@
  {
   "id": "gg-13",
   "k": "gg",
-  "q": "With the J7 plug off the PCB and the brew switch on, what should a meter read from J7 B to J7 GND?",
+  "q": "Unplugged, with the J7 plug off the PCB and the brew switch on, what should a meter read from J7 B to J7 GND?",
   "a": [
    "Under 1 Ω",
    "OL",
@@ -1174,7 +1174,7 @@
   "k": "plan",
   "q": "The official guide splits the machines into GC and GCP. Which machines are GCP?",
   "a": [
-   "The Pro, Eco, Evo Pro and E24",
+   "The Pro, Eco, Evo and E24",
    "Only the Classic Pro from 2019 to 2022",
    "The original Classic and the V2",
    "Every Classic sold for 120 V mains"
@@ -1220,14 +1220,14 @@
  {
   "id": "plan-06",
   "k": "plan",
-  "q": "Which machines have no official stock-integration drawing, so this site gives them custom wiring?",
+  "q": "Which machines have no stock-integration drawing in the current official guide, so this site gives them custom wiring?",
   "a": [
    "Any 230 V Pro-family machine",
    "The 230 V original Classic",
    "The 120 V Classic Pro and Evo Pro",
    "Only the US Evo Pro and E24"
   ],
-  "why": "The official stock-integration drawings cover the 120 V Pro family and the Classic at 120 V and 230 V. A 230 V Pro-family machine, Eco board or not, gets custom wiring even if stock wiring was picked.",
+  "why": "The current stock-integration drawings cover the 120 V Pro family and the Classic at 120 V and 230 V. A 230 V Pro-family machine, Eco board or not, gets custom wiring even if stock wiring was picked. The docs' archive keeps an older Eco-board drawing, not for new builds.",
   "r": [
    [
     "url",
@@ -1296,14 +1296,14 @@
  {
   "id": "plan-09",
   "k": "plan",
-  "q": "Your US Evo Pro or E24's 9 bar OPV has to go up to 10 to 12 bar. Using 0.5 mm M3 washers, how many go behind the spring?",
+  "q": "Your US Evo Pro or E24's 9 bar OPV has to go up to 10 to 12 bar. Using 0.5 mm M3 washers, how many do you start with behind the spring?",
   "a": [
    "Four",
    "Two",
    "Three",
    "Six"
   ],
-  "why": "Four 0.5 mm washers, or three 0.8 mm ones, preload the 9 bar spring (a 12 bar spring is the other route). Then [UT] Test OPV with a blank basket must peak at 10.5 to 13 bar; add a washer if it peaks low.",
+  "why": "Start with four 0.5 mm washers, or three 0.8 mm ones (a 12 bar spring is the other route). The machine-specific guide aims for 10 to 12 bar; the pass mark is [UT] Test OPV with a blank basket peaking at 10.5 to 13 bar, from the Gen 3 manual. Add a washer if it peaks low, unplugged and cooled each time.",
   "r": [
    [
     "rb",
@@ -1395,14 +1395,14 @@
  {
   "id": "plan-14",
   "k": "plan",
-  "q": "A Gaggiuino kit covers the electronics. Which of these do you buy on top of it?",
+  "q": "Kits vary, but which of these do you usually buy on top of one?",
   "a": [
    "Mains wire, insulation and housings",
    "The SSR and the K-type thermocouple",
    "The pressure sensor and its signal lead",
    "The low-voltage cables for the switches"
   ],
-  "why": "Kits bring the PCB, screen, sensors, SSR and low-voltage cables. The 18 AWG mains wiring, insulation and printed housings come on top, plus a meter and an open-barrel crimper if you don't have them.",
+  "why": "Kits bring the PCB, screen, sensors, SSR and low-voltage cables. 18 AWG mains wire, insulation and printed housings usually come on top, plus a meter and an open-barrel crimper if you don't have them. Some kits add mains cables (Peak Coffee's are 22 AWG), so check yours.",
   "r": [
    [
     "url",
@@ -1502,7 +1502,7 @@
   "a": [
    "Take each connector out, insulate, label it",
    "Leave the block whole and wrap it in silicone tape",
-   "Cut the block off and crimp on new spades",
+   "Leave it on and plug the J7 wires into it",
    "Swap it for the Pro's separate connectors"
   ],
   "why": "A small screwdriver releases each connector's tab. Each one gets self-fusing silicone tape or 6 mm silicone heat shrink and a label, because with stock wiring some stay in the machine unplugged.",
@@ -1524,9 +1524,9 @@
   "k": "plan",
   "q": "With a 120 V machine unplugged, about what should both heating elements read together?",
   "a": [
-   "About 10 to 11 ohms",
-   "About 37 to 44 ohms",
-   "Under 1 ohm",
+   "About 10 to 11 Ω",
+   "About 37 to 44 Ω",
+   "Under 1 Ω",
    "OL (open)"
   ],
   "why": "On 120 V the two elements are in parallel, about 10.5 to 10.7 Ω together from the rated heater power. A 1425 W label includes the 55 W pump, so don't work it out from that; the power-on checks compute yours from the plate.",
@@ -1550,9 +1550,9 @@
   "k": "plan",
   "q": "With a 230 V machine unplugged, about what should both heating elements read together?",
   "a": [
-   "About 37 to 44 ohms",
-   "About 10 to 11 ohms",
-   "Under 1 ohm",
+   "About 37 to 44 Ω",
+   "About 10 to 11 Ω",
+   "Under 1 Ω",
    "OL (open)"
   ],
   "why": "On 230 V the two elements are in series, so the meter reads both at once: about 44 Ω on a 1200 W machine. The power-on checks work out your exact value from the rating plate.",
@@ -1581,7 +1581,7 @@
    "Only steps near the boiler or the pump",
    "Every step except the low-voltage wiring"
   ],
-  "why": "Mains can kill. Work only with the cord out, and keep it out until every power-on check has passed.",
+  "why": "Mains can kill. Work only with the cord out, and keep it out until every power-on check has passed. After that the cord goes in only for tests with the covers on. Unplug again before you open it for anything.",
   "r": [
    [
     "url",
@@ -1698,7 +1698,7 @@
   "k": "safety",
   "q": "Putting the funnel and cup warmer back on in Phase 5, what must you do?",
   "a": [
-   "Reconnect each one's earth wire",
+   "Reconnect their earth wires",
    "Leave the earth off: the screws earth them",
    "Join their earth wires to the PCB's GND",
    "Tape over their earth spades instead"
@@ -1855,7 +1855,7 @@
    "Normal: the boiler is bonded to earth",
    "The SSR is passing current to the boiler"
   ],
-  "why": "Either wire to the boiler must read open (OL), because the probe is ungrounded. A few ohms is right only across the two wires. Gaggiuino needs the ungrounded type, since the 5 V side floats.",
+  "why": "Either wire to the boiler must read open (OL), because the probe is ungrounded. A few ohms is right only across the two wires. The boiler is earthed and the MAX31855's input must stay off ground, so Gaggiuino needs the ungrounded type.",
   "r": [
    [
     "ck",
@@ -2055,11 +2055,11 @@
   "q": "Stock wiring on an original Classic: why trace which inlet wire is line before moving anything?",
   "a": [
    "On some, line and neutral are swapped",
-   "The Classic's switch breaks neutral, not line",
+   "Gaggia's own drawing puts the switch on neutral",
    "The boiler fuse must move onto line first",
    "Stock integration rewires the inlet's pins"
   ],
-  "why": "On a number of machines line and neutral are swapped at the inlet. It makes no difference stock, but it can for stock integration, so check yours against the schematic first.",
+  "why": "On a number of machines line and neutral are swapped at the inlet. It makes no difference stock, but it can for stock integration, so check yours against the schematic first. With a plug that fits either way round, either pin can be line, so treat both as live.",
   "r": [
    [
     "url",
@@ -2103,7 +2103,7 @@
    "From the screen, back through its J1 cable",
    "From a 12 V adapter plugged into J9"
   ],
-  "why": "The bench test proves the board, screen and sensors on USB-C before anything goes into the machine. The USB-C port only powers the board on the bench.",
+  "why": "The bench test proves the board, screen and sensors on USB-C power before anything goes into the machine, with no mains anywhere near.",
   "r": [
    [
     "rb",
@@ -2187,7 +2187,7 @@
  {
   "id": "install-06",
   "k": "install",
-  "q": "What does the pressure sensor seal on?",
+  "q": "In the official install, what makes the pressure sensor's seal?",
   "a": [
    "The flat white O-ring pressed flush into its fitting",
    "Its thread, wrapped in PTFE tape",
@@ -2270,7 +2270,7 @@
    "About 15 mm",
    "About 40 mm"
   ],
-  "why": "If any strands come away with the insulation, cut the end off and strip again. A light twist keeps the strands together.",
+  "why": "About 6 mm fills the metal barrel of a standard insulated spade, with no bare copper showing behind it. If any strands come away with the insulation, cut the end off and strip again.",
   "r": [
    [
     "pg",
@@ -2684,7 +2684,7 @@
   "k": "wiring",
   "q": "What does the PCB send out on J9?",
   "a": [
-   "5 V on R1 to turn the SSR on for heat",
+   "The SSR's on signal, on R1, to switch the heat",
    "Mains line straight to the heating elements",
    "The 5 V supply for the pressure sensor",
    "The serial data link to the screen"
@@ -2885,11 +2885,11 @@
   "q": "On the 230 V Classic's stock wiring drawing, what does wire N share a pump terminal with?",
   "a": [
    "Connector F, as this drawing has no pump fuse",
-   "Pa, the lead from the pump's thermal fuse",
+   "Pb, the stock wire that moves onto wire 3",
    "Wire P, which comes from the PCB's J12",
    "Wire 3, which comes from the PCB's J13"
   ],
-  "why": "F sits on the pump's other terminal, and N piggybacks on it: unplug F, push the piggyback on, and plug F back onto its tab.",
+  "why": "This drawing shows no pump fuse. F sits on the pump's terminal, and N piggybacks on it: unplug F, push the piggyback on, and plug F back onto its tab. The drawing tags N's end there Pa.",
   "r": [
    [
     "map",
@@ -2990,12 +2990,12 @@
   "k": "wiring",
   "q": "Why does a 230 V Pro-family machine follow the custom wiring schematic, even if stock wiring was picked?",
   "a": [
-   "There's no official stock-integration drawing for it",
+   "The current official guide has no stock-integration drawing for it",
    "Stock wiring can't carry the current at 230 V",
    "Its SSR only fits a new harness",
    "Its switches have no spare spades for signals"
   ],
-  "why": "The official stock-integration schematics cover the 120 V Pro family and both Classics. So the wiring, cut list, labels and checks all show custom wiring for a 230 V Pro-family machine.",
+  "why": "The current stock-integration schematics cover the 120 V Pro family and both Classics, and the guide recommends custom wiring for Eco-board machines. The older drawings in the docs' archive aren't for new builds. So the wiring, cut list, labels and checks all show custom wiring for a 230 V Pro-family machine.",
   "r": [
    [
     "url",
@@ -3041,14 +3041,14 @@
  {
   "id": "wiring-22",
   "k": "wiring",
-  "q": "In the 120 V Classic's custom harness, which runs leave the boiler fuse's left spade?",
+  "q": "In the 120 V Classic's custom harness, which runs leave the boiler fuse's left end?",
   "a": [
    "AC8 and AC9, one to each element",
    "AC8 alone, with AC9 linking the elements",
    "AC6 and AC7, from the SSR and power switch",
    "AC10 and AC11, to the element splice"
   ],
-  "why": "At 120 V the elements are in parallel, so both element leads share the fuse's left spade. AC6 and AC7 land on its right spade.",
+  "why": "At 120 V the elements are in parallel, so both element leads share the fuse's left end. AC6 and AC7 land on its right end.",
   "r": [
    [
     "map",
@@ -3124,7 +3124,7 @@
   "a": [
    "Out of the wall and out of the machine's inlet",
    "Out of the wall, but still in the machine's inlet",
-   "In a GFCI outlet, with the power switch off",
+   "Plugged into a {outlet}, power switch off",
    "In the wall, with the power switch off"
   ],
   "why": "Every check is done unplugged at both ends, and the cord stays out until every check passes. The inlet pins become your probe points.",
@@ -3254,7 +3254,7 @@
    "The boiler's thermal fuse is starting to fail",
    "The SSR is leaking current into the elements"
   ],
-  "why": "The expected resistance comes from the plate's watts, which include the pump, so the heater alone reads a little high. Far from the expected value points to a damaged element, a loose terminal or a reading through another path.",
+  "why": "The expected value comes from the plate's watts, which include the pump, so the heater alone usually reads a little high. Plate and meter tolerances add a few percent either way. Far from the expected value points to a damaged element, a loose terminal or a reading through another path.",
   "r": [
    [
     "ck",
@@ -3268,12 +3268,12 @@
   "k": "checks",
   "q": "Element terminal to boiler body (c2) shows a resistance instead of OL. What now?",
   "a": [
-   "Stop: an element leaks, so the boiler must be replaced",
+   "Don't power it: leads off, recheck, then replace the boiler if it reads",
    "Carry on: a little leakage is normal on older elements",
    "Tighten the element terminal, then carry on with the checks",
    "Swap the two element wires and recheck c2 for OL"
   ],
-  "why": "c2 expects OL. A reading means an element is leaking to the boiler, and because the elements are part of the boiler, the whole boiler has to be replaced.",
+  "why": "c2 expects OL. With the wiring on, a reading means something on that circuit touches the boiler or frame. If it still reads with the element leads off, an element leaks, and since the elements are part of the boiler, the boiler has to be replaced.",
   "r": [
    [
     "ck",
@@ -3397,7 +3397,7 @@
    "Unplugged, power switch on, highest Ω range",
    "Unplugged, power switch off, lowest Ω range",
    "Plugged in, power switch off, AC volts",
-   "Plugged into a GFCI, switch on, continuity beep"
+   "Plugged into a {outlet}, switch on, continuity beep"
   ],
   "why": "The shorts section keeps the cord out but turns the power switch on, and uses the highest Ω range. Mains must not reach earth or the 5 V side.",
   "r": [
@@ -3456,7 +3456,7 @@
    "Neutral only; line stays connected",
    "Line and earth together"
   ],
-  "why": "Neutral stays connected, so e2, inlet L to J11 with the switch off, must read OL to show the switch is breaking line.",
+  "why": "Neutral stays connected, so e2, inlet L to J11 with the switch off, must read OL to show the switch is breaking line. The switch off doesn't make the inside safe: work inside only with the cord out.",
   "r": [
    [
     "ck",
@@ -3489,7 +3489,7 @@
  {
   "id": "checks-19",
   "k": "checks",
-  "q": "Stock integration on an original Classic: where does the boiler's thermal fuse sit?",
+  "q": "Stock integration on an original Classic: where does the drawing put the boiler's thermal fuse?",
   "a": [
    "In the neutral feed to the whole machine",
    "In the heater's own line, after the SSR",
@@ -3533,11 +3533,11 @@
  {
   "id": "trouble-01",
   "k": "trouble",
-  "q": "The breaker or GFCI (RCD outside North America) trips when you switch on. What do you do first?",
+  "q": "The breaker or {gfci} trips when you switch on. What do you do first?",
   "a": [
-   "Leave it unplugged and stop resetting the breaker",
+   "Unplug it and stop resetting the breaker",
    "Reset it and try once more with the covers off",
-   "Move it to an outlet without GFCI protection",
+   "Move it to an outlet without {gfci} protection",
    "Switch it on again with the pump disconnected"
   ],
   "why": "A trip carries the Unplug now flag. Leave it unplugged, then rerun the covers-on and shorts checks to find where mains reaches earth.",
@@ -3556,14 +3556,14 @@
  {
   "id": "trouble-02",
   "k": "trouble",
-  "q": "Which cause is most likely when the breaker or GFCI trips as you switch on?",
+  "q": "Which cause is most likely when the breaker or {gfci} trips as you switch on?",
   "a": [
    "Line or neutral touching earth somewhere",
    "The boiler's thermal fuse has blown",
    "The thermocouple reversed at J4",
    "The SSR has failed open, so it never switches"
   ],
-  "why": "It's first on the list: a bare spade or a wire pinched against the frame. An element leaking to the boiler and water on the wiring come next.",
+  "why": "A {gfci} trips when current leaks to earth. The usual path is line or neutral touching earth: a bare spade, or a wire pinched against the frame. An element leaking to the boiler and water on the wiring come next.",
   "r": [
    [
     "tr",
@@ -3601,20 +3601,19 @@
   "k": "trouble",
   "q": "The screen stays black. What's the most likely cause?",
   "a": [
-   "The J1 cable wired by color instead of by pin",
+   "No 5 V reaching it: cable not seated, or PCB unpowered",
    "Your Wi-Fi is a 5 GHz only network",
    "The thermocouple is unclamped from J4",
    "The pressure sensor is out of order on J6"
   ],
-  "why": "Blue and yellow vary between cable revisions, so check J1 pin by pin: GND, TX, RX, 5V. Reseat a pre-made cable rather than taking it apart.",
+  "why": "A black screen means the screen isn't getting power. Reseat the cable at both ends, and on the bench power the PCB from its USB-C. Blue and yellow swapped on J1 is a data fault instead: the screen lights but stays on Initialization in progress.",
   "r": [
    [
     "tr",
     "The screen stays black"
    ]
   ],
-  "src": "trouble-data.js 'The screen stays black': cause 'The J1 cable wired by color rather than by pin; blue and yellow vary between cable revisions.' check 'Check J1 pin by pin: GND, TX, RX, 5V.' 'Don't take a pre-made cable apart; reseat it.'",
-  "g": "j1"
+  "src": "trouble-data.js 'The screen stays black': cause 'The J1 cable wired by color rather than by pin; blue and yellow vary between cable revisions.' check 'Check J1 pin by pin: GND, TX, RX, 5V.' 'Don't take a pre-made cable apart; reseat it.'"
  },
  {
   "id": "trouble-05",
@@ -3626,7 +3625,7 @@
    "The screen only; the core follows",
    "The core only, by ST-Link"
   ],
-  "why": "Bring both to the same release, core first and then the screen. The same order applies to over-the-air updates.",
+  "why": "Bring both to the same release, core first and then the screen, unless the release notes say otherwise. The same order applies to over-the-air updates.",
   "r": [
    [
     "tr",
@@ -3649,7 +3648,7 @@
    "Keep heating: it settles once the boiler is full",
    "Swap the SSR control wires at J9"
   ],
-  "why": "The thermocouple is reversed, so the controller sees a falling temperature and may keep heating. Swap the wires at J4, then retest on the bench: warm the probe in your hand and the reading must rise.",
+  "why": "The thermocouple is reversed, so the controller sees a falling temperature and may keep heating. Swap the wires at J4, folding the bare ends over again. At the next power-on the reading must rise as the boiler heats; if it falls again, unplug at once.",
   "r": [
    [
     "tr",
@@ -3787,7 +3786,7 @@
    "Wrap its threads with PTFE tape and refit it",
    "Raise the OPV to 12 bar and run the shot again"
   ],
-  "why": "Overtightening can damage the sensor's small O-ring and stop it reading. The sensor seals on that O-ring, pressed flush in the fitting, not on its threads.",
+  "why": "Overtightening can crush the small white O-ring in the fitting and stop the reading. The sensor seals on that O-ring, pressed flush in the fitting, not on its threads. If it's crushed, fit a new one.",
   "r": [
    [
     "tr",
@@ -3811,7 +3810,7 @@
    "Lower the pressure target in the settings to 9 bar",
    "Tighten the pressure sensor another quarter turn"
   ],
-  "why": "Gaggiuino can't tell when the OPV opens, so a 9 bar valve cuts shots short. Raise it to 10 to 12 bar, adding a washer if it still peaks low, and rerun [UT] Test OPV.",
+  "why": "Gaggiuino can't tell when the OPV opens, so a 9 bar valve cuts shots short. Unplugged and cooled, raise it to 10 to 12 bar with a 12 bar spring or M3 washers. Close up and rerun h1 to h6 of the power-on checks, then rerun [UT] Test OPV. If it still peaks low, add a washer the same way.",
   "r": [
    [
     "tr",
@@ -3836,7 +3835,7 @@
    "Run [UT] Tube Fill to clear air from the sensor line",
    "Tighten the pressure sensor another quarter turn"
   ],
-  "why": "The original Classic's metal OPV adjusts under its cap, and owners often set it to 9 bar. Turn it up in small steps, rerunning [UT] Test OPV until it peaks at 10.5 to 13 bar.",
+  "why": "The original Classic's metal OPV adjusts under its cap, and many owners turned it down to 9 bar (a Coffee Forums method; the official docs don't cover it). Unplugged, cooled and depressurized, take the cap off and turn the hex up a little. Close up, rerun h1 to h6 of the power-on checks, then rerun [UT] Test OPV. Repeat until it peaks at 10.5 to 13 bar.",
   "r": [
    [
     "tr",

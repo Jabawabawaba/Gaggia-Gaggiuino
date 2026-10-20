@@ -40,7 +40,7 @@
         'Cup on the drip tray. With '+readyWord(false)+' on, switch brew on for 25 to 30 seconds, about 40 ml in the cup, and switch it off.',
         'Milk: switch steam on and wait for '+readyWord(true)+', usually well under a minute. Purge first: open the knob with no jug until the water turns to steam, and close it.',
         'Jug under the wand, open the knob. It foams while the milk is cold; stop at 60 to 65 °C on the thermometer. Close the knob, then take the jug away.',
-        'Switch steam off. Take the portafilter out and knock the puck out, then run water through the group into the drip tray until '+readyWord(false)+' comes back on: that refills the boiler and brings it back down to brew temperature. After a long steaming, over a minute, refill through the wand first: knob open, brew on until water comes out, then off.',
+        'Switch steam off. Take the portafilter out and knock the puck out, then run water through the group into the drip tray until '+readyWord(false)+' goes out, then stop and let it come back on: that refills the boiler and brings it back down to brew temperature. After a long steaming, over a minute, refill through the wand first: knob open, brew on until water comes out, then off.',
         'Empty the drip tray when it fills.'
       ];
       guide.querySelector('.cg-steps').innerHTML=steps.map(function(s){return '<li>'+e(s)+'</li>'}).join('');
@@ -76,7 +76,7 @@
       if(s.steam&&!s.knob){B.steamShut=true;slip('brew-steam','Brew with steam on','With steam on, the 3-way valve stays shut, so nothing reached the group: the pump just ran against the over-pressure valve.',['brew','steam','lamps'],'Switch steam off before brewing, and wait for '+readyWord(false)+'. To get hot water from the wand, open the knob first.')}
       if(B.dosed&&!B.steamShut){
         if(!B.tray)slip('no-cup','The coffee went into the drip tray','The cup was still on the warmer, so the shot ran straight into the tray.',['cup','brew'],'Tap the cup down onto the drip tray before switching brew on. Keeping it on the warmer until then is right: it starts the shot warm.');
-        if(B.tw0>108)slip('hot-shot','Brewing straight after steaming','The boiler was still near steam temperature, so the water flashed to steam at the group, which can scald, and the coffee came out burnt.',['steam','brew','lamps'],'After steaming, switch steam off, '+'take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' comes back on: that refills the boiler and brings it back down to brew temperature'+'. Then brew.');
+        if(B.tw0>108)slip('hot-shot','Brewing straight after steaming','The boiler was still near steam temperature, so the water flashed to steam at the group, which can scald, and the coffee came out burnt.',['steam','brew','lamps'],'After steaming, switch steam off, '+'take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' goes out, then stop and let it come back on: that refills the boiler and brings it back down to brew temperature'+'. Then brew.');
         else if(!B.ready&&B.tw0<90)slip('early-shot','Brewing before the machine was ready','The boiler hadn\'t reached brew temperature, so the shot ran cool.',['lamps','brew'],'Wait for '+readyWord(false)+', and on a cold start give it 15 minutes or more with the portafilter locked in.');
       }
     }
@@ -106,7 +106,7 @@
         card('shot bad','<div class="ck-h"><span class="ck-tag">Shot '+n.shot+'</span><h4>'+e(verdict)+'</h4></div>'+checks(L)+nextList(N));return;
       }
       L.push([b.tw0<=108&&!b.flash,b.tw0>108||b.flash>0?'The boiler was too hot: it flashed to steam at the group.':'Boiler at brew temperature, not steam.']);
-      if(b.tw0>108||b.flash>0)N.push('After steaming, switch steam off, take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' comes back on: that refills the boiler and brings it back down to brew temperature.');
+      if(b.tw0>108||b.flash>0)N.push('After steaming, switch steam off, take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' goes out, then stop and let it come back on: that refills the boiler and brings it back down to brew temperature.');
       if(b.tw0<=108){
         L.push([b.ready||b.tw0>=92,b.ready?'Started with '+readyWord(false)+' on.':b.tw0>=92?'Boiler hot enough, though '+readyWord(false)+' was off while it topped up.':'Started before '+readyWord(false)+' came on.']);
         if(!b.ready&&b.tw0<92)N.push('Wait for '+readyWord(false)+' before you brew.');
@@ -156,7 +156,7 @@
       if(T>68)N.push('Close the knob at 60 to 65 °C; the milk keeps rising a little after.');
       L.push([!m.offOpen,m.offOpen?'The jug came off with the knob still open: on a real machine that sprays milk.':'Closed the knob before taking the jug away.']);
       if(m.offOpen)N.push('Close the knob, then take the jug away.');
-      var now=s.steam?'<p class="ck-now"><b>Now:</b> switch steam off, take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' comes back on: that refills the boiler and brings it back down to brew temperature.</p>':'';
+      var now=s.steam?'<p class="ck-now"><b>Now:</b> switch steam off, take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' goes out, then stop and let it come back on: that refills the boiler and brings it back down to brew temperature.</p>':'';
       var good=L.filter(function(x){return x[0]}).length;
       card('milk '+cls,'<div class="ck-h"><span class="ck-tag">Milk '+n.milk+'</span><h4>'+e(verdict)+'</h4><span class="ck-score">'+good+' of '+L.length+'</span></div>'+
         '<p class="ck-stats">'+[r0(secs)+' s of steam',r0(T)+' °C',j.foam>j.m*0.3?'plenty of foam':j.foam>j.m*0.08?'some foam':'little foam'].join(' · ')+'</p>'+
@@ -194,7 +194,7 @@
         if(!s.knob&&s.jug.pos==='wand'&&!s.steam)endMilk(s,'steamoff');
       }
       /* steam left on with nothing to do */
-      if(s.steam&&!s.knob&&!M){st.idle+=dt;if(st.idle>150)slip('steam-idle','Steam still on','The boiler sits at steam temperature, too hot for the next shot.',['steam','brew'],'When the milk\'s done, switch steam off, take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' comes back on: that refills the boiler and brings it back down to brew temperature.')}else st.idle=0;
+      if(s.steam&&!s.knob&&!M){st.idle+=dt;if(st.idle>150)slip('steam-idle','Steam still on','The boiler sits at steam temperature, too hot for the next shot.',['steam','brew'],'When the milk\'s done, switch steam off, take the portafilter out and run water through the group into the drip tray until '+readyWord(false)+' goes out, then stop and let it come back on: that refills the boiler and brings it back down to brew temperature.')}else st.idle=0;
       if(s.pumpOn&&(s.air||s.tank<=0.5))slip('dry','The tank ran dry','With no water the pump rattles and takes in air, and it won\'t push against the coffee until that air is out.',['tank','knob','brew'],'Refill the tank, then prime: open the knob and switch brew on until water flows from the wand.');
       if(s.puddle>0)slip('tray','The drip tray overflowed','Every flush, vent and purge ends up in the tray.',['tank'],'Tap the drip tray to empty it now and then.');
     });

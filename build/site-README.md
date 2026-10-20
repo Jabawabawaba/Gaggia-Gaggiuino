@@ -42,7 +42,7 @@ This conversion involves mains voltage. Work only with the cord out of the wall.
 
 ## Known gaps
 
-- There's no official stock-integration drawing for 230 V Pro-family machines, so the site points them to custom wiring, as the guide does for Eco boards.
+- The current official guide has no stock-integration drawing for 230 V Pro-family machines, so the site points them to custom wiring, as the guide does for Eco boards.
 - Wire lengths come from the official schematics' tables. Cut long and trim.
 - The Learn pages describe the heating and pump control from the public Gen 2 firmware, because Gen 3's source isn't published; Gen 3 uses the same settings. The stock circuit is redrawn from Gaggia's 2018 wiring diagram for the 120 V Classic Pro. Where the tank and some parts sit inside the case isn't published, so the drawings place them approximately.
 - Prices are from October 2026 and go stale.

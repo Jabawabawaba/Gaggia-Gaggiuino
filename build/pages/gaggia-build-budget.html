@@ -357,7 +357,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     var el=$('mnote'),m=GM();if(!el||!m)return;
     var prof=m.get(),gone=LINES.filter(function(l){return !applies(l.when)}).length+(MACHINES.length-machineList().length);
     var nm=m.name();$('plate-m').innerHTML='<b>'+esc(nm?'Gaggia '+nm:'Gaggia Classic family')+'</b>';
-    el.innerHTML=prof?('Showing the costs for your Gaggia: <b>'+esc(m.label())+'</b>.'+(gone?' '+gone+(gone===1?' option that doesn\'t apply to it is hidden.':' options that don\'t apply to it are hidden.'):'')+(m.get().path==='SI'&&m.wpath()==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine, so these are the custom wiring costs.':'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
+    el.innerHTML=prof?('Showing the costs for your Gaggia: <b>'+esc(m.label())+'</b>.'+(gone?' '+gone+(gone===1?' option that doesn\'t apply to it is hidden.':' options that don\'t apply to it are hidden.'):'')+(m.get().path==='SI'&&m.wpath()==='CW'?' The current official guide has no stock-integration drawing for a 230 V Pro-family machine, so these are the custom wiring costs.':'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
       :'Set Your Gaggia and the budget drops what your machine doesn\'t need and adds what it does. <button class="linkbtn" type="button" data-openm>Set it</button>';
     el.hidden=false;
   }

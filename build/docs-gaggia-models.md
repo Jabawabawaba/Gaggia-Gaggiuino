@@ -21,7 +21,7 @@ The official Gaggiuino guide is written for the Gaggia Classic family, so every 
 
 - **Stock wiring integration** keeps the factory harness and adds seven wires: J, Sa, Sb, 3, P, L and N. Official drawings exist for the 120 V Classic Pro family and the Classic at 120 V and 230 V. **[Official]**
 - **Custom wiring** replaces the harness with a new one, using the stock lamps, element leads and fuses. Official drawings exist for both families at both voltages. **[Official]**
-- **230 V Pro family with the Eco board:** the docs say stock integration "is not recommended" and point to custom wiring, which leaves the board out of the circuit. There is no official stock integration drawing for any 230 V Pro-family machine. **[Official]**
+- **230 V Pro family with the Eco board:** the docs say stock integration "is not recommended" and point to custom wiring, which leaves the board out of the circuit. The current guide has no stock integration drawing for any 230 V Pro-family machine; the docs' archive keeps an older Eco-board one alongside the same advice to use custom wiring. **[Official]**
 - Stock wiring colors and connector positions vary between machines, especially at the pump. Check yours against the drawing before moving anything. **[Official]** The [wiring map](wiring.html#map?path=SI) shows the drawing for your model.
 
 ## Classic (1991 to 2014, US to 2018)

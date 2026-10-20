@@ -475,7 +475,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     })});
     var nm=m.name();$('plate-m').textContent=nm?'Gaggia '+nm:'Gaggia Classic family';
     var bits=[];if(lines)bits.push(lines+' line'+(lines===1?'':'s'));if(inner)bits.push(inner+' part'+(inner===1?'':'s')+' inside other lines');
-    el.innerHTML=prof?('Showing the parts for your Gaggia: <b>'+esc(m.label())+'</b>.'+(bits.length?' '+esc(bits.join(' and '))+(lines+inner===1?' that doesn\'t apply to it is hidden.':' that don\'t apply to it are hidden.'):'')+(m.get().path==='SI'&&m.wpath()==='CW'?' There\'s no official stock-integration drawing for a 230 V Pro-family machine, so these are the custom wiring parts.':'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
+    el.innerHTML=prof?('Showing the parts for your Gaggia: <b>'+esc(m.label())+'</b>.'+(bits.length?' '+esc(bits.join(' and '))+(lines+inner===1?' that doesn\'t apply to it is hidden.':' that don\'t apply to it are hidden.'):'')+(m.get().path==='SI'&&m.wpath()==='CW'?' The current official guide has no stock-integration drawing for a 230 V Pro-family machine, so these are the custom wiring parts.':'')+(m.missing().length?' Add your '+esc(m.missing().join(' and '))+' to narrow it down further.':'')+' <button class="linkbtn" type="button" data-openm>Change</button>')
       :'Set Your Gaggia and this list drops the parts your machine doesn\'t need. <button class="linkbtn" type="button" data-openm>Set it</button>';
     el.hidden=false;
   }

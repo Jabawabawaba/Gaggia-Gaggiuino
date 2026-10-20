@@ -232,7 +232,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     prefs.cur=vk;
     switcher($('vsel'),vk,function(k){override=k===mine?null:k;prefs.cur=k;save();render()});
     var noSI=p&&p.path==='SI'&&mine&&VARS[mine].path==='CW';
-    $('vnote').textContent=mine?(vk===mine?'Labels for your Gaggia\'s schematic. Pick another to compare.':'Showing '+vlabel(vk)+'. The dot marks yours.')+(noSI?' There\'s no official stock-integration drawing for a 230 V Pro-family machine, so yours is custom wiring.':''):
+    $('vnote').textContent=mine?(vk===mine?'Labels for your Gaggia\'s schematic. Pick another to compare.':'Showing '+vlabel(vk)+'. The dot marks yours.')+(noSI?' The current official guide has no stock-integration drawing for a 230 V Pro-family machine, so yours is custom wiring.':''):
       'Set your model, voltage and install path in the top bar and this page opens on your schematic. Until then, pick one here.';
     chips();
     var rows=selRows(),S=LabelCore.sheets(rows,prefs.paper);

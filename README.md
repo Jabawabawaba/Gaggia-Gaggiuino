@@ -20,8 +20,9 @@ Gaggiuino was built for the Gaggia Classic, and its official guide covers the in
 | `which-gaggia.html` | Planning | Tell the Classic, V2, Pro, Eco, Evo and E24 apart from the rating label, and what each changes for the build |
 | `model-notes.html` | Reference | Every model difference that matters for the install, each marked with its source |
 | `parts-tracker.html` | Ordering | The parts list with links, status, price paid and box contents |
+| `test-yourself.html` | Before opening the machine | Questions on everything on the site, matched to your machine, each linked to where to review it; clear every topic, then pass a final exam for a certificate that you're ready to start the modifications |
 | `runbook.html` | Install day | Eight phases of tickable steps, each linked to its section of the official guide, with a stop point before first power-on; prints as one checklist |
-| `part-guides.html` | Install day | The thermocouple, pressure sensor and resettable fuse, each drawn step by step, following your model and install path |
+| `part-guides.html` | Install day | The thermocouple, pressure sensor, resettable fuse, wires, SSR and switches, each drawn step by step, following your model and install path |
 | `wiring.html` | Install day | Every wire for your model, voltage and install path, taken from the official schematic: ends, color, connectors and length |
 | `cut-list.html` | Install day | Wire to buy by color, connectors to crimp, and every wire to cut, with adjustable extra length |
 | `wire-labels.html` | Install day | Printable flag labels for each wire end, PDF for Letter or A4 |
@@ -41,7 +42,7 @@ This conversion involves mains voltage. Work only with the cord out of the wall.
 
 ## Known gaps
 
-- There's no official stock-integration drawing for 230 V Pro-family machines, so the site points them to custom wiring, as the guide does for Eco boards.
+- The current official guide has no stock-integration drawing for 230 V Pro-family machines, so the site points them to custom wiring, as the guide does for Eco boards.
 - Wire lengths come from the official schematics' tables. Cut long and trim.
 - The Learn pages describe the heating and pump control from the public Gen 2 firmware, because Gen 3's source isn't published; Gen 3 uses the same settings. The stock circuit is redrawn from Gaggia's 2018 wiring diagram for the 120 V Classic Pro. Where the tank and some parts sit inside the case isn't published, so the drawings place them approximately.
 - Prices are from October 2026 and go stale.
