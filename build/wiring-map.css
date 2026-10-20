@@ -109,3 +109,11 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .msel{margin:0 0 8px;font-size:15px;min-height:1.5em;color:var(--muted)}
 .msel b{font:700 14px var(--f-mono);color:var(--ink);margin-right:6px}
 .msel .rt{color:var(--ink);font-weight:600}
+
+/* back-links under the detail card */
+.mdetail .d-refs{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}
+.mdetail .d-refs ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.mdetail .d-refs li{font-size:15px;line-height:1.45}
+.mdetail .d-refs .rg{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:10px}
+.mdetail .d-refs .sep{color:var(--muted)}
+.mdetail .d-refs a{color:var(--accent-ink)}

@@ -372,6 +372,13 @@ def render_template(name):
     s = s.replace("%%BASECSS%%", open(os.path.join(HERE, "base.css")).read())
     if "%%WIRING_DATA%%" in s:
         s = s.replace("%%WIRING_DATA%%", json.dumps(json.load(open(os.path.join(HERE, "wiring-data.json"))), ensure_ascii=False, separators=(",", ":")))
+    if "%%CHECK_INDEX%%" in s:
+        # every power-on check's id, title and condition, for the wiring map's back-links (wiring-refs.js)
+        src = open(os.path.join(HERE, "checks.tpl.html")).read()
+        fallback = {"e25": "Inlet N ↔ element terminal", "e26": "PCB J13 ↔ valve coil spade"}
+        idx = [[m.group(1), (m.group(3).replace("\\'", "'") if m.group(3) is not None else fallback.get(m.group(1), m.group(1))), m.group(2) or ""]
+               for m in re.finditer(r"\{id:'([a-h]\d+)'(?:,when:'([^']*)')?,t:(?:'((?:[^'\\]|\\.)*)'|function)", src)]
+        s = s.replace("%%CHECK_INDEX%%", json.dumps(idx, ensure_ascii=False))
     if "%%WIRING_MAPS%%" in s:
         s = s.replace("%%WIRING_MAPS%%", open(os.path.join(HERE, "wiring-maps.json")).read())
     if "%%STORY%%" in s:

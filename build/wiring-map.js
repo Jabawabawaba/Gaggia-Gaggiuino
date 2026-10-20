@@ -93,7 +93,14 @@
       if(v.runs.some(function(r){return r.opt}))h+='<span><i style="border-top-style:dashed"></i>Optional run</span>';
       el('mlegend').innerHTML=h;
     }
+    /* the card, then the back-links: where else the site covers what's picked (wiring-refs.js) */
     function detail(){
+      detail0();
+      if(!sel||typeof REFS==='undefined')return;
+      var c={v:v,hasRun:hasRun,hasPart:hasPart,runOf:runOf,landing:function(p){return Object.keys(mp.ends).filter(function(id){return ends(id).indexOf(p)>=0&&hasRun(id)})}};
+      var h=REFS.html(sel,c);if(h)el('mdetail').insertAdjacentHTML('beforeend',h);
+    }
+    function detail0(){
       var d=el('mdetail');
       if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it. Step through with the arrows to go run by run.</p>';return}
       var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+'<button type="button" class="chip" data-mclear>Show everything</button></span>';
