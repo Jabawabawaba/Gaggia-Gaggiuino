@@ -11,6 +11,9 @@
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
      siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     shelly                 the Shelly smart relay add-on (unofficial), only once the reader has chosen it. It's drawn for
+                            Pro-family machines on custom wiring, so it's off for the original Classic and for stock wiring.
+                            Unlike the other fields, not choosing it hides its content: it's an add-on, not a fact to narrow down.
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
      set:model,volts,path   true only once every named field is picked (for wording that replaces a combined version)
@@ -40,8 +43,9 @@
     /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
     var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
     var path=s.path==='SI'||s.path==='CW'?s.path:null;
-    if(!model&&!volts&&!path)return null;
-    return {model:model,volts:volts,eco:eco,path:path};
+    var shelly=s.shelly===true;
+    if(!model&&!volts&&!path&&!shelly)return null;
+    return {model:model,volts:volts,eco:eco,path:path,shelly:shelly};
   }
   function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
   var prof=read();
@@ -61,6 +65,16 @@
     if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
     return p.volts===120?'SI':null;
   }
+  /* the Shelly add-on: true once chosen on a machine it's drawn for (a Pro-family one on custom wiring), false when it
+     isn't chosen or doesn't fit, null while it's chosen but the model or the wiring is still open */
+  function shellyOf(p){
+    if(!p||!p.shelly)return false;
+    if(p.model==='GC')return false;
+    var w=wpathOf(p);
+    if(w==='SI')return false;
+    if(!p.model||!w)return null;
+    return true;
+  }
   function conds(when){
     return String(when||'').split(';').map(function(c){
       c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
@@ -69,7 +83,7 @@
   /* true unless the profile rules the element out; unknown fields never rule anything out */
   function matches(when){
     if(!when)return true;
-    if(!prof)return conds(when).every(function(c){return c.k!=='set'});
+    if(!prof)return conds(when).every(function(c){return c.k!=='set'&&c.k!=='shelly'});
     return conds(when).every(one);
   }
   /* one condition; "!key" is true when the field is decided and the condition doesn't hold, and never hides while it's open */
@@ -88,6 +102,7 @@
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
       if(c.k==='unset')return c.vals.some(function(f){return !prof[f]});
+      if(c.k==='shelly')return shellyOf(prof)!==false;
       return true;
     })(c);
   }
@@ -109,6 +124,7 @@
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
+      if(c.k==='shelly')return shellyOf(prof)!==null;
       return true;
     })(c);
   }
@@ -122,13 +138,15 @@
   function txt(x){
     if(x==null)return '';
     if(!Array.isArray(x))return String(x);
-    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ');
+    /* a segment that starts with punctuation (", and h7 for the Shelly,") joins without a space before it */
+    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ').replace(/ ([,.;:])/g,'$1');
   }
   function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
   function label(p){
     p=p||prof;if(!p)return 'Set it';
     var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
     if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    if(shellyOf(p))a.push('Shelly');
     return a.join(', ');
   }
   function missing(p){
@@ -150,7 +168,10 @@
     var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
     var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
     var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
-    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+    var sh=shellyOf(p),shs=sh?' The Shelly smart relay\'s wires, checks and steps are added.':
+      sh===null?' The Shelly smart relay is drawn for Pro-family machines on custom wiring; its steps show as well until yours is known.':
+      p.shelly?' The Shelly smart relay is drawn for Pro-family machines on custom wiring only, so the pages leave it out for yours.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more+shs;
   }
   function apply(root){
     root=root||document;
@@ -177,6 +198,7 @@
     var l=document.getElementById('mchip-l');
     if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
       var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      if(shellyOf(prof))x+=(x?', ':'')+'Shelly';
       l.textContent=!prof?'Set it':main.length?main.join(', '):x;
       if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
     var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
@@ -189,7 +211,7 @@
     try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
   }
   /* start from what's saved, never from guesses */
-  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null,shelly:false},prof||{})}
   /* ---- nav panel ---- */
   function syncPanel(){
     var pan=document.getElementById('mpanel');if(!pan)return;
@@ -198,6 +220,7 @@
     Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
     Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
     Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mshelly]'),function(b){b.setAttribute('aria-pressed',String(!!p.shelly))});
     var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
     var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
     var s=document.getElementById('m-summary');if(s)s.textContent=summary();
@@ -221,6 +244,7 @@
         else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
         else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
         else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.hasAttribute('data-mshelly'))p.shelly=!p.shelly;
         else if(b.id==='m-clear'){set(null);return}
         else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
         else return;
@@ -235,7 +259,7 @@
         var p=current();
         String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
           var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
-          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;else if(k==='shelly')p.shelly=v==='yes';
         });
         set(p);
       });
@@ -265,6 +289,6 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},shelly:function(){return shellyOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();

@@ -5,6 +5,7 @@
   function partInfo(id,v){
     var si=v.path==='SI',gc=v.fam==='GC',w,p;
     if(/^f:/.test(id))return {w:'A connector from the machine\'s own harness. Mark it before you unplug it, so the install can be traced or undone.'};
+    if(id==='s6')return {w:'A BN2 butt splice by the power switch, added with the Shelly: the Shelly\'s output (SH3) on one side, AC2 and AC3 on the other, where they used to share the power switch\'s spade 4.',p:'Everything after it, the PCB on J11 included, is off while the Shelly is off.'};
     if(/^s\d$/.test(id))return {w:'A crimped butt splice where runs join: BN1.25 for one wire a side, BN2 for two. Near the boiler it\'s bare, under silicone heat shrink.'};
     switch(id){
       case 'pcb':
@@ -36,8 +37,13 @@
         return {w:'The 4.3" touch screen, a small computer of its own: it draws the interface, keeps your profiles and settings, and runs the Wi-Fi network and the web page at gaggiuino.local.',
           p:'It talks to the PCB over a serial link on J1 (GND, TX, RX, 5V), which also powers it. Wire it by pin, not by colour.'};
       case 'sock':
-        return {w:'The power inlet: line, neutral and earth come in here. Earth goes to the frame and the boiler.',
-          p:'Mains reaches the PCB on J11 (line, after the power switch) and J10 (neutral). Earth never connects to the PCB\'s 5 V side.'};
+        return {w:'The power inlet: line, neutral and earth come in here. Earth goes to the frame and the boiler.'+(v.shelly?' With the Shelly it moves into the Shelly\'s enclosure, and stays live whenever the cord is in.':''),
+          p:'Mains reaches the PCB on J11 (line, after the '+(v.shelly?'Shelly\'s relay':'power switch')+') and J10 (neutral). Earth never connects to the PCB\'s 5 V side.'};
+      case 'shelly':
+        return {w:'A Shelly 1PM smart relay, an unofficial add-on: a Wi-Fi switch that turns the machine on and off from a phone or a schedule. Its relay breaks line to everything after it; the power switch now only signals it, through SW. It, its wires and the power switch are live whenever the cord is in, even with the machine off.',
+          p:'The PCB doesn\'t know it\'s there: it simply powers up when the Shelly switches on. The machine\'s neutral doesn\'t run through it, only its own supply (SH2).'};
+      case 'encl':
+        return {w:'A closed enclosure outside the case for the Shelly and the socket, like fusio\'s printed one at the socket hole. Shelly rates the relay for 40 °C at most around it, and inside the machine it gets hotter than that.'};
       case 'chassis':
         return {w:'The chassis earth point: earth fixed to the frame, so any metal a fault could make live is held at earth.',p:'Earth never connects to the PCB\'s 5 V ground: that side floats, so the thermocouple reads true.'};
       case 'cup':
@@ -45,6 +51,7 @@
       case 'inl':
         return {w:'An inline spade joint at the pump\'s thermal fuse, on the neutral side, where the neutral runs meet.'};
       case 'swP':
+        if(v.shelly)return {w:'The power switch, still on mains, but now only an input to the Shelly: AC1 brings line to spade 5 and SH4 takes it to the Shelly\'s SW terminal when it\'s on. Both stay live whenever the cord is in.',p:'The PCB has no input from it: it powers up when the Shelly switches the machine on.'};
         return {w:'The power switch, still on mains. '+(si?'Stock, it breaks both line and neutral.':'In custom wiring it breaks line only.'),p:'The PCB has no input from it: it simply powers up with the machine.'};
       case 'swB':
         return {w:'The brew switch. '+(si?'On stock wiring one pole carries a low-voltage signal to J7 B while its other spades still carry mains.':'In custom wiring it carries only the low-voltage signal to J7 B.'),

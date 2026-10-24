@@ -27,6 +27,7 @@ details.run.flash>summary{animation:flash 1.4s ease}
 .tag2.opt{background:var(--blue-soft);color:var(--blue)}
 .tag2.stk{background:var(--accent-soft);color:var(--accent-ink)}
 .tag2.bare{background:var(--bad-soft);color:var(--bad);margin-left:4px}
+.tag2.sh{background:var(--good-soft);color:var(--good)}
 .rbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px;padding:6px 4px 16px 78px;font-size:15px}
 @media (max-width:640px){.rbody{grid-template-columns:minmax(0,1fr);padding-left:4px}details.run>summary{grid-template-columns:54px minmax(0,1fr) auto}}
 .rbody h4{font:600 11px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 3px}
@@ -97,6 +98,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     <ul class="plain" style="margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px">
       <li>The official Gaggiuino <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration">stock wiring integration</a> and <a href="https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring">custom wiring</a> guides and their schematics (PCB v3.1/v4), read September 2026. Connections, colors and lengths are as drawn on them. The seven stock-integration wire names are the guide's; the AC, G and LV run IDs are this site's.</li>
       <li>Where a length isn't printed, the page says so. The official guide calls its lengths generous: route first, then trim.</li>
+      <li data-when="shelly">The Shelly runs: fusio's "Gaggia Classic Pro + Shelly Plus 1PM Wiring" (220 to 240 V, PCB v3.1/v4.0), shared on the Gaggiuino Discord; unofficial. This site gives the Shelly its own neutral lead instead of running the machine's neutral through its terminals, which <a href="https://us.shelly.com/blogs/documentation/shelly-plus-1pm-ul">Shelly's docs</a> warn against, and joins its output to AC2 and AC3 with a splice. The SH IDs are this site's.</li>
     </ul>
   </section>
 </div>
@@ -120,7 +122,8 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     var noSI=p&&p.path==='SI'&&mine&&VARS[mine].path==='CW';
     $('vnote').textContent=mine?(active===mine?'Showing the schematic for your Gaggia. Pick another to compare.':'Showing '+vlabel(active)+'. The dot marks yours.')+(noSI?' The current official guide has no stock-integration drawing for a 230 V Pro-family machine (the guide recommends custom wiring with the Eco board), so yours is the custom wiring schematic.':''):
       'Set your model, voltage and install path in the top bar and this page opens on your schematic. Until then, pick one here.';
-    $('off').innerHTML='<span class="k">Official</span><p><a href="'+esc(v.schematic)+'" target="_blank" rel="noopener">'+esc(vlabel(active))+' schematic</a> (opens the full-size drawing on GitHub) and the <a href="'+(v.path==='SI'?'https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration':'https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring')+'" target="_blank" rel="noopener">'+(v.path==='SI'?'stock wiring integration':'custom wiring')+' guide</a>.'+(v.path==='CW'&&v.volts===230&&v.fam==='GCP'&&!(GM()&&GM().eco&&GM().eco()===false&&active===mine)?' 230 V Pro-family machines with the Eco board also need the power switch mod.':'')+'</p>';
+    $('off').innerHTML='<span class="k">Official</span><p><a href="'+esc(v.schematic)+'" target="_blank" rel="noopener">'+esc(vlabel(active))+' schematic</a> (opens the full-size drawing on GitHub) and the <a href="'+(v.path==='SI'?'https://gaggiuino.github.io/#/guides-stm32/3pln-stock-wiring-integration':'https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring')+'" target="_blank" rel="noopener">'+(v.path==='SI'?'stock wiring integration':'custom wiring')+' guide</a>.'+(v.path==='CW'&&v.volts===230&&v.fam==='GCP'&&!(GM()&&GM().eco&&GM().eco()===false&&active===mine)?' 230 V Pro-family machines with the Eco board also need the power switch mod.':'')+'</p>'+
+      (v.shelly?'<span class="k">Shelly</span><p>The Shelly runs (SH1 to SH4) and splice S6 aren\'t on the official drawing, and nothing about the Shelly is in the official docs. They follow fusio\'s Classic Pro and Shelly Plus 1PM drawing, shared on the Gaggiuino Discord, changed so the machine\'s current never runs through the Shelly\'s terminals. Runs tagged <i>changed for the Shelly</i> differ from the official drawing. The <a href="part-guides.html#shl">Shelly guide</a> covers the part, where it goes and how to set it up.</p>':'');
     MAP.show(active,showOpt);
     if(v.path==='SI'){$('views').innerHTML='';renderSI(v);return}
     $('views').innerHTML='<div class="chips"><button type="button" class="chip" data-view="runs" aria-pressed="'+(view==='runs')+'">By run</button><button type="button" class="chip" data-view="terms" aria-pressed="'+(view==='terms')+'">By terminal</button></div>'+
@@ -135,7 +138,7 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
   var BARENOTE='Ends tagged bare sit at the boiler or valve: use uninsulated spades crimped with an open-barrel crimper, covered with silicone sleeve or self-fusing silicone tape. The official guide rates nylon-insulated spades at 105 °C and warns that their insulation melts on the boiler.';
   function endTxt(r,i){var sh=(r.share&&r.share[i])||[];return endLabel(r,i)+(sh.length?' <span class="muted">shared with '+sh.map(function(x){return '<a class="jump" href="#r-'+x+'" data-jump="'+x+'">'+x+'</a>'}).join(', ')+'</span>':'')}
   function runHTML(r){
-    var tags=(r.opt?'<span class="tag2 opt">optional</span>':'')+(r.stock?'<span class="tag2 stk">stock lead</span>':'');
+    var tags=(r.opt?'<span class="tag2 opt">optional</span>':'')+(r.stock?'<span class="tag2 stk">stock lead</span>':'')+(r.sh==='new'?'<span class="tag2 sh">Shelly</span>':r.sh==='chg'?'<span class="tag2 sh">changed for the Shelly</span>':'');
     return '<details class="run" id="r-'+r.id+'"><summary><span class="rid">'+swatch(r.color)+r.id+'</span><span class="rshort">'+esc(r.short)+tags+'</span><span class="rlen">'+lenTxt(r)+'</span><span class="rsub">'+esc(r.wire)+(r.color?', '+esc(r.color):'')+'</span></summary>'+
       '<div class="rbody"><div><h4>From</h4><p>'+esc(r.frm)+'</p><p class="note">'+endTxt(r,0)+'</p></div><div><h4>To</h4><p>'+esc(r.to)+'</p><p class="note">'+endTxt(r,1)+'</p></div>'+
       (r.note?'<div class="wide"><h4>Note</h4><p>'+esc(r.note)+'</p></div>':'')+(r.conf&&r.conf!=='clear'?'<div class="wide"><p class="note">Partly legible on the schematic; check it against the drawing.</p></div>':'')+'<div class="wide"><button type="button" class="linkbtn onmap" data-onmap="'+esc(r.id)+'">Show on the map</button></div></div></details>';

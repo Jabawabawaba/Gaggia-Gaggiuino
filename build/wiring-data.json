@@ -6513,5 +6513,465 @@
     "Internal Brew Lamp (2 leads) → Switch Housing Brew P and Brew 2"
    ]
   }
+ },
+ "addons": {
+  "shelly": {
+   "key": "sh",
+   "name": "Shelly smart relay",
+   "src": "fusio's Classic Pro + Shelly Plus 1PM drawing (Gaggiuino Discord, unofficial), with the machine's neutral kept off the Shelly's terminals",
+   "variants": {
+    "cw-gcp-120": {
+     "edit": {
+      "AC1": {
+       "ends": [
+        "6.3 mm female spade sized for two wires",
+        "6.3 mm female spade"
+       ],
+       "share": [
+        [
+         "SH1"
+        ],
+        []
+       ],
+       "note": "Line from the socket to the power switch. With the Shelly it only carries the switch's signal to the Shelly (through SH4), and it shares the socket's L spade with SH1. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "sh": "chg"
+      },
+      "AC2": {
+       "frm": "BN2 S6 Shelly output splice (right side)",
+       "short": "BN2 S6 → SSR load R",
+       "ends": [
+        "BN2 butt splice",
+        "Fork terminal for two wires (SV2)"
+       ],
+       "share": [
+        [
+         "AC3",
+         "SH3"
+        ],
+        [
+         "AC4"
+        ]
+       ],
+       "k": [
+        "bn2",
+        "fk"
+       ],
+       "term": [
+        "bn2 s6 shelly output splice",
+        "ssr load right terminal"
+       ],
+       "note": "Switched line into the SSR, now from the Shelly's output through splice S6. S6 sits by the power switch, where this run used to start, so the length holds.",
+       "sh": "chg"
+      },
+      "AC3": {
+       "frm": "BN2 S6 Shelly output splice (right side)",
+       "short": "BN2 S6 → BN2 lamp splice",
+       "ends": [
+        "BN2 butt splice",
+        "BN2 butt splice"
+       ],
+       "share": [
+        [
+         "AC2",
+         "SH3"
+        ],
+        [
+         "AC5",
+         "AC6"
+        ]
+       ],
+       "k": [
+        "bn2",
+        "bn2"
+       ],
+       "term": [
+        "bn2 s6 shelly output splice",
+        "bn2 s3 lamp junction"
+       ],
+       "note": "Switched line to the lamp splice, from splice S6. The power lamp now lights whenever the Shelly has the machine on.",
+       "sh": "chg"
+      },
+      "AC22": {
+       "share": [
+        [
+         "AC21",
+         "AC15",
+         "AC16"
+        ],
+        [
+         "AC23",
+         "SH2"
+        ]
+       ],
+       "note": "Its two-wire spade at the socket now plugs onto the tab of SH2's piggyback spade, on the socket's N pin. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "sh": "chg"
+      },
+      "AC23": {
+       "share": [
+        [
+         "AC22",
+         "SH2"
+        ],
+        [
+         "AC24",
+         "AC25"
+        ]
+       ],
+       "note": "Shares the two-wire spade at the socket with AC22, which plugs onto SH2's piggyback spade. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "sh": "chg"
+      },
+      "G1": {
+       "note": "Earth from the socket to the chassis. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth."
+      }
+     },
+     "add": [
+      {
+       "after": "AC1",
+       "id": "SH1",
+       "sys": "L",
+       "short": "Socket L → Shelly L",
+       "frm": "Power Socket L",
+       "to": "Shelly L terminal",
+       "color": "black",
+       "ends": [
+        "6.3 mm female spade sized for two wires",
+        "Bootlace ferrule in the Shelly's L terminal"
+       ],
+       "share": [
+        [
+         "AC1"
+        ],
+        []
+       ],
+       "k": [
+        "f",
+        "fer"
+       ],
+       "term": [
+        "power socket l",
+        "shelly l terminal"
+       ],
+       "sh": "new",
+       "note": "The Shelly's supply, and the line its relay switches. It shares the socket's L spade with AC1. Short when the Shelly sits beside the socket."
+      },
+      {
+       "after": "SH1",
+       "id": "SH3",
+       "sys": "L",
+       "short": "Shelly O → BN2 S6",
+       "frm": "Shelly O terminal",
+       "to": "BN2 S6 Shelly output splice (left side)",
+       "color": "orange",
+       "ends": [
+        "Bootlace ferrule in the Shelly's O terminal",
+        "BN2 butt splice"
+       ],
+       "share": [
+        [],
+        [
+         "AC2",
+         "AC3"
+        ]
+       ],
+       "k": [
+        "fer",
+        "bn2"
+       ],
+       "term": [
+        "shelly o terminal",
+        "bn2 s6 shelly output splice"
+       ],
+       "sh": "new",
+       "note": "The Shelly's switched output, run to splice S6 by the power switch, where AC2 and AC3 used to start. Everything after it is off while the Shelly is off."
+      },
+      {
+       "after": "SH3",
+       "id": "SH4",
+       "sys": "L",
+       "short": "Power sw 4 → Shelly SW",
+       "frm": "Power Switch terminal 4",
+       "to": "Shelly SW terminal",
+       "color": "pink",
+       "ends": [
+        "6.3 mm female spade",
+        "Bootlace ferrule in the Shelly's SW terminal"
+       ],
+       "share": [
+        [],
+        []
+       ],
+       "k": [
+        "f",
+        "fer"
+       ],
+       "term": [
+        "power switch terminal 4",
+        "shelly sw terminal"
+       ],
+       "sh": "new",
+       "note": "Tells the Shelly the power switch is on. It carries mains from AC1 through the switch, so treat it as a mains wire."
+      },
+      {
+       "after": "AC23",
+       "id": "SH2",
+       "sys": "N",
+       "short": "Socket N → Shelly N",
+       "frm": "Power Socket N",
+       "to": "Shelly N terminal",
+       "color": "white",
+       "ends": [
+        "6.3 mm piggyback spade on the socket's N pin",
+        "Bootlace ferrule in the Shelly's N terminal"
+       ],
+       "share": [
+        [
+         "AC22",
+         "AC23"
+        ],
+        []
+       ],
+       "k": [
+        "pig",
+        "fer"
+       ],
+       "term": [
+        "power socket n",
+        "shelly n terminal"
+       ],
+       "sh": "new",
+       "note": "Powers the Shelly itself. The two-wire spade of AC22 and AC23 plugs onto the piggyback's tab, so the machine's neutral never runs through the Shelly: Shelly's own docs warn that using its terminals as a bridge for load current can overheat it."
+      }
+     ],
+     "set": {
+      "name": "Classic Pro family, 120 V, custom wiring, with a Shelly"
+     }
+    },
+    "cw-gcp-230": {
+     "edit": {
+      "AC1": {
+       "ends": [
+        "6.3 mm female spade sized for two wires",
+        "6.3 mm female spade"
+       ],
+       "share": [
+        [
+         "SH1"
+        ],
+        []
+       ],
+       "note": "Line from the socket to the power switch. With the Shelly it only carries the switch's signal to the Shelly (through SH4), and it shares the socket's L spade with SH1. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "sh": "chg"
+      },
+      "AC2": {
+       "frm": "BN2 S6 Shelly output splice (right side)",
+       "short": "BN2 S6 → SSR load R",
+       "ends": [
+        "BN2 butt splice",
+        "Fork terminal for two wires (SV2)"
+       ],
+       "share": [
+        [
+         "AC3",
+         "SH3"
+        ],
+        [
+         "AC4"
+        ]
+       ],
+       "k": [
+        "bn2",
+        "fk"
+       ],
+       "term": [
+        "bn2 s6 shelly output splice",
+        "ssr load right terminal"
+       ],
+       "note": "Switched line into the SSR, now from the Shelly's output through splice S6. S6 sits by the power switch, where this run used to start, so the length holds.",
+       "sh": "chg"
+      },
+      "AC3": {
+       "frm": "BN2 S6 Shelly output splice (right side)",
+       "short": "BN2 S6 → BN2 lamp splice",
+       "ends": [
+        "BN2 butt splice",
+        "BN2 butt splice"
+       ],
+       "share": [
+        [
+         "AC2",
+         "SH3"
+        ],
+        [
+         "AC5",
+         "AC6"
+        ]
+       ],
+       "k": [
+        "bn2",
+        "bn2"
+       ],
+       "term": [
+        "bn2 s6 shelly output splice",
+        "bn2 s3 lamp junction"
+       ],
+       "note": "Switched line to the lamp splice, from splice S6. The power lamp now lights whenever the Shelly has the machine on.",
+       "sh": "chg"
+      },
+      "AC21": {
+       "share": [
+        [
+         "AC20",
+         "AC15"
+        ],
+        [
+         "AC22",
+         "SH2"
+        ]
+       ],
+       "note": "Its two-wire spade at the socket now plugs onto the tab of SH2's piggyback spade, on the socket's N pin. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "sh": "chg"
+      },
+      "AC22": {
+       "share": [
+        [
+         "AC21",
+         "SH2"
+        ],
+        [
+         "AC23",
+         "AC24"
+        ]
+       ],
+       "note": "Shares the two-wire spade at the socket with AC21, which plugs onto SH2's piggyback spade. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "sh": "chg"
+      },
+      "G1": {
+       "note": "Earth from the socket to the chassis. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth."
+      }
+     },
+     "add": [
+      {
+       "after": "AC1",
+       "id": "SH1",
+       "sys": "L",
+       "short": "Socket L → Shelly L",
+       "frm": "Power Socket L",
+       "to": "Shelly L terminal",
+       "color": "brown",
+       "ends": [
+        "6.3 mm female spade sized for two wires",
+        "Bootlace ferrule in the Shelly's L terminal"
+       ],
+       "share": [
+        [
+         "AC1"
+        ],
+        []
+       ],
+       "k": [
+        "f",
+        "fer"
+       ],
+       "term": [
+        "power socket l",
+        "shelly l terminal"
+       ],
+       "sh": "new",
+       "note": "The Shelly's supply, and the line its relay switches. It shares the socket's L spade with AC1. Short when the Shelly sits beside the socket."
+      },
+      {
+       "after": "SH1",
+       "id": "SH3",
+       "sys": "L",
+       "short": "Shelly O → BN2 S6",
+       "frm": "Shelly O terminal",
+       "to": "BN2 S6 Shelly output splice (left side)",
+       "color": "orange",
+       "ends": [
+        "Bootlace ferrule in the Shelly's O terminal",
+        "BN2 butt splice"
+       ],
+       "share": [
+        [],
+        [
+         "AC2",
+         "AC3"
+        ]
+       ],
+       "k": [
+        "fer",
+        "bn2"
+       ],
+       "term": [
+        "shelly o terminal",
+        "bn2 s6 shelly output splice"
+       ],
+       "sh": "new",
+       "note": "The Shelly's switched output, run to splice S6 by the power switch, where AC2 and AC3 used to start. Everything after it is off while the Shelly is off."
+      },
+      {
+       "after": "SH3",
+       "id": "SH4",
+       "sys": "L",
+       "short": "Power sw 4 → Shelly SW",
+       "frm": "Power Switch terminal 4",
+       "to": "Shelly SW terminal",
+       "color": "pink",
+       "ends": [
+        "6.3 mm female spade",
+        "Bootlace ferrule in the Shelly's SW terminal"
+       ],
+       "share": [
+        [],
+        []
+       ],
+       "k": [
+        "f",
+        "fer"
+       ],
+       "term": [
+        "power switch terminal 4",
+        "shelly sw terminal"
+       ],
+       "sh": "new",
+       "note": "Tells the Shelly the power switch is on. It carries mains from AC1 through the switch, so treat it as a mains wire."
+      },
+      {
+       "after": "AC22",
+       "id": "SH2",
+       "sys": "N",
+       "short": "Socket N → Shelly N",
+       "frm": "Power Socket N",
+       "to": "Shelly N terminal",
+       "color": "blue",
+       "ends": [
+        "6.3 mm piggyback spade on the socket's N pin",
+        "Bootlace ferrule in the Shelly's N terminal"
+       ],
+       "share": [
+        [
+         "AC21",
+         "AC22"
+        ],
+        []
+       ],
+       "k": [
+        "pig",
+        "fer"
+       ],
+       "term": [
+        "power socket n",
+        "shelly n terminal"
+       ],
+       "sh": "new",
+       "note": "Powers the Shelly itself. The two-wire spade of AC21 and AC22 plugs onto the piggyback's tab, so the machine's neutral never runs through the Shelly: Shelly's own docs warn that using its terminals as a bridge for load current can overheat it."
+      }
+     ],
+     "set": {
+      "name": "Classic Pro family, 230 V, custom wiring, with a Shelly"
+     }
+    }
+   }
+  }
  }
 }

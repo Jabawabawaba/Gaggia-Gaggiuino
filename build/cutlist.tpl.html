@@ -122,11 +122,12 @@
     fk2:['Fork terminal SV2-5','two wires on one SSR screw'],
     bn1:['BN1.25 bare butt splice','splice'],
     bn2:['BN2 bare butt splice','splice, up to two 18 AWG wires a side'],
-    jst:['JST-PH 2.0 crimp terminal','one per wire at the PCB']
+    jst:['JST-PH 2.0 crimp terminal','one per wire at the PCB'],
+    fer:['Bootlace ferrule, insulated, 0.75 mm² (18 AWG)','one per wire in the Shelly\'s screw terminals']
   };
-  var ORDER=['b','b2','mb','f','f2','m','pig','fk','fk2','bn1','bn2','jst'];
+  var ORDER=['b','b2','mb','f','f2','m','pig','fk','fk2','bn1','bn2','jst','fer'];
   var BARE={b:1,b2:1,mb:1,bn1:1,bn2:1};
-  var SHORTK={f:'Spade',f2:'Spade, two wires',b:'Bare spade',b2:'Bare spade, two wires',m:'Male spade',mb:'Bare male spade',pig:'Piggyback',fk:'Fork',fk2:'Fork, two wires',bn1:'BN1.25 splice',bn2:'BN2 splice',jst:'JST crimp',fuse:'Splice to the fuse lead',stock:'Stock'};
+  var SHORTK={f:'Spade',f2:'Spade, two wires',b:'Bare spade',b2:'Bare spade, two wires',m:'Male spade',mb:'Bare male spade',pig:'Piggyback',fer:'Ferrule',fk:'Fork',fk2:'Fork, two wires',bn1:'BN1.25 splice',bn2:'BN2 splice',jst:'JST crimp',fuse:'Splice to the fuse lead',stock:'Stock'};
   var st={slack:10,opt:false,cur:null,mm:{},cut:{}};
   try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv&&typeof sv==='object'){st.slack=typeof sv.slack==='number'?sv.slack:10;st.opt=!!sv.opt;st.cur=VARS[sv.cur]?sv.cur:null;st.mm=sv.mm&&typeof sv.mm==='object'?sv.mm:{};st.cut=sv.cut&&typeof sv.cut==='object'?sv.cut:{}}}catch(e){}
   function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
@@ -153,7 +154,7 @@
         var k=e[2],p=k;
         if(k==='f'&&n>1)p='f2';else if(k==='b'&&n>1)p='b2';else if(k==='fk'&&n>1)p='fk2';else if(k==='fuse')p=n>1?'bn2':'bn1';
         per[e[0]+':'+e[1]]=p;
-        var once=(p!=='jst'&&p!=='m'&&p!=='mb'&&p!=='pig');
+        var once=(p!=='jst'&&p!=='m'&&p!=='mb'&&p!=='pig'&&p!=='fer');
         if(once){if(seen[t])return;seen[t]=1}
         cnt[p]=(cnt[p]||0)+1;
         if(k==='fuse')use[p]=(use[p]||0)+1;
@@ -186,7 +187,7 @@
     }).join('')||'<tr><td colspan="3" class="note">Enter lengths below to total them.</td></tr>';
     $('wire-note').innerHTML=(v.path==='SI'?'The official parts list for stock integration has 1 m each of red, black and white 18 AWG, plus 22 AWG for the switch and SSR signals.':
       'The official parts list for custom wiring has 1 m each of 18 AWG black, '+(v.volts===120?'white (2 m), red, orange, blue':'white, red, orange, blue (2 m)')+', yellow and green, so the drawing\'s colors can be followed with room for mistakes.')+
-      ' All wire is 200 °C silicone.'+(missing.length?' Not counted until you enter a length: '+esc(missing.join(', '))+'.':'');
+      ' All wire is 200 °C silicone.'+(v.shelly?' The Shelly adds a little 18 AWG: pink for SW, as fusio draws it, or any color you can tell apart.':'')+(missing.length?' Not counted until you enter a length: '+esc(missing.join(', '))+'.':'');
     /* connectors */
     $('conn').innerHTML=ORDER.filter(function(k){return P.cnt[k]}).map(function(k){
       var n=P.cnt[k],buy=n+Math.max(2,Math.ceil(n*0.2));
@@ -199,7 +200,7 @@
       var bare=0;Object.keys(P.cnt).forEach(function(k){if(BARE[k])bare+=P.cnt[k]});
       return bare?'<tr><td>Silicone sleeve: 4 to 6 mm silicone heat shrink, or self-fusing silicone tape<div class="note">Over each bare crimp</div></td><td class="num">'+bare+'</td><td class="num big">1 pack</td></tr>':'';
     })();
-    $('conn-note').textContent='"Buy" adds a few spares for crimps you redo. Bare spades and splices go where it gets hot: the official guide warns that pre-insulated spade insulation melts on the boiler, and its nylon spades are rated to 105 °C, so keep those away from it. Open-barrel crimps need an open-barrel crimper.'+(v.path==='SI'&&v.fam==='GCP'?' Evo Pro and E24: the guide adds self-fusing silicone tape for insulating the switch connectors one by one.':'');
+    $('conn-note').textContent='"Buy" adds a few spares for crimps you redo. Bare spades and splices go where it gets hot: the official guide warns that pre-insulated spade insulation melts on the boiler, and its nylon spades are rated to 105 °C, so keep those away from it. Open-barrel crimps need an open-barrel crimper.'+(v.path==='SI'&&v.fam==='GCP'?' Evo Pro and E24: the guide adds self-fusing silicone tape for insulating the switch connectors one by one.':'')+(v.shelly?' Ferrules go on each wire into the Shelly\'s screw terminals, crimped with a ferrule crimper; the piggyback spade goes on the socket\'s N pin, with the neutral pair\'s two-wire spade on its tab.':'');
     /* cut table */
     var groups=[['L','Line'],['H','Heater line'],['N','Neutral'],['E','Earth'],['LV','Switch signals and SSR control']];
     var html='',n=0,dn=0;
@@ -213,12 +214,12 @@
         else if(r.mm)lenCell=c+' mm<small>'+r.mm+' mm + '+st.slack+'%</small>';
         else lenCell='<label class="vh" for="mm-'+r.id+'">Length for '+r.id+' in mm</label><input class="mm" id="mm-'+r.id+'" data-mm="'+r.id+'" type="number" inputmode="numeric" min="0" step="10" placeholder="mm" value="'+(typeof mm[r.id]==='number'?mm[r.id]:'')+'">'+(c?' → '+c+' mm':'')+'<small>Measure on your machine</small>';
         var ends=[0,1].map(function(i){var p=P.per[r.id+':'+i]||r.k[i];return SHORTK[p]||p}).join(' to ');
-        html+='<tr class="'+(d?'done':'')+'"><td class="tick"><input type="checkbox" data-cut="'+r.id+'"'+(d?' checked':'')+' aria-label="'+r.id+' cut and crimped"></td><td class="id"><a class="idmap" href="'+esc(mapHref('run:'+r.id,{v:vk}))+'" title="Show '+r.id+' on the wiring map">'+swatch(r.color)+r.id+'</a></td><td>'+esc(r.short)+(r.stock?'<span class="tag2">stock lead</span>':'')+(r.opt?'<span class="tag2">optional</span>':'')+'</td><td>'+(r.stock?'Stock':esc(gaugeOf(r))+' '+esc(r.color))+'</td><td class="len">'+lenCell+'</td><td class="ends">'+esc(ends)+'</td></tr>';
+        html+='<tr class="'+(d?'done':'')+'"><td class="tick"><input type="checkbox" data-cut="'+r.id+'"'+(d?' checked':'')+' aria-label="'+r.id+' cut and crimped"></td><td class="id"><a class="idmap" href="'+esc(mapHref('run:'+r.id,{v:vk}))+'" title="Show '+r.id+' on the wiring map">'+swatch(r.color)+r.id+'</a></td><td>'+esc(r.short)+(r.stock?'<span class="tag2">stock lead</span>':'')+(r.opt?'<span class="tag2">optional</span>':'')+(r.sh==='new'?'<span class="tag2">Shelly</span>':r.sh==='chg'?'<span class="tag2">changed for the Shelly</span>':'')+'</td><td>'+(r.stock?'Stock':esc(gaugeOf(r))+' '+esc(r.color))+'</td><td class="len">'+lenCell+'</td><td class="ends">'+esc(ends)+'</td></tr>';
       });
     });
     $('cut').innerHTML=html;
     $('cut-sum').textContent=dn+' of '+n+' done';
-    $('cut-fine').textContent=(v.path==='SI'?'Lengths are the official guide\'s, which it calls generous: route each wire, then trim.':'Lengths are as printed on the official schematic, with your extra percentage added. Fit each run, then trim.')+' Runs with no printed length count once you enter one. The thermocouple, pressure sensor and screen come on their own leads and aren\'t in the totals.';
+    $('cut-fine').textContent=(v.path==='SI'?'Lengths are the official guide\'s, which it calls generous: route each wire, then trim.':'Lengths are as printed on the official schematic, with your extra percentage added. Fit each run, then trim.')+' Runs with no printed length count once you enter one. The thermocouple, pressure sensor and screen come on their own leads and aren\'t in the totals.'+(v.shelly?' The Shelly runs have no printed length: measure them once its enclosure is in place. If the socket moves out into the enclosure, the runs that reach it (AC1, the neutral pair and G1) need that much more.':'');
   }
   $('slack').addEventListener('input',function(){st.slack=Number(this.value)||0;save();render()});
   $('opt').addEventListener('change',function(){st.opt=this.checked;save();render()});

@@ -212,6 +212,9 @@ def nav(current):
              '<div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path">'
              '<button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div>'
              '<span class="mh">Stock wiring keeps the machine\'s harness and adds a few wires; custom wiring replaces it.</span></div>'
+             '<div class="mrow"><span class="mk">Extras</span><div class="mseg" role="group" aria-label="Add-ons">'
+             '<button type="button" data-mshelly aria-pressed="false">Shelly smart relay</button></div>'
+             '<span class="mh">Optional and unofficial: switch the machine on and off from your phone. Adds its wires, checks and steps to the pages. Drawn for Pro-family machines on custom wiring.</span></div>'
              '<p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p>'
              '<p id="m-summary"></p>'
              '<div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div>'
@@ -329,7 +332,10 @@ def n_checks():
     variants = [(p, f, v) for p, f, v in (("SI", "GCP", "120"), ("SI", "GC", "120"), ("SI", "GC", "230"), ("CW", "GCP", "120"),
                                           ("CW", "GCP", "230"), ("CW", "GC", "120"), ("CW", "GC", "230"))]
     def ok(when, var):
-        return all(any(a in var or a not in ("SI", "CW", "GC", "GCP", "120", "230") for a in tok.split("|")) for tok in when.split())
+        # the official schematics only: never the Shelly add-on's checks (SH), always the ones it replaces (NOSH)
+        if "SH" in when.split():
+            return False
+        return all(any(a in var or a == "NOSH" or a not in ("SI", "CW", "GC", "GCP", "120", "230") for a in tok.split("|")) for tok in when.split())
     counts = [sum(1 for w in items if ok(w, var)) for var in variants]
     return round(sum(counts) / len(counts))
 
@@ -373,7 +379,8 @@ def render_template(name):
         s = s.replace("%%GL_BAR%%", bar).replace("%%GL_BODY%%", body).replace("%%GL_COUNT%%", str(n)).replace("%%GL_IMGS%%", str(gen_glossary.image_count()))
     s = s.replace("%%BASECSS%%", open(os.path.join(HERE, "base.css")).read())
     if "%%WIRING_DATA%%" in s:
-        s = s.replace("%%WIRING_DATA%%", json.dumps(json.load(open(os.path.join(HERE, "wiring-data.json"))), ensure_ascii=False, separators=(",", ":")))
+        import addons
+        s = s.replace("%%WIRING_DATA%%", json.dumps(addons.expand(json.load(open(os.path.join(HERE, "wiring-data.json")))), ensure_ascii=False, separators=(",", ":")))
     if "%%CHECK_INDEX%%" in s:
         # every power-on check's id, title and condition, for the wiring map's back-links (wiring-refs.js)
         src = open(os.path.join(HERE, "checks.tpl.html")).read()
@@ -395,7 +402,7 @@ def render_template(name):
     s = s.replace("%%NCHECKS%%", str(n_checks()))
     if "%%GL_N%%" in s:
         import gen_glossary
-        s = s.replace("%%GL_N%%", str(len(gen_glossary.E)))
+        s = s.replace("%%GL_N%%", str(len([e for e in gen_glossary.E if e[0] not in gen_glossary.WHEN])))
     return s
 
 
@@ -417,7 +424,7 @@ def main():
     for src, dst, kind in DOCS:
         open(os.path.join(OUT, dst), "w").write(wrap(render_doc(src, kind), dst))
     for f in ("README.md", "LICENSE", "CONTRIBUTING.md"):
-        s = open(os.path.join(HERE, "site-" + f)).read().replace("%%SITE_URL%%", SITE_URL or "(site url)").replace("%%REPO_URL%%", REPO_URL or "(repo url)").replace("%%NCHECKS%%", str(n_checks())).replace("%%GL_N%%", str(__import__("gen_glossary").E.__len__()))
+        s = open(os.path.join(HERE, "site-" + f)).read().replace("%%SITE_URL%%", SITE_URL or "(site url)").replace("%%REPO_URL%%", REPO_URL or "(repo url)").replace("%%NCHECKS%%", str(n_checks())).replace("%%GL_N%%", str(len([e for e in __import__("gen_glossary").E if e[0] not in __import__("gen_glossary").WHEN])))
         open(os.path.join(OUT, f), "w").write(s)
     for f in ("gaggia-models.md",):
         # the {when:...} markers only steer the site page (model_sections); the Markdown copy reads without them

@@ -182,14 +182,15 @@
       scr:['On the front, on the funnel or in the back vent, depending on the mount you print or order. Its cable runs inside to J1.'],
       tof:['Above the water tank, under the top of the machine, on its cable from J2 on the back of the PCB.'],
       fw:['Over Wi-Fi from a phone or computer, with the machine closed up; by wire only as a fallback.'],
-      scl:['Under the drip tray, on the machine\'s base, with a cable to J8.']};
+      scl:['Under the drip tray, on the machine\'s base, with a cable to J8.'],
+      shl:['Outside the case, in an enclosure at the socket hole with the socket moved into it. Its wires reach the power switch, and a splice beside it, through the old socket hole.']};
     for(var k in w){var e=$('pg-'+k+'-where');if(e)e.textContent=T(w[k])}
   }
 
   var guides={};
   function init(){
     where();
-    ['tc','ps','fuse','wire','ssr','sw','scr','tof','fw','scl'].forEach(function(k){guides[k]=new Guide(k,G[k])});
+    ['tc','ps','fuse','wire','ssr','sw','scr','tof','fw','scl','shl'].forEach(function(k){guides[k]=new Guide(k,G[k])});
     window.addEventListener('gaggia-machine',function(){where();for(var k in guides)if(guides[k].root)guides[k].setup(false)});
     window.addEventListener('hashchange',fromHash);fromHash();
   }

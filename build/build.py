@@ -4,7 +4,8 @@
   (site.py calls render(name, "site") for the GitHub Pages versions)
 
 wiring-data.json (built by research/tools/gg_wiring.py from the official schematics) is the single source of
-truth for wires; the wiring, cut list and labels pages read it through wiring-core.js.
+truth for wires; the wiring, cut list and labels pages read it through wiring-core.js. Its add-ons (the Shelly) are
+change lists that addons.py turns into whole schematics.
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
@@ -39,7 +40,8 @@ def render(name, mode="artifact"):
         s = s.replace("%%LINK_" + k + "%%", links.get(k, "#"))
     s = s.replace("%%MODE%%", mode)
     if "%%WIRING_DATA%%" in s:
-        data = json.load(open(os.path.join(HERE, "wiring-data.json")))
+        import addons
+        data = addons.expand(json.load(open(os.path.join(HERE, "wiring-data.json"))))
         s = s.replace("%%WIRING_DATA%%", json.dumps(data, ensure_ascii=False, separators=(",", ":")))
     if "%%WIRING_MAPS%%" in s:
         s = s.replace("%%WIRING_MAPS%%", open(os.path.join(HERE, "wiring-maps.json")).read())

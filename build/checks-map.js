@@ -18,4 +18,8 @@
     e21:'run:L',e22:'run:L',e23:'run:N',e24:'runs:J,Sb',e25:'part:boiler',e26:'run:3',e27:'run:P',e28:'part:sol',
     f1:BRL,f2:BRL,f3:STL,f4:STL,f5:'short:J9 R1',f6:'short:J9 GND',f7:SWL,f8:SWL,f9:SWL,
     g1:'part:boiler',g4:'part:ssr',g5:'runs:J,Sa,Sb',g6:'part:rf|boiler',g7:'part:f:S5|housing',g8:'part:swB',g10:'part:pcb',g11:'layer:lv',g12:'run:TC',g13:'run:SCR',g16:'',g17:'part:pcb',g18:'run:TC',
-    h1:E,h2:E};
+    h1:E,h2:E,
+    /* the Shelly add-on */
+    d8:'part:s6',d9:'short:J7',d10:'part:shelly',e30:rs([/^Socket L → Shelly L/]),e31:rs([/^Shelly O →/,/^BN2 S6 → SSR load R/,/^SSR load R → J11/]),
+    e32:'part:shelly',e33:rs([/^Socket L → Power sw 5/,/^Power sw 4 → Shelly SW/]),e34:rs([/^Socket L → Power sw 5/,/^Power sw 4 → Shelly SW/]),e35:rs([/^Socket N → Shelly N/]),
+    g19:'part:encl',g20:'part:shelly',g21:'part:encl',g22:'part:swP',h7:'part:shelly'};

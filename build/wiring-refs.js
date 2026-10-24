@@ -27,7 +27,7 @@
       return MAPS;
     })();
     var CKT=%%CHECK_INDEX%%;
-    var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches',scr:'Screen housing',tof:'ToFnLED',fw:'Firmware updates',scl:'Hardware scales'};
+    var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches',scr:'Screen housing',tof:'ToFnLED',fw:'Firmware updates',scl:'Hardware scales',shl:'Shelly smart relay'};
     var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic',front:'front mount',funnel:'funnel mount',rear:'rear mount',ota:'over Wi-Fi',wired:'by wire'};
     function GMo(){return window.GaggiaMachine||null}
     function e(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -39,6 +39,7 @@
         if(k==='wpath'||k==='path')r=vals.indexOf(v.path)>=0;
         else if(k==='fam')r=vals.indexOf(v.fam)>=0;
         else if(k==='volts')r=vals.indexOf(String(v.volts))>=0;
+        else if(k==='shelly')r=!!v.shelly;
         else{var m=GMo();return !m||m.matches(cl)}
         return neg?!r:r;
       });
@@ -51,6 +52,8 @@
         if(a==='SI'||a==='CW')return v.path===a;
         if(a==='GC'||a==='GCP')return v.fam===a;
         if(a==='120'||a==='230')return String(v.volts)===a;
+        if(a==='SH')return !!v.shelly;
+        if(a==='NOSH')return !v.shelly;
         if(a==='ECO'){var x=m&&m.eco&&m.eco();return x!==false}
         return !model||model===a;
       })});

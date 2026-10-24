@@ -11,6 +11,7 @@
       else if(k==='ground')out.push('120 V Classic');
       else if(k==='siok')out.push('Classic or 120 V Pro family');
       else if(k==='path'||k==='wpath')out.push(v[0]==='SI'?'Stock wiring':'Custom wiring');
+      else if(k==='shelly')out.push('With the Shelly');
     });
     return out.join(' · ');
   }

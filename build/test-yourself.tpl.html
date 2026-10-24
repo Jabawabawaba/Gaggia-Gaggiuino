@@ -76,7 +76,7 @@ var TY=(function(){
   })();
   var CKT=%%CHECK_INDEX%%;
   var GL=%%GLOSSARY_INDEX%%;
-  var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches',scr:'Screen housing',tof:'ToFnLED',fw:'Firmware updates',scl:'Hardware scales'};
+  var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches',scr:'Screen housing',tof:'ToFnLED',fw:'Firmware updates',scl:'Hardware scales',shl:'Shelly smart relay'};
   var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic',front:'front mount',funnel:'funnel mount',rear:'rear mount',ota:'over Wi-Fi',wired:'by wire'};
   function andList(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
   function stepT(t){t=typeof t==='function'?t():t;return Array.isArray(t)?t.map(function(x){return typeof x==='string'?x:x[0]}).join(' '):String(t||'')}
@@ -91,6 +91,9 @@ var TY=(function(){
       if(a==='GC'||a==='GCP')return !famOf()||famOf()===a;
       if(a==='120'||a==='230')return !p.volts||String(p.volts)===a;
       if(a==='ECO'){var x=GM&&GM.eco&&GM.eco();return x!==false}
+      /* the Shelly's checks once it applies; the ones it replaces otherwise */
+      if(a==='SH')return !!(GM&&GM.shelly&&GM.shelly());
+      if(a==='NOSH')return !(GM&&GM.shelly&&GM.shelly());
       return !p.model||p.model===a;
     })});
   }
@@ -125,7 +128,7 @@ var TY=(function(){
   function label(){
     var p=prof();if(!p.model)return '';
     var w=GM.wpath(),e=GM.eco();
-    return p.volts+' V '+GM.name()+(e?' with the Eco board':'')+', '+(w==='CW'?'custom wiring':'stock wiring');
+    return p.volts+' V '+GM.name()+(e?' with the Eco board':'')+', '+(w==='CW'?'custom wiring':'stock wiring')+(GM.shelly&&GM.shelly()?', with a Shelly':'');
   }
   return {
     key:'gaggia-test-v1',

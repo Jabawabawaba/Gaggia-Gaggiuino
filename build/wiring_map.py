@@ -3,7 +3,8 @@
 One SVG per official schematic in wiring-data.json. Parts sit where the official drawing puts them (scaled), so the map
 can be read side by side with the reference. Every run is routed automatically between the two terminals its ends name,
 so a map can only show what the data says. Run `python3 wiring_map.py` to rebuild wiring-maps.json; it also prints any
-end it could not place, and fails if one is missing.
+end it could not place, and fails if one is missing. The add-on schematics (the Shelly) come from addons.expand(), and
+their maps add the add-on's parts to the official layout.
 """
 import heapq
 import json
@@ -240,6 +241,23 @@ def pump(m, x0, y0, fam, si=False, faded=False, fuse=True):
            (x0, y0, x0 + 96, y0 + 216), faded=faded)
 
 
+def shelly(m, x0, y0, encl):
+    """the Shelly smart relay (an add-on, not on the official drawing): its screw terminals along the top, and a dashed
+    outline for the enclosure it shares with the socket outside the case (encl: its box)"""
+    w, h = 112, 72
+    s = box(x0, y0, w, h, "box", 8)
+    for i, lab in enumerate(("O", "SW", "L", "N")):
+        x = x0 + 20 + 24 * i
+        s += f'<circle cx="{x}" cy="{y0 + 14}" r="6" class="term"/>' + text(x, y0 + 33, lab, "pinl")
+        m.t("sh:" + lab, x, y0 + 6, "u", "shelly")
+    s += text(x0 + w / 2, y0 + 52, "Shelly 1PM", "nm") + text(x0 + w / 2, y0 + 65, "smart relay", "tiny")
+    m.part("shelly", "Shelly smart relay", s, (x0, y0, x0 + w, y0 + h))
+    ex0, ey0, ex1, ey1 = encl
+    e = (f'<rect x="{ex0}" y="{ey0}" width="{ex1 - ex0}" height="{ey1 - ey0}" rx="10" class="opt"/>'
+         + text(ex0 + 8, ey1 + 14, "Enclosure outside the case: Shelly and socket", "tiny", "start"))
+    m.part("encl", "Shelly enclosure", e, (ex0, ey1, ex0 + 230, ey1 + 18), block=False)
+
+
 def inline_spade(m, x, y):
     s = f'<rect x="{x - 8}" y="{y - 5}" width="16" height="10" rx="2" class="splice"/>' + text(x, y + 18, "inline spade", "tiny")
     m.t("inl", x, y, "u", "inl")
@@ -318,7 +336,7 @@ def flag(m, fid, x, y, d, note, faded=False, ld=None):
 
 
 # ---------- layouts ----------
-def layout_gcp(key, title, si, data):
+def layout_gcp(key, title, si, data, sh=False):
     m = Map(key, title)
     used_sw = {"steam": (1, 2) if not si else (4, 5, 1), "brew": (1, 2), "pwr": (4, 5) if not si else ()}
     lamp(m, "lampS", "Steam lamp", "now the boiler lamp", 360, [("lampS:A", "A"), ("lampS:B", "B")], used=not si)
@@ -361,6 +379,9 @@ def layout_gcp(key, title, si, data):
         socket(m, 744, 712)
         pump(m, 920, 632, "GCP")
         inline_spade(m, 1056, 600)
+        if sh:
+            shelly(m, 616, 724, (608, 700, 860, 812))
+            splice(m, "s6", "BN2 S6 Shelly output splice", 960, 232, horiz=False, label="BN2 S6")
         splice(m, "s3", "BN2 S3 lamp junction", 800, 200, label="BN2 S3")
         splice(m, "s1", "BN1.25 S1", 296, 232, horiz=False, label="BN1.25 S1")
         splice(m, "s2", "BN1.25 S2", 728, 232, horiz=False, label="BN1.25 S2")
@@ -484,6 +505,9 @@ END = {
     "Pump Thermal Fuse lead, inline Spade 6.3mm": "inl", "inline Spade 6.3mm (joins R12)": "inl", "inline Spade 6.3mm (joins R11)": "inl",
     "Pump Thermal Fuse 110C, leg 1": "pf:in", "Pump Thermal Fuse 110C, leg 2": "pf:out",
     "Cup Heater Ground, lower spade": "cup", "Boiler GND tab": "b:gnd",
+    # the Shelly add-on (Pro family, custom wiring)
+    "Shelly L terminal": "sh:L", "Shelly N terminal": "sh:N", "Shelly O terminal": "sh:O", "Shelly SW terminal": "sh:SW",
+    "BN2 S6 Shelly output splice (left side)": "s6:out", "BN2 S6 Shelly output splice (right side)": "s6:in",
 }
 # ends that name a splice or fuse without saying which side: the run that arrives takes one side, the run that leaves the other
 SIDED = {"BN1.25 S1": "s1", "BN1.25 S2": "s2", "Pump Thermal Fuse 110C": "pf"}
@@ -712,7 +736,7 @@ def build_variant(key, v):
     si = v["path"] == "SI"
     title = v["name"]
     if v["fam"] == "GCP":
-        m = layout_gcp(key, title, si, flags)
+        m = layout_gcp(key, title, si, flags, sh=bool(v.get("shelly")))
     else:
         m = layout_gc(key, title, si, flags, v["volts"])
     runs = []
@@ -842,7 +866,8 @@ def svg_variant(key, v):
 
 
 def main():
-    data = json.load(open(os.path.join(HERE, "wiring-data.json")))
+    import addons
+    data = addons.expand(json.load(open(os.path.join(HERE, "wiring-data.json"))))
     out = {}
     for key, v in data["variants"].items():
         svg, parts, ends, paths, m = svg_variant(key, v)

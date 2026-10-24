@@ -282,7 +282,14 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
         subs:[['board','ToFnLED board. Peak Coffee\'s comes with its cable and T-fitting',[['DIY-EFI, £25 before VAT','https://diy-efi.co.uk/product/gaggiuino-tofnled'],['Peak Coffee, $38 kit add-on','https://www.peakcoffee.cc/product/gaggiuino-v4-kit/']]],
           ['cable','4-pin JST SH Qwiic cable, 250 mm or longer, "opposite direction" type. Peak Coffee\'s board includes one',[['Digi-Key','https://www.digikey.com/en/products/detail/jst-sales-america-inc/A04SR04SR30K254A/9922185']]],
           ['housing','Housing',[['Hudson, $2','https://gaggiuino.hudsoncreativegroup.com/Store/Product/42']]],
-          ['mag','2 disc magnets, 5 x 1 mm, and super glue',[['K&J, 3/16 x 1/32 in discs, 10 for $1.32','https://www.kjmagnetics.com/d301-neodymium-disc-magnet']]]]}
+          ['mag','2 disc magnets, 5 x 1 mm, and super glue',[['K&J, 3/16 x 1/32 in discs, 10 for $1.32','https://www.kjmagnetics.com/d301-neodymium-disc-magnet']]]]},
+      {id:'shelly',when:'shelly',wtag:'Shelly add-on',name:'Shelly smart relay and its enclosure',use:'Switches the machine on and off from your phone or on a schedule; the power switch becomes its input. An unofficial add-on.',spec:'A 16 A Shelly with power metering: the 1PM Gen4 (UL-certified in North America, rated 15 A) or a 1PM Gen3. Not a Mini, which switches 8 A. It goes outside the case in an enclosure at the socket hole: Shelly rates it for 40 °C around it. Rough total; the enclosure needs a print service.',lo:45,hi:90,req:false,def:'skip',
+        src:[['Shelly 1PM Gen4 specs','https://www.shelly.com/blogs/documentation/shelly-1pm-gen4']],
+        subs:[['relay','Shelly 1PM Gen4, UL-certified in North America',[['Shelly US, $32.99','https://us.shelly.com/products/shelly-1pm-gen4-ul-certified-list']]],
+          ['encl','Printed enclosure for the Shelly and the socket. The socket-only one reuses the stock socket; the EMI filter one\'s 10 A filter is too small at 120 V',[['MakerWorld, fusio, socket only','https://makerworld.com/en/models/1172716-shelly-enclosure-for-gaggiuino'],['MakerWorld, fusio, with EMI filter','https://makerworld.com/en/models/1143852-shelly-emi-filter-enclosure-for-gaggiuino']]],
+          ['ferr','Insulated bootlace ferrules, 0.75 mm² (18 AWG), and a ferrule crimper'],
+          ['pig','A 6.3 mm piggyback spade, a BN2 butt splice and a little pink 18 AWG wire'],
+          ['grom','A grommet or sleeve where the wires pass the socket hole']]}
     ]}
   ];
   /* the parts for the machine picked in Your Gaggia: a line, a part inside it or a link can carry a condition
