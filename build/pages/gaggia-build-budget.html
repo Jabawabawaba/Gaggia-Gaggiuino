@@ -242,7 +242,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     {id:'meter',cat:'tools',name:'Multimeter',lo:25,hi:45,req:true,note:'Needed for the power-on checks before the cord goes near the wall. A basic auto-ranging meter is enough.'},
     {id:'crimper',cat:'tools',name:'Open-barrel crimper',lo:20,hi:35,req:false,def:true,note:'For the bare spades and splices near the boiler. Turn this off if yours is already the open-barrel kind.'},
     {id:'tof',cat:'extras',name:'Water tank sensor',sub:'ToFnLED',lo:33,hi:40,req:false,def:false,note:'Tank level on screen and a light for the tank. £25 before VAT from DIY-EFI, or $38 from Peak Coffee.',src:[['DIY-EFI','https://diy-efi.co.uk/product/gaggiuino-tofnled']]},
-    {id:'shelly',when:'shelly',wtag:'Shelly add-on',cat:'extras',name:'Shelly smart relay',sub:'1PM Gen4 and its enclosure',lo:45,hi:90,req:false,def:false,note:'Turns the machine on and off from your phone; unofficial. The Shelly 1PM Gen4 is $32.99 from Shelly US (UL-certified, 15 A). Add a printed enclosure for it and the socket, ordered from a print service, ferrules and a ferrule crimper. Rough total.',src:[['Shelly US','https://us.shelly.com/products/shelly-1pm-gen4-ul-certified-list'],['fusio\'s enclosure','https://makerworld.com/en/models/1172716-shelly-enclosure-for-gaggiuino']]}
+    {id:'shelly',when:'shelly',wtag:'Shelly add-on',cat:'extras',name:'Shelly smart relay',sub:'1PM Gen4 and its enclosure',lo:45,hi:90,req:false,def:true,note:'Turns the machine on and off from your phone; unofficial. The Shelly 1PM Gen4 is $32.99 from Shelly US (UL-certified, 15 A). Add a printed enclosure for it and the socket, ordered from a print service in a heat-tolerant material, ferrules and a ferrule crimper. Rough total.',src:[['Shelly US','https://us.shelly.com/products/shelly-1pm-gen4-ul-certified-list'],['fusio\'s enclosure','https://makerworld.com/en/models/1172716-shelly-enclosure-for-gaggiuino']]}
   ];
   var SUPPLIERS=[
     {id:'diyefi',name:'DIY-EFI (UK)',note:'An approved supplier in the official docs, and the only one with stock: Gaggiuino.co, the other, was sold out on October 16. Its kits leave out the mains wiring, and Gaggiuino items can\'t be returned.',src:[['DIY-EFI','https://diy-efi.co.uk/product-category/gaggiuino/']]},
@@ -333,7 +333,7 @@ h1{font:700 clamp(36px,6.4vw,56px)/.95 var(--f-display);letter-spacing:.01em;mar
     return '<div class="line" data-line="'+l.id+'">'+
       '<div class="tick">'+tick+'</div>'+
       '<div class="lbody">'+
-        '<div class="lname">'+nameInner+(cur(l).sub?'<span class="sub">'+esc(cur(l).sub)+'</span>':'')+(l.req?'<span class="tag">Required</span>':mine(l)?'<span class="tag">Needed on yours</span>':l.when&&l.wtag?'<span class="tag">'+esc(l.wtag)+' only</span>':'')+'</div>'+
+        '<div class="lname">'+nameInner+(cur(l).sub?'<span class="sub">'+esc(cur(l).sub)+'</span>':'')+(l.req?'<span class="tag">Required</span>':l.when==='shelly'&&l.wtag?'<span class="tag">'+esc(l.wtag)+'</span>':mine(l)?'<span class="tag">Needed on yours</span>':l.when&&l.wtag?'<span class="tag">'+esc(l.wtag)+' only</span>':'')+'</div>'+
         '<p class="note" id="note-'+l.id+'">'+esc(T(cur(l).note))+'</p>'+srcHtml(cur(l).src)+
       '</div>'+
       '<div class="lprice"><span class="amt" data-amt="'+l.id+'"></span><span class="own" data-own="'+l.id+'" hidden>Your price</span>'+

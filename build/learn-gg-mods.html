@@ -24,7 +24,7 @@
       <div class="prose">
         <p>A Shelly 1PM, a small Wi-Fi relay, sits between the socket and the machine and switches it on and off from your phone or a schedule. The power switch stays on the front, but it now only tells the Shelly what to do. Nothing about it is in the official docs.</p>
         <h3>How it works</h3>
-        <p>The Shelly powers itself from L and N. Its relay connects L to O, and O feeds everything the power switch used to, so with the relay open the PCB, the SSR and the lamps get nothing. Its SW input sees mains while the power switch is on: in Switch mode the relay follows the switch, in Button mode each press toggles it, and the app can switch it either way. It also measures the power the machine draws. The PCB doesn't know it's there; it simply powers up when the relay closes.</p>
+        <p>The Shelly powers itself from L and N. Its relay connects L to O, and O feeds everything the power switch used to, so with the relay open the PCB, the SSR and the lamps get nothing. Its SW input sees mains while the power switch is on: in Switch mode, with output type Toggle Switch, the relay follows the switch; in Button mode each press toggles it; and the app can switch it either way. It also measures the power the machine draws. The PCB doesn't know it's there; it simply powers up when the relay closes.</p>
         <p>The <a href="part-guides.html#shl">Shelly guide</a> covers the part, where it goes and how to set it up.</p>
       </div>
       %%FIG:shelly%%

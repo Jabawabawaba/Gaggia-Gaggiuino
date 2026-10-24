@@ -153,7 +153,7 @@ E = [
     ('WDT', 'Weiss distribution technique', 'Stirring the grounds in the basket with fine needles to break up clumps before tamping, so water flows evenly through the puck.', [('Barista school', 'barista-school.html#recipes')]),
     ('Shelly', '', "A small Wi-Fi relay made to fit behind a wall switch. In this build an optional one, a 1PM, switches the whole machine on and off from a phone or a schedule, and the power switch becomes its input. Not part of the official Gaggiuino docs.", [('Part guides', 'part-guides.html#shl'), ('Wiring', 'wiring.html')]),
     ('Ferrule', '', "A thin metal tube with a plastic collar, crimped over a stranded wire's end so no strand escapes a screw terminal. Each wire into the Shelly gets one.", [('Part guides', 'part-guides.html#shl')]),
-    ('Dry contact', 'potential-free contact', "A relay contact with no supply of its own, so it can switch any circuit. The Shelly 1 has one between its I and O terminals, so switching mains needs a jumper from L to I; the 1PM switches its own L out to O.", [('Part guides', 'part-guides.html#shl')]),
+    ('Dry contact', 'potential-free contact', "A relay contact with no supply of its own, so it can switch any circuit. The Shelly 1 has one, between its I and O terminals; the 1PM this site draws switches its own L out to O instead.", [('Part guides', 'part-guides.html#shl')]),
 ]
 # terms for an add-on, shown only once it is chosen in Your Gaggia (machine.js conditions)
 WHEN = {"Shelly": "shelly", "Ferrule": "shelly", "Dry contact": "shelly"}

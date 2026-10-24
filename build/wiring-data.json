@@ -6603,7 +6603,7 @@
          "SH2"
         ]
        ],
-       "note": "Its two-wire spade at the socket now plugs onto the tab of SH2's piggyback spade, on the socket's N pin. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "note": "Its two-wire spade at the socket now plugs onto the tab of SH2's piggyback spade, on the socket's N tab. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
        "sh": "chg"
       },
       "AC23": {
@@ -6720,7 +6720,7 @@
        "to": "Shelly N terminal",
        "color": "white",
        "ends": [
-        "6.3 mm piggyback spade on the socket's N pin",
+        "6.3 mm piggyback spade on the socket's N tab",
         "Bootlace ferrule in the Shelly's N terminal"
        ],
        "share": [
@@ -6828,7 +6828,7 @@
          "SH2"
         ]
        ],
-       "note": "Its two-wire spade at the socket now plugs onto the tab of SH2's piggyback spade, on the socket's N pin. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
+       "note": "Its two-wire spade at the socket now plugs onto the tab of SH2's piggyback spade, on the socket's N tab. If the socket moves out into the Shelly's enclosure, cut it longer by the enclosure's depth.",
        "sh": "chg"
       },
       "AC22": {
@@ -6945,7 +6945,7 @@
        "to": "Shelly N terminal",
        "color": "blue",
        "ends": [
-        "6.3 mm piggyback spade on the socket's N pin",
+        "6.3 mm piggyback spade on the socket's N tab",
         "Bootlace ferrule in the Shelly's N terminal"
        ],
        "share": [

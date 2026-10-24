@@ -191,7 +191,7 @@
     /* connectors */
     $('conn').innerHTML=ORDER.filter(function(k){return P.cnt[k]}).map(function(k){
       var n=P.cnt[k],buy=n+Math.max(2,Math.ceil(n*0.2));
-      var u=P.use[k]?(P.use[k]===n?'joins to the thermal fuse leads':(n-P.use[k])+' for splices, '+P.use[k]+' to join the thermal fuse leads'):PART[k][1];
+      var u=P.use[k]?(P.use[k]===n?'joins to the thermal fuse leads':(n-P.use[k])+' for splices, '+P.use[k]+' to join the thermal fuse leads'):(k==='pig'&&v.shelly?'SH2, on the socket\'s N tab; red, for one 18 AWG wire':PART[k][1]);
       return '<tr><td>'+esc(PART[k][0])+'<div class="note">'+esc(u)+'</div></td><td class="num">'+n+'</td><td class="num big">'+buy+'</td></tr>';
     }).join('')+(function(){
       var hdr={};runs.forEach(function(r){if(r.hdr)hdr[r.hdr]=1});var h=Object.keys(hdr).sort();
@@ -200,7 +200,7 @@
       var bare=0;Object.keys(P.cnt).forEach(function(k){if(BARE[k])bare+=P.cnt[k]});
       return bare?'<tr><td>Silicone sleeve: 4 to 6 mm silicone heat shrink, or self-fusing silicone tape<div class="note">Over each bare crimp</div></td><td class="num">'+bare+'</td><td class="num big">1 pack</td></tr>':'';
     })();
-    $('conn-note').textContent='"Buy" adds a few spares for crimps you redo. Bare spades and splices go where it gets hot: the official guide warns that pre-insulated spade insulation melts on the boiler, and its nylon spades are rated to 105 °C, so keep those away from it. Open-barrel crimps need an open-barrel crimper.'+(v.path==='SI'&&v.fam==='GCP'?' Evo Pro and E24: the guide adds self-fusing silicone tape for insulating the switch connectors one by one.':'')+(v.shelly?' Ferrules go on each wire into the Shelly\'s screw terminals, crimped with a ferrule crimper; the piggyback spade goes on the socket\'s N pin, with the neutral pair\'s two-wire spade on its tab.':'');
+    $('conn-note').textContent='"Buy" adds a few spares for crimps you redo. Bare spades and splices go where it gets hot: the official guide warns that pre-insulated spade insulation melts on the boiler, and its nylon spades are rated to 105 °C, so keep those away from it. Open-barrel crimps need an open-barrel crimper.'+(v.path==='SI'&&v.fam==='GCP'?' Evo Pro and E24: the guide adds self-fusing silicone tape for insulating the switch connectors one by one.':'')+(v.shelly?' Ferrules go on each wire into the Shelly\'s screw terminals, crimped with a ferrule crimper; the piggyback spade goes on the socket\'s N tab, with the neutral pair\'s two-wire spade on its tab.':'');
     /* cut table */
     var groups=[['L','Line'],['H','Heater line'],['N','Neutral'],['E','Earth'],['LV','Switch signals and SSR control']];
     var html='',n=0,dn=0;

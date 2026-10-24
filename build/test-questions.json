@@ -3982,7 +3982,7 @@
    "Only the socket's pins",
    "Only the PCB's 5 V side"
   ],
-  "why": "The Shelly's relay only cuts what comes after it. The socket, the Shelly itself, the power switch and its two wires carry mains whenever the cord is in, so unplug before you open anything.",
+  "why": "The Shelly's relay only cuts what comes after it. The socket, the Shelly itself, the power switch and AC1 carry mains whenever the cord is in, and SH4 too while the switch is on, so unplug before you open anything.",
   "r": [
    [
     "pg",
@@ -4005,12 +4005,12 @@
   "w": "shelly",
   "q": "Why does the Shelly get its own neutral wire, with the machine's neutral plugged onto a piggyback instead of running through the Shelly?",
   "a": [
-   "Shelly warns that load current through its terminals as a bridge can overheat it",
+   "Shelly warns that using its L and N terminals as a bridge doubles the current through them and can overheat it",
    "The Shelly has no N terminal",
    "A relay must never touch neutral",
    "So the power switch can break neutral"
   ],
-  "why": "Shelly's own docs warn against using its L and N terminals as bridges for load current: it doubles the current through the device and can overheat it. Here SH2 only powers the Shelly, and the machine's neutral pair plugs onto the piggyback's tab.",
+  "why": "Shelly's own docs warn against using its L and N terminals as bridges: it doubles the current through them and can overheat the device, and they allow it only at low currents, with the total under 15 A. Here SH2 only powers the Shelly, and the machine's neutral pair plugs onto the piggyback's tab.",
   "r": [
    [
     "pg",
@@ -4034,19 +4034,19 @@
   "w": "shelly",
   "q": "Before switching the machine on from your phone when you're not beside it, what has to be true?",
   "a": [
-   "Water in the tank and the boiler full",
+   "Water in the tank, the boiler full, and the brew and steam switches off",
    "The power switch is on",
    "The drip tray is in",
    "The portafilter is locked in"
   ],
-  "why": "It heats with no one watching. End each session with water through the group after steaming, so the boiler is full, and keep the tank filled; the boiler's 184 °C thermal fuse is the last line if it isn't.",
+  "why": "It heats with no one watching. The PCB fills the boiler at start-up, and with steam switched on it would heat to the steam setpoint. End each session with water through the group after steaming, so the boiler is full, keep the tank filled and the switches off; the boiler's 184 °C thermal fuse is the last line if not.",
   "r": [
    [
     "rb",
     "p7s"
    ]
   ],
-  "src": "runbook p7s; Gaggia manual: water through the group after steaming refills the boiler; 184 C fuse in the official schematics."
+  "src": "runbook p7s; Gaggia manual: water through the group after steaming refills the boiler; official PCB guide: 'Filling boiler' after boot, brew temperature the target; 184 C fuse in the official schematics."
  },
  {
   "id": "sh-04",
@@ -4055,12 +4055,12 @@
   "w": "shelly",
   "q": "Which Shelly does this site draw for a Classic Pro?",
   "a": [
-   "A 16 A 1PM, such as the 1PM Gen4 (15 A as the UL-certified US version)",
+   "A Shelly 1PM Gen4, the UL-certified 15 A version in North America",
    "A Shelly 1 Mini, which switches 8 A",
    "Any Shelly: they all switch the same current",
    "A Shelly Plug between the wall and the machine"
   ],
-  "why": "A 120 V Classic Pro draws about 12 A. The 1PM Gen4 switches 16 A (15 A for the UL-certified US version); the Mini models switch 8 A. A Shelly 1 works too, with a jumper from L to I.",
+  "why": "A 120 V Classic Pro draws about 12 A. The 1PM Gen4 switches 16 A (15 A for the UL-certified US version); the Mini models switch 8 A. A Shelly 1's relay is a dry contact and needs different wiring.",
   "r": [
    [
     "rb",
@@ -4163,14 +4163,14 @@
   "k": "checks",
   "g": "sh-open",
   "w": "shelly",
-  "q": "Unplugged, with the Shelly fitted, why does inlet L to PCB J11 read open?",
+  "q": "Unplugged, with the Shelly fitted, why doesn't inlet L to PCB J11 read low any more?",
   "a": [
    "The Shelly's relay is open while it has no power",
    "The power switch is off",
    "J11 is only live once the PCB boots",
    "The SSR is open"
   ],
-  "why": "J11 now comes after the Shelly's relay, which is open whenever the Shelly is unpowered. So e32 expects open, and e31 checks the switched line from the Shelly's O terminal instead.",
+  "why": "J11 now comes after the Shelly's relay, which is open whenever the Shelly is unpowered. So e32 expects OL or a high value, and e31 checks the switched line from the Shelly's O terminal instead.",
   "r": [
    [
     "ck",
@@ -4284,10 +4284,10 @@
   "w": "shelly",
   "q": "With the Shelly, the machine comes on by itself after a power cut. Why?",
   "a": [
-   "Action on power on is set to Turn ON or to restore the last state",
-   "The power switch is stuck on",
+   "Action on power on is set to Turn ON, Restore last known state, or the switch's state with the rocker left on",
    "The SSR has failed closed",
-   "The PCB restarts the last profile"
+   "The PCB restarts the last profile",
+   "The thermocouple is reversed"
   ],
   "why": "The Shelly decides what happens when power returns. Set Action on power on to Turn OFF.",
   "r": [
@@ -4297,5 +4297,26 @@
    ]
   ],
   "src": "trouble-data.js Shelly entry; Shelly web interface guide."
+ },
+ {
+  "id": "sh-14",
+  "k": "install",
+  "g": "sh-edge",
+  "w": "shelly",
+  "q": "Why set a latching power switch to Toggle Switch rather than Edge Switch?",
+  "a": [
+   "With Edge Switch, flipping the rocker to off could turn the machine on",
+   "Edge Switch wears the rocker out",
+   "Edge Switch ignores the app",
+   "Edge Switch only works with a switch that springs back"
+  ],
+  "why": "With Edge Switch every change of the rocker's position toggles the output. After switching off from the app with the rocker up, flipping it to off would turn the machine on. With Toggle Switch, off always means off.",
+  "r": [
+   [
+    "rb",
+    "p5s2"
+   ]
+  ],
+  "src": "Shelly 1PM Gen4 web interface guide: Edge Switch, each change of the switch's position toggles the state; Toggle Switch, output follows the switch."
  }
 ]
