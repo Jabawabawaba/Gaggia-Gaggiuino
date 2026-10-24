@@ -617,7 +617,7 @@
    "The 145 °C steam thermostat",
    "The thermocouple in the boiler's side"
   ],
-  "why": "Both thermostats leave the circuit and the thermocouple only reports to the PCB. The power switch, the boiler's thermal fuse and earth stay, and none of those depend on software.",
+  "why": "Both thermostats leave the circuit and the thermocouple only reports to the PCB. The boiler's thermal fuse and earth stay, and neither depends on software.",
   "r": [
    [
     "url",
@@ -1279,11 +1279,15 @@
    "Custom wiring, with the board feeding the PCB",
    "A firmware setting that turns off the timer"
   ],
-  "why": "One spring comes out of the power switch so it latches, and custom wiring feeds the switch straight from the inlet, so the board drops out. Afterwards the machine never switches itself off; Gaggiuino only puts the screen to sleep.",
+  "why": "One spring comes out of the power switch so it latches, and custom wiring feeds the switch straight from the inlet, so the board drops out. Afterwards the Eco board's 20-minute auto-off is gone; Gaggiuino only puts the screen to sleep.",
   "r": [
    [
     "rb",
     "p2e"
+   ],
+   [
+    "rb",
+    "p2e2"
    ],
    [
     "rb",
@@ -1663,6 +1667,10 @@
    [
     "rb",
     "p5d"
+   ],
+   [
+    "rb",
+    "p5s"
    ],
    [
     "gl",
@@ -3425,7 +3433,8 @@
     "d7"
    ]
   ],
-  "src": "checks.tpl.html d7: 'May read OL, or a high value that climbs as the PCB's supply charges.' fix: 'a reading near the heater resistance shown under Heater power means the SSR is passing current or the elements are wired around it. Find it before plugging in.'"
+  "src": "checks.tpl.html d7: 'May read OL, or a high value that climbs as the PCB's supply charges.' fix: 'a reading near the heater resistance shown under Heater power means the SSR is passing current or the elements are wired around it. Find it before plugging in.'",
+  "w": "!shelly"
  },
  {
   "id": "checks-16",
@@ -3463,7 +3472,7 @@
     "e2"
    ]
   ],
-  "w": "wpath:CW",
+  "w": "wpath:CW;!shelly",
   "src": "checks.tpl.html section e intro (CW): 'In custom wiring the power switch breaks line only; neutral stays connected.' e2: 'Same probes, power switch off. Should now be open.'"
  },
  {
@@ -3510,7 +3519,7 @@
  {
   "id": "checks-20",
   "k": "checks",
-  "q": "When do you run the last section, Covers on (h1 to h6)?",
+  "q": "When do you run the last section, Covers on?",
   "a": [
    "Once the screen, funnel and cup warmer are back on, unplugged",
    "After the first power-on, once the boiler has warmed up",
@@ -3977,12 +3986,12 @@
   "w": "shelly",
   "q": "With the Shelly fitted and the machine switched off, what is still live while it's plugged in?",
   "a": [
-   "The socket, the Shelly, the power switch and their wires",
-   "Nothing: the Shelly cuts everything",
-   "Only the socket's pins",
-   "Only the PCB's 5 V side"
+   "Line up to the relay, and everything after it stays joined to neutral",
+   "Nothing: the relay cuts line and neutral",
+   "Only the socket's tabs, up to the power switch",
+   "Only the PCB's 5 V side, through its supply"
   ],
-  "why": "The Shelly's relay only cuts what comes after it. The socket, the Shelly itself, the power switch and AC1 carry mains whenever the cord is in, and SH4 too while the switch is on, so unplug before you open anything.",
+  "why": "The relay breaks line only. The socket, the Shelly, the power switch and AC1 carry line whenever the cord is in, and SH4 too while the switch is on. Everything after the relay stays joined to the outlet's neutral, which a plug that fits either way round makes line, and the app or a schedule can switch it on. Unplug before you open anything.",
   "r": [
    [
     "pg",
@@ -4181,7 +4190,7 @@
     "e31"
    ]
   ],
-  "src": "checks.tpl.html e31, e32; relay is a normally open contact with no power."
+  "src": "checks.tpl.html e31, e32; the relay being open without power is an inference from the 1PM Gen4's one relay output on O (Shelly 1PM Gen4 doc)."
  },
  {
   "id": "sh-09",
@@ -4293,7 +4302,7 @@
   "r": [
    [
     "tr",
-    "It comes on by itself after a power cut"
+    "It comes on by itself"
    ]
   ],
   "src": "trouble-data.js Shelly entry; Shelly web interface guide."

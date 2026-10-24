@@ -108,7 +108,8 @@
   }
   /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
   function decided(when){
-    if(!prof)return false;
+    /* with nothing picked, the Shelly is still known: it's off until chosen */
+    if(!prof)return conds(when).every(function(c){return c.k==='shelly'||c.k==='!shelly'});
     return conds(when).every(decidedOne);
   }
   function decidedOne(c){
