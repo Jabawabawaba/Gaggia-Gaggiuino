@@ -27,15 +27,19 @@
        contact with the portafilter, pl the portafilter's loss; xg and xp how much heat water running through the group
        and the portafilter trades with them. bc is the brew thermostat's cut-in: Gaggia publishes only the 107 °C
        cut-out, so the few degrees of differential is an estimate.
-       Fitted by search against the published measurements. Shot temperatures are the water running through the
-       soaked puck, as a Scace in the portafilter reads it. Brass (E24): Kaffeemacher's Scace 2 test (95.8 °C for the
-       first unflushed shot; about 91.5 °C, steady within half a degree, after flushing until the hissing stops; 15
-       minutes to a portafilter at 65 to 70 °C) and Whole Latte Love's E24 heat-up and steaming. Aluminum: Whole Latte
-       Love's Evo Pro test (first lamp at about 71 s, a falling Scace curve when brewed at the lamp with no flush) and
-       Kaffeemacher's New Classic (92 to 93 °C after a 10 s flush and a 45 s wait). */
+       Fitted by search against the published measurements, with shot temperatures taken the way a Scace thermometer
+       in the portafilter reads them: the water reaching the puck, from 2 s after the pump starts (the coach and the map
+       use the same reading). Brass (E24), at 230 V like Kaffeemacher's test: their Scace 2 series (no flush, five
+       shots a minute apart: 95.8, 91.7, 90.6, 89.7 and 88.2 °C; a 7 to 8 s flush before the first shot, then 1.5 to 2
+       minutes and a 1 to 2 s flush between shots: 91.5, 92.3, 90.1, 90.5 and 91.6 °C; a portafilter at 65 to 70 °C
+       after 15 minutes), and at 120 V Whole Latte Love's E24 heat-up, idle cycle and steaming. The fit matches the
+       first three unflushed shots and the flushed series within about half a degree; its hissing stops after about
+       3 s of flushing where Kaffeemacher's took 7 to 8, and it levels off near 90 °C where their unflushed series kept
+       falling. Aluminum: Whole Latte Love's Evo Pro (first lamp at about 71 s, about 97.5 °C brewed at the lamp with
+       no flush) and Kaffeemacher's New Classic (92 to 93 °C after a 10 s flush and a 45 s wait; over 98 °C with none). */
     var TUNE={
-      alu:{Ce:119,ke:18.85,Cb:563,h:6.12,hs:108,hf:2.92,gk:5.4,la:2.24,ix:7.01,Cg:479,gl:0.113,pk:0.369,pl:0.128,bc:101.2,sc:141,xg:5.34,xp:0.05},
-      brass:{Ce:92.7,ke:16.43,Cb:755,h:9.78,hs:120,hf:6.76,gk:2.29,la:2.44,ix:67,Cg:678,gl:0.402,pk:0.761,pl:0.162,bc:100.4,sc:141,xg:2.1,xp:0.411}
+      alu:{Ce:105.029,ke:13.565,Cb:587.571,h:4.079,hs:140.723,hf:3.628,gk:4.703,la:2.5,ix:9.705,Cg:300,gl:0.089,pk:0.386,pl:0.165,bc:102.06,sc:141,xg:12.584,xp:0.05},
+      brass:{Ce:147.766,ke:11.849,Cb:734.78,h:4.375,hs:107.916,hf:2.635,gk:3.291,la:2.436,ix:14.951,Cg:521.289,gl:0.393,pk:0.624,pl:0.213,bc:100.398,sc:141,xg:1.132,xp:0.201}
     };
     var K={};
     /* p: {model:'GC'|'GCP'|'EVO'|'E24', volts:120|230, opv9:bool} */
@@ -46,7 +50,7 @@
       K.opv=K.gc?14:(p.opv9?9:11);
       /* the E24's lead-free brass boiler holds about 109 ml, the aluminum one about 74 ml (Whole Latte Love's
          measurements); the brass one is slower to heat (first brew lamp at about 90 s against 71 s at 120 V). */
-      K.full=K.e24?108:74;K.kx=0.66;
+      K.full=K.e24?108:74;K.kx=0.60;
       var T=K.e24?TUNE.brass:TUNE.alu;for(var k in T)K[k]=T[k];
       K.brewOpen=BREW_OPEN;K.brewClose=K.bc;K.steamOpen=STEAM_OPEN;K.steamClose=K.sc;
       return K;
@@ -183,7 +187,7 @@
             /* the tip at the surface draws air in; the milk takes it as fine foam while it's cool, coarser once it's hot;
                too high and it spits big bubbles; under the surface it spins and folds the bubbles in finer */
             var hiss=j.tip==='surf'?1:j.tip==='high'?1.6:0;
-            if(hiss>0&&j.foam<j.m*0.9){var a=mS*dt*10*hiss;j.foam+=a;if(j.tip==='high'||j.T>45)j.big+=a*(j.tip==='high'?1:cl((j.T-45)/15,0,1));else j.airC+=a;j.airH=Math.max(j.airH,j.T)}
+            if(hiss>0&&j.foam<j.m*0.9){var a=mS*dt*24*hiss;j.foam+=a;if(j.tip==='high'||j.T>45)j.big+=a*(j.tip==='high'?1:cl((j.T-45)/15,0,1));else j.airC+=a;j.airH=Math.max(j.airH,j.T)}
             if(j.tip==='high')j.spit+=dt;
             if(j.tip==='sub'){j.spin+=dt;j.big=Math.max(0,j.big-mS*dt*6)}
           }
