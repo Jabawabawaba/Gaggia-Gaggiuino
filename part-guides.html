@@ -94,7 +94,7 @@
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
-</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="barista-school.html">Barista school</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a><a href="test-yourself.html">Test yourself</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="part-guides.html" aria-current="page">Part guides</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
+</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="barista-school.html">Barista school</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a><a href="test-yourself.html">Test yourself</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html">Runbook</a><a href="part-guides.html" aria-current="page">Part guides</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><div class="mrow"><span class="mk">Extras</span><div class="mseg" role="group" aria-label="Add-ons"><button type="button" data-mshelly aria-pressed="false">Shelly smart relay</button></div><span class="mh">Optional and unofficial: switch the machine on and off from your phone. Adds its wires, checks and steps to the pages. Drawn for Pro-family machines on custom wiring.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
    Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
    condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
    show; with no voltage, both voltages' notes show and the wording stays generic. Nothing is filled in for them.
@@ -107,6 +107,9 @@
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
      siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     shelly                 the Shelly smart relay add-on (unofficial), only once the reader has chosen it. It's drawn for
+                            Pro-family machines on custom wiring, so it's off for the original Classic and for stock wiring.
+                            Unlike the other fields, not choosing it hides its content: it's an add-on, not a fact to narrow down.
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
      set:model,volts,path   true only once every named field is picked (for wording that replaces a combined version)
@@ -136,8 +139,9 @@
     /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
     var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
     var path=s.path==='SI'||s.path==='CW'?s.path:null;
-    if(!model&&!volts&&!path)return null;
-    return {model:model,volts:volts,eco:eco,path:path};
+    var shelly=s.shelly===true;
+    if(!model&&!volts&&!path&&!shelly)return null;
+    return {model:model,volts:volts,eco:eco,path:path,shelly:shelly};
   }
   function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
   var prof=read();
@@ -157,6 +161,16 @@
     if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
     return p.volts===120?'SI':null;
   }
+  /* the Shelly add-on: true once chosen on a machine it's drawn for (a Pro-family one on custom wiring), false when it
+     isn't chosen or doesn't fit, null while it's chosen but the model or the wiring is still open */
+  function shellyOf(p){
+    if(!p||!p.shelly)return false;
+    if(p.model==='GC')return false;
+    var w=wpathOf(p);
+    if(w==='SI')return false;
+    if(!p.model||!w)return null;
+    return true;
+  }
   function conds(when){
     return String(when||'').split(';').map(function(c){
       c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
@@ -165,7 +179,7 @@
   /* true unless the profile rules the element out; unknown fields never rule anything out */
   function matches(when){
     if(!when)return true;
-    if(!prof)return conds(when).every(function(c){return c.k!=='set'});
+    if(!prof)return conds(when).every(function(c){return c.k!=='set'&&c.k!=='shelly'});
     return conds(when).every(one);
   }
   /* one condition; "!key" is true when the field is decided and the condition doesn't hold, and never hides while it's open */
@@ -184,12 +198,14 @@
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
       if(c.k==='unset')return c.vals.some(function(f){return !prof[f]});
+      if(c.k==='shelly')return shellyOf(prof)!==false;
       return true;
     })(c);
   }
   /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
   function decided(when){
-    if(!prof)return false;
+    /* with nothing picked, the Shelly is still known: it's off until chosen */
+    if(!prof)return conds(when).every(function(c){return c.k==='shelly'||c.k==='!shelly'});
     return conds(when).every(decidedOne);
   }
   function decidedOne(c){
@@ -205,6 +221,7 @@
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
+      if(c.k==='shelly')return shellyOf(prof)!==null;
       return true;
     })(c);
   }
@@ -218,13 +235,15 @@
   function txt(x){
     if(x==null)return '';
     if(!Array.isArray(x))return String(x);
-    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ');
+    /* a segment that starts with punctuation (", and h7 for the Shelly,") joins without a space before it */
+    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ').replace(/ ([,.;:])/g,'$1');
   }
   function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
   function label(p){
     p=p||prof;if(!p)return 'Set it';
     var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
     if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    if(shellyOf(p))a.push('Shelly');
     return a.join(', ');
   }
   function missing(p){
@@ -246,7 +265,10 @@
     var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
     var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
     var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
-    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+    var sh=shellyOf(p),shs=sh?' The Shelly smart relay\'s wires, checks and steps are added.':
+      sh===null?' The Shelly smart relay is drawn for Pro-family machines on custom wiring; its steps show as well until yours is known.':
+      p.shelly?' The Shelly smart relay is drawn for Pro-family machines on custom wiring only, so the pages leave it out for yours.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more+shs;
   }
   function apply(root){
     root=root||document;
@@ -273,6 +295,7 @@
     var l=document.getElementById('mchip-l');
     if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
       var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      if(shellyOf(prof))x+=(x?', ':'')+'Shelly';
       l.textContent=!prof?'Set it':main.length?main.join(', '):x;
       if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
     var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
@@ -285,7 +308,7 @@
     try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
   }
   /* start from what's saved, never from guesses */
-  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null,shelly:false},prof||{})}
   /* ---- nav panel ---- */
   function syncPanel(){
     var pan=document.getElementById('mpanel');if(!pan)return;
@@ -294,6 +317,7 @@
     Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
     Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
     Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mshelly]'),function(b){b.setAttribute('aria-pressed',String(!!p.shelly))});
     var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
     var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
     var s=document.getElementById('m-summary');if(s)s.textContent=summary();
@@ -317,6 +341,7 @@
         else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
         else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
         else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.hasAttribute('data-mshelly'))p.shelly=!p.shelly;
         else if(b.id==='m-clear'){set(null);return}
         else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
         else return;
@@ -331,7 +356,7 @@
         var p=current();
         String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
           var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
-          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;else if(k==='shelly')p.shelly=v==='yes';
         });
         set(p);
       });
@@ -361,7 +386,7 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},shelly:function(){return shellyOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -714,6 +739,33 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
 @media (prefers-reduced-motion: reduce){.pg-fig .wifi path{animation:none;opacity:.8}}
 .pg-group{font:700 clamp(24px,3.4vw,32px)/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.02em;margin:36px 0 4px;padding-top:18px;border-top:3px solid var(--ink)}
 .pg-gnote{margin:0 0 8px;color:var(--muted);font-size:15.5px;max-width:75ch}
+/* the Shelly guide (gen_part_shelly.py) */
+.pg-fig .shb{fill:#E9EDF0;stroke:#59616A;stroke-width:1.2}
+.pg-fig .nm{font:600 14px var(--f-mono);fill:var(--ink)}
+.pg-fig text.onshb{fill:#2B3036}
+.pg-fig text.onpla{fill:#E7E9EB}
+.pg-fig .shhalo{fill:none;stroke:var(--surface);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.pg-fig .shw{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round}
+.pg-fig .shw.L{stroke:#A0521F}
+.pg-fig .shw.N{stroke:#2F6FC0}
+.pg-fig .shw.O{stroke:#E08A1E}
+.pg-fig .shw.SW{stroke:#D9479B}
+.pg-fig .shw.E{stroke:#2D7A4C}
+.pg-fig .encl{fill:rgba(127,166,194,.08);stroke:var(--muted);stroke-width:1.4;stroke-dasharray:6 4}
+.pg-fig .grom{fill:#2B3036}
+.pg-fig .bn2{fill:#9AA3AA;stroke:#3E454C;stroke-width:1.1}
+.pg-fig .pig{fill:#2F6FC0;stroke:#1D3F6E;stroke-width:1}
+.pg-fig .hotz{fill:rgba(214,69,52,.12);stroke:#D64534;stroke-width:1.6;stroke-dasharray:5 3}
+.pg-fig .copperw{fill:none;stroke:#C47A3A;stroke-width:4;stroke-linecap:butt}
+.pg-fig .ferc{fill:#8C939A;stroke:#3E454C;stroke-width:1}
+.pg-fig .ferm{fill:url(#pg-steel);stroke:#59616A;stroke-width:1}
+.pg-fig .jawp{fill:#59616A;opacity:.85}
+.pg-fig .phone{fill:#23272C}
+.pg-fig .pscr{fill:#F4F6F7}
+.pg-fig .prow{fill:#FFFFFF;stroke:#CBD0D5;stroke-width:1}
+.pg-fig .pt{font:600 13px var(--f-mono);fill:#16191C}
+.pg-fig .pk{font:500 10.5px var(--f-mono);fill:#59616A}
+.pg-fig .pv{font:600 12px var(--f-mono);fill:#16191C}
 
 </style>
 <svg class="pg-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
@@ -732,7 +784,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     <div class="plate"><span class="rivet" aria-hidden="true"></span><span><b>Install</b></span><span>Part guides</span><span>ten guides, drawn step by step</span><span class="rivet" aria-hidden="true"></span></div>
     <h1>Part Guides</h1>
     <p class="lede">The thermocouple, the pressure sensor, the resettable fuse, the wires themselves, the SSR and the switches, then the screen housing, the ToFnLED, firmware updates and the hardware scales, each drawn step by step. Tap a step to watch it, or step through with the arrows. The runbook has the same work in order with everything else.</p>
-    <nav class="pg-jump" aria-label="Guides on this page"><a class="chip" href="#tc">Thermocouple</a><a class="chip" href="#ps">Pressure sensor</a><a class="chip" href="#fuse">Resettable fuse</a><a class="chip" href="#wire">Making the wires</a><a class="chip" href="#ssr">SSR</a><a class="chip" href="#sw">Switches</a><a class="chip" href="#scr">Screen</a><a class="chip" href="#tof">ToFnLED</a><a class="chip" href="#fw">Firmware</a><a class="chip" href="#scl">Scales</a></nav>
+    <nav class="pg-jump" aria-label="Guides on this page"><a class="chip" href="#tc">Thermocouple</a><a class="chip" href="#ps">Pressure sensor</a><a class="chip" href="#fuse">Resettable fuse</a><a class="chip" href="#wire">Making the wires</a><a class="chip" href="#ssr">SSR</a><a class="chip" href="#sw">Switches</a><a class="chip" href="#scr">Screen</a><a class="chip" href="#tof">ToFnLED</a><a class="chip" href="#fw">Firmware</a><a class="chip" href="#scl">Scales</a><a class="chip" href="#shl" data-when="shelly">Shelly</a></nav>
   </header>
 
   <div class="warn"><strong>Cord out, boiler cold</strong><p>Unplug the machine and let the boiler cool before you open it. The drawings show what your hands do, not to scale; steps with a photo in the official guide link to it.</p></div>
@@ -949,6 +1001,26 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
     </div>
   </section>
 
+  <section class="block" id="shl" aria-labelledby="h-shl" data-when="shelly">
+    <div class="sec-h"><h2 id="h-shl">Shelly smart relay</h2><span class="sum">add-on · unofficial · Pro family, custom wiring</span></div>
+    <p class="pg-where" id="pg-shl-where"></p>
+    <div class="pg-note"><p><b>Unofficial, and always live.</b> Nothing about the Shelly is in the Gaggiuino docs: this follows fusio's Classic Pro and Shelly Plus 1PM build, shared on the Gaggiuino Discord, changed so the machine's neutral never runs through the Shelly. The socket, the Shelly, the power switch and their wires are live whenever the cord is in, even with the machine off. The relay breaks line only, so the rest of the machine stays joined to the outlet's neutral, and with a plug that fits either way round that can be line. The app or a schedule can also switch it on at any time. Unplug before you open anything.</p></div>
+    <div class="pg-meta">
+      <div><span class="k">You need</span><ul><li>A Shelly 1PM Gen4, the UL-certified version in North America</li><li>An enclosure for it and the socket: <a href="https://makerworld.com/en/models/1172716-shelly-enclosure-for-gaggiuino">fusio's socket-only print</a> on MakerWorld, ordered from a print service if you have no printer</li><li>SH1 to SH4 from the <a href="cut-list.html">cut list</a>, a two-wire spade, a piggyback spade and a BN2 splice</li><li>Four 0.75 mm² (18 AWG) insulated ferrules with 6 mm sleeves, and a ferrule crimper</li><li>A grommet or sleeve for the socket hole</li></ul></div>
+      <div><span class="k">What it does</span><p>Switches the whole machine on and off from the Shelly app, a schedule or the power switch, which now only signals it. It also reports the power the machine draws. The PCB doesn't know it's there: it simply powers up when the Shelly switches on.</p></div>
+    </div>
+    <div class="pg" id="pg-shl-g">
+      <div class="pg-figcol">
+        <figure class="pg-fig"><svg id="pg-shl" viewBox="0 0 480 330" role="img" aria-labelledby="pg-shl-t"><title id="pg-shl-t">The Shelly smart relay drawn step by step, looking down on the back of the machine: the Shelly and the socket in an enclosure outside the back panel, their wires through the old socket hole to the power switch and to a splice by it, then ferrules, the meter checks and the app settings.</title><g data-k="sc1"><text class="cap" x="240" y="40" text-anchor="middle">Shelly 1PM, front</text><rect class="shb" x="150" y="70" width="180" height="150" rx="14"/><text class="nm onshb" x="240" y="174" text-anchor="middle">Shelly 1PM</text><text class="cap onshb" x="240" y="192" text-anchor="middle">16 A (15 A UL)</text><text class="cap onshb" x="240" y="207" text-anchor="middle">110 to 240 V~</text><circle class="screw" cx="186" cy="96" r="8"/><path class="slot" d="M181,96 H191"/><text class="lbl onshb" x="186" y="120" text-anchor="middle">O</text><circle class="screw" cx="222" cy="96" r="8"/><path class="slot" d="M217,96 H227"/><text class="lbl onshb" x="222" y="120" text-anchor="middle">SW</text><circle class="screw" cx="258" cy="96" r="8"/><path class="slot" d="M253,96 H263"/><text class="lbl onshb" x="258" y="120" text-anchor="middle">L</text><circle class="screw" cx="294" cy="96" r="8"/><path class="slot" d="M289,96 H299"/><text class="lbl onshb" x="294" y="120" text-anchor="middle">N</text><g data-k="k1o"><text class="lbl" x="150" y="262" text-anchor="start">O: switched line out</text></g><g data-k="k1sw"><text class="lbl" x="150" y="280" text-anchor="start">SW: the switch input</text></g><g data-k="k1ln"><text class="lbl" x="150" y="298" text-anchor="start">L and N: its supply</text></g><g data-k="k1mini"><rect class="tagb" x="336" y="128" width="132" height="44" rx="4"/><text class="tagt" x="402" y="146" text-anchor="middle">not a Mini:</text><text class="tagt" x="402" y="162" text-anchor="middle">they switch 8 A</text></g></g><g data-k="sc2"><text class="cap" x="12" y="20">inside the machine</text><rect class="wallp" x="0" y="148" width="196" height="12"/><rect class="wallp" x="424" y="148" width="56" height="12"/><text class="cap" x="476" y="142" text-anchor="end">back panel</text><g data-k="grom"><rect class="grom" x="192" y="145" width="12" height="18" rx="5"/><rect class="grom" x="416" y="145" width="12" height="18" rx="5"/></g><g data-k="encl"><rect class="encl" x="16" y="168" width="448" height="156" rx="12"/><text class="cap" x="456" y="319" text-anchor="end">enclosure, outside the case</text></g><g data-k="sw"><rect class="pla" x="372" y="22" width="84" height="104" rx="6"/><text class="cap" x="414" y="16" text-anchor="middle">power switch, back</text><rect class="tab fadedtab" x="384" y="39" width="22" height="10" rx="1"/><text class="cap" x="380" y="48" text-anchor="end">1</text><rect class="tab" x="422" y="39" width="22" height="10" rx="1"/><text class="lbl" x="460" y="48" text-anchor="start">4</text><rect class="tab fadedtab" x="384" y="69" width="22" height="10" rx="1"/><text class="cap" x="380" y="78" text-anchor="end">2</text><rect class="tab" x="422" y="69" width="22" height="10" rx="1"/><text class="lbl" x="460" y="78" text-anchor="start">5</text><rect class="tab fadedtab" x="384" y="99" width="22" height="10" rx="1"/><text class="cap" x="380" y="108" text-anchor="end">3</text><rect class="tab fadedtab" x="422" y="99" width="22" height="10" rx="1"/><text class="lbl" x="460" y="108" text-anchor="start">6</text></g><g data-k="s6"><rect class="bn2" x="168" y="94" width="22" height="13" rx="2"/><text class="lbl" x="179" y="88" text-anchor="middle">S6</text></g><g data-k="shl"><rect class="shb" x="40" y="246" width="164" height="62" rx="10"/><circle class="screw" cx="64" cy="258" r="8"/><path class="slot" d="M59,258 H69"/><text class="lbl onshb" x="64" y="282" text-anchor="middle">O</text><circle class="screw" cx="100" cy="258" r="8"/><path class="slot" d="M95,258 H105"/><text class="lbl onshb" x="100" y="282" text-anchor="middle">SW</text><circle class="screw" cx="136" cy="258" r="8"/><path class="slot" d="M131,258 H141"/><text class="lbl onshb" x="136" y="282" text-anchor="middle">L</text><circle class="screw" cx="172" cy="258" r="8"/><path class="slot" d="M167,258 H177"/><text class="lbl onshb" x="172" y="282" text-anchor="middle">N</text><text class="cap onshb" x="122" y="300" text-anchor="middle">Shelly</text></g><g data-k="sock"><rect class="pla" x="262" y="246" width="128" height="62" rx="8"/><rect class="tab" x="283" y="238" width="10" height="16" rx="1.5"/><text class="lbl onpla" x="288" y="270" text-anchor="middle">N</text><rect class="tab" x="323" y="238" width="10" height="16" rx="1.5"/><text class="lbl onpla" x="328" y="270" text-anchor="middle">E</text><rect class="tab" x="363" y="238" width="10" height="16" rx="1.5"/><text class="lbl onpla" x="368" y="270" text-anchor="middle">L</text><text class="cap onpla" x="326" y="298" text-anchor="middle">socket</text></g><g data-k="w1" class="draw"><path class="shhalo" pathLength="1" d="M364,238 V196 H136 V250"/><path class="shw L" pathLength="1" d="M364,238 V196 H136 V250"/></g><g data-k="w1t"><text class="lbl halo" x="250" y="192" text-anchor="middle">SH1</text></g><g data-k="w2" class="draw"><path class="shhalo" pathLength="1" d="M284,238 V222 H172 V250"/><path class="shw N" pathLength="1" d="M284,238 V222 H172 V250"/></g><g data-k="w2t"><text class="lbl halo" x="200" y="218" text-anchor="start">SH2</text></g><g data-k="pig"><rect class="pig" x="279" y="230" width="18" height="10" rx="2"/></g><g data-k="pigt"><text class="cap halo" x="272" y="244" text-anchor="end">piggyback</text></g><g data-k="ac1" class="draw"><path class="shhalo" pathLength="1" d="M372,238 V186 H404 V74 H422"/><path class="shw L" pathLength="1" d="M372,238 V186 H404 V74 H422"/></g><g data-k="ac1t"><text class="lbl halo" x="398" y="178" text-anchor="end">AC1</text></g><g data-k="nn" class="draw"><path class="shhalo" pathLength="1" d="M292,234 V110 M298,234 V110"/><path class="shw N" pathLength="1" d="M292,234 V110 M298,234 V110"/></g><g data-k="nnt"><text class="lbl halo" x="295" y="102" text-anchor="middle">neutral pair</text></g><g data-k="g1" class="draw"><path class="shhalo" pathLength="1" d="M328,238 V118"/><path class="shw E" pathLength="1" d="M328,238 V118"/></g><g data-k="g1t"><text class="lbl halo" x="334" y="126" text-anchor="start">G1</text></g><g data-k="w3" class="draw"><path class="shhalo" pathLength="1" d="M64,250 V176 H208 V100 H190"/><path class="shw O" pathLength="1" d="M64,250 V176 H208 V100 H190"/></g><g data-k="w3t"><text class="lbl halo" x="200" y="128" text-anchor="end">SH3</text></g><g data-k="w4" class="draw"><path class="shhalo" pathLength="1" d="M100,250 V184 H224 V30 H410 V44 H422"/><path class="shw SW" pathLength="1" d="M100,250 V184 H224 V30 H410 V44 H422"/></g><g data-k="w4t"><text class="lbl halo" x="300" y="26" text-anchor="middle">SH4</text></g><g data-k="ac23" class="draw"><path class="shhalo" pathLength="1" d="M168,97 H40 M168,104 V122 H40"/><path class="shw O" pathLength="1" d="M168,97 H40 M168,104 V122 H40"/></g><g data-k="ac23t"><text class="lbl halo" x="40" y="90">AC2, to the SSR</text><text class="lbl halo" x="40" y="136">AC3, to the lamps</text></g><g data-k="hot"><rect class="hotz" x="16" y="168" width="448" height="156" rx="12"/><rect class="hotz" x="372" y="22" width="84" height="104" rx="6"/></g></g><g data-k="sc3"><rect class="wallbg" x="0" y="0" width="480" height="330"/><text class="cap" x="240" y="36" text-anchor="middle">a ferrule on each wire into the Shelly</text><g data-k="strip"><path class="shw L" d="M20,150 H96"/><path class="copperw" d="M96,150 H128"/><path class="dimln" d="M96,128 V138 M128,128 V138 M96,133 H128"/><text class="lbl" x="112" y="122" text-anchor="middle">6 mm</text><text class="cap" x="74" y="196" text-anchor="middle">1. strip</text></g><g data-k="fer"><path class="shw L" d="M178,150 H238"/><rect class="ferc" x="236" y="141" width="14" height="18" rx="3"/><rect class="ferm" x="250" y="144" width="34" height="12" rx="2"/><text class="cap" x="232" y="196" text-anchor="middle">2. ferrule on</text></g><g data-k="jaw"><rect class="jawp" x="246" y="110" width="42" height="30" rx="3"/><rect class="jawp" x="246" y="160" width="42" height="30" rx="3"/><text class="lbl" x="267" y="104" text-anchor="middle">crimp</text></g><g data-k="blk"><rect class="shb" x="352" y="96" width="112" height="104" rx="8"/><rect class="pla" x="372" y="136" width="70" height="30" rx="3"/><rect class="ferm" x="384" y="145" width="34" height="12" rx="2"/><rect class="ferc" x="370" y="142" width="14" height="18" rx="3"/><path class="shw L" d="M330,151 H370"/><circle class="screw" cx="407" cy="118" r="11"/><path class="slot" d="M400,118 H414"/><text class="cap" x="408" y="222" text-anchor="middle">3. in fully, tighten</text></g><g data-k="tq"><text class="lbl" x="407" y="86" text-anchor="middle">0.4 Nm at most</text></g><g data-k="tug"><text class="lbl" x="240" y="268" text-anchor="middle">then a gentle tug: nothing moves, no copper showing</text></g></g><g data-k="sc4"><rect class="wallbg" x="0" y="0" width="480" height="330"/><rect class="meter" x="22" y="60" width="132" height="150" rx="12"/><rect class="lcd" x="36" y="76" width="104" height="40" rx="4"/><text class="lcdt" x="88" y="103" text-anchor="middle">0.3 Ω</text><circle class="jack" cx="64" cy="184" r="6"/><circle class="jack r" cx="112" cy="184" r="6"/><text class="cap" x="88" y="232" text-anchor="middle">e30: inlet L</text><text class="cap" x="88" y="246" text-anchor="middle">to Shelly L</text><rect class="meter" x="174" y="60" width="132" height="150" rx="12"/><rect class="lcd" x="188" y="76" width="104" height="40" rx="4"/><text class="lcdt" x="240" y="103" text-anchor="middle">0.4 Ω</text><circle class="jack" cx="216" cy="184" r="6"/><circle class="jack r" cx="264" cy="184" r="6"/><text class="cap" x="240" y="232" text-anchor="middle">e31: Shelly O</text><text class="cap" x="240" y="246" text-anchor="middle">to J11</text><rect class="meter" x="326" y="60" width="132" height="150" rx="12"/><rect class="lcd" x="340" y="76" width="104" height="40" rx="4"/><text class="lcdt" x="392" y="103" text-anchor="middle">OL</text><circle class="jack" cx="368" cy="184" r="6"/><circle class="jack r" cx="416" cy="184" r="6"/><text class="cap" x="392" y="232" text-anchor="middle">e32: inlet L</text><text class="cap" x="392" y="246" text-anchor="middle">to J11</text><text class="cap" x="240" y="286" text-anchor="middle">unplugged, the relay is open: e32 reads OL or a high value</text></g><g data-k="sc5"><rect class="wallbg" x="0" y="0" width="480" height="330"/><rect class="phone" x="150" y="18" width="180" height="296" rx="22"/><rect class="pscr" x="160" y="40" width="160" height="252" rx="8"/><text class="pt" x="240" y="64" text-anchor="middle">Shelly app</text><g data-k="st1"><rect class="prow" x="168" y="82" width="144" height="40" rx="6"/><text class="pk" x="176" y="98">Input mode</text><text class="pv" x="176" y="114">Switch, or Button</text></g><g data-k="st2"><rect class="prow" x="168" y="130" width="144" height="40" rx="6"/><text class="pk" x="176" y="146">Action on power on</text><text class="pv" x="176" y="162">Turn OFF</text></g><g data-k="st3"><rect class="prow" x="168" y="178" width="144" height="40" rx="6"/><text class="pk" x="176" y="194">Auto off</text><text class="pv" x="176" y="210">optional</text></g><g data-k="st4"><rect class="prow" x="168" y="226" width="144" height="40" rx="6"/><text class="pk" x="176" y="242">Firmware</text><text class="pv" x="176" y="258">up to date</text></g></g></svg>
+
+          <div class="pg-ctl"><button type="button" class="pg-prev" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pg-pos" aria-live="polite"></span><button type="button" class="pg-next" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pg-again" aria-label="Play this step again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button></div>
+        </figure>
+        <p class="pg-now" aria-hidden="true"></p>
+      </div>
+      <ol class="pg-steps"></ol>
+    </div>
+  </section>
+
   <section class="block" id="src" aria-labelledby="h-src">
     <div class="sec-h"><h2 id="h-src">Sources</h2></div>
     <ul class="pg-src">
@@ -959,6 +1031,7 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       <li>Gaggiuino <a href="https://gaggiuino.github.io/#/?id=bill-of-materials">parts list</a>: the fittings, the tap block's 010 O-ring (6 mm inside, 1.8 mm thick), the flat O-ring and the M5 × 25 screws; the custom wiring guide's bare BN1.25 splices. Docs read October 2026.</li>
       <li>Gaggiuino, <a href="https://gaggiuino.github.io/#/guides/interface-screen?id=assembly">Interface: Screen</a>, <a href="https://gaggiuino.github.io/#/accessories/tofnled">Accessory: ToFnLED</a>, <a href="https://gaggiuino.github.io/#/guides-stm32/mcu-flashing">MCU Flashing</a>, <a href="https://gaggiuino.github.io/#/guides-upgrade/pcb-upgrade">PCB Upgrade Guide</a>, <a href="https://gaggiuino.github.io/#/accessories/hw-scales">Accessory: Hardware Scales</a> and the <a href="https://gaggiuino.github.io/#/learning/user-manual-gen3">Gen 3 user manual</a>, with their photos.</li>
       <li>Part names as Peak Coffee lists them in its <a href="https://www.peakcoffee.cc/product/gaggiuino-v4-kit/">V4 kit</a>.</li>
+      <li data-when="shelly">The Shelly: fusio's "Gaggia Classic Pro + Shelly Plus 1PM Wiring" drawing on the Gaggiuino Discord and his <a href="https://makerworld.com/en/models/1172716-shelly-enclosure-for-gaggiuino">socket</a> and <a href="https://makerworld.com/en/models/1143852-shelly-emi-filter-enclosure-for-gaggiuino">EMI filter</a> enclosures on MakerWorld, all unofficial; Shelly's <a href="https://www.shelly.com/blogs/documentation/shelly-1pm-gen4">1PM Gen4</a> and <a href="https://us.shelly.com/blogs/documentation/shelly-plus-1pm-ul">Plus 1PM UL</a> pages (ratings, terminals, the 40 °C limit, and the warning against using its terminals as a bridge) and its <a href="https://www.shelly.com/blogs/documentation/shelly-1pm-gen4-web-interface-guide">web interface guide</a> (input modes, Action on power on, timers). Read October 2026.</li>
       <li>On this site: the stock-integration moves and every run in <a href="wiring.html">Wiring</a>, <a href="runbook.html">Runbook</a> phases 2 and 3, <a href="power-on-checks.html">Power-on checks</a>, <a href="model-notes.html">model notes</a>.</li>
     </ul>
   </section>
@@ -1379,6 +1452,36 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       {t:'Close it up',d:'If you opened the machine to run the cable, funnel and cup warmer back on with their earth wires, and pass the covers-on checks, before it goes back on mains.',a:[],chk:[['h1','Cup warmer and funnel earth wires reconnected'],['h2','Inlet earth pin to cup warmer plate']]}
     ]}};
 
+  /* ---------------- the Shelly smart relay (an unofficial add-on, shown once it's chosen in Your Gaggia) ---------------- */
+  G.shl={svg:'pg-shl',mpath:'CW',
+    base:{sc1:{o:1},sc2:{o:0},sc3:{o:0},sc4:{o:0},sc5:{o:0},k1o:{o:0},k1sw:{o:0},k1ln:{o:0},k1mini:{o:0},
+      encl:{o:0},grom:{o:0},shl:{o:0},sock:{y:-100},s6:{o:0},pig:{o:0},pigt:{o:0},hot:{o:0},
+      w1:{d:1},w1t:{o:0},w2:{d:1},w2t:{o:0},w3:{d:1},w3t:{o:0},w4:{d:1},w4t:{o:0},ac1:{d:1},ac1t:{o:0},nn:{d:1},nnt:{o:0},g1:{d:1},g1t:{o:0},ac23:{d:1},ac23t:{o:0},
+      strip:{o:0},fer:{o:0},jaw:{o:0,s:1.3},blk:{o:0},tq:{o:0},tug:{o:0},st1:{o:0},st2:{o:0},st3:{o:0},st4:{o:0}},
+    steps:{all:[
+      {t:'Pick the Shelly',d:['A Shelly 1PM Gen4: it switches 16 A and reports the power the machine draws. In North America, the UL-certified version, rated 15 A. Not a Mini: those switch 8 A.',['A 120 V Pro draws about 12 A.','volts:120'],
+          'Its relay switches line out on O; SW is its switch input; L and N power it. This site draws the 1PM: a Shelly 1\'s relay is a dry contact and needs different wiring.'],
+       a:[['k1o',{o:1},200,300],['k1sw',{o:1},500,300],['k1ln',{o:1},800,300],['k1mini',{o:1},1200,400]]},
+      {t:'Plan where it goes',d:'Shelly rates it for 40 °C around it at most, and the inside of the machine likely runs hotter. So it goes outside, in a plastic enclosure that takes the socket\'s place at the socket hole, as fusio built his, so its wires go from the case straight into it and never run in the open; a metal one would need earthing. His printed enclosures are on MakerWorld: one for the socket alone, and one with an EMI filter, whose rating you should check, since a 120 V Pro draws about 12 A. Order the print if you have no printer; this site suggests a heat-tolerant material rather than PLA. Shelly also warns that a confined space can warm it past its limit, so you\'ll watch its temperature in the app at first power-on.',
+       a:[['sc1',{o:0},0,400],['sc2',{o:1},300,500],['encl',{o:1},800,500],['shl',{o:1},1200,400]],map:[['The enclosure on the wiring map','part:encl']]},
+      {t:'Move the socket into the enclosure',d:'Unplugged, take the socket out of the back panel and mount it in the enclosure beside the Shelly. The wires into the machine pass through the old socket hole: fit a grommet or sleeve so the sheet-metal edge can\'t cut them, and tie them so nothing pulls on a terminal.',
+       a:[['sock',{y:0},0,1300],['grom',{o:1},1100,400]]},
+      {t:'Line: socket L to the Shelly\'s L',d:'SH1 from the socket\'s L tab to L, in a two-wire spade on the tab with AC1. AC1 still runs to power switch spade 5, but now it only carries the switch\'s signal to the Shelly.',
+       a:[['w1',{d:0},0,900],['w1t',{o:1},700,300],['ac1',{d:0},900,1200],['ac1t',{o:1},1900,300]],map:[['SH1 and AC1 on the wiring map','runs:SH1,AC1']]},
+      {t:'Neutral: a piggyback for the Shelly',d:'A piggyback spade on the socket\'s N tab, with SH2 crimped into it, runs to the Shelly\'s N. The neutral pair\'s two-wire spade plugs onto the piggyback\'s tab, so the machine\'s neutral never runs through the Shelly: Shelly\'s own docs warn against using its L and N terminals as a bridge, which doubles the current through them and can overheat it. G1 stays on the earth tab.',
+       a:[['pig',{o:1},0,300],['pigt',{o:1},0,300],['w2',{d:0},300,900],['w2t',{o:1},1000,300],['nn',{d:0},1200,900],['nnt',{o:1},1900,300],['g1',{d:0},2100,700],['g1t',{o:1},2600,300]],map:[['SH2 on the wiring map','run:SH2']]},
+      {t:'Switch: spade 4 to SW',d:'SH4 from power switch spade 4, where AC2 and AC3 used to be, to the Shelly\'s SW. With the switch on, it carries mains to SW. Everything shaded is live whenever the cord is in, even with the machine off: the socket, the Shelly, the power switch and their wires. The rest of the machine stays joined to neutral, and the app or a schedule can switch it on, so unplug before you open anything.',
+       a:[['w4',{d:0},0,1500],['w4t',{o:1},1300,300],['hot',{o:1},1800,500]],map:[['SH4 on the wiring map','run:SH4']]},
+      {t:'Output: O to splice S6',d:'SH3 from the Shelly\'s O to a BN2 splice by the power switch, S6, its stripped end folded back to fill the barrel, with AC2 and AC3 crimped into the other side, where they used to share spade 4. Everything after S6 is off while the Shelly is off.',
+       a:[['hot',{o:0},0,300],['s6',{o:1},200,300],['w3',{d:0},400,1300],['w3t',{o:1},1500,300],['ac23',{d:0},1700,700],['ac23t',{o:1},2300,300]],map:[['SH3 and splice S6 on the wiring map','runs:SH3,AC2,AC3']]},
+      {t:'Ferrules in the screw terminals',d:'Strip 6 mm, which suits both of Shelly\'s figures (6 to 7 mm for the 1PM Gen4, 5 to 6 mm for the Plus 1PM UL), and crimp a ferrule with a 6 mm sleeve on each wire end that goes into the Shelly, so no fine strand escapes the clamp. Push it fully in, tighten the screw (Shelly gives 0.4 Nm at most) and tug. One wire each in L, N, SW and O: the 1PM Gen4\'s spare L and N terminals stay empty, and nothing else goes on its terminals.',
+       a:[['sc2',{o:0},0,400],['sc3',{o:1},300,400],['strip',{o:1},700,400],['fer',{o:1},1300,500],['jaw',{o:1},1900,300],['jaw',{s:1},2200,400],['blk',{o:1},2800,500],['tq',{o:1},3300,300],['tug',{o:1},3700,300]]},
+      {t:'Check it with the meter',d:'Unplugged, the power-on checks add the Shelly\'s own: e30 to e35 for its paths, d8 to d10 for shorts on the switched side and h7 with the covers on. Inlet L to J11 no longer reads low: the relay is open while the Shelly has no power, so the switched side is checked from its O terminal.',
+       a:[['sc3',{o:0},0,300],['sc4',{o:1},200,400]],chk:[['e30','Inlet L ↔ Shelly L terminal'],['e31','Shelly O terminal ↔ PCB J11 spade'],['e32','Inlet L ↔ PCB J11 spade, through the open relay'],['d10','Shelly O terminal ↔ inlet N']]},
+      {t:'Set it up at first power-on',d:'Plug in with the power switch off: the machine stays dark. In the Shelly app, join it to your Wi-Fi and update it. Input mode Switch, output type Toggle Switch, for a power switch that latches; Button for one that springs back. Not Edge Switch: with it, flipping the rocker to off can turn the machine on. Action on power on: Turn OFF, so a power cut never starts it by itself. Leave Auto on off, and Auto recovery off under the output protections, so nothing switches it back on by itself. Auto off, if you want it, turns it off a set time after it comes on, used or not. The app shows the Shelly\'s own internal temperature: if it keeps climbing through a long heat-up and a steaming session, or the Shelly switches itself off, move it somewhere cooler.',
+       a:[['sc4',{o:0},0,300],['sc5',{o:1},200,400],['st1',{o:1},600,300],['st2',{o:1},900,300],['st3',{o:1},1200,300],['st4',{o:1},1500,300]],links:[['Runbook, phase 5','runbook.html#p5s2']]}
+    ]}};
+
 
   /* official photo links: one URL, or a list of URLs (or [url, when]) shown as numbered links */
   function phHtml(ph,lab){
@@ -1544,14 +1647,15 @@ td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:ta
       scr:['On the front, on the funnel or in the back vent, depending on the mount you print or order. Its cable runs inside to J1.'],
       tof:['Above the water tank, under the top of the machine, on its cable from J2 on the back of the PCB.'],
       fw:['Over Wi-Fi from a phone or computer, with the machine closed up; by wire only as a fallback.'],
-      scl:['Under the drip tray, on the machine\'s base, with a cable to J8.']};
+      scl:['Under the drip tray, on the machine\'s base, with a cable to J8.'],
+      shl:['Outside the case, in an enclosure at the socket hole with the socket moved into it. Its wires reach the power switch, and a splice beside it, through the old socket hole.']};
     for(var k in w){var e=$('pg-'+k+'-where');if(e)e.textContent=T(w[k])}
   }
 
   var guides={};
   function init(){
     where();
-    ['tc','ps','fuse','wire','ssr','sw','scr','tof','fw','scl'].forEach(function(k){guides[k]=new Guide(k,G[k])});
+    ['tc','ps','fuse','wire','ssr','sw','scr','tof','fw','scl','shl'].forEach(function(k){guides[k]=new Guide(k,G[k])});
     window.addEventListener('gaggia-machine',function(){where();for(var k in guides)if(guides[k].root)guides[k].setup(false)});
     window.addEventListener('hashchange',fromHash);fromHash();
   }

@@ -94,7 +94,7 @@
 .showall-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;margin:14px 0 0;padding:7px 12px;border:1px solid var(--line,#D5D9DC);border-radius:999px;background:var(--surface,#F9FAFA);color:var(--accent-ink,#8A4B00);font:500 14px/1.2 "Barlow",system-ui,sans-serif;cursor:pointer}
 .showall-btn:hover{border-color:var(--accent,#B8650A)}
 .showall-btn:focus-visible{outline:2px solid var(--accent,#B8650A);outline-offset:2px}
-</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="barista-school.html">Barista school</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a><a href="test-yourself.html">Test yourself</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html" aria-current="page">Runbook</a><a href="part-guides.html">Part guides</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
+</style></head><body><nav class="site-nav" aria-label="Site"><div class="in"><a class="brand" href="index.html">Gaggia × Gaggiuino<small>unofficial</small></a><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Pages</button><div class="nav-links" id="nav-links"><span class="grp"><span class="gl">Learn</span><a href="conversion.html">The conversion</a><a href="how-gaggia-works.html">How the Gaggia works</a><a href="barista-school.html">Barista school</a><a href="how-gaggiuino-works.html">How Gaggiuino works</a><a href="glossary.html">Glossary</a></span><span class="grp"><span class="gl">Plan</span><a href="budget.html">Budget</a><a href="used-checklist.html">Used Gaggia check</a><a href="which-gaggia.html">Which Gaggia</a><a href="parts-tracker.html">Parts tracker</a><a href="test-yourself.html">Test yourself</a></span><span class="grp"><span class="gl">Install</span><a href="runbook.html" aria-current="page">Runbook</a><a href="part-guides.html">Part guides</a><a href="wiring.html">Wiring</a><a href="cut-list.html">Cut list</a><a href="wire-labels.html">Wire labels</a><a href="power-on-checks.html">Power-on checks</a></span><span class="grp"><span class="gl">After</span><a href="troubleshooting.html">Troubleshooting</a></span></div><button type="button" class="mchip" id="mchip" aria-expanded="false" aria-controls="mpanel" aria-label="Your Gaggia: not set"><span class="mchip-k">Your Gaggia</span><b id="mchip-l">Set it</b></button></div><div class="mpanel" id="mpanel" hidden><div class="in"><div class="mrow"><span class="mk">Model</span><div class="mseg" role="group" aria-label="Model"><button type="button" data-mmodel="GC" aria-pressed="false">Classic</button><button type="button" data-mmodel="GCP" aria-pressed="false">Classic Pro</button><button type="button" data-mmodel="EVO" aria-pressed="false">Evo</button><button type="button" data-mmodel="E24" aria-pressed="false">E24</button></div></div><div class="mrow"><span class="mk">Mains</span><div class="mseg" role="group" aria-label="Mains voltage"><button type="button" data-mvolt="120" aria-pressed="false">120 V</button><button type="button" data-mvolt="230" aria-pressed="false">230 V</button></div></div><div class="mrow" id="m-eco-row" hidden><span class="mk">Eco</span><div class="mseg" role="group" aria-label="Eco board"><button type="button" data-meco="yes" aria-pressed="false">Eco board</button><button type="button" data-meco="no" aria-pressed="false">No Eco board</button></div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have it: the machine turns itself off after 20 idle minutes and the power switch springs back when you let go.</span></div><div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path"><button type="button" data-mpath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-mpath="CW" aria-pressed="false">Custom wiring</button></div><span class="mh">Stock wiring keeps the machine's harness and adds a few wires; custom wiring replaces it.</span></div><div class="mrow"><span class="mk">Extras</span><div class="mseg" role="group" aria-label="Add-ons"><button type="button" data-mshelly aria-pressed="false">Shelly smart relay</button></div><span class="mh">Optional and unofficial: switch the machine on and off from your phone. Adds its wires, checks and steps to the pages. Drawn for Pro-family machines on custom wiring.</span></div><p class="mh" id="m-eco-note" hidden>Eco-board machines need the power switch mod, and the official guide recommends custom wiring for them.</p><p id="m-summary"></p><div class="mact"><a href="which-gaggia.html">Not sure which you have? Identify your Gaggia</a><button type="button" id="m-clear">Clear</button><button type="button" id="m-done">Done</button></div></div></div></nav><div class="nav-scrim" id="nav-scrim" hidden></div><script>(function(){var n=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};if(n.type==='back_forward')return;var moved=false;['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){moved=true},{once:true,passive:true})});function go(){if(moved)return;try{var h=location.hash;if(h){var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return}window.scrollTo(0,0);var e=document.body&&document.body.firstElementChild;if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})}catch(x){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();addEventListener('load',go)})();</script><script>(function(){var nav=document.querySelector('.site-nav');if(!nav)return;var root=document.documentElement,last=0,acc=0,ticking=false,hidden=false,hold=0,touched=false;function h(){return nav.offsetHeight}function fv(a){try{return a.matches(':focus-visible')}catch(e){return true}}function busy(){var t=document.getElementById('nav-toggle'),p=document.getElementById('mpanel'),a=document.activeElement;return (t&&t.getAttribute('aria-expanded')==='true')||(p&&!p.hidden)||(a&&a!==document.body&&nav.contains(a)&&fv(a))}function cover(){root.style.setProperty('--nav-cover',hidden?'0px':h()+'px')}function set(hide){hidden=hide;nav.classList.toggle('nav-hide',hide);cover()}function Y(){var y=window.pageYOffset||0,m=Math.max(0,root.scrollHeight-innerHeight);return y<0?0:y>m?m:y}function update(){ticking=false;var y=Y(),d=y-last;last=y;nav.classList.toggle('nav-float',y>2);if(y<=h()||busy()){acc=0;if(hidden)set(false);return}if(Date.now()<hold||Math.abs(d)>innerHeight*0.8){acc=0;if(!hidden)set(true);return}if((d>0)!==(acc>0))acc=0;acc+=d;if(acc>10&&!hidden)set(true);else if(acc<-24&&hidden)set(false)}function jump(){last=Y();acc=0;if(last>h()&&!busy())set(true)}addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});addEventListener('hashchange',function(){hold=Date.now()+600;jump()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="#"]');if(a&&a.hash&&a.pathname===location.pathname&&a.host===location.host){hold=Date.now()+600;setTimeout(jump,0)}},true);nav.addEventListener('focusin',function(e){if(hidden&&fv(e.target))set(false)});['wheel','touchstart','keydown'].forEach(function(t){addEventListener(t,function(){touched=true},{once:true,passive:true})});if(window.ResizeObserver)new ResizeObserver(function(){if(!hidden)cover()}).observe(nav);set(false);function init(){last=Y();if(location.hash&&last>h()&&!touched)set(true)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();addEventListener('load',init)})();</script><script>/* Site-wide "your Gaggia" profile: model, mains voltage, Eco board (230 V Classic Pro only) and install path.
    Every field is optional. Elements with data-when="model:GCP,EVO;volts:120;path:SI" show only when every
    condition matches. A field the user hasn't set never hides anything: with no model, every model's notes
    show; with no voltage, both voltages' notes show and the wording stays generic. Nothing is filled in for them.
@@ -107,6 +107,9 @@
      ground                 120 V original Classic: often a 2-pin cord, needs grounding
      siok                   stock wiring integration is open to this machine (not a 230 V Pro-family one, which has no drawing for it)
      path:SI | path:CW      stock wiring integration or custom wiring, as picked
+     shelly                 the Shelly smart relay add-on (unofficial), only once the reader has chosen it. It's drawn for
+                            Pro-family machines on custom wiring, so it's off for the original Classic and for stock wiring.
+                            Unlike the other fields, not choosing it hides its content: it's an add-on, not a fact to narrow down.
      wpath:SI | wpath:CW    the wiring the pages use: a 230 V Pro-family machine has no official stock-integration drawing,
                             so it gets custom wiring even when stock wiring is picked
      set:model,volts,path   true only once every named field is picked (for wording that replaces a combined version)
@@ -136,8 +139,9 @@
     /* any 230 V Pro-family machine can go either way: most EU and UK ones have the Eco board, other markets aren't confirmed */
     var eco=pro(model)&&volts===230&&(s.eco===true||s.eco===false)?s.eco:null;
     var path=s.path==='SI'||s.path==='CW'?s.path:null;
-    if(!model&&!volts&&!path)return null;
-    return {model:model,volts:volts,eco:eco,path:path};
+    var shelly=s.shelly===true;
+    if(!model&&!volts&&!path&&!shelly)return null;
+    return {model:model,volts:volts,eco:eco,path:path,shelly:shelly};
   }
   function read(){try{return clean(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return null}}
   var prof=read();
@@ -157,6 +161,16 @@
     if(p.model)return p.volts===120?'SI':p.volts===230?'CW':null;
     return p.volts===120?'SI':null;
   }
+  /* the Shelly add-on: true once chosen on a machine it's drawn for (a Pro-family one on custom wiring), false when it
+     isn't chosen or doesn't fit, null while it's chosen but the model or the wiring is still open */
+  function shellyOf(p){
+    if(!p||!p.shelly)return false;
+    if(p.model==='GC')return false;
+    var w=wpathOf(p);
+    if(w==='SI')return false;
+    if(!p.model||!w)return null;
+    return true;
+  }
   function conds(when){
     return String(when||'').split(';').map(function(c){
       c=c.trim();var i=c.indexOf(':');return {k:i<0?c:c.slice(0,i),vals:i<0?[]:c.slice(i+1).split(',')};
@@ -165,7 +179,7 @@
   /* true unless the profile rules the element out; unknown fields never rule anything out */
   function matches(when){
     if(!when)return true;
-    if(!prof)return conds(when).every(function(c){return c.k!=='set'});
+    if(!prof)return conds(when).every(function(c){return c.k!=='set'&&c.k!=='shelly'});
     return conds(when).every(one);
   }
   /* one condition; "!key" is true when the field is decided and the condition doesn't hold, and never hides while it's open */
@@ -184,12 +198,14 @@
       if(c.k==='wpath'){var w=wpathOf(prof);return !w||c.vals.indexOf(w)>=0}
       if(c.k==='set')return c.vals.every(function(f){return !!prof[f]});
       if(c.k==='unset')return c.vals.some(function(f){return !prof[f]});
+      if(c.k==='shelly')return shellyOf(prof)!==false;
       return true;
     })(c);
   }
   /* true when the profile pins down every field the condition depends on (so a "which machines" tag adds nothing) */
   function decided(when){
-    if(!prof)return false;
+    /* with nothing picked, the Shelly is still known: it's off until chosen */
+    if(!prof)return conds(when).every(function(c){return c.k==='shelly'||c.k==='!shelly'});
     return conds(when).every(decidedOne);
   }
   function decidedOne(c){
@@ -205,6 +221,7 @@
       if(c.k==='path')return !!prof.path;
       if(c.k==='wpath')return wpathOf(prof)!==null;
       if(c.k==='set'||c.k==='unset')return true;
+      if(c.k==='shelly')return shellyOf(prof)!==null;
       return true;
     })(c);
   }
@@ -218,13 +235,15 @@
   function txt(x){
     if(x==null)return '';
     if(!Array.isArray(x))return String(x);
-    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ');
+    /* a segment that starts with punctuation (", and h7 for the Shelly,") joins without a space before it */
+    return x.filter(function(seg){return typeof seg==='string'||matches(seg[1])}).map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' ').replace(/ ([,.;:])/g,'$1');
   }
   function text(key){var t=TEXT[key];if(!t)return '';return prof&&prof.volts?t[String(prof.volts)]:t['']}
   function label(p){
     p=p||prof;if(!p)return 'Set it';
     var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
     if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    if(shellyOf(p))a.push('Shelly');
     return a.join(', ');
   }
   function missing(p){
@@ -246,7 +265,10 @@
     var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
     var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
     var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
-    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more;
+    var sh=shellyOf(p),shs=sh?' The Shelly smart relay\'s wires, checks and steps are added.':
+      sh===null?' The Shelly smart relay is drawn for Pro-family machines on custom wiring; its steps show as well until yours is known.':
+      p.shelly?' The Shelly smart relay is drawn for Pro-family machines on custom wiring only, so the pages leave it out for yours.':'';
+    return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more+shs;
   }
   function apply(root){
     root=root||document;
@@ -273,6 +295,7 @@
     var l=document.getElementById('mchip-l');
     if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
       var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      if(shellyOf(prof))x+=(x?', ':'')+'Shelly';
       l.textContent=!prof?'Set it':main.length?main.join(', '):x;
       if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}
     var ch=document.getElementById('mchip');if(ch){ch.classList.toggle('set',!!prof);ch.setAttribute('aria-label','Your Gaggia: '+(prof?label():'not set'))}
@@ -285,7 +308,7 @@
     try{window.dispatchEvent(new CustomEvent('gaggia-machine',{detail:prof}))}catch(e){}
   }
   /* start from what's saved, never from guesses */
-  function current(){return Object.assign({model:null,volts:null,eco:null,path:null},prof||{})}
+  function current(){return Object.assign({model:null,volts:null,eco:null,path:null,shelly:false},prof||{})}
   /* ---- nav panel ---- */
   function syncPanel(){
     var pan=document.getElementById('mpanel');if(!pan)return;
@@ -294,6 +317,7 @@
     Array.prototype.forEach.call(pan.querySelectorAll('[data-mvolt]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-mvolt'))===p.volts))});
     Array.prototype.forEach.call(pan.querySelectorAll('[data-meco]'),function(b){b.setAttribute('aria-pressed',String(p.eco!==null&&p.eco!==undefined&&(b.getAttribute('data-meco')==='yes')===p.eco))});
     Array.prototype.forEach.call(pan.querySelectorAll('[data-mpath]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-mpath')===p.path))});
+    Array.prototype.forEach.call(pan.querySelectorAll('[data-mshelly]'),function(b){b.setAttribute('aria-pressed',String(!!p.shelly))});
     var er=document.getElementById('m-eco-row');if(er)er.hidden=!(pro(p.model)&&p.volts===230);
     var en=document.getElementById('m-eco-note');if(en)en.hidden=!(e===true);
     var s=document.getElementById('m-summary');if(s)s.textContent=summary();
@@ -317,6 +341,7 @@
         else if(b.hasAttribute('data-mvolt'))p.volts=Number(b.getAttribute('data-mvolt'));
         else if(b.hasAttribute('data-meco'))p.eco=b.getAttribute('data-meco')==='yes';
         else if(b.hasAttribute('data-mpath'))p.path=b.getAttribute('data-mpath');
+        else if(b.hasAttribute('data-mshelly'))p.shelly=!p.shelly;
         else if(b.id==='m-clear'){set(null);return}
         else if(b.id==='m-done'){pan.hidden=true;chip.setAttribute('aria-expanded','false');sync();chip.focus();return}
         else return;
@@ -331,7 +356,7 @@
         var p=current();
         String(b.getAttribute('data-setmachine')).split(';').forEach(function(kv){
           var i=kv.indexOf(':');if(i<0)return;var k=kv.slice(0,i).trim(),v=kv.slice(i+1).trim();
-          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;
+          if(k==='model')p.model=v;else if(k==='volts')p.volts=Number(v);else if(k==='eco')p.eco=v==='yes';else if(k==='path')p.path=v;else if(k==='shelly')p.shelly=v==='yes';
         });
         set(p);
       });
@@ -361,7 +386,7 @@
     try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
     if(pan.hidden)chip.click();
   }
-  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},names:NAMES};
+  window.GaggiaMachine={get:function(){return prof},txt:txt,vtext:vtext,openPanel:openPanel,name:function(){return prof&&prof.model?longName(prof.model,prof.volts):null},set:set,current:current,matches:matches,decided:decided,text:text,label:label,missing:missing,summary:summary,apply:apply,eco:function(){return ecoOf(prof)},wpath:function(){return wpathOf(prof)},shelly:function(){return shellyOf(prof)},names:NAMES};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
 </script>
@@ -543,14 +568,14 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       <a href="troubleshooting.html">Troubleshooting</a>
       <a href="parts-tracker.html">Parts tracker</a>
     </div>
-    <p class="fine">Steps follow the official Gaggiuino guides: the build process, PCB, stock wiring integration, custom wiring, machine-specific, screen, flashing and Gen 3 manual pages. A step tagged Official is the guide's own instruction, summarized; one tagged Practice is ordinary bench practice added here. Where the two ever disagree, follow the official guide.</p>
+    <p class="fine">Steps follow the official Gaggiuino guides: the build process, PCB, stock wiring integration, custom wiring, machine-specific, screen, flashing and Gen 3 manual pages. A step tagged Official is the guide's own instruction, summarized; one tagged Practice is ordinary bench practice added here.<span data-when="shelly"> The Shelly's steps are tagged Community (from fusio's build on the Gaggiuino Discord, not the official docs), Shelly docs, or Practice.</span> Where the two ever disagree, follow the official guide.</p>
     <button type="button" class="linkbtn" id="reset">Clear all ticks</button>
   </footer>
 </div>
 
 <script>
 (function(){
-  var L={wiring:'wiring.html',labels:'wire-labels.html',checks:'power-on-checks.html',which:'which-gaggia.html',cut:'cut-list.html',trouble:'troubleshooting.html',models:'model-notes.html',gscr:'part-guides.html#scr',gtof:'part-guides.html#tof',gfw:'part-guides.html#fw',gscl:'part-guides.html#scl'};
+  var L={wiring:'wiring.html',labels:'wire-labels.html',checks:'power-on-checks.html',which:'which-gaggia.html',cut:'cut-list.html',trouble:'troubleshooting.html',models:'model-notes.html',gscr:'part-guides.html#scr',gtof:'part-guides.html#tof',gfw:'part-guides.html#fw',gscl:'part-guides.html#scl',gshl:'part-guides.html#shl'};
   /* Sections of the official Gaggiuino docs (docsify: #/page?id=heading-slug). Headings checked against the docs source, Sept 2026. */
   var O='https://gaggiuino.github.io/#/',SI=O+'guides-stm32/3pln-stock-wiring-integration',CW=O+'guides-stm32/3pln-custom-wiring',MS=O+'guides/machine-specific-guide',MAN=O+'learning/user-manual-gen3';
   var OFF={
@@ -583,6 +608,9 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p0c',t:'Get silicone tape for the switch connector block',d:'Most Evo and E24 machines gather each switch\'s connectors in one combined block. Each connector comes out, gets its own self-fusing silicone tape or 6 mm silicone heat shrink, and a label.',src:'Official',off:['Combined Connector Insulation',OFF.cci],w:'model:EVO,E24'},
       {id:'p0h',t:'If you want help, open one Discord thread',d:[['One thread per person and machine: #install-help-gc for a Classic, #install-help-gcp for the Pro family.','unset:model'],['One thread per person and machine, in #install-help-gc for the Classic.','set:model;fam:GC'],['One thread per person and machine, in #install-help-gcp for the Pro family.','set:model;fam:GCP'],'Title it [username][machine][control system] plus a short title, and rename it as your questions change.'],src:'Official',off:['Build process',OFF.build]},
       {id:'p0t',t:'Get the tools on the bench',d:'A multimeter, crimpers (an insulated-terminal one for spades and forks, an open-barrel one for the bare spades at the boiler, and one for butt splices if a wire comes up short), wire strippers, a heat gun, self-fusing silicone tape, an oil-based marker (it writes on silicone), Kapton tape and zip ties.',src:'Practice'},
+      {id:'p0s',t:'Shelly: pick a 1PM Gen4',d:'It switches 16 A and reports the power the machine draws; in North America, get the UL-certified version, rated 15 A. Not a Mini: those switch 8 A, and a 120 V Pro draws about 12 A. The Shelly isn\'t in the official docs: it\'s a community mod, and this site draws it from fusio\'s Classic Pro build.',src:'Community',link:['Part guide: Shelly','gshl'],w:'shelly'},
+      {id:'p0s2',t:'Shelly: plan where it goes',d:'Shelly rates it for 40 °C around it at most, and inside the machine likely runs hotter. fusio mounts it outside, in a printed enclosure that takes the socket\'s place at the socket hole, so its wires go from the case straight into it and never run in the open (a metal enclosure would need earthing); order the print if you don\'t have a printer, and this site suggests a heat-tolerant material rather than PLA. If you pick his version with an EMI filter, check the filter\'s rating: a 120 V Pro draws about 12 A.',src:'Community',link:['Part guide: Shelly','gshl'],w:'shelly'},
+      {id:'p0s3',t:'Shelly: know what stays live',d:'The socket, the Shelly, the power switch and their wires are live whenever the cord is in, even with the machine off. The relay breaks line only, like custom wiring\'s power switch, so the rest of the machine stays joined to the outlet\'s neutral, and with a plug that fits either way round that can be line. The app or a schedule can also switch it on at any time. Unplug before you open anything.',src:'Practice',w:'shelly'},
       {id:'p0l',t:'Print the labels',d:'The guide suggests labeling every stock connector before you move it, so the work can be traced and undone. The wire labels page prints the guide\'s own names.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels']}
     ]},
     {id:'p1',n:'Phase 1',name:'Bench test',goal:'Prove the PCB, screen and sensors on the bench before anything goes into the machine. Faults are far easier to find here.',steps:[
@@ -603,12 +631,14 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p2b2',t:'Label the stock connectors',d:'With an oil-based marker, using the guide\'s names: the switch assembly\'s numbered positions, heaters H1 to H4, steam thermostat Sa and Sb, brew thermostat Ba and Bb, valve Va and Vb, pump Pa and Pb, and the pump fuse F.',src:'Official',off:['Open machine',OFF.siOpen],link:['Wire labels','labels'],w:'fam:GC',map:[['The stock connectors on the wiring map','','wpath:SI',null,'SI']]},
       {id:'p2c',t:'Compare your wiring with the schematic',d:'Stock wire colors and connector positions, especially at the pump, don\'t always match the drawings. Check your machine against the schematic for your model before moving anything, and ask in your help thread if anything is unclear.',src:'Official',off:['Schematics',OFF.siSchem],w:'wpath:SI',map:''},
       {id:'p2d',t:'Split and insulate the switch connector block',d:'Easier with the switch or boiler out. Press each connector\'s locking tab with a small screwdriver, pull it out the back, insulate it with silicone tape or 6 mm heat shrink, and label it. Do them one at a time.',src:'Official',off:['Combined Connector Insulation',OFF.cci],w:'model:EVO,E24'},
-      {id:'p2e',t:'Do the power switch mod',d:'Take the power switch out, release its side walls with a thin pry tool, remove the third spring and reassemble. The switch then stays on when pressed instead of springing back.',src:'Official',off:['Power Switch Mod',OFF.psm],w:'eco:yes'},
+      {id:'p2e',t:'Do the power switch mod',d:'Take the power switch out, release its side walls with a thin pry tool, remove the third spring and reassemble. The switch then stays on when pressed instead of springing back.',src:'Official',off:['Power Switch Mod',OFF.psm],w:'eco:yes;!shelly'},
+      {id:'p2e2',t:'Power switch: the mod, or the spring kept for the Shelly',d:'With the Shelly, the switch only signals it, so either works. The official mod (one spring out) makes it latch: set the Shelly\'s input to Switch, output type Toggle Switch. Or leave the spring in, which fusio offers as an option, and set the input to Button: each press then toggles the machine.',src:'Official / Community',off:['Power Switch Mod',OFF.psm],w:'eco:yes;shelly'},
       {id:'p2f',t:'Fit the grounded inlet and ground wires',d:'A three-pin C14 inlet in place of the two-pin socket, a grounded cord, and ground wires from the inlet to the boiler fuse clip and on to the cup warmer, with uninsulated spades at the boiler. Note which inlet wire is line and which is neutral; on some machines they\'re swapped. Earth never connects to the PCB\'s 5 V ground.',src:'Official',off:['Grounding',OFF.ground],w:'ground',map:[['Earth wires on the wiring map','layer:E','wpath:CW',null,'CW']]},
       {id:'p2g',t:'Raise the OPV to 10 to 12 bar',d:'Open the OPV and fit the 12 bar spring, or put M3 washers behind the 9 bar spring: 4 if they\'re 0.5 mm thick, 3 if they\'re 0.8 mm. You\'ll check it with a blank basket in Phase 5.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
       {id:'p2h',t:'Build the new harness',d:'From the custom wiring schematic for your model and voltage, reusing components from the stock harness on new wire. Cut each run from the cut list and label both ends before crimping.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],link:['Cut list','cut'],w:'wpath:CW',map:[['Every run on the wiring map','']]},
       {id:'p2i',t:'Fork terminals on all four SSR terminals',d:'Two load, two control. The schematic calls for them.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],w:'wpath:CW',map:'part:ssr'},
       {id:'p2j',t:'High-temperature ends at the boiler',d:'Uninsulated spades crimped with an open-barrel crimper, then silicone heat shrink or self-fusing silicone tape over them. Nylon-insulated spades are rated to only 105 °C.',src:'Official',off:['Alternate Components',OFF.cwAlt],w:'wpath:CW',map:'part:boiler'},
+      {id:'p2s',t:'Shelly: make its four wires',d:'SH1 to SH4 from the cut list, with a ferrule on each Shelly end, a piggyback spade (red, for one 18 AWG wire) for SH2 on the socket\'s N tab, and splice S6 for SH3, AC2 and AC3, SH3 alone on its side with its stripped end folded back. If the socket moves into the enclosure, cut AC1, the neutral pair and G1 longer by its depth.',src:'Community',link:['Cut list','cut'],w:'shelly',map:[['The Shelly runs on the wiring map','runs:SH1,SH2,SH3,SH4','shelly']]},
       {id:'p2k',t:'Pull-test every crimp',d:'A firm tug. Redo any that move.',src:'Practice'}
     ]},
     {id:'p3',n:'Phase 3',name:'Sensors',goal:'Thermocouple and pressure transducer in. Both are easier with the boiler tipped up.',guide:['Each step drawn on Part guides','part-guides.html'],steps:[
@@ -633,6 +663,8 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p4g',t:'Insulate every connector left loose',d:'Stock connectors that are now unplugged stay in the machine. Insulate each one and tie it so it can\'t touch anything.',src:'Official',off:['Internal Finishing Touches',OFF.siFinish],w:'wpath:SI',map:[['Parked connectors on the wiring map','part:f:S5|housing']]},
       {id:'p4h',t:'Mount the SSR through a vent slot',d:'An M4 or 8-32 screw, washer and nut on the back wall, with room above for the funnel piece and its screw, and clear of the pump and its housing.',src:'Official',off:['SSR',OFF.cwSsr],w:'wpath:CW',map:'part:ssr'},
       {id:'p4i',t:'Fit the harness run by run',d:'Against the schematic for your model and voltage. Tick each run off the cut list as it goes in.',src:'Official',off:['Custom Wire Harness Schematics',OFF.cwSchem],w:'wpath:CW',map:[['Every run on the wiring map','']]},
+      {id:'p4s',t:'Shelly: mount it and the socket outside',d:'The socket goes into the enclosure at the socket hole with the Shelly beside it. Where the wires pass the panel, a grommet or sleeve keeps the edge off them; tie them so nothing pulls on a terminal.',src:'Community',link:['Part guide: Shelly','gshl'],w:'shelly',map:[['The enclosure on the wiring map','part:encl','shelly']]},
+      {id:'p4s2',t:'Shelly: wire it as the wiring page shows',d:'Socket L to L (SH1, on AC1\'s spade), socket N to N (SH2, on a piggyback, so the machine\'s neutral bypasses the Shelly), O to splice S6 (SH3) and power switch spade 4 to SW (SH4). Each in a ferrule, screw tightened to 0.4 Nm at most, one wire each in L, N, SW and O, nothing else on the Shelly.',src:'Community',link:['Part guide: Shelly','gshl'],w:'shelly',map:[['The Shelly runs on the wiring map','runs:SH1,SH2,SH3,SH4','shelly']]},
       {id:'p4k',t:'Keep mains and low voltage apart',d:[['The stock integration guide suggests','!wpath:CW'],['The official guide suggests','set:path;path:CW'],['The official guide suggests','set:path,model,volts;path:SI;wpath:CW'],'AC wires on the left side of the case, above the thermocouple wire, and DC wires and sensors on the right. Nothing but silicone-jacketed wire rated to 200 °C may touch the boiler or the steam wand.'],src:'Official',offp:{SI:['Switch',OFF.siSwitch],CW:['Internal Finishing Touches',OFF.cwFinish]},map:[['Low-voltage wires on the wiring map','layer:lv']]},
       {id:'p4l',t:'Feed the screen and ST-Link wires out the back',d:'Take the pins out of the screen connector so the wires fit through the vent, noting which goes where so each goes back in the same place. Sleeve the bundle in heat shrink where it passes the sharp vent (don\'t shrink it), feed it out through the back vents, and stick the ST-Link down with double-sided tape.',src:'Official',offp:{SI:['Internal Finishing Touches',OFF.siFinish],CW:['Internal Finishing Touches',OFF.cwFinish]},map:'run:SCR'},
       {id:'p4m',t:'Tie the bundles down',d:'Zip ties, with nothing able to drift onto the boiler, the wand or a spade.',src:'Official',offp:{SI:['Internal Finishing Touches',OFF.siFinish],CW:['Internal Finishing Touches',OFF.cwFinish]}},
@@ -642,16 +674,19 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p5a',t:'Mount the screen',d:'Front, funnel or rear mount, as the screen guide shows for the mount you have. Plug the small screen connectors in first; they pass through the housing gaps more easily than the other end.',link:['Part guide: screen housing','gscr'],src:'Official',off:['Interface: Screen',OFF.screen],map:'run:SCR'},
       {id:'p5b',t:'Funnel and cup warmer back on, then the last checks',d:'Reconnect their earth wires as each part goes on, as the screen guide reminds you. Then run Covers on, the last section of the power-on checks, before anything gets plugged in.',src:'Official',off:['Interface: Screen',OFF.screen],link:['Power-on checks','checks']},
       {id:'p5c',t:'Tank full, drip tray in',d:'Portafilter out, a cup under the group.',src:'Practice'},
-      {id:'p5d',t:'Plug in and switch on',d:'Use a {outlet}. Stay by the plug. At any smell, smoke, trip or odd noise, unplug first and investigate after.',src:'Practice'},
+      {id:'p5d',t:'Plug in and switch on',d:'Use a {outlet}. Stay by the plug. At any smell, smoke, trip or odd noise, unplug first and investigate after.',src:'Practice',w:'!shelly'},
+      {id:'p5s',t:'Shelly: plug in with the power switch off',d:'Use a {outlet} and stay by the plug. The Shelly starts up and the machine should stay dark. If it comes on anyway, unplug and rerun e32 and e34; if both pass, check Action on power on and the input mode in the app, which the next step sets. At any smell, smoke, trip or odd noise, unplug first.',src:'Practice',w:'shelly',link:['Power-on checks','checks']},
+      {id:'p5s2',t:'Shelly: set it up in the Shelly app',d:'Join it to your Wi-Fi and update its firmware. Then input mode Switch, output type Toggle Switch, for a power switch that latches: the rocker\'s position is on or off. Not Edge Switch: with it, flipping the rocker to off can turn the machine on. Button for a switch that springs back. Action on power on: Turn OFF, so it never starts by itself after a power cut. Leave Auto on off, and Auto recovery off under the output protections, so nothing switches it back on by itself.',src:'Shelly docs',off:['Shelly 1PM Gen4 web interface','https://www.shelly.com/blogs/documentation/shelly-1pm-gen4-web-interface-guide'],w:'shelly'},
+      {id:'p5s3',t:'Shelly: switch on with the power switch',d:'The relay clicks and the machine comes on: lamps, then the screen. Go straight on to filling the boiler; once it\'s full, switch it off and on once from the app too.',src:'Practice',w:'shelly'},
       {id:'p5e',t:'Fill the boiler first',d:'Before anything else: turn on Flush and run it until water comes out of the group for 5 seconds or more.',src:'Official',off:['Initial Startup',OFF.start]},
       {id:'p5f',t:'Watch the temperature rise',d:'Once the boiler is full, the temperature must climb while the SSR light is on. If it falls instead, switch off and unplug: the thermocouple wires are reversed.',src:'Practice',map:'run:TC'},
       {id:'p5g',t:'T-fitting: run [UT] Tube Fill',d:'From Community Profiles in the web UI. It fills the sensor line so there\'s no air in it.',src:'Official',off:['Initial Startup',OFF.start]},
       {id:'p5h',t:'Tap block: flush, then test',d:'Run Flush for 10 seconds with the group open to fill the system, then flush with a blank basket to test pressure.',src:'Official',offp:{SI:['Pressure Transducer',OFF.siPt],CW:['Pressure Transducer',OFF.cwPt]}},
       {id:'p5i',t:'Run [UT] Test OPV with a blank basket',d:'It passes at a peak of 10.5 to 13 bar, with water moving through the OPV tubing and no leaks. That range, from the Gen 3 manual, is the pass mark on every model.',src:'Official',off:['Initial Startup',OFF.start]},
       {id:'p5j',t:'If the OPV peaks below 10.5 bar, add a washer',d:'On a US Evo Pro or E24 with the washer method, add one more M3 washer and run [UT] Test OPV again. The machine-specific guide aims the OPV itself at 10 to 12 bar; the test above is the one to pass.',src:'Official',off:['Machine-specific: 10-12 Bar OPV',OFF.opv],w:'opv9'},
-      {id:'p5k',t:'Check for leaks, unplugged',d:'Switch off and unplug first. Lift the cup warmer and touch a dry paper towel to the T or tap block, the transducer and the thermocouple. Close it up and rerun h1 to h6 of the power-on checks before you plug back in.',src:'Practice',link:['Power-on checks','checks']},
+      {id:'p5k',t:'Check for leaks, unplugged',d:['Switch off and unplug first. Lift the cup warmer and touch a dry paper towel to the T or tap block, the transducer and the thermocouple. Close it up and rerun h1 to h6 of the power-on checks',[', and h7 for the Shelly,','shelly'],'before you plug back in.'],src:'Practice',link:['Power-on checks','checks']},
       {id:'p5l',t:'Try each switch',d:'Brew runs the pump, steam switches the target to steam temperature, and brew and steam together start hot water mode.',src:'Official',off:['Gaggiuino Tips',OFF.manual+'?id=gaggiuino-tips']},
-      {id:'p5m',t:'Let it heat and settle',d:'Give it 10 to 15 minutes to reach thermal equilibrium. Anything odd: the troubleshooting page goes symptom by symptom.',src:'Official',link:['Troubleshooting','trouble']}
+      {id:'p5m',t:'Let it heat and settle',d:['Give it 10 to 15 minutes to reach thermal equilibrium.',['With the Shelly, watch its temperature in the app too, through a long heat-up and a steaming session. That\'s its own internal temperature, not the air around it: if it keeps climbing, or the Shelly switches itself off, move it somewhere cooler.','shelly'],'Anything odd: the troubleshooting page goes symptom by symptom.'],src:'Official',link:['Troubleshooting','trouble']}
     ]},
     {id:'p6',n:'Phase 6',name:'Calibrate',goal:'Tune Gaggiuino to this pump and boiler.',note:'Leave Settings, Boiler on the defaults. The Gen 3 manual recommends them for the Gaggia Classic and the Classic Pro family.',steps:[
       {id:'p6a',t:'Run [UT] PZ Cal',d:'Calibrates Pump Zero, the water moved per pump pulse at 0 bar. Follow the profile\'s own instructions.',src:'Official',off:['PZ Calibration',OFF.pz]},
@@ -662,10 +697,11 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       {id:'p6f',t:'Check the ToFnLED, if fitted',d:'Tank level on the home screen, and the LED settings.',link:['Part guide: ToFnLED','gtof'],src:'Official',off:['ToFnLED',OFF.tof]}
     ]},
     {id:'p7',n:'Phase 7',name:'Finish',goal:'Tidy up, write down what you ended with, and learn the cleaning routines.',steps:[
-      {id:'p7a',t:'Final tidy, unplugged',d:'Zip ties where they\'re needed and Kapton tape on the screen cable. Close it up again and rerun h1 to h6 of the power-on checks before you plug back in.',src:'Practice',link:['Power-on checks','checks']},
+      {id:'p7a',t:'Final tidy, unplugged',d:['Zip ties where they\'re needed and Kapton tape on the screen cable. Close it up again and rerun h1 to h6 of the power-on checks',[', and h7 for the Shelly,','shelly'],'before you plug back in.'],src:'Practice',link:['Power-on checks','checks']},
       {id:'p7b',t:'Post your first start and first shot',d:'The official build process asks you to record both and post them to #first-start and #first-shot on Discord.',src:'Official',off:['Build process',OFF.build]},
       {id:'p7c',t:'Learn the cleaning routines',d:'Backflush with a blind basket in Flush mode. Descale from the Descale button, about 30 minutes a tank, then a second tank of clean water.',src:'Official',off:['Cleaning',OFF.clean]},
       {id:'p7d',t:'Write down your final settings',d:'In the notes below, along with anything you\'d do differently.',src:'Practice'},
+      {id:'p7s',t:'Shelly: a timer and schedules, if you want them',d:'Auto off in the Shelly\'s timers turns the machine off a set time after it comes on, used or not, unlike the Eco board, which waits for 20 idle minutes; set it longer than your longest session. A schedule can switch it on before you get up, but only switch it on from afar with water in the tank, the boiler full, and the brew and steam switches off: the PCB fills the boiler at start-up, and with steam on it would heat to the steam setpoint with no one there. End each session with water through the group after steaming, as Gaggia\'s manual says.',src:'Shelly docs',off:['Shelly 1PM Gen4 web interface','https://www.shelly.com/blogs/documentation/shelly-1pm-gen4-web-interface-guide'],w:'shelly'},
       {id:'p7e',t:'Hardware scales or ToFnLED (optional)',d:'Each one is independent of the core install and has its own official guide.',src:'Official',off:['Hardware Scales',OFF.scales]}
     ]}
   ];
@@ -706,6 +742,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       else if(k==='ground')out.push('120 V Classic');
       else if(k==='siok')out.push('Classic or 120 V Pro family');
       else if(k==='path'||k==='wpath')out.push(v[0]==='SI'?'Stock wiring':'Custom wiring');
+      else if(k==='shelly')out.push('With the Shelly');
     });
     return out.join(' · ');
   }
