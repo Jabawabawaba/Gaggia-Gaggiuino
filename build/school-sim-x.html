@@ -1,0 +1,120 @@
+      <!-- Barista school: the inside, seen from the right side with the front on the left; forked from learn-sim.html, school-sim.js runs it -->
+      <svg id="sim-x" class="simx" viewBox="0 0 680 460" role="img" aria-label="Inside the machine, from the right side, front on the left: tank, pump, boiler, group, 3-way valve, steam wand">
+        <defs>
+          <linearGradient id="sx-alu" x1="0" x2="1"><stop offset="0" stop-color="#8E979F"/><stop offset=".45" stop-color="#D5DADF"/><stop offset=".75" stop-color="#B3BAC1"/><stop offset="1" stop-color="#848D95"/></linearGradient>
+          <linearGradient id="sx-brassb" x1="0" x2="1"><stop offset="0" stop-color="#9C7A36"/><stop offset=".4" stop-color="#E2C27C"/><stop offset=".7" stop-color="#C39A4E"/><stop offset="1" stop-color="#8E6C2C"/></linearGradient>
+          <linearGradient id="sx-chrome" x1="0" x2="1"><stop offset="0" stop-color="#7C848B"/><stop offset=".35" stop-color="#EEF1F3"/><stop offset=".65" stop-color="#B4BBC1"/><stop offset="1" stop-color="#737B82"/></linearGradient>
+          <linearGradient id="sx-steam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/><stop offset="1" stop-color="#D8E2EA" stop-opacity=".75"/></linearGradient>
+          <radialGradient id="sx-glowg" cx="50%" cy="55%" r="65%"><stop offset="0" stop-color="#FF9A3C" stop-opacity=".9"/><stop offset=".6" stop-color="#F27A1A" stop-opacity=".3"/><stop offset="1" stop-color="#F27A1A" stop-opacity="0"/></radialGradient>
+          <pattern id="sx-grate" width="8" height="5" patternUnits="userSpaceOnUse"><rect width="8" height="5" fill="#B9C0C6"/><rect x="2" y="1" width="4" height="3" rx="1" fill="#3B4045"/></pattern>
+          <clipPath id="sx-bclip"><rect x="164" y="110" width="152" height="98" rx="10"/></clipPath>
+          <clipPath id="sx-tclip"><rect x="502" y="72" width="124" height="256" rx="8"/></clipPath>
+          <clipPath id="sx-cclip"><path d="M219,354 H261 L258,394 H222 Z"/></clipPath>
+          <clipPath id="sx-jclip"><path d="M29,330 H95 L93,396 Q93,399 90,399 H34 Q31,399 31,396 Z"/></clipPath>
+          <clipPath id="sx-dclip"><rect x="42" y="404" width="380" height="18" rx="3"/></clipPath>
+          <clipPath id="sx-kclip"><path d="M199,287 H281 L276,307 H204 Z"/></clipPath>
+        </defs>
+        <rect class="counter" x="0" y="440" width="680" height="20"/>
+        <rect class="xshell" x="50" y="40" width="590" height="380" rx="14"/>
+        <rect class="xtop" x="46" y="32" width="598" height="10" rx="4"/>
+        <rect x="70" y="420" width="40" height="20" rx="3" class="foot"/><rect x="580" y="420" width="40" height="20" rx="3" class="foot"/>
+
+        <!-- tank, at the back; its lid lifts to fill it -->
+        <g id="x-tank" class="xhit" role="button" tabindex="0" aria-label="Water tank: fill it">
+          <rect x="500" y="70" width="128" height="260" rx="10" class="xtank"/>
+          <g clip-path="url(#sx-tclip)"><rect id="x-tankw" x="500" y="96" width="128" height="234" class="xtankw"/><path id="x-tanks" d="M500,96 H628" class="xsurf"/></g>
+          <path d="M610,92 H626" class="xmax"/>
+          <rect x="580" y="314" width="12" height="14" rx="2" class="xfilter"/>
+          <rect id="x-lid" x="496" y="56" width="136" height="14" rx="4" class="xlid"/>
+          <path id="x-pour" d="M556,14 V96" class="xpour"/>
+        </g>
+
+        <!-- pump, standing upright: coil, piston, outlet check valve, thermal protector -->
+        <g id="x-pumpv">
+          <rect x="430" y="254" width="36" height="106" rx="14" class="xpump"/>
+          <rect id="x-pcoil" x="424" y="282" width="48" height="48" rx="5" class="xcoil"/>
+          <g class="xwind"><line x1="426" y1="290" x2="470" y2="290"/><line x1="426" y1="298" x2="470" y2="298"/><line x1="426" y1="306" x2="470" y2="306"/><line x1="426" y1="314" x2="470" y2="314"/><line x1="426" y1="322" x2="470" y2="322"/></g>
+          <rect x="443" y="262" width="10" height="90" rx="4" class="xslot"/>
+          <rect id="x-piston" x="444" y="296" width="8" height="26" rx="2" class="xpiston"/>
+          <rect x="472" y="300" width="7" height="14" rx="2" class="xpfuse"/>
+        </g>
+        <!-- over-pressure valve: on top of the pump on the Pro family, on the line into the group on the original Classic -->
+        <g class="pro-only"><rect x="426" y="220" width="44" height="34" rx="5" class="xopv"/><path d="M439,225 h18 M439,230 h18 M439,235 h18" class="xspring"/><rect id="x-opvplug" x="441" y="240" width="14" height="7" rx="1.5" class="xplug"/></g>
+        <g class="gc-only"><rect x="344" y="139" width="26" height="22" rx="4" fill="url(#sx-chrome)" class="xedge"/><rect id="x-opvplug-gc" x="351" y="144" width="12" height="5" rx="1.5" class="xplug"/></g>
+
+        <!-- boiler, with an element in each side wall, thermostats and thermal fuse on top -->
+        <rect id="x-bbody" x="150" y="96" width="180" height="126" rx="18" fill="url(#sx-alu)" class="xedge"/>
+        <rect x="164" y="110" width="152" height="98" rx="10" class="xcav"/>
+        <g clip-path="url(#sx-bclip)">
+          <rect x="164" y="110" width="152" height="98" fill="url(#sx-steam)" id="x-bhead"/>
+          <rect id="x-bwater" x="164" y="110" width="152" height="98"/>
+          <path id="x-bsurf" d="M164,110 H316" class="xsurf"/>
+          <g id="x-bub"></g>
+        </g>
+        <path id="x-elem" d="M157,214 V122 Q157,103 176,103 H304 Q323,103 323,122 V214" class="xelem"/>
+        <rect id="x-glow" x="150" y="96" width="180" height="126" rx="18" fill="url(#sx-glowg)" opacity="0"/>
+        <g id="x-tb" transform="translate(208 89)"><rect x="-11" y="-5" width="22" height="9" rx="3" class="xtst"/><circle cx="-7" cy="-9" r="2" class="xterm"/><circle cx="7" cy="-9" r="2" class="xterm"/><line id="x-tbb" x1="-7" y1="-9" x2="8" y2="-9" class="xblade"/></g>
+        <g id="x-ts" transform="translate(250 89)"><rect x="-11" y="-5" width="22" height="9" rx="3" class="xtst"/><circle cx="-7" cy="-9" r="2" class="xterm"/><circle cx="7" cy="-9" r="2" class="xterm"/><line id="x-tsb" x1="-7" y1="-9" x2="8" y2="-9" class="xblade"/></g>
+        <rect x="280" y="86" width="22" height="9" rx="4" class="xfuse"/>
+
+        <!-- group under the boiler -->
+        <path d="M178,222 H302 V276 Q302,282 296,282 H184 Q178,282 178,276 Z" fill="url(#sx-chrome)" class="xedge" id="x-gbody"/>
+        <path id="x-gheat" d="M178,222 H302 V276 Q302,282 296,282 H184 Q178,282 178,276 Z" class="xheat" opacity="0"/>
+        <line id="x-screen" x1="186" y1="282" x2="294" y2="282" class="xscreen"/>
+
+        <!-- 3-way valve behind the group: coil, plunger with a seal at each end, exhaust to the tray -->
+        <rect x="336" y="250" width="56" height="50" rx="5" fill="url(#sx-brassb)" class="xbrass"/>
+        <rect x="353" y="206" width="22" height="46" fill="url(#sx-brassb)" class="xbrass"/>
+        <rect id="x-vcoil" x="340" y="212" width="48" height="36" rx="4" class="xcoil"/>
+        <g class="xwd"><circle cx="346" cy="219" r="2"/><circle cx="346" cy="227" r="2"/><circle cx="346" cy="235" r="2"/><circle cx="346" cy="243" r="2"/><circle cx="382" cy="219" r="2"/><circle cx="382" cy="227" r="2"/><circle cx="382" cy="235" r="2"/><circle cx="382" cy="243" r="2"/></g>
+        <rect x="356" y="198" width="16" height="14" rx="2" fill="url(#sx-chrome)" class="xedge"/>
+        <rect x="358" y="212" width="12" height="78" class="xvcav" id="x-vcav"/>
+        <g id="x-vpl"><rect x="360" y="236" width="8" height="46" rx="2" fill="url(#sx-chrome)" class="xedge"/><rect x="360" y="282" width="8" height="5" rx="1" class="xseal"/><rect x="361.5" y="231" width="5" height="5" rx="1" class="xseal"/></g>
+        <circle id="x-vsin" cx="364" cy="291" r="3.2" class="xshut"/><circle id="x-vsex" cx="364" cy="211" r="3.2" class="xshut"/>
+
+        <!-- drip tray -->
+        <g id="x-tray" class="xhit" role="button" tabindex="0" aria-label="Drip tray: empty it">
+          <rect x="40" y="402" width="384" height="22" rx="4" class="xtray"/>
+          <g clip-path="url(#sx-dclip)"><rect id="x-trayw" x="42" y="422" width="380" height="0" class="xtrayw"/></g>
+          <rect x="40" y="398" width="384" height="5" fill="url(#sx-grate)" class="xgrate"/>
+        </g>
+
+        <g id="x-pipes"></g>
+
+        <!-- steam valve at the front, its knob through the side panel; the wand -->
+        <rect x="72" y="54" width="34" height="28" rx="5" fill="url(#sx-chrome)" class="xedge"/>
+        <g id="x-knob" transform="translate(89 68)"><circle r="14" class="xknob"/><g id="x-knobp"><line x1="0" y1="-11.5" x2="0" y2="-4" class="xknobm"/></g></g>
+
+        <!-- portafilter: basket, puck, water above it, spout -->
+        <g id="x-pf">
+          <path d="M196,296 L74,306" class="xhandle"/>
+          <path d="M188,283 H292 L284,314 H196 Z" fill="url(#sx-chrome)" class="xedge"/>
+          <path d="M199,287 H281 L276,307 H204 Z" class="xbasket"/>
+          <g clip-path="url(#sx-kclip)"><rect id="x-pfw" x="199" y="287" width="82" height="10" class="xpfw"/><rect id="x-puck" x="199" y="297" width="82" height="10" class="xpuck"/></g>
+          <rect id="x-blind" x="201" y="303" width="78" height="4" rx="1" class="xblind"/>
+          <rect x="235" y="314" width="10" height="12" rx="2" class="xspout"/>
+        </g>
+        <g id="x-rain"><line x1="196" y1="283" x2="196" y2="300"/><line x1="214" y1="283" x2="214" y2="300"/><line x1="232" y1="283" x2="232" y2="300"/><line x1="250" y1="283" x2="250" y2="300"/><line x1="268" y1="283" x2="268" y2="300"/><line x1="286" y1="283" x2="286" y2="300"/></g>
+
+        <!-- cup on the tray, in section -->
+        <g id="x-cup">
+          <path d="M214,352 H266 L262,394 Q261,398 256,398 H224 Q219,398 218,394 Z" class="xcup"/>
+          <path d="M219,354 H261 L258,394 H222 Z" class="xcupin"/>
+          <g clip-path="url(#sx-cclip)"><rect id="x-cupl" x="214" y="398" width="52" height="0"/><rect id="x-crema" x="214" y="398" width="52" height="0" class="xcrema"/></g>
+          <path d="M266,362 Q278,362 278,372 Q278,380 264,381" class="xcuph"/>
+          <g id="x-cupvap"><path d="M232,346 C228,338 236,334 232,326" class="vap"/><path d="M246,346 C242,338 250,334 246,326" class="vap"/></g>
+        </g>
+
+        <!-- milk jug under the wand, with a clip-on thermometer -->
+        <g id="x-jug">
+          <path d="M24,326 H100 L98,398 Q98,404 92,404 H32 Q26,404 26,398 Z" fill="url(#sx-chrome)" class="xedge"/>
+          <path d="M29,330 H95 L93,396 Q93,399 90,399 H34 Q31,399 31,396 Z" class="xjugin"/>
+          <g clip-path="url(#sx-jclip)"><rect id="x-milk" x="24" y="398" width="76" height="0" class="xmilk"/><rect id="x-foam" x="24" y="398" width="76" height="0" class="xfoam"/><g id="x-mbub"></g></g>
+          <line x1="36" y1="320" x2="36" y2="392" class="th-stem"/><circle cx="36" cy="312" r="9" class="th-dial"/>
+          <path d="M30.2,308.5 A6.8,6.8 0 0 1 36,305.2" class="th-zone"/>
+          <line id="x-thn" x1="36" y1="312" x2="36" y2="305.5" class="th-n"/>
+        </g>
+
+        <g id="x-flows"></g>
+        <g id="x-parts"></g>
+      </svg>

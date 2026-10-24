@@ -14,7 +14,8 @@ Gaggiuino was built for the Gaggia Classic, and its official guide covers the in
 | `conversion.html` | Everyone | A scroll-driven animation of the whole conversion on a Classic Pro, from the stock machine to a profiled shot, each step linked to its page |
 | `how-gaggia-works.html` | Learning | The stock Classic Pro as an animated x-ray you can run through heating, brewing, hot water and steam; every part explained; a live ladder diagram of the stock circuit you can switch |
 | `how-gaggiuino-works.html` | Learning | What the PCB, sensors and SSR take over, how Gaggiuino holds the temperature and drives the pump, the new parts and mods, and why the low-voltage side floats, with interactive figures |
-| `glossary.html` | Reference | 138 abbreviations and shop words used across the site, searchable, each with a plain definition and links |
+| `barista-school.html` | Learning | Hands-on lessons on the stock machine: temperature surfing for light, medium and dark roasts, steaming milk for two, getting back to brew temperature after steaming, and cleaning, with a live temperature map and a coach that grades every shot |
+| `glossary.html` | Reference | 145 abbreviations and shop words used across the site, searchable, each with a plain definition and links |
 | `budget.html` | Planning | Cost builder: used or new machine, kit supplier, scales and extras; enter real quotes |
 | `used-checklist.html` | Buying used | Inspection checklist per listing, with a price gauge |
 | `which-gaggia.html` | Planning | Tell the Classic, V2, Pro, Eco, Evo and E24 apart from the rating label, and what each changes for the build |
