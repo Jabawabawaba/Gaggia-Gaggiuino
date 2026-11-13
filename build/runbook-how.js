@@ -98,7 +98,7 @@
         "A 230 V Pro-family machine also asks about the Eco board: a label reading SIN035UR, or a power switch that springs back when you let go, means you have one.",
         "Pick the install path there too once you've read the next steps. From then on this page, the wiring pages and the checks show only what applies to your machine."
       ],
-      ok:"The top bar names your machine, for example Classic Pro E24 · 120 V."
+      ok:"The top bar names your machine, for example Pro E24, 120 V."
     },
     p0x:{
       how:[
@@ -127,7 +127,7 @@
     },
     p0w:{
       how:[
-        "There's no official stock wiring drawing for a 230 V Classic Pro, Eco, Evo or E24, so the official guide sends them to custom wiring.",
+        "There's no official stock wiring drawing for a 230 V Classic Pro, Eco, Evo or E24, and the official guide recommends custom wiring for the Eco-board ones, so this site gives every 230 V Pro-family machine custom wiring.",
         "Set Install path to custom wiring in Your Gaggia. If you leave it on stock wiring, this runbook and the wiring, cut list, labels and checks pages show custom wiring for your machine anyway."
       ]
     },
@@ -157,7 +157,7 @@
     p0t:{
       how:[
         "**A multimeter** that reads resistance (Ω) and beeps for continuity. The official guide calls it optional; this runbook's power-on checks need one, because they prove the wiring is safe before the first plug-in.",
-        "**Crimpers:** a ratcheting crimper for insulated terminals (its dies are color-coded red and blue, like the spades); an open-barrel crimper for the bare spades at the boiler; and an uninsulated-terminal crimper, or a punch and block, for BN butt splices if a wire needs lengthening.",
+        "**Crimpers:** a ratcheting crimper for insulated terminals (its dies are color-coded red and blue, like the spades); an open-barrel crimper for the bare spades at the boiler; and an uninsulated-terminal crimper, or a punch and block, for BN butt splices (custom wiring has several; stock wiring only needs one if a wire has to be lengthened).",
         "**Wire strippers** and side cutters.",
         "**Spanners:** a 17 mm spanner for the thermostats, a 4 mm Allen key for the boiler's screws, and an adjustable spanner, or two, for the pressure sensor's fittings.",
         "**Screwdrivers:** Phillips for the case, a long thin one with a magnetic tip for screws deep in the back, and a tiny flat one for the PCB's thermocouple clamp.",
@@ -180,6 +180,9 @@
         ["**Pro-family T-fitting:** a 6 mm barbed T, a 6 mm barb to 1/4 inch sensor fitting, high-pressure braided hose (Saeco 996530009505) and hose clamps with their pliers.","fam:GCP"],
         ["**Classic T-fitting:** a PE 6 mm push-to-connect T, a PLF 6-02 sensor fitting and 4 × 6 mm PTFE tube.","fam:GC"],
         "**Printed parts:** the PCB housing, and the housing and mount for your screen (the Gen 3.5 and Gen 3 screens have different housings; the three mounts fit both), or the headless housing.",
+        ["**Front mount hardware:** six 20 × 10 × 3 mm magnets (consider buying locally: magnets often fail to ship internationally), super glue or epoxy, and 20 mm Kapton tape.","scr:p4,s3;mnt:front"],
+        ["**Funnel mount hardware:** three M3 × 30 socket head screws, five M3 washers (7 mm across or less), five M3 split lock washers, two M3 nylock nuts, an M3 heat-set insert, and super glue or epoxy.","scr:p4,s3;mnt:funnel"],
+        ["**Rear mount hardware:** two M3 × 30 socket head screws, four M3 washers (7 mm across or less), four M3 split lock washers and two M3 nylock nuts.","scr:p4,s3;mnt:rear"],
         ["**OPV:** the 12 bar spring or the M3 washers.","opv9"],
         ["**Grounding:** the inlet, cord, wire and spades from the grounding step.","ground"],
         ["**Evo and E24:** self-fusing silicone tape or 6 mm silicone heat shrink.","model:EVO,E24"],
@@ -309,7 +312,7 @@
         "Settings, About (the gear icon on the screen, or Settings in the web UI). Note the build numbers for Core, Mbed (the screen or headless board) and Web.",
         "Compare them with each other and with the latest release on the [Gaggiuino releases page](https://github.com/Zer0-bit/gaggiuino/releases/latest). If all three match the release, you're done.",
         "If your About page has an **Update All** button, you can use it instead, with Gaggiuino on your home Wi-Fi: the official firmware reset page uses it to bring every part up to date. Older firmware may not have it.",
-        "Otherwise update by hand: from the latest release, download the core file for PCB v4 (performance, pcb, then pca or ncp to match a ToFnLED's LED chip; without a ToFnLED either works) and the two screen files (ui-embedded and ui-web; headless uses ui-headless and ui-web). If the release lists more than one ui-embedded file, take the one for your screen: the official web flasher uses different builds for the Gen 3 (ESP32-S3) and Gen 3.5 (ESP32-P4) screens.",
+        "Otherwise update by hand: from the latest release, download the core file for PCB v4 (performance, pcb, then pca or ncp to match a ToFnLED's LED chip, most are PCA and the [ToFnLED guide](gtof#tof/5) shows how to tell; without a ToFnLED either works) and the two screen files (ui-embedded and ui-web; headless uses ui-headless and ui-web). If the release lists more than one ui-embedded file, take the one for your screen: the official web flasher uses different builds for the Gen 3 (ESP32-S3) and Gen 3.5 (ESP32-P4) screens.",
         "Firmware older than February 16, 2025 (unlikely on a new board) needs [breaking update 616ea70](https://github.com/Zer0-bit/gaggiuino/releases/tag/dev-616ea70) first, then the latest: the official guide's warning.",
         "In the web UI, Settings, OTA Update: choose **Core Upgrade Package**, SELECT FILE, pick the core file, then UPLOAD. The screen goes black while it flashes and reboots.",
         "Then START OVER, choose **LCD Upgrade Package** and upload ui-embedded (or ui-headless); START OVER again for ui-web. The order is core, then ui-embedded, then ui-web, unless the release notes say otherwise. Refresh the browser after ui-web.",
@@ -355,8 +358,10 @@
       need:"An oil-based permanent marker, or the printed labels.",
       how:[
         "Use the official names: they're the ones this runbook, the wiring page and the checks use.",
-        "Switch assembly: the numbered connectors 1, 2, 3, 6, 7 and 8, and P(1-2), P(3-4), P(5-6) and P(7-8) (the official photo shows which is which). Heaters: H1 to H4. Steam thermostat: Sa and Sb. Brew thermostat: Ba and Bb. Valve: Va and Vb. Pump: Pa and Pb. Pump fuse: F, a connector holding two wires.",
-        ["On stock wiring, these are the ones that move: Ba, Bb, Sa, Sb, Pb, Pa, P1-2, 1, 2, 3 and P3-4. Label those first.","wpath:SI"],
+        "Switch assembly: the numbered connectors 1, 2, 3, 6, 7 and 8, and P(1-2), P(3-4), P(5-6) and P(7-8), as the official stock wiring drawing shows. Heaters: H1 to H4. Steam thermostat: Sa and Sb. Brew thermostat: Ba and Bb. Valve: Va and Vb.",
+        ["Pump: Pa, the lead from the pump's thermal fuse, and Pb, the single 18 gauge wire. Pump fuse: F, the connector at the fuse that holds two wires.","volts:120"],
+        ["Pump: Pb, the single 18 gauge wire, and F, a connector holding two wires on the pump's other terminal. The 230 V drawing has no pump fuse.","volts:230"],
+        {t:["On stock wiring, these are the ones that move: Ba, Bb, Sa, Sb, Pb,",["Pa,","volts:120"],["F,","volts:230"],"P1-2, 1, 2, 3 and P3-4. Label those first."],w:"wpath:SI"},
         "Write on the connector or the wire just behind it, or wrap a printed label on. One connector at a time: label it before it moves, never after."
       ],
       ok:"Every connector you'll move carries its name."
@@ -381,28 +386,31 @@
         "Repeat for each connector, one at a time, so none gets mixed up."
       ],
       ok:"Every connector out of the block, insulated on its own and labeled.",
-      pics:[["The combined block","CCIBLOCK"],["Connectors insulated and labeled","CCI"],["Video: taking a connector out of the block (from 0:59)","https://www.youtube.com/watch?v=8DB7vQm0_38&t=59s"]]
+      pics:[["The combined block","CCIBLOCK"],["Connectors insulated and labeled","CCI"]],
+      links:[["Video the official guide links: taking a connector out of the block (from 0:59)","https://www.youtube.com/watch?v=8DB7vQm0_38&t=59s"]]
     },
     p2e:{
       how:[
         "Label and unplug the power switch's connectors, then take the switch out of the panel.",
         "Gently press one side wall in with a thin pry tool until its locking tabs release, then the other side.",
         "Open it and take out the third spring (the official photo shows which).",
-        "Put it back together, fit it in the panel and plug its connectors back as labeled."
+        "Put it back together and fit it in the panel. Its wires come with the custom harness in Phase 4."
       ],
       ok:"Press it on and it stays on; press again and it stays off.",
-      pics:[["Power switch, opened","PSM"],["Video: removing the spring (1:39 to 2:31)","https://www.youtube.com/watch?v=WNs3uSLA4Ts&t=99s"]]
+      pics:[["Power switch, opened","PSM"]],
+      links:[["Video the official guide links: removing the spring (1:39 to 2:31)","https://www.youtube.com/watch?v=WNs3uSLA4Ts&t=99s"]]
     },
     p2f:{
       need:"The C14 inlet, the grounded cord, 0.4 m of green 16 to 18 AWG silicone wire, four 6.3 mm female spades (uninsulated for the boiler end) and wide-jaw pliers.",
       how:[
+        "Already a three-pin inlet, with earth wires to the boiler and the cup warmer? Skip this step.",
         "Note where the two wires on the old two-pin socket go, and check against the drawing: on many machines line and neutral are swapped.",
         "Pull the wires off the old socket.",
         "Squeeze the socket's retaining tabs with the wide-jaw pliers and push it out, working the top and bottom pairs of tabs in turn with a little wiggle.",
         "Push the new three-pin inlet into the hole until all its locking tabs seat.",
-        ["Cut two wires of about 200 mm: one from the inlet's earth tab to the boiler's fuse clip (its earth connector), one from there on to the cup warmer plate's tab. Crimp spades on, uninsulated at the boiler end.","wpath:SI"],
-        ["On custom wiring, the earth wires come from the custom drawing instead (G1 to G3 on the wiring page): fit just the inlet now.","wpath:CW"],
-        "Connect line, neutral and earth to the new inlet. On Gaggia's 2009 120 V drawing, neutral (blue) goes to the thermal fuse on top of the boiler and line (gray) to the top of the power switch, but colors vary by year: go by your notes and the drawing."
+        ["Cut two wires of about 200 mm: one from the inlet's earth tab to the boiler's fuse clip (its earth connector), one from there on to the cup warmer plate's tab. Crimp spades on, uninsulated at the boiler end. Leave the cup warmer end loose until the plate goes back on in Phase 5.","wpath:SI"],
+        ["Connect the wires by where each one goes, not where it sat on the old socket: the wire to the power switch goes on the inlet's L tab, the wire to the boiler's thermal fuse on its N tab, as the stock wiring drawing shows (gray and blue on Gaggia's 2009 120 V drawing; colors vary by year). The new earth wire goes on the earth tab. The official photo shows which tab is which, and checks e21 to e23 prove it.","wpath:SI"],
+        ["On custom wiring, fit just the inlet now and leave its tabs empty: its runs (AC1 on L, AC12 and AC15 on N, G3 on earth) go on with the harness in Phase 4.","wpath:CW"]
       ],
       warn:"Insulated spades melt at the boiler: bare ones there. And earth never connects to the PCB's 5 V GND.",
       pics:[["Wires off the old socket","GND1"],["The socket's retaining tabs","GND2"],["New inlet seated","GND3"],["Ground wires","GND4"],["Line, neutral and earth","GND5"]]
@@ -442,7 +450,7 @@
     },
     p2h:{
       how:[
-        "**Bought the official Plug-and-Play harness?** It follows the newer official drawing, from October 2026, whose wire names differ from this site's pages. Fit it by [that drawing](https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=wire-harness-schematics) instead, and skip this step and the next two.",
+        "**Bought the official Plug-and-Play harness?** It follows the newer official drawing, whose wire names (L1a, N1a, G1a and so on) differ from this site's. Fit it by [that drawing](https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=wire-harness-schematics) instead, and skip this step and the next two. Later, the harness step and the power-on checks use this site's run names: where a check names a run, follow the same path on the official drawing, and ask in your help thread if one doesn't match. That drawing also has the 185 °C resettable fuse built in.",
         "Building your own: open the [cut list](cut) and the [wiring page](wiring) with Your Gaggia set. They follow the official May 2024 custom wiring drawing for your model and voltage, which the official site keeps in its archive.",
         "Take out the stock harness, keeping the stock parts the cut list reuses: the lamps with their leads, each heating element connector with about 80 mm of its lead, the boiler fuse's connectors and the pump fuse's lead. If the Eco board is fitted, it comes out now. The thermostats come out in Phase 3.",
         "Cut each run to its cut-list length (they're generous: route it first, then trim) and label both ends before you crimp.",
@@ -486,11 +494,11 @@
       warn:"Machine unplugged and the boiler cold.",
       how:[
         "Tip the boiler up first. It's the recommended way: the official tools page says attempts without removing the boiler have damaged thermocouples.",
-        "Take off the steam knob and the steam wand, then undo the four 4 mm socket head screws that come up into the boiler from under the sheet metal. Lift and tip the boiler a little, leaving its hoses and wires attached. The official tools page links a [video of a Gaggia boiler coming out](https://www.youtube.com/watch?v=JTTLYj1l0KI&t=204s).",
+        "Take off the steam knob and the steam wand, then undo the four socket head screws (a 4 mm Allen key) that come up into the boiler from under the sheet metal. Lift and tip the boiler a little, leaving its hoses and wires attached. The official tools page links a [video of a Gaggia boiler coming out](https://www.youtube.com/watch?v=JTTLYj1l0KI&t=204s).",
         "Find the brew thermostat on the boiler and pull its two connectors, Ba and Bb, straight off. Grip the connector, not the wire.",
         "Unscrew the thermostat with the 17 mm spanner. There should be high-temperature thermal paste under it: you'll move it onto the thermocouple. If there's none, or it has dried out, you'll need fresh paste rated for 180 °C or more.",
         ["Custom wiring: unscrew the steam thermostat too. The official guide takes out all the stock wiring and both thermostats: the SSR and Gaggiuino control the heat.","wpath:CW"],
-        "Leave the boiler's thermal fuse alone: it stays in the circuit.",
+        "Leave the boiler's thermal fuse alone: it stays in the circuit, unless you fit the optional resettable fuse in its place (a step below).",
         "If the thermocouple is still clamped in the PCB's J4 from the bench test, loosen J4's screws and free it first."
       ],
       pics:[["Thermocouple in the brew thermostat's place","TC"]],
@@ -531,7 +539,7 @@
     p3k:{
       how:[
         "If you tipped the boiler up: lower it back onto its seat, keeping wires and hoses from getting pinched.",
-        "Refit the four 4 mm screws from below, snug and even.",
+        "Refit the four socket head screws from below with the 4 mm Allen key, snug and even.",
         "Refit the steam wand and knob."
       ],
       ok:"The boiler sits square, nothing is pinched, and the thermocouple's lead is still free."
@@ -563,7 +571,7 @@
       pics:[["Sensor and fittings","XF"],["Sensor and fittings, Pro-family T","XFGCP","fam:GCP"]]
     },
     p3h:{
-      need:"The tap block, its two fittings, 4 × 6 mm PTFE tube, the 010 O-ring, two M5 × 25 screws, a sharp blade and a towel.",
+      need:"The tap block, its two fittings, 4 × 6 mm PTFE tube, the 010 O-ring, two M5 × 25 screws, a 4 mm Allen key, a sharp blade and a towel.",
       how:[
         "Skip this step if you're using a T-fitting.",
         "Cut 40 mm of PTFE tube with both ends square.",
@@ -619,7 +627,7 @@
         "Hold the SSR against the back wall, its metal base flat on the metal.",
         ["Leave room above it for the funnel piece and its screw.","fam:GCP"],
         "Keep it clear of the pump and its housing.",
-        "Put the screw through the SSR's mounting hole and the wall, add the washer and nut on the other side, and tighten."
+        "Put the screw through the SSR's mounting hole and a vent slot in the back wall, add the washer and nut on the other side, and tighten."
       ],
       ok:"The SSR doesn't move, and nothing touches its terminals.",
       pics:[["SSR on the back wall, Classic Pro","SSRGCP","fam:GCP"],["SSR on the back wall, Classic","SSRGC","fam:GC"]]
@@ -633,7 +641,7 @@
         "Push stock connector Sa onto wire Sa's male spade, and Sb onto wire Sb's.",
         "The steam thermostat is now out of the circuit: leave it in place, or unscrew it with the 17 mm spanner."
       ],
-      warn:"Joints that sit on or near the boiler need bare spades under silicone, not nylon-insulated ones.",
+      warn:["Both load screws carry mains whenever the machine is on.",["On the Pro family's drawing the SSR sits on the elements' neutral side, so the elements stay connected to line whenever the machine is on, heating or not.","fam:GCP"],"Joints that sit on or near the boiler need bare spades under silicone, not nylon-insulated ones."],
       pics:[["Sa and Sb on the SSR, Classic Pro","SSRGCP","fam:GCP"],["Sa and Sb on the SSR, Classic","SSRGC","fam:GC"]],
       links:[["Part guide: SSR","gssr#ssr/SI/3"]]
     },
@@ -667,7 +675,7 @@
         "Steam switch: unplug S5 and park it: cover its end with silicone tape or heat shrink, and tie it down where it can't touch anything.",
         "Brew spades 1 and 2 and steam spades 4 and 5 are now free for the low-voltage wires."
       ],
-      warn:"Brew spade 4 stays live whenever brew is on and the valve is open. S5, and steam spades 1 to 3, carry mains. Keep everything clear of them.",
+      warn:"Brew spade 4 stays live whenever brew is on and the valve is open, and brew spade 5 carries the valve's feed whenever the PCB opens the valve, right beside the low-voltage ground on spade 2. S5, and steam spades 1 to 3, carry mains. Keep everything clear of them.",
       pics:[["Line to the brew switch, Classic Pro","LGCP"]],
       links:[["Part guide: switches","gsw"]]
     },
@@ -713,7 +721,8 @@
         "Fit one run at a time, and tick it off on the [cut list](cut).",
         "Mains runs on the left side, above the thermocouple lead; low-voltage wires on the right.",
         "Where two runs share a terminal, they share one spade or fork sized for two.",
-        "The PCB's four mains tabs go last: N (J10), L (J11), P (J12) and 3 (J13). Check each against the wiring page before you push it on."
+        "Leave the ends of the runs that go on the PCB's four mains tabs, N (J10), L (J11), P (J12) and 3 (J13), loose for now: they go on in the plug-in step, once the PCB is mounted.",
+        "With the official Plug-and-Play harness, fit it by its own drawing instead: this page's run names won't match it."
       ],
       ok:"Every run on the cut list is ticked, and each end matches the wiring page.",
       links:[["Cut list","cut"]]
@@ -732,10 +741,22 @@
       how:[
         "Thermocouple into J4, as on the bench: folded ends, and + and − the way they passed the warm-hand test.",
         "Pressure sensor into J6, screen cable into J1, switch wires into J7, SSR control into J9, and the ToFnLED into J2 if you have one.",
-        ["The mains wires onto the PCB's tabs: N on J10, L on J11, P on J12 and 3 on J13.","wpath:SI"],
+        "The mains wires onto the PCB's tabs: N on J10, L on J11, P on J12 and 3 on J13. Check each against the wiring page before you push it on.",
         "Leave a little slack on each, so the PCB can come out without pulling anything."
       ],
       ok:"Every plug fully home, and the four mains tabs match the wiring page: check [g10](checks#g10)."
+    },
+    p4t:{
+      need:"The ToFnLED board, its printed housing, a Qwiic cable (JST-SH, 250 mm or more), and two 5 mm × 1 mm disc magnets with super glue, or double-sided tape rated for 80 °C.",
+      how:[
+        "Skip this step if you don't have one.",
+        "Scratch up the housing's magnet pockets with a craft blade, add a drop of super glue and seat each magnet flat. On a machine magnets won't stick to, use the double-sided tape instead.",
+        "Plug the Qwiic cable into J2 on the back of the PCB, if it isn't in yet.",
+        "Run the cable down through the gap on the right side of the machine's sheet metal, plug it into the ToFnLED board, and put the board in its housing.",
+        "Peel the clear protective film off the sensor if it's still on: it spoils the readings.",
+        "Fix the housing above the water tank, with the sensor's view clear of the tubing."
+      ],
+      ok:"Housing fixed above the tank, its cable clear of anything hot."
     },
     p4k:{
       how:[
@@ -747,9 +768,10 @@
     p4l:{
       how:[
         "The cable's PCB end is already in J1. Feed its screen end out through the vent your mount uses (Phase 5's photos show each). The small screen-end plug fits through gaps the PCB end won't.",
-        "Where it passes the vent's sharp edge, slide a short length of heat shrink over the cable and leave it unshrunk: a sleeve, so the edge can't cut the soft silicone jacket (this site's advice; check g13 asks for it).",
+        "Where it passes the vent's sharp edge, slide a short length of heat shrink over the cable and leave it unshrunk: a sleeve, so the edge can't cut the soft silicone jacket (the archived May 2024 official guide's advice; check g13 asks for it).",
         ["Headless: route the cable to where the board will sit. The official guide recommends the left vent on every Classic model.","scr:hl"],
-        "No ST-Link needs to stay inside: PCB v4 updates over Wi-Fi. If your kit came with one, keep it in a drawer for a wired recovery."
+        "No ST-Link needs to stay in the machine for updates: PCB v4 updates over Wi-Fi.",
+        "If your kit has one, you can do as the archived official guide did: leave it plugged into J27, its wires through the back vent, and tape it to the back. Checks h5 and h6 then use its GND pin as a 5 V ground you can reach with the covers on. Without one, those checks use the screen cable's GND pin instead."
       ]
     },
     p4m:{
@@ -811,7 +833,7 @@
     },
     p5b:{
       how:[
-        "Put the water funnel back, then the cup warmer plate. Reconnect every earth wire you unplugged in Phase 2 as its part goes on: your photos show where (check h1).",
+        "Put the water funnel back, then the cup warmer plate. As each goes on, plug on every earth wire that belongs to it: the ones you unplugged in Phase 2 (your photos show where), and a new cup warmer earth wire if you made one (G4 on a custom-wired Pro, G1 on a custom-wired Classic, or the second wire from the grounding step). Check h1.",
         "Refit the two top screws.",
         ["Set the funnel mount onto the funnel.","scr:p4,s3;mnt:funnel"],
         ["Hook the rear mount's upper features into the vent, clip its bottom side in, and push on the back of the latch handles until they're fully home.","scr:p4,s3;mnt:rear"],
@@ -834,6 +856,7 @@
         "Plug the cord into the machine first, then into a {outlet}.",
         "Stay within reach of the plug for this whole first session.",
         "Switch on. The lamps and the screen come on, and the screen shows \"Filling boiler\".",
+        "Keep an eye on the temperature from now on: if it ever falls while the machine heats, switch off and unplug at once (check g18).",
         "At any smell, smoke, crackle, a tripped breaker or {gfci}, or an odd noise: unplug at the wall first, find out why after."
       ],
       warn:"Never run it with a cover off or a check unpassed."
@@ -850,7 +873,7 @@
     },
     p5f:{
       how:[
-        "Watch the temperature on the home screen. With the boiler full, it must climb while the SSR's LED is on.",
+        "Watch the temperature on the home screen. With the boiler full, it must climb.",
         "If it falls instead, switch off and unplug at once: the thermocouple wires are reversed at J4. Swap them (unplugged), and rerun Covers on before you plug back in.",
         "It reaches the brew target in a few minutes and holds there."
       ],
@@ -869,7 +892,7 @@
       how:[
         "Skip this if you used a T-fitting.",
         "Portafilter out, a cup under the group: tap Flush, run it for 10 seconds with the brew switch, brew off. That fills the block and its tube.",
-        "Lock in a portafilter with a blank basket and run Flush again: the pressure should rise. The next step is the real test."
+        "Lock in a portafilter with a blank basket and run Flush again: the pressure should rise. Brew off, then tap Flush again to leave flush mode. The next step is the real test."
       ]
     },
     p5i:{
@@ -878,10 +901,10 @@
         "Lock the portafilter with the blank basket into the group.",
         "Download **[UT] Test OPV** from the community profiles, select it, and run it with the brew switch.",
         "Watch the pressure: its peak must land between 10.5 and 13 bar.",
-        "While it runs, water should move through the OPV's tube, and nothing may leak.",
+        "While it runs, water should move through the OPV's tube. The leak check, unplugged, comes a step later.",
         "Brew off, then take the portafilter out carefully: it's hot."
       ],
-      ok:"Peak 10.5 to 13 bar, water moving through the OPV tube, no leaks."
+      ok:"Peak 10.5 to 13 bar, and water moving through the OPV tube. Outside that range: brew off, and post the reading in your help thread before you pull a shot (a US Evo Pro or E24 below 10.5 bar has its own fix, next)."
     },
     p5j:{
       how:[
@@ -895,7 +918,7 @@
       how:[
         "Switch off, unplug from the wall, and let it cool: the boiler, the group and the thermocouple stay hot for a long time.",
         "Undo the two top screws and lift the cup warmer just enough to see in.",
-        "Touch a dry paper towel to each new joint: the T or the tap block, the sensor and its fitting, the thermocouple. A damp spot is a leak.",
+        {t:["Touch a dry paper towel to each new joint: the T or the tap block, the sensor and its fitting, the thermocouple",[", and the OPV you opened","opv9"],". A damp spot is a leak."]},
         "Reseat or snug that joint, unplugged. Never more than a quarter turn past hand tight on the sensor.",
         {t:["Close it up, earth wires on, and rerun Covers on, h1 to h6",[", and h7 for the Shelly,","shelly"],"before you plug back in."]}
       ]
@@ -904,7 +927,7 @@
       how:[
         "Brew on with a cup under the group: the pump runs and water comes through the group. Brew off.",
         "Steam on: the target switches to the steam temperature, and the temperature ring pulses above 120 °C as a warning. Steam off.",
-        "Brew and steam on together: hot water mode, the same as the stock machine. Both off."
+        "Brew and steam on together, with a cup under the steam wand and the steam knob open: hot water mode, the same as the stock machine. Close the knob, then both off."
       ],
       warn:"Above 120 °C, steam, the wand and the group head can burn."
     },
@@ -1001,7 +1024,7 @@
     p7e:{
       how:[
         "Hardware scales: the [scales guide](gscl) on this site, step by step.",
-        "ToFnLED: the [ToFnLED guide](gtof) on this site."
+        "ToFnLED: fit it with the machine open (Phase 4's ToFnLED step); the [ToFnLED guide](gtof) on this site has every step."
       ]
     }
   };

@@ -1,5 +1,5 @@
 /* Sections of the official Gaggiuino docs (docsify: #/page?id=heading-slug). Headings checked against the docs source, November 2026
-     (after the October 2026 move to Plug-and-Play/custom wiring and the November Gen 3.5 screen pages). */
+     (after the late 2026 move to Plug-and-Play/custom wiring and the November Gen 3.5 screen pages). */
   var O='https://gaggiuino.github.io/#/',SI=O+'guides-stm32/3pln-stock-wiring-integration',CW=O+'guides-stm32/3pln-custom-wiring',MS=O+'guides/machine-specific-guide',MAN=O+'learning/user-manual-gen3';
   var OFF={
     home:O,compat:O+'?id=compatibility',build:O+'?id=build-process',bom:O+'?id=bill-of-materials',prints:O+'?id=_3d-printed-parts',
