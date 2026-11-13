@@ -7,7 +7,7 @@
    "volts": 120,
    "name": "Classic Pro family, 120 V, stock wiring",
    "title": "Gaggia Classic Pro Stock Integration\n100 - 120 VAC 60 Hz PCB v3.1 / v4.0",
-   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GCP_SI_wiring_PCBv3_1_120v.png",
+   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GCP_SI_g3_5_120v.png",
    "runs": [
     {
      "id": "J",
@@ -617,7 +617,7 @@
    "volts": 120,
    "name": "Classic, 120 V, stock wiring",
    "title": "Gaggia Classic Stock Integration\n100 - 120 VAC 60 Hz PCB v3.1 / v4.0",
-   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GC_SI_wiring_PCBv3_1_120v.png",
+   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GC_SI_g3_5_120v.png",
    "runs": [
     {
      "id": "J",
@@ -1243,7 +1243,7 @@
    "volts": 230,
    "name": "Classic, 230 V, stock wiring",
    "title": "Gaggia Classic Stock Integration\n220 - 240 VAC 60 Hz PCB v3.1 / v4.0",
-   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GC_SI_wiring_PCBv3_1_220v.png",
+   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GC_SI_g3_5_220v.png",
    "runs": [
     {
      "id": "J",
@@ -1864,7 +1864,7 @@
    "volts": 120,
    "name": "Classic Pro family, 120 V, custom wiring",
    "title": "Gaggia Classic Pro Wiring",
-   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/GCP_wiring_PCBv3_1_120v.png",
+   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/archive/2025-02/GCP_wiring_PCBv3_1_120v.png",
    "runs": [
     {
      "id": "AC1",
@@ -3245,7 +3245,7 @@
    "volts": 230,
    "name": "Classic Pro family, 230 V, custom wiring",
    "title": "Gaggia Classic Pro Wiring",
-   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/GCP_wiring_PCBv3_1_220v.png",
+   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/archive/2025-02/GCP_wiring_PCBv3_1_220v.png",
    "runs": [
     {
      "id": "AC1",
@@ -4577,7 +4577,7 @@
    "volts": 120,
    "name": "Classic, 120 V, custom wiring",
    "title": "Gaggia Classic Wiring",
-   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/GC_wiring_PCBv3_1_120v.png",
+   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/archive/2025-02/GC_wiring_PCBv3_1_120v.png",
    "runs": [
     {
      "id": "AC1",
@@ -5571,7 +5571,7 @@
    "volts": 230,
    "name": "Classic, 230 V, custom wiring",
    "title": "Gaggia Classic Wiring",
-   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/GC_wiring_PCBv3_1_220v.png",
+   "schematic": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/custom-3pln/archive/2025-02/GC_wiring_PCBv3_1_220v.png",
    "runs": [
     {
      "id": "AC1",
