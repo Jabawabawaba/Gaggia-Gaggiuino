@@ -327,7 +327,7 @@
         "Empty and take out the water tank and the drip tray.",
         "Undo the two screws on top that hold the top cover, the cup warmer plate.",
         "Lift the plate gently. If an earth wire is plugged onto a tab underneath it, photograph it, pull that connector straight off, and set the plate aside.",
-        "Lift out the plastic water funnel under it."
+        "Lift out the water funnel under it the same way: if an earth wire is plugged onto it, photograph it and pull it off first."
       ],
       ok:"You're looking at the inside of the machine, as in the official photo.",
       pics:[["Opened Classic Pro","OPENGCP","fam:GCP"],["Opened Classic","OPENGC","fam:GC"]]
@@ -810,7 +810,7 @@
     },
     p5b:{
       how:[
-        "Put the water funnel back, then the cup warmer plate. Reconnect the cup warmer's earth wire, or wires, as it goes on: your photos from Phase 2 show where.",
+        "Put the water funnel back, then the cup warmer plate. Reconnect every earth wire you unplugged in Phase 2 as its part goes on: your photos show where (check h1).",
         "Refit the two top screws.",
         ["Set the funnel mount onto the funnel.","scr:p4,s3;mnt:funnel"],
         ["Hook the rear mount's upper features into the vent, clip its bottom side in, and push on the back of the latch handles until they're fully home.","scr:p4,s3;mnt:rear"],
