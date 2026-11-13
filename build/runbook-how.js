@@ -265,9 +265,9 @@
     p1f:{
       how:[
         ["The screen lights and shows \"Initialization in progress\" for a few seconds, then it clears.","scr:p4,s3"],
-        ["Headless: you'll see these messages in the web UI once you've joined its Wi-Fi (two steps down). Come back and tick this one then.","scr:hl"],
+        ["Headless: you'll see these messages in the web UI, so join its Wi-Fi first (the Wi-Fi step below), then come back to this step and the next two.","scr:hl"],
         "A few seconds after boot, \"Filling boiler\" shows, and a red LED on the underside of the PCB lights at the same moment. On the bench that's expected: there's no boiler to fill.",
-        "Stuck on \"Initialization in progress\"? Recheck J1 pin by pin (previous step). If the ToFnLED is turned on in the software but not plugged in, it won't start either. Then see the firmware step at the end of this phase: the core and screen firmware may be from different releases."
+        "Stuck on \"Initialization in progress\"? Recheck J1 pin by pin (the screen cable step above), then see the firmware step at the end of this phase: the core and screen firmware may be from different releases."
       ],
       ok:"Initialization clears, Filling boiler shows, and the red LED under the PCB is on.",
       links:[["Troubleshooting","trouble"]]
@@ -309,13 +309,14 @@
         "Settings, About (the gear icon on the screen, or Settings in the web UI). Note the build numbers for Core, Mbed (the screen or headless board) and Web.",
         "Compare them with each other and with the latest release on the [Gaggiuino releases page](https://github.com/Zer0-bit/gaggiuino/releases/latest). If all three match the release, you're done.",
         "If your About page has an **Update All** button, you can use it instead, with Gaggiuino on your home Wi-Fi: the official firmware reset page uses it to bring every part up to date. Older firmware may not have it.",
-        "Otherwise update by hand: from the latest release, download the core file for PCB v4 (performance, pcb, then pca or ncp to match a ToFnLED's LED chip; without a ToFnLED either works) and the two screen files (ui-embedded and ui-web; headless uses ui-headless and ui-web).",
+        "Otherwise update by hand: from the latest release, download the core file for PCB v4 (performance, pcb, then pca or ncp to match a ToFnLED's LED chip; without a ToFnLED either works) and the two screen files (ui-embedded and ui-web; headless uses ui-headless and ui-web). If the release lists more than one ui-embedded file, take the one for your screen: the official web flasher uses different builds for the Gen 3 (ESP32-S3) and Gen 3.5 (ESP32-P4) screens.",
+        "Firmware older than February 16, 2025 (unlikely on a new board) needs [breaking update 616ea70](https://github.com/Zer0-bit/gaggiuino/releases/tag/dev-616ea70) first, then the latest: the official guide's warning.",
         "In the web UI, Settings, OTA Update: choose **Core Upgrade Package**, SELECT FILE, pick the core file, then UPLOAD. The screen goes black while it flashes and reboots.",
         "Then START OVER, choose **LCD Upgrade Package** and upload ui-embedded (or ui-headless); START OVER again for ui-web. The order is core, then ui-embedded, then ui-web, unless the release notes say otherwise. Refresh the browser after ui-web.",
         "Back in About, all three build numbers should now match.",
         "Bench test done: unplug the USB cable, then unplug each part from the PCB and loosen J4's screws to free the thermocouple. Each part goes into the machine on its own, and everything plugs back into the PCB at the end of Phase 4 (the official custom wiring guide calls this the easiest way)."
       ],
-      warn:"Don't power off during an update. A failed or cancelled one falls back to the old firmware by itself. If updates keep failing on your home network, join Gaggiuino AP directly and try again.",
+      warn:"Don't power off during an update. A failed or cancelled one falls back to the old firmware by itself. If updates keep failing on your home network, disconnect Gaggiuino from that network, then join Gaggiuino AP directly and try again, as the official guide says.",
       pics:[["About page","ABOUT"],["OTA Update section","OTA1"],["Choosing the package","OTA2"],["START OVER","OTA3"]]
     },
     /* ---------------- Phase 2 ---------------- */
@@ -763,10 +764,10 @@
       how:[
         "Open [Power-on checks](checks) with Your Gaggia set, on a phone or tablet beside the machine: it shows only your checks.",
         "Cord out of the wall and out of the machine for every check in this phase.",
-        "Set the meter to its lowest Ω range, or continuity. Touch the probes together and enter that reading where the page asks.",
+        "Start the meter on its lowest Ω range, or continuity. Touch the probes together and enter that reading where the page asks. Switch to the highest range where a check says so.",
         "Work through each section in order up to Covers on. Type each reading in and the page marks it pass or fail.",
         "A fail: use the hint under that check to fix it, then measure again. Don't skip past a fail.",
-        "A few checks ask you to unclamp the thermocouple from J4, or unplug J7 and J9, for a moment. Put each back as it was straight after, with the same + and − on J4.",
+        "A few checks ask you to unclamp the thermocouple from J4, or unplug J7 and J9, for a moment. Put each back as it was straight after, with the same + and − on J4. b7 and c7 both need the thermocouple out of J4: take them one after the other, then clamp it back once.",
         "Have someone else trace the wiring against the wiring page too: a second pair of eyes catches what you've stopped seeing.",
         "Covers on, the last section, waits for Phase 5."
       ],
@@ -892,7 +893,7 @@
     },
     p5k:{
       how:[
-        "Switch off and unplug from the wall first.",
+        "Switch off, unplug from the wall, and let it cool: the boiler, the group and the thermocouple stay hot for a long time.",
         "Undo the two top screws and lift the cup warmer just enough to see in.",
         "Touch a dry paper towel to each new joint: the T or the tap block, the sensor and its fitting, the thermocouple. A damp spot is a leak.",
         "Reseat or snug that joint, unplugged. Never more than a quarter turn past hand tight on the sensor.",
