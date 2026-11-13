@@ -94,8 +94,39 @@ h2{font:700 clamp(28px,4.4vw,38px)/1 var(--f-display);letter-spacing:.02em;text-
 .src{font:600 10.5px/1 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted)}
 .when{font:500 12.5px var(--f-mono);color:var(--good)}
 .step.done .st-t{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+/* step by step: what you need, a careful note, the numbered steps, how to check, the official photos. Open on steps still to do, folded on done ones. */
+.how{grid-column:2;margin-top:8px;border:1px solid var(--line);border-radius:10px;background:var(--surface);max-width:70ch;min-width:0}
+.how>summary{cursor:pointer;list-style:none;padding:10px 12px;font:600 12px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);display:flex;align-items:center;gap:9px;min-height:40px;border-radius:10px}
+.how>summary::-webkit-details-marker{display:none}
+.how>summary::before{content:"";flex:none;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.how[open]>summary::before{transform:rotate(45deg) translate(-1px,-1px)}
+.how>summary .n{color:var(--muted);font-weight:500}
+.how .hb{padding:0 14px 14px;display:grid;gap:11px}
+.how ol{margin:0;padding-left:26px;display:grid;gap:8px;font-size:16px;line-height:1.5}
+.how ol>li{padding-left:3px}
+.how ol>li::marker{font:600 14px var(--f-mono);color:var(--accent-ink)}
+.how p{margin:0;font-size:15.5px;line-height:1.5}
+.lbl{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding:4px 6px;border-radius:4px;margin-right:7px;vertical-align:1px;white-space:nowrap}
+.need .lbl{background:var(--surface-2);color:var(--muted)}
+.ok .lbl{background:var(--good-soft);color:var(--good)}
+.warn{border-left:3px solid var(--bad);background:var(--bad-soft);padding:8px 11px;border-radius:6px}
+.warn .lbl{background:transparent;color:var(--bad);padding-left:0;padding-right:0}
+.pics .lbl{background:var(--surface-2);color:var(--muted)}
+.pics a{overflow-wrap:anywhere}
+.itag{display:inline-block;max-width:100%;font:600 10px/1.25 var(--f-mono);letter-spacing:.05em;text-transform:uppercase;padding:3px 5px;border-radius:4px;background:var(--accent-soft);color:var(--accent-ink);vertical-align:2px;margin-right:4px}
+.how b{font-weight:600;color:var(--ink)}
+/* your screen: a runbook-only choice, since the screen steps differ between the three interfaces */
+.scrpick{display:grid;gap:8px;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:12px 16px;margin-bottom:14px}
+.scrpick .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{appearance:none;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:9px 12px;font:600 15px var(--f-body);cursor:pointer;min-height:44px}
+.seg button[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.scrpick .s{margin:0;font-size:14px;color:var(--muted);max-width:76ch}
+.seg-row{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.seg-row[hidden]{display:none}
 .step.next{background:linear-gradient(90deg,var(--accent-soft),transparent 70%);border-radius:8px}
 .step.hit{background:var(--accent-soft);border-radius:8px;transition:background .6s}
+.step{scroll-margin-top:84px}
 
 .notes{margin-top:22px;display:grid;gap:6px}
 .notes .k{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -110,7 +141,7 @@ h2{font:700 clamp(28px,4.4vw,38px)/1 var(--f-display);letter-spacing:.02em;text-
 .fine{margin:0;font-size:14px;color:var(--muted);max-width:80ch}
 .linkbtn{appearance:none;border:0;background:none;padding:4px 0;font:500 14px var(--f-body);color:var(--bad);text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start}
 a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
-.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent-ink);vertical-align:3px;margin-left:8px;white-space:nowrap}
+.vtag{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent-ink);vertical-align:3px;margin-left:8px;max-width:100%;line-height:1.25}
 .hdr-actions{display:flex;gap:10px;flex-wrap:wrap}
 .print-only{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -139,6 +170,11 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   .pp-d{font-size:9.5pt;color:#222;margin-top:.4mm}
   .pp-src{font:500 7.5pt var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:#444;margin-top:.6mm}
   .pp-tag{font:600 7.5pt var(--f-mono);border:.6pt solid #000;padding:0 1mm;border-radius:1mm}
+  .pp-how{margin:1mm 0 0;padding-left:5mm;font-size:9.5pt;color:#111}
+  .pp-how li{margin:.4mm 0}
+  .pp-x{font-size:9pt;color:#222;margin-top:.6mm}
+  .pp-x b{font:600 7.5pt var(--f-mono);letter-spacing:.05em;text-transform:uppercase}
+  .pstep{break-inside:auto}
   .pp-notes{margin-top:2mm;break-inside:avoid;font-size:9.5pt}
   .pp-note{white-space:pre-wrap;border:.5pt solid #888;padding:2mm;margin-top:1mm}
   .pp-lines{height:14mm;margin-top:1mm;background:repeating-linear-gradient(to bottom,transparent 0,transparent 6.6mm,#999 6.6mm,#999 6.9mm)}
@@ -153,7 +189,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       <span class="rivet" aria-hidden="true"></span>
     </div>
     <h1>Gaggia Install Runbook</h1>
-    <p class="lede">The whole Gaggiuino install in eight phases, from the bench test to the first calibrated shot. Each step links to the section of the official guide that covers it, so the guide stays the instructions and this page keeps your place. Set your model and install path in the top bar to hide the steps that aren't yours. Before you open the machine, check you're ready with <a href="test-yourself.html">Test yourself</a>.</p>
+    <p class="lede">The whole Gaggiuino install in eight phases, from the bench test to the first calibrated shot, written out step by step so you can follow it with only this page open. Each step says what you need, what to do in order, and how to check it worked. Tick a step when it's done and its instructions fold away. Set Your Gaggia in the top bar and your screen below, and you'll only see the steps for your machine. Before you open the machine, check you're ready with <a href="test-yourself.html">Test yourself</a>.</p>
     <p class="lede print-only" id="print-for"></p>
     <div class="hdr-actions"><button type="button" class="btn" data-print hidden>Print the whole runbook</button></div>
   </header>
@@ -162,6 +198,25 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     <div><span class="k">Install progress</span><div class="v" id="p-v">0 of 0</div><div class="s" id="p-s"></div></div>
     <span class="status" id="status"><span class="lamp"></span><span id="status-text">Loading</span></span>
     <div class="meter" aria-hidden="true"><span id="p-bar" style="width:0"></span></div>
+  </section>
+
+  <section class="scrpick" aria-labelledby="scr-k">
+    <span class="k" id="scr-k">Your screen</span>
+    <div class="seg" id="scr" role="radiogroup" aria-labelledby="scr-k">
+      <button type="button" role="radio" aria-checked="false" data-scr="p4">Gen 3.5 screen (ESP32-P4)</button>
+      <button type="button" role="radio" aria-checked="false" data-scr="s3">Gen 3 screen (ESP32-S3)</button>
+      <button type="button" role="radio" aria-checked="false" data-scr="hl">Headless</button>
+    </div>
+    <p class="s" id="scr-s">Not sure? The Gen 3.5 screen has black glass right to its edges; the Gen 3 screen's glass sits on an orange circuit board with a mounting hole in each corner (<a href="https://gaggiuino.github.io/media/screen_compare_g_3.webp" target="_blank" rel="noopener">official photo</a>). A kit sold as Gen 3.5 has the Gen 3.5 screen. Headless means no screen, just a small board you use over Wi-Fi.</p>
+    <div id="mnt-row" class="seg-row">
+      <span class="k" id="mnt-k">Screen mount</span>
+      <div class="seg" id="mnt" role="radiogroup" aria-labelledby="mnt-k">
+        <button type="button" role="radio" aria-checked="false" data-mnt="front">Front</button>
+        <button type="button" role="radio" aria-checked="false" data-mnt="funnel">Funnel</button>
+        <button type="button" role="radio" aria-checked="false" data-mnt="rear">Rear</button>
+      </div>
+      <p class="s">Front sits on the front panel by magnets, funnel swivels on top of the water funnel, rear clips into the back vent (<a href="https://gaggiuino.github.io/media/screen_mounts_g_3_5.webp" target="_blank" rel="noopener">official photo</a>). Until you pick, the screen steps show every version.</p>
+    </div>
   </section>
 
   <nav class="phases" id="phases" aria-label="Phases"></nav>
@@ -178,45 +233,98 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       <a href="%%LINK_TROUBLE%%" target="_blank" rel="noopener">Troubleshooting</a>
       <a href="%%LINK_TRACKER%%" target="_blank" rel="noopener">Parts tracker</a>
     </div>
-    <p class="fine">Steps follow the official Gaggiuino guides: the build process, PCB, stock wiring integration, custom wiring, machine-specific, screen, flashing and Gen 3 manual pages. A step tagged Official is the guide's own instruction, summarized; one tagged Practice is ordinary bench practice added here.<span data-when="shelly"> The Shelly's steps are tagged Community (from fusio's build on the Gaggiuino Discord, not the official docs), Shelly docs, or Practice.</span> Where the two ever disagree, follow the official guide.</p>
+    <p class="fine">Steps follow the official Gaggiuino guides (read November 2026): the build process, PCB, stock wiring integration, Plug-and-Play/custom wiring, machine-specific, screen, headless, flashing, example tools, wiring basics and Gen 3 manual pages, written out here in plain words. A step tagged Official comes from those guides; one tagged Practice is ordinary bench practice added here, and the step says so where a detail is this site's own advice.<span data-when="shelly"> The Shelly's steps are tagged Community (from fusio's build on the Gaggiuino Discord, not the official docs), Shelly docs, or Practice.</span> This site's custom wiring follows the official May 2024 custom wiring drawings, which the official guide archived in October 2026 when it moved to the Plug-and-Play harness. Where this page and the current official guide ever disagree, follow the official guide.</p>
     <button type="button" class="linkbtn" id="reset">Clear all ticks</button>
   </footer>
 </div>
 
 <script>
 (function(){
-  var L={wiring:'%%LINK_WIRING%%',labels:'%%LINK_LABELS%%',checks:'%%LINK_CHECKS%%',which:'%%LINK_WHICH%%',cut:'%%LINK_CUTLIST%%',trouble:'%%LINK_TROUBLE%%',models:'%%LINK_MODELS%%',gscr:'part-guides.html#scr',gtof:'part-guides.html#tof',gfw:'part-guides.html#fw',gscl:'part-guides.html#scl',gshl:'part-guides.html#shl'};
+  var L={wiring:'%%LINK_WIRING%%',labels:'%%LINK_LABELS%%',checks:'%%LINK_CHECKS%%',which:'%%LINK_WHICH%%',cut:'%%LINK_CUTLIST%%',trouble:'%%LINK_TROUBLE%%',models:'%%LINK_MODELS%%',tracker:'%%LINK_TRACKER%%',test:'test-yourself.html',glossary:'glossary.html',guides:'part-guides.html',gtc:'part-guides.html#tc',gps:'part-guides.html#ps',gfuse:'part-guides.html#fuse',gwire:'part-guides.html#wire',gssr:'part-guides.html#ssr',gsw:'part-guides.html#sw',gscr:'part-guides.html#scr',gtof:'part-guides.html#tof',gfw:'part-guides.html#fw',gscl:'part-guides.html#scl',gshl:'part-guides.html#shl'};
   %%INCLUDE:official-links.js%%
   %%INCLUDE:runbook-phases.js%%
+  %%INCLUDE:runbook-how.js%%
   %%INCLUDE:maplink.js%%
-  var ALL=[];PHASES.forEach(function(p,i){p.steps.forEach(function(s){s.phase=i;ALL.push(s)})});
+  /* the step-by-step text lives in runbook-how.js, keyed by step id, so the pages that only need the steps' ids and titles (the wiring map's back-links, Test yourself) stay light */
+  var ALL=[];PHASES.forEach(function(p,i){p.steps.forEach(function(s){s.phase=i;var h=HOW[s.id];if(h)Object.keys(h).forEach(function(k){s[k]=h[k]});ALL.push(s)})});
   var KEY='gaggia-install-runbook-v1';
   function $(id){return document.getElementById(id)}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function fmtDate(ts){try{return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}catch(e){return ''}}
   function M(){return window.GaggiaMachine||null}
-  function vis(s){var m=M();return !s.w||!m||m.matches(s.w)}
+  /* conditions: machine.js keys (model, volts, path...) plus this page's own scr:p4|s3|hl (your screen) and mnt:front|funnel|rear
+     (its mount). Like machine.js, a choice that isn't made yet never hides anything. */
+  var LOC={scr:'screen',mnt:'mount'},NAMEL={screen:{p4:'Gen 3.5 screen',s3:'Gen 3 screen',hl:'Headless'},mount:{front:'Front mount',funnel:'Funnel mount',rear:'Rear mount'}},SCRN=NAMEL.screen;
+  function locKey(c){var m=/^!?(scr|mnt):/.exec(c);return m?LOC[m[1]]:null}
+  function splitW(w){var s=[],r=[];String(w||'').split(';').forEach(function(c){c=c.trim();if(c)(locKey(c)?s:r).push(c)});return [s,r.join(';')]}
+  function locOne(c){var k=locKey(c);if(!state[k])return true;var neg=c.charAt(0)==='!',hit=c.replace(/^!?[a-z]+:/,'').split(',').indexOf(state[k])>=0;return neg?!hit:hit}
+  function okw(w){if(!w)return true;var p=splitW(w);if(!p[0].every(locOne))return false;var m=M();return !p[1]||!m||m.matches(p[1])}
+  function decidedW(w){var p=splitW(w),m=M();return p[0].every(function(c){return !!state[locKey(c)]})&&(!p[1]||!!(m&&m.decided&&m.decided(p[1])))}
+  function vis(s){return okw(s.w)}
   function stepsOf(i){return PHASES[i].steps.filter(vis)}
   function visAll(){return ALL.filter(vis)}
   var FALLBACK={outlet:'GFCI-protected outlet (an RCD outside North America)',gfci:'GFCI',volts:'120 V'};
-  function fill(t){var m=M();if(Array.isArray(t))t=m?m.txt(t):t.map(function(x){return typeof x==='string'?x:x[0]}).join(' ');return String(t).replace(/\{(outlet|gfci|volts)\}/g,function(_,k){return m?m.text(k):FALLBACK[k]})}
+  function fill(t){
+    if(t==null)return '';
+    var m=M();
+    if(Array.isArray(t))t=t.filter(function(x){return typeof x==='string'||okw(x[1])}).map(function(x){return typeof x==='string'?x:x[0]}).join(' ').replace(/ ([,.;:])/g,'$1');
+    return String(t).replace(/\{(outlet|gfci|volts)\}/g,function(_,k){return m?m.text(k):FALLBACK[k]});
+  }
+  /* inline marks in the step text: **bold**, and [label](key#hash) links to a page on this site (a key in L) or a full address */
+  function hrefOf(t){if(/^https?:/.test(t))return t;var i=t.indexOf('#'),k=i<0?t:t.slice(0,i),h=i<0?'':t.slice(i);return L[k]?L[k]+h:t}
+  function rich(t){return esc(fill(t)).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,function(_,a,b){return '<a href="'+hrefOf(b.replace(/&amp;/g,'&'))+'" target="_blank" rel="noopener">'+a+'</a>'})}
+  function plain(t){return fill(t).replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'$1')}
   %%INCLUDE:wlabel.js%%
+  function wl(w){var p=splitW(w),a=[];if(p[1])a.push(wlabel(p[1]));p[0].forEach(function(c){var k=locKey(c),neg=c.charAt(0)==='!';a.push((neg?'Not ':'')+c.replace(/^!?[a-z]+:/,'').split(',').map(function(x){return NAMEL[k][x]||x}).join(' or '))});return a.filter(Boolean).join(' · ')}
+  /* a step's how-to items that apply, each with its condition */
+  function howItems(s){
+    return (s.how||[]).map(function(it){
+      if(typeof it==='string')return {t:it};
+      if(Array.isArray(it))return okw(it[1])?{t:it[0],w:it[1]}:null;
+      if(it&&typeof it==='object')return okw(it.w)?{t:it.t,w:it.w}:null;
+      return null;
+    }).filter(function(x){return x&&fill(x.t)});
+  }
+  function itag(w){var t=w&&!decidedW(w)?wl(w):'';return t?'<span class="itag">'+esc(t)+'</span>':''}
+  function howHtml(s,open){
+    var items=howItems(s),need=fill(s.need),warn=fill(s.warn),ok=fill(s.ok),pics=(s.pics||[]).filter(function(p){return okw(p[2])});
+    if(!items.length&&!need&&!warn&&!ok&&!pics.length)return '';
+    var h='<details class="how"'+(open?' open':'')+'><summary>Step by step'+(items.length?' <span class="n">· '+items.length+(items.length===1?' step':' steps')+'</span>':'')+'</summary><div class="hb">';
+    if(need)h+='<p class="need"><span class="lbl">You need</span>'+rich(s.need)+'</p>';
+    if(warn)h+='<p class="warn" role="note"><span class="lbl">Careful:</span> '+rich(s.warn)+'</p>';
+    if(items.length)h+='<ol>'+items.map(function(x){return '<li>'+itag(x.w)+rich(x.t)+'</li>'}).join('')+'</ol>';
+    if(ok)h+='<p class="ok"><span class="lbl">Check</span>'+rich(s.ok)+'</p>';
+    if(pics.length)h+='<p class="pics"><span class="lbl">Official photos</span>'+pics.map(function(p){return '<a href="'+esc(p[1])+'" target="_blank" rel="noopener">'+esc(p[0])+'</a>'}).join(' · ')+'</p>';
+    return h+'</div></details>';
+  }
+  function howPrint(s){
+    var items=howItems(s),h='';
+    if(fill(s.need))h+='<div class="pp-x"><b>You need</b> '+esc(plain(s.need))+'</div>';
+    if(fill(s.warn))h+='<div class="pp-x"><b>Careful</b> '+esc(plain(s.warn))+'</div>';
+    if(items.length)h+='<ol class="pp-how">'+items.map(function(x){return '<li>'+(x.w&&!decidedW(x.w)&&wl(x.w)?'['+esc(wl(x.w))+'] ':'')+esc(plain(x.t))+'</li>'}).join('')+'</ol>';
+    if(fill(s.ok))h+='<div class="pp-x"><b>Check</b> '+esc(plain(s.ok))+'</div>';
+    return h;
+  }
   /* links to the step's wiring on the wiring map; a step for one install path opens that path's drawing */
   function mapLinks(s){
     if(s.map==null)return '';
     var m=M(),pm=/wpath:(SI|CW)/.exec(s.w||''),o=pm?{path:pm[1]}:{};
     return (typeof s.map==='string'?[['On the wiring map',s.map]]:s.map).filter(function(x){return !x[2]||!m||m.matches(x[2])}).map(function(x){var oo={path:x[4]||o.path};if(x[3])oo.label=x[3];return '<a class="maplk" href="'+esc(mapHref(x[1],oo))+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join('');
   }
-  function wtag(s){var m=M();if(!s.w||(m&&m.decided&&m.decided(s.w)))return '';return '<span class="vtag">'+esc(wlabel(s.w))+'</span>'}
+  function wtag(s){if(!s.w||decidedW(s.w))return '';return '<span class="vtag">'+esc(wl(s.w))+'</span>'}
+  /* the step's own link plus its how-to links; one per label, the more specific address winning */
+  function siteLinks(s){var a=[],order=[],best={};if(s.link)a.push(s.link);(s.links||[]).forEach(function(x){if(!x[2]||okw(x[2]))a.push(x)});a.forEach(function(x){if(!best[x[0]]){order.push(x[0]);best[x[0]]=x}else if(hrefOf(x[1]).length>hrefOf(best[x[0]][1]).length)best[x[0]]=x});a=order.map(function(k){return best[k]});return a.map(function(x){return '<a href="'+esc(hrefOf(x[1]))+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join('')}
 
   /* ---------- state ---------- */
-  function defaults(){return {done:{},notes:{},phase:0,updatedAt:0}}
+  function defaults(){return {done:{},notes:{},phase:0,screen:null,mount:null,updatedAt:0}}
   function normalize(s){
     var o=defaults();if(!s||typeof s!=='object')return o;
     var ids={};ALL.forEach(function(x){ids[x.id]=1});
     if(s.done&&typeof s.done==='object')Object.keys(s.done).forEach(function(k){if(ids[k]&&typeof s.done[k]==='number')o.done[k]=s.done[k]});
     if(s.notes&&typeof s.notes==='object')Object.keys(s.notes).forEach(function(k){if(/^p[0-7]$/.test(k)&&typeof s.notes[k]==='string')o.notes[k]=s.notes[k].slice(0,4000)});
     if(typeof s.phase==='number'&&s.phase>=0&&s.phase<PHASES.length)o.phase=Math.floor(s.phase);
+    if(s.screen==='p4'||s.screen==='s3'||s.screen==='hl')o.screen=s.screen;
+    if(s.mount==='front'||s.mount==='funnel'||s.mount==='rear')o.mount=s.mount;
     o.updatedAt=typeof s.updatedAt==='number'?s.updatedAt:0;
     return o;
   }
@@ -236,8 +344,9 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     if(p.note)h+='<div class="pnote" role="note">'+esc(p.note)+'</div>';
     h+='<ol class="steps">'+stepsOf(i).map(function(s){
       var d=state.done[s.id];
-      var o=offOf(s),link=(o?'<a class="off" href="'+esc(o[1])+'" target="_blank" rel="noopener">Official: '+esc(o[0])+'</a>':'')+(s.link?'<a href="'+esc(L[s.link[1]])+'" target="_blank" rel="noopener">'+esc(s.link[0])+'</a>':'')+mapLinks(s);
-      return '<li class="step'+(d?' done':'')+(s.stop?' stopstep':'')+'" data-step="'+s.id+'"><input type="checkbox" id="c-'+s.id+'" data-tick="'+s.id+'"'+(d?' checked':'')+'><label for="c-'+s.id+'"><span class="st-t">'+esc(fill(s.t))+wtag(s)+'</span><span class="st-d">'+esc(fill(s.d))+'</span></label>'+
+      var o=offOf(s),link=siteLinks(s)+mapLinks(s)+(o?'<a class="off" href="'+esc(o[1])+'" target="_blank" rel="noopener">Official guide: '+esc(o[0])+'</a>':'');
+      return '<li class="step'+(d?' done':'')+(s.stop?' stopstep':'')+'" data-step="'+s.id+'"><input type="checkbox" id="c-'+s.id+'" data-tick="'+s.id+'"'+(d?' checked':'')+' aria-label="Done: '+esc(plain(s.t))+'"><label for="c-'+s.id+'"><span class="st-t">'+esc(fill(s.t))+wtag(s)+'</span><span class="st-d">'+rich(s.d)+'</span></label>'+
+        howHtml(s,!d)+
         '<div class="st-meta"><span class="src">'+esc(s.src)+'</span>'+link+'<span class="when" data-done="'+s.id+'">'+(d?'Done '+fmtDate(d):'')+'</span></div></li>';
     }).join('')+'</ol>';
     h+='<div class="notes"><label class="k" for="notes">Notes for '+esc(p.n)+'</label><textarea class="textarea" id="notes" placeholder="Readings, part numbers, what you changed">'+esc(state.notes[p.id]||'')+'</textarea></div>';
@@ -259,18 +368,23 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   }
   function renderPrint(){
     var m=M(),pf=$('print-for');
-    if(pf)pf.textContent=(m&&m.get()?'Your Gaggia: '+m.label()+'. ':'')+'Printed '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'. Started: ____________   Finished: ____________';
+    if(pf)pf.textContent=(m&&m.get()?'Your Gaggia: '+m.label()+'. ':'')+(state.screen?'Screen: '+SCRN[state.screen]+(state.mount&&state.screen!=='hl'?', '+NAMEL.mount[state.mount].toLowerCase():'')+'. ':'')+'Printed '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'. Started: ____________   Finished: ____________';
     $('print-all').innerHTML=PHASES.map(function(p,i){
       var h='<section class="pp"><div class="pp-h"><span class="pp-n">'+esc(p.n)+'</span><h2>'+esc(p.name)+'</h2></div><p class="pp-goal">'+esc(p.goal)+'</p>';
       if(p.stop)h+='<p class="pp-stop"><b>Stop point.</b> '+esc(p.stop)+'</p>';
       if(p.note)h+='<p class="pp-goal">'+esc(p.note)+'</p>';
-      h+=stepsOf(i).map(function(s){var d=state.done[s.id];return '<div class="pstep"><span class="pbox">'+(d?'✓':'')+'</span><div><b>'+esc(fill(s.t))+'</b>'+(s.w?' <span class="pp-tag">'+esc(wlabel(s.w))+'</span>':'')+'<div class="pp-d">'+esc(fill(s.d))+'</div><div class="pp-src">'+esc(s.src)+(offOf(s)?' · official guide: '+esc(offOf(s)[0]):'')+(d?' · done '+fmtDate(d):'')+'</div></div></div>'}).join('');
+      h+=stepsOf(i).map(function(s){var d=state.done[s.id];return '<div class="pstep"><span class="pbox">'+(d?'✓':'')+'</span><div><b>'+esc(fill(s.t))+'</b>'+(s.w&&!decidedW(s.w)?' <span class="pp-tag">'+esc(wl(s.w))+'</span>':'')+'<div class="pp-d">'+esc(plain(s.d))+'</div>'+howPrint(s)+'<div class="pp-src">'+esc(s.src)+(offOf(s)?' · official guide: '+esc(offOf(s)[0]):'')+(d?' · done '+fmtDate(d):'')+'</div></div></div>'}).join('');
       var note=state.notes[p.id];
       h+='<div class="pp-notes"><b>Notes</b>'+(note?'<div class="pp-note">'+esc(note)+'</div>':'<div class="pp-lines"></div>')+'</div></section>';
       return h;
     }).join('');
   }
-  function renderAll(){renderNav();renderPhase();renderProgress();renderPrint()}
+  function renderScr(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-scr]'),function(b){b.setAttribute('aria-checked',String(b.getAttribute('data-scr')===state.screen))});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-mnt]'),function(b){b.setAttribute('aria-checked',String(b.getAttribute('data-mnt')===state.mount))});
+    $('mnt-row').hidden=state.screen==='hl';
+  }
+  function renderAll(){renderScr();renderNav();renderPhase();renderProgress();renderPrint()}
   window.addEventListener('gaggia-machine',function(){renderAll()});
   window.addEventListener('beforeprint',function(){renderPrint()});
 
@@ -315,7 +429,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   $('phase').addEventListener('change',function(e){
     var id=e.target.getAttribute('data-tick');if(!id)return;
     if(e.target.checked)state.done[id]=Date.now();else delete state.done[id];
-    var li=e.target.closest('.step');if(li)li.classList.toggle('done',e.target.checked);
+    var li=e.target.closest('.step');if(li){li.classList.toggle('done',e.target.checked);var det=li.querySelector('details.how');if(det)det.open=!e.target.checked}
     var w=document.querySelector('[data-done="'+id+'"]');if(w)w.textContent=e.target.checked?'Done '+fmtDate(state.done[id]):'';
     touch();renderNav();renderProgress();markNext();
   });
@@ -326,8 +440,15 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     else if(e.target.id==='nextopen'){
       var next=visAll().filter(function(s){return !state.done[s.id]})[0];if(!next)return;
       if(next.phase!==state.phase){state.phase=next.phase;touch();renderNav();renderPhase()}
-      var el=document.querySelector('[data-step="'+next.id+'"]');if(el){el.scrollIntoView({behavior:'smooth',block:'center'});var c=el.querySelector('input');if(c)c.focus({preventScroll:true})}
+      var el=document.querySelector('[data-step="'+next.id+'"]');if(el){var dt=el.querySelector('details.how');if(dt)dt.open=true;el.scrollIntoView({behavior:'smooth',block:'start'});var c=el.querySelector('input');if(c)c.focus({preventScroll:true})}
     }
+  });
+  /* your screen and its mount: tap a choice to pick it, tap it again to show every version */
+  document.querySelector('.scrpick').addEventListener('click',function(e){
+    var b=e.target.closest('[data-scr],[data-mnt]');if(!b)return;
+    if(b.hasAttribute('data-scr')){var v=b.getAttribute('data-scr');state.screen=state.screen===v?null:v}
+    else{var u=b.getAttribute('data-mnt');state.mount=state.mount===u?null:u}
+    touch();renderAll();
   });
   var resetBtn=$('reset'),resetTimer=null;
   resetBtn.addEventListener('click',function(){
@@ -344,7 +465,8 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     var s=ALL.filter(function(x){return x.id===id})[0];if(!s||!vis(s))return;
     if(state.phase!==s.phase){state.phase=s.phase;renderNav();renderPhase()}
     var el=document.querySelector('[data-step="'+id+'"]');if(!el)return;
-    el.scrollIntoView({block:'center'});el.classList.add('hit');setTimeout(function(){el.classList.remove('hit')},2600);
+    var dt=el.querySelector('details.how');if(dt)dt.open=true;
+    el.scrollIntoView({block:'start'});el.classList.add('hit');setTimeout(function(){el.classList.remove('hit')},2600);
   }
   state=loadLocal()||defaults();
   renderAll();setStatus('loading');
