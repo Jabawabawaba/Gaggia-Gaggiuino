@@ -14,6 +14,6 @@ To change a page:
 
 - Every page is built from `build/`. The runbook steps are in `runbook-phases.js`, the links into the official guide in `official-links.js`, the power-on checks, cut list, troubleshooting, which Gaggia and the home page are templates there, and the budget, used checklist and parts tracker pages are in `build/pages/`. Edit the source, run `python3 site.py` in `build/`, and send the source change with the rebuilt pages.
 - Don't edit the built `.html` files at the repo root by hand; the next build overwrites them.
-- Keep the mains-voltage warnings and the "unofficial" labeling. Don't copy text, photos or schematics from the official docs; summarize and link instead.
+- Keep the mains-voltage warnings and the "unofficial" labeling. Don't copy text, photos or schematics from the official docs into this repository; summarize and link instead. The runbook may show an official photo inline from its official address, credited, but never a saved copy.
 
 Everything contributed is published under CC BY-NC-SA 4.0 with credit to you by whatever name you give.

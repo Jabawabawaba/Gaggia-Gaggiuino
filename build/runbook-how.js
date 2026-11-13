@@ -6,6 +6,10 @@
      [label](key#hash) links to a page on this site (a key in the runbook's L) or a full address.
      Written from the official Gaggiuino docs as read in November 2026; where a detail is this site's own advice, the text says so. */
   var PIC={
+    uiHome:"https://gaggiuino.github.io/manual/gen3/mbed/001_000_home.png",
+    uiSystem:"https://gaggiuino.github.io/manual/gen3/mbed/003_002_settings_system.png",
+    uiBoiler:"https://gaggiuino.github.io/manual/gen3/mbed/003_000_settings_boiler.png",
+    uiDescale:"https://gaggiuino.github.io/manual/gen3/mbed/001_004_descale.png",
     labels:"https://gaggiuino.github.io/schematics/stm32_pcbv3_1_board_labels.png",
     lvGCP:"https://gaggiuino.github.io/schematics/stm32-lv/GCP_g3_5_PCBv4_LV.png",
     lvGC:"https://gaggiuino.github.io/schematics/stm32-lv/GC_g3_5_PCBv4_LV.png",
@@ -282,7 +286,8 @@
         "The reading should climb a few degrees. If it falls instead, the two wires are swapped: loosen J4's screws, swap them, retighten and try again.",
         "Write down which lead color ended up on + in the notes at the bottom of this phase. It goes back the same way in the machine."
       ],
-      ok:"Warm the tip and the number goes up."
+      ok:"Warm the tip and the number goes up.",
+      pics:[["Home screen, labeled (official manual)", "uiHome"]]
     },
     p1h:{
       how:[
@@ -292,7 +297,8 @@
         "If you built hardware scales, you can test them now too, and even calibrate them (Phase 6 shows how)."
       ],
       ok:"SSR LED on, pressure a steady 0.0 bar, brew temperature as the target.",
-      links:[["Troubleshooting","trouble"]]
+      links:[["Troubleshooting","trouble"]],
+      pics:[["Home screen, labeled (official manual)", "uiHome"]]
     },
     p1j:{
       need:"A phone or laptop with Wi-Fi, and your home Wi-Fi password.",
@@ -305,7 +311,7 @@
         "Once it's on your network, open http://gaggiuino.local from any device on that network. If a phone won't open it, try a laptop: some phones can't open .local addresses (this site's tip, not the official guide's)."
       ],
       ok:"The web UI opens at gaggiuino.local. On your home network, it also gets the right time for shot history.",
-      pics:[["The Gaggiuino AP in a Wi-Fi list","AP"]]
+      pics:[["The Gaggiuino AP in a Wi-Fi list","AP"],["Settings, System: the Wi-Fi panel", "uiSystem"]]
     },
     p1i:{
       how:[
@@ -869,7 +875,8 @@
         "Turn brew off, then tap Flush again to leave flush mode.",
         "No water after about 30 seconds? Brew off, check the tank is seated and its tube is in the water, and try again (this site's tip)."
       ],
-      ok:"Water ran from the group for 5 seconds or more: the boiler is full."
+      ok:"Water ran from the group for 5 seconds or more: the boiler is full.",
+      pics:[["Home screen: Flush is at the bottom right", "uiHome"]]
     },
     p5f:{
       how:[
@@ -944,13 +951,15 @@
         "Follow the instructions in the profile.",
         "The result is Pump Zero: how much water your pump moves per pulse at 0 bar. It's under Settings, System.",
         "Later, with hardware or Bluetooth scales, you can refine it: compare pump flow with weight flow during a steady shot above 4 bar and 1 ml/s (the manual's tip)."
-      ]
+      ],
+      pics:[["Settings, System: Pump Zero", "uiSystem"]]
     },
     p6b:{
       how:[
         "Settings, Boiler: leave Steam Temperature, DreamSteam, Temperature Offset, Brew Delta and the Advanced values (HPWR, Main Divider, Brew Divider) as they are.",
         "The manual recommends the defaults for the Gaggia Classic and the Classic Pro family."
-      ]
+      ],
+      pics:[["Settings, Boiler (its numbers are only an example)", "uiBoiler"]]
     },
     p6c:{
       how:[
@@ -967,7 +976,8 @@
         ["The official low-voltage drawing shows the slot on the back of the headless board.","scr:hl"],
         ["The official drawing doesn't show where the Gen 3 screen's slot is: ask in your help thread if you can't find it.","scr:s3"],
         "After changing settings, tap the save icon once: \"Settings persisted\" confirms it."
-      ]
+      ],
+      pics:[["Settings, System: Timezone offset", "uiSystem"]]
     },
     p6e:{
       how:[
@@ -998,7 +1008,8 @@
         "Profiles with pre-infusion and soak need a finer grind than stock to reach the same pressure.",
         "With stop-on-weight, the shot stops a little early on purpose: the last of it is still on its way to the cup.",
         "With Brew Delta on, the boiler reads high after a shot: wait for it to settle before the next one."
-      ]
+      ],
+      pics:[["Home screen: profiles and shot weight", "uiHome"]]
     },
     p7b:{
       how:[
@@ -1013,7 +1024,8 @@
         "**Descale, part 1:** empty the drip tray. Fill the tank to the max line with descaling solution (water and citric acid). Lock in the blind basket, put a 2 L container under the steam wand, and open the steam knob a quarter turn.",
         "**Descale, part 2:** tap Descale (its circle turns green) and turn brew on. It runs until the tank is empty, about 30 minutes. With a ToFnLED it stops by itself.",
         "**Descale, part 3:** brew off. Clean the tank, fill it with fresh water to the max line, and run the cycle again with the brew switch until the tank is empty."
-      ]
+      ],
+      pics:[["The descale screen", "uiDescale"]]
     },
     p7d:{
       how:[
@@ -1031,3 +1043,77 @@
   /* photo keys in pics resolve to the addresses above */
   var PICL={};Object.keys(PIC).forEach(function(k){PICL[k.toLowerCase()]=PIC[k]});
   Object.keys(HOW).forEach(function(k){var h=HOW[k];if(h.pics)h.pics=h.pics.map(function(p){var u=PICL[String(p[1]).toLowerCase()];return u?[p[0],u,p[2]]:p})});
+
+  /* Visuals per step, drawn by runbook-figs.js. ['g', part guide, variant, guide step titles, when] plays that guide's
+     drawing for just those steps (a title can be [title, when]; titles can also be listed per variant). '@path', '@fam'
+     and '@mnt' follow Your Gaggia's install path and family and this page's screen mount. ['d', diagram, options, when]
+     draws one of the runbook's own diagrams. */
+  var SCRT={front:[['Wire it first','scr:s3'],'Magnets into the front mount','Wires through the housing gap','Cable through the back, then plug in',['Screen onto the upper posts first','scr:s3'],['Front cover: top edge first','scr:s3'],'Clip the mount on','Onto the machine'],
+    funnel:[['Wire it first','scr:s3'],'Open the funnel cover','Heat-set insert, then the latch','Wires through the vent','Cable through the back, then plug in',['Screen onto the upper posts first','scr:s3'],['Front cover: top edge first','scr:s3'],'Tape the wires, clip on the plate','The swivel'],
+    rear:[['Wire it first','scr:s3'],'Wires through the vent','Cable through the back, then plug in',['Screen onto the upper posts first','scr:s3'],['Front cover: top edge first','scr:s3'],'Tape the wires, clip on the plate','Rear mount onto the plate']};
+  var WIRES=['Cut and label','Strip 6 mm','Insulated spades and forks','Bare spades at the boiler','Two wires, or a thin one'];
+  var FIG={
+    p0t:[['g','wire',null,['Insulated spades and forks','Bare spades at the boiler']]],
+    p0l:[['d','flag']],
+    p0s:[['g','shl',null,['Pick the Shelly']]],
+    p0s2:[['g','shl',null,['Plan where it goes']]],
+    p1b:[['d','pcbw',{on:['J4','J6','J1','J9','J2'],x:['J7','MAINS'],note:{J2:'ToFnLED, if you have one: on the back',J7:'Leave it empty: its wires come in Phase 4',MAINS:'The mains tabs stay empty on the bench'}}],['d','ssr',{}]],
+    p1c:[['d','j4']],
+    p1d:[['d','scrpins']],
+    p1e:[['d','pcbw',{on:['USB'],x:['MAINS'],note:{USB:'A USB-C cable to a charger or a computer',MAINS:'Nothing on the mains tabs'}}]],
+    p1f:[['d','boot']],
+    p1g:[['d','temp']],
+    p1h:[['d','ssrled']],
+    p1j:[['d','wifi']],
+    p1i:[['g','fw','ota','all']],
+    p2b:[['g','sw','GCP',['Label the three that move']]],
+    p2b2:[['g','sw','GC',['Label the connectors']]],
+    p2d:[['g','sw','GCP',['Evo and E24: split the connector block']]],
+    p2w:[['g','wire',null,WIRES],['d','flag']],
+    p2h:[['g','wire',null,WIRES.concat(['A butt splice, if a wire is short'])]],
+    p2i:[['g','wire',null,['Insulated spades and forks']]],
+    p2j:[['g','wire',null,['Bare spades at the boiler']]],
+    p2s:[['g','shl',null,['Ferrules in the screw terminals']]],
+    p2k:[['g','wire',null,['Pull-test every crimp']]],
+    p3a:[['g','tc',null,['Unplug the brew thermostat','Unscrew the thermostat']]],
+    p3b:[['g','tc',null,['Unplug the brew thermostat']]],
+    p3c:[['g','tc',null,['Paste on the thread','Screw it in, barely finger tight']]],
+    p3r:[['g','fuse','@path','all']],
+    p3d:[['g','tc',null,['Route the lead']]],
+    p3e:[['g','ps','ptb',['Sensor onto the tube'],null,'Tap block'],['g','ps','tee',['Park it low'],null,'T-fitting']],
+    p3i:[['g','ps','ptb',['O-ring into the sensor fitting','Sensor in: hand tight, then at most a quarter turn']]],
+    p3h:[['g','ps','ptb',['Push-in fitting into the block','40 mm of tube, cut square','Take off the inlet fitting','Clamp the block in','Sensor onto the tube']]],
+    p3f:[['g','ps','tee',['Cut the line','Fit the T','Run the branch','Seal the sensor']]],
+    p3g:[['g','ps','tee',['Cut the line','Fit the T','Run the branch','Seal the sensor']]],
+    p3j:[['g','ps','tee',['Park it low']]],
+    p4a:[['g','ssr','SI',['Find its spot','Screw it to the wall']]],
+    p4b:[['g','ssr','SI',['Load wires on the big screws']]],
+    p4c:[['g','wire',null,['Piggyback on the pump']]],
+    p4d:[['g','sw','GC',['P1-2 onto wire L','Park 1, 2, 3 and P3-4']]],
+    p4e:[['g','sw','GCP',['Brew: B4 onto wire L','Steam: S4 to spade 1','Park S5']]],
+    p4f:[['g','sw','@fam',['Low-voltage wires on the freed spades','Check it']]],
+    p4g:[['g','sw','@fam',[['Park S5','fam:GCP'],['Park 1, 2, 3 and P3-4','fam:GC']]]],
+    p4h:[['g','ssr','CW',['Find its spot','Screw it to the wall','Load wires on the big screws','Control wires: + and −']]],
+    p4s:[['g','shl',null,['Plan where it goes','Move the socket into the enclosure']]],
+    p4s2:[['g','shl',null,["Line: socket L to the Shelly's L",'Neutral: a piggyback for the Shelly','Switch: spade 4 to SW','Output: O to splice S6']]],
+    p4q:[['g','tc',null,['Clamp it in J4 and check it']],['d','pcbw',{on:['J4','J6','J1','J7','J9','J2','MAINS'],note:{J7:'Switch wires: GND, S, B',J9:'SSR control: R1 to +, GND to −',J2:'ToFnLED, if you have one',MAINS:'N on J10, L on J11, P on J12, 3 on J13'},cap:'Every socket that gets a plug once the PCB is in the machine. Check each mains wire against the wiring page before you push it on.'}]],
+    p4k:[['g','tc',null,['Route the lead']]],
+    p4t:[['g','tof',null,['Magnets into the housing','Cable into J2','Down the side, then over the tank',"Peel off the sensor's film",'Close it up']]],
+    p4z:[['d','meter']],
+    p5a:[['g','scr','@mnt',SCRT,'!scr:hl']],
+    p5b:[['g','scr','@mnt',{front:['Funnel and cup warmer back on'],funnel:['Onto the funnel'],rear:['Cup warmer on, then hook it in']},'!scr:hl']],
+    p5e:[['d','flush']],
+    p5f:[['d','temp',{mode:'heat'}]],
+    p5g:[['g','ps','tee',['Fill the line']]],
+    p5h:[['g','ps','ptb',['Fill it and test it']],['d','flush']],
+    p5i:[['d','opv']],
+    p5l:[['d','switches']],
+    p6e:[['g','scl',null,['Calibrate: find each cell','Calibrate: weigh something known']]],
+    p6f:[['g','tof',null,['Core firmware to match its LED','Pick a color and brightness','Check the tank level']]],
+    p7c:[['d','flush']]
+  };
+  /* what's powered while you do a step (runbook-figs.js badges): by phase, then step by step where it differs */
+  var PWD={p1:'usb',p2:'off',p3:'off',p4:'off',p5:'off',p6:'on'};
+  var PWS={p1a:'off',p1b:'off',p1c:'off',p1d:'off',
+    p5d:'on',p5s:'on',p5s2:'on',p5s3:'on',p5e:'on',p5f:'hot',p5g:'hot',p5h:'hot',p5i:'hot',p5j:'off',p5k:'off',p5l:'hot',p5m:'hot',
+    p6a:'hot',p6e:'on',p7a:'off',p7f:'hot',p7c:'hot'};
