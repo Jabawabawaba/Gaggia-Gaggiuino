@@ -766,6 +766,7 @@
         "Set the meter to its lowest Ω range, or continuity. Touch the probes together and enter that reading where the page asks.",
         "Work through each section in order up to Covers on. Type each reading in and the page marks it pass or fail.",
         "A fail: use the hint under that check to fix it, then measure again. Don't skip past a fail.",
+        "A few checks ask you to unclamp the thermocouple from J4, or unplug J7 and J9, for a moment. Put each back as it was straight after, with the same + and − on J4.",
         "Have someone else trace the wiring against the wiring page too: a second pair of eyes catches what you've stopped seeing.",
         "Covers on, the last section, waits for Phase 5."
       ],

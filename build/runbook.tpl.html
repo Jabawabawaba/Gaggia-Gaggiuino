@@ -150,7 +150,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   @page{margin:13mm 12mm}
   body{background:#fff;color:#000;font-size:10.5pt;line-height:1.35}
   .wrap{max-width:none;padding:0}
-  .prog,.phases,#phase,.foot,.top .lede:not(.print-only),.hdr-actions,[data-print]{display:none!important}
+  .prog,.scrpick,.phases,#phase,.foot,.top .lede:not(.print-only),.hdr-actions,[data-print]{display:none!important}
   .print-only{display:block}
   .top{gap:6px;margin-bottom:6mm}
   .plate{border:.6pt solid #000;color:#000}
@@ -271,7 +271,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     return String(t).replace(/\{(outlet|gfci|volts)\}/g,function(_,k){return m?m.text(k):FALLBACK[k]});
   }
   /* inline marks in the step text: **bold**, and [label](key#hash) links to a page on this site (a key in L) or a full address */
-  function hrefOf(t){if(/^https?:/.test(t))return t;var i=t.indexOf('#'),k=i<0?t:t.slice(0,i),h=i<0?'':t.slice(i);return L[k]?L[k]+h:t}
+  function hrefOf(t){if(/^https?:/.test(t))return t;var i=t.indexOf('#'),k=i<0?t:t.slice(0,i),h=i<0?'':t.slice(i);return L[k]?(h?L[k].split('#')[0]+h:L[k]):t}
   function rich(t){return esc(fill(t)).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,function(_,a,b){return '<a href="'+hrefOf(b.replace(/&amp;/g,'&'))+'" target="_blank" rel="noopener">'+a+'</a>'})}
   function plain(t){return fill(t).replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'$1')}
   %%INCLUDE:wlabel.js%%
