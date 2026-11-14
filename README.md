@@ -22,7 +22,7 @@ Gaggiuino was built for the Gaggia Classic, and its official guide covers the in
 | `model-notes.html` | Reference | Every model difference that matters for the install, each marked with its source |
 | `parts-tracker.html` | Ordering | The parts list with links, status, price paid and box contents |
 | `test-yourself.html` | Before opening the machine | Questions on everything on the site, matched to your machine, each linked to where to review it; clear every topic, then pass a final exam for a certificate that you're ready to start the modifications |
-| `runbook.html` | Install day | Eight phases of tickable steps, each linked to its section of the official guide, with a stop point before first power-on; prints as one checklist |
+| `runbook.html` | Install day | Eight phases of tickable steps, each written out step by step and linked to its section of the official guide, with drawings, diagrams, the official photos inline, a power badge on every step and a stop point before first power-on; prints as one checklist |
 | `part-guides.html` | Install day | The thermocouple, pressure sensor, resettable fuse, wires, SSR and switches, each drawn step by step, following your model and install path |
 | `wiring.html` | Install day | Every wire for your model, voltage and install path, taken from the official schematic: ends, color, connectors and length |
 | `cut-list.html` | Install day | Wire to buy by color, connectors to crimp, and every wire to cut, with adjustable extra length |
