@@ -1,5 +1,5 @@
 {
- "_about": "How each machine is wired as it leaves the factory, for the wiring map's Out of the box view (wiring_map.py). Each harness is traced from a drawing in the official Gaggiuino docs; colors are the ones that drawing labels, and the docs note that colors vary by year and model. Ends name map terminals: lamp and switch spades, boiler pins, the socket, pump, valve and earth spades, plus parts only the factory harness has: the brew thermostat (bt:a, bt:b), the steam thermostat (st:a, st:b) and the factory's crimp splices (J0, J1 and so on; the map picks the side). lab names the stock connector at each end where the stock wiring guide names one (Ba, Bb, Sa, Sb, Pb, B4, S4, S5, and on the Classic P1-2, 1, 2, 3, P3-4, F). sys: L line, H heater circuit, N neutral, E earth, LMP lamp lead. The Classic has no crimp splices: where two wires meet, they share a connector on one spade. missing: schematics with no factory drawing to trace, and the note shown instead.",
+ "_about": "How each machine is wired as it leaves the factory, for the wiring map's Out of the box view (wiring_map.py). Each harness is traced from a drawing in the official Gaggiuino docs; colors are the ones that drawing labels, and the docs note that colors vary by year and model. Ends name map terminals: lamp and switch spades, boiler pins, the socket, pump, valve and earth spades, plus parts only the factory harness has: the brew thermostat (bt:a, bt:b), the steam thermostat (st:a, st:b) and the factory's crimp splices (J0, J1 and so on; the map picks the side). lab names the stock connector at each end where the stock wiring guide names one (Ba, Bb, Sa, Sb, Pb, B4, S4, S5, and on the Classic P1-2, 1, 2, 3, P3-4, F). sys: L line, H heater circuit, N neutral, E earth, LMP lamp lead. The Classic has no crimp splices: where two wires meet, they share a connector on one spade. missing: schematics with no factory drawing to trace, and the note shown instead. becomes (Plug-and-Play): factory wires that stay, each with the run it becomes (empty: it stays on a part the new wiring leaves unused).",
  "harness": {
   "gcp-120": {
    "name": "Classic Pro family, 120 V, as it leaves the factory",
@@ -8,7 +8,7 @@
    "junctions": {
     "J0": "Factory splice: neutral from the power switch, with the pump's return",
     "J1": "Factory splice: switched line from the power switch",
-    "J2": "Factory splice: the neutral that feeds the lamps, the brew thermostat and the steam switch",
+    "J2": "Factory splice: the neutral that feeds the power and brew lamps, the brew thermostat and the steam switch",
     "J3": "Factory splice: line after the 184 °C fuse",
     "J4": "Factory splice: between the two thermostats",
     "J5": "Factory splice: the elements' return to the steam thermostat",
@@ -23,14 +23,14 @@
     {"id": "F6", "a": "sol:gnd", "b": "b:gnd", "color": "yellowgreen", "sys": "E", "what": "Earth from the 3-way valve to the boiler"},
     {"id": "F7", "a": "pwr5", "b": "J1", "color": "brown", "sys": "L", "what": "Switched line from the power switch"},
     {"id": "F8", "a": "J1", "b": "lampP:A", "color": "white", "sys": "LMP", "what": "Power lamp lead, on the switched line"},
-    {"id": "F9", "a": "J1", "b": "b:fuseL", "color": "brown", "sys": "L", "what": "Switched line to the 184 °C thermal fuse"},
-    {"id": "F10", "a": "b:fuseR", "b": "J3", "color": "brown", "sys": "L", "what": "Line after the thermal fuse"},
+    {"id": "F9", "a": "J1", "b": "b:fuseR", "color": "brown", "sys": "L", "what": "Switched line to the 184 °C thermal fuse"},
+    {"id": "F10", "a": "b:fuseL", "b": "J3", "color": "brown", "sys": "L", "what": "Line after the thermal fuse"},
     {"id": "F11", "a": "J3", "b": "brew4", "color": "brown", "sys": "L", "lab": ["", "B4"], "what": "Line to the brew switch, which feeds the pump and valve"},
     {"id": "F12", "a": "J3", "b": "b:TR", "color": "brown", "sys": "H", "what": "Line to an element"},
-    {"id": "F13", "a": "J3", "b": "b:TL", "color": "brown", "sys": "H", "what": "Line to the other element"},
+    {"id": "F13", "a": "J3", "b": "b:BR", "color": "brown", "sys": "H", "what": "Line to the other element"},
     {"id": "F14", "a": "pwr2", "b": "J0", "color": "white", "sys": "N", "what": "Switched neutral from the power switch"},
     {"id": "F15", "a": "pf:out", "b": "J0", "color": "white", "sys": "N", "what": "The pump's return: its 110 °C fuse's lead (the fuse's other lead is Pa, on the pump)"},
-    {"id": "F16", "a": "J0", "b": "J2", "color": "white", "sys": "N", "what": "Neutral on to the lamps and thermostats"},
+    {"id": "F16", "a": "J0", "b": "J2", "color": "white", "sys": "N", "what": "Neutral on to the power and brew lamps, the brew thermostat and the steam switch"},
     {"id": "F17", "a": "J2", "b": "lampP:B", "color": "white", "sys": "LMP", "what": "Power lamp lead, on neutral"},
     {"id": "F18", "a": "J2", "b": "lampB:A", "color": "white", "sys": "LMP", "what": "Brew lamp lead, on neutral"},
     {"id": "F19", "a": "J2", "b": "bt:a", "color": "white", "sys": "H", "lab": ["", "Ba"], "what": "Neutral to the brew thermostat: the heater's return"},
@@ -45,7 +45,7 @@
     {"id": "F28", "a": "J5", "b": "lampS:B", "color": "white", "sys": "LMP", "what": "Steam lamp lead, on the elements' return"},
     {"id": "F29", "a": "J5", "b": "st:a", "color": "grey", "sys": "H", "lab": ["", "Sa"], "what": "The elements' return to the steam thermostat"},
     {"id": "F30", "a": "J5", "b": "J6", "color": "grey", "sys": "H", "what": "Both elements' return"},
-    {"id": "F31", "a": "J6", "b": "b:BR", "color": "grey", "sys": "H", "what": "Element return"},
+    {"id": "F31", "a": "J6", "b": "b:TL", "color": "grey", "sys": "H", "what": "Element return"},
     {"id": "F32", "a": "J6", "b": "b:BL", "color": "grey", "sys": "H", "what": "The other element's return"},
     {"id": "F33", "a": "brew5", "b": "sol:R", "color": "grey", "sys": "L", "what": "Brew switch to the 3-way valve"},
     {"id": "F34", "a": "pump:A", "b": "sol:R", "color": "grey", "sys": "L", "lab": ["Pb", ""], "what": "Pump feed, from the valve's spade, so brew runs the pump and opens the valve together"}
@@ -54,7 +54,7 @@
   "gc-120": {
    "name": "Classic, 120 V, as it leaves the factory",
    "src": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GC_SI_g3_5_120v.png",
-   "srcname": "the official docs' 120 V Classic stock-integration drawing, whose thick lines are the stock wires",
+   "srcname": "the official docs' 120 V Classic stock-integration drawing, whose thick lines are the stock wires apart from the install's purple ones and the retrofit's green earth",
    "noearth": "Most 120 V Classics left the factory with no earth wire, so none is drawn. The drawing's green earth wires are the grounding retrofit.",
    "junctions": {},
    "runs": [
@@ -81,7 +81,7 @@
   "gc-230": {
    "name": "Classic, 230 V, as it leaves the factory",
    "src": "https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/schematics/install-stock-3pln/GC_SI_g3_5_220v.png",
-   "srcname": "the official docs' 220 to 240 V Classic stock-integration drawing, whose thick lines are the stock wires",
+   "srcname": "the official docs' 220 to 240 V Classic stock-integration drawing, whose thick lines are the stock wires apart from the install's purple ones",
    "junctions": {},
    "runs": [
     {"id": "F1", "a": "sock:L", "b": "hs:On/Off 7", "color": "lightblue", "sys": "L", "what": "Line from the inlet to the power switch"},
@@ -92,7 +92,7 @@
     {"id": "F6", "a": "b:fuseR", "b": "pump:B", "color": "grey", "sys": "N", "lab": ["", "F"], "what": "Neutral to the pump: this end is connector F"},
     {"id": "F7", "a": "b:TL", "b": "b:BL", "color": "black", "sys": "H", "what": "Link between the two elements: at 230 V they run in series"},
     {"id": "F8", "a": "b:BR", "b": "st:a", "color": "grey", "sys": "H", "lab": ["", "Sa"], "what": "Heater line from the steam thermostat to the elements"},
-    {"id": "F9", "a": "st:a", "b": "hs:Brew 2", "color": "grey", "sys": "H", "lab": ["Sa", "2"], "what": "Heater line to the brew switch's spade 2, a tie point (the boiler lamp sits between P and 2)"},
+    {"id": "F9", "a": "st:a", "b": "hs:Brew 2", "color": "grey", "sys": "H", "lab": ["Sa", "2"], "what": "Heater line to the brew switch's spade 2, for the boiler lamp, which sits between P and 2"},
     {"id": "F10", "a": "hs:Steam P", "b": "bt:b", "color": "white", "sys": "H", "lab": ["P3-4", "Bb"], "what": "Steam on joins spade 3 to P(3-4), so line skips the brew thermostat"},
     {"id": "F11", "a": "bt:b", "b": "st:b", "color": "white", "sys": "H", "lab": ["Bb", "Sb"], "what": "Brew thermostat to the steam thermostat"},
     {"id": "F12", "a": "hs:On/Off P", "b": "bt:a", "color": "blue", "sys": "H", "lab": ["", "Ba"], "what": "Switched line to the brew thermostat"},
@@ -101,14 +101,14 @@
     {"id": "F15", "a": "hs:Brew 1", "b": "hs:Spare P", "color": "red", "sys": "L", "lab": ["1", ""], "what": "Brew switch output to the steam switch's second pole, P(5-6)"},
     {"id": "F16", "a": "hs:Spare P", "b": "pump:A", "color": "red", "sys": "L", "lab": ["", "Pb"], "what": "Pump feed"},
     {"id": "F17", "a": "hs:Spare 6", "b": "sol:L", "color": "lightblue", "sys": "L", "what": "The 3-way valve's feed, through the steam switch, so it only opens with steam off"},
-    {"id": "F18", "a": "hs:On/Off 8", "b": "sol:R", "color": "black", "sys": "N", "what": "Neutral from the power switch's spade 8, a tie point (the power lamp sits between P and 8), to the 3-way valve"},
+    {"id": "F18", "a": "hs:On/Off 8", "b": "sol:R", "color": "black", "sys": "N", "what": "Neutral for the power lamp, which sits between P and 8: it reaches spade 8 from the 3-way valve's spade"},
     {"id": "F19", "a": "sol:R", "b": "pump:B", "color": "black", "sys": "N", "lab": ["", "F"], "what": "Neutral from the 3-way valve to connector F on the pump"}
    ]
   }
  },
  "variants": {
   "si-gcp-120": {"harness": "gcp-120", "moves": ["Ba", "Bb", "Sa", "Sb", "Pb", "B4", "S4", "S5"], "out": ["bt"]},
-  "cw-gcp-120": {"harness": "gcp-120"},
+  "cw-gcp-120": {"harness": "gcp-120", "becomes": {"F25": "BL-X1a", "F28": "BL-X1b", "F8": "PL-X1b", "F17": "PL-X1c", "F15": "PF-P2b", "F18": "", "F24": ""}},
   "si-gc-120": {"harness": "gc-120", "moves": ["Ba", "Bb", "Sa", "Sb", "Pb", "P1-2", "1", "2", "3", "P3-4"], "out": ["bt"]},
   "si-gc-230": {"harness": "gc-230", "moves": ["Ba", "Bb", "Sa", "Sb", "Pb", "P1-2", "1", "2", "3", "P3-4"], "out": ["bt"]},
   "cw-gc-120": {"harness": "gc-120"},

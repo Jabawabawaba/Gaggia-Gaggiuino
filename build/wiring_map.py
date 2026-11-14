@@ -1088,11 +1088,12 @@ FAC_NOTES = {
     "swP": "It breaks both line (spades 4 and 5) and neutral (spades 1 and 2).",
     "swB": "It joins line from after the thermal fuse (spade 4) to the 3-way valve's feed (spade 5), which also feeds the pump.",
     "swS": "Steam off, it completes the 3-way valve's return to neutral. Steam on, it bypasses the brew thermostat, so the boiler heats to the steam thermostat's setting.",
-    "housing": "Brew, steam and power rockers in one block, with the boiler and power lamps inside. Brew 2 and on/off 8 also serve as tie points, where wires meet and the internal lamps connect.",
+    "housing": "Brew, steam and power rockers in one block, with the boiler lamp inside across brew P(1-2) and 2, and the power lamp across on/off P and 8.",
     "boiler120": "Two elements in parallel, with the 184 °C thermal fuse in series.",
     "boiler230": "Two elements in series, linked TL to BL, with the 184 °C thermal fuse in series.",
     "sol": "The 3-way solenoid valve. It opens while the brew switch is on with steam off.",
     "sock": "The IEC inlet: line, neutral and earth come in here.",
+    "sock-noearth": "The IEC inlet. Most 120 V Classics have a two-pole one with no earth pin, so only line and neutral come in.",
     "cup": "The cup warmer plate's earth spades.",
     "cup-noearth": "The cup warmer plate's earth spades. Most 120 V Classics left the factory with no earth wire, so none lands here: the grounding retrofit adds one.",
     "chassis": "Two earth spades on the frame.",
@@ -1151,7 +1152,7 @@ def factory_map(key, v, hz, tm=None, troutes=()):
     for i, (pid, nm, note, g, bb) in enumerate(m.parts):
         if note:
             continue
-        k = {"boiler": "boiler" + str(v["volts"]), "cup": "cup" if earthed else "cup-noearth",
+        k = {"boiler": "boiler" + str(v["volts"]), "cup": "cup" if earthed else "cup-noearth", "sock": "sock" if earthed else "sock-noearth",
              "pump": "pump" if fused else "pump-nofuse"}.get(pid, pid)
         if k in FAC_NOTES:
             m.parts[i] = (pid, nm, FAC_NOTES[k], g, bb)
@@ -1287,7 +1288,7 @@ def factory_for(key, v, fd, tm, tpaths):
         keep = []
     return {"svg": svg, "runs": meta, "parts": parts, "ends": ends, "name": hz["name"], "src": hz["src"],
             "srcname": hz["srcname"], "noearth": hz.get("noearth", ""), "go": go, "stay": stay, "out": out, "keep": keep,
-            "moves": sorted(fv.get("moves", [])) if si else []}
+            "moves": sorted(fv.get("moves", [])) if si else [], "becomes": {} if si else fv.get("becomes", {})}
 
 
 def main():
