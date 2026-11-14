@@ -91,9 +91,9 @@ var TY=(function(){
       if(a==='GC'||a==='GCP')return !famOf()||famOf()===a;
       if(a==='120'||a==='230')return !p.volts||String(p.volts)===a;
       if(a==='ECO'){var x=GM&&GM.eco&&GM.eco();return x!==false}
-      /* the Shelly's checks once it applies; the ones it replaces otherwise */
-      if(a==='SH')return !!(GM&&GM.shelly&&GM.shelly());
-      if(a==='NOSH')return !(GM&&GM.shelly&&GM.shelly());
+      /* the Shelly's checks unless it's ruled out, the ones it replaces unless it's settled in (null: picked, but the path is still open) */
+      if(a==='SH')return !!(GM&&GM.shelly&&GM.shelly()!==false);
+      if(a==='NOSH')return !(GM&&GM.shelly&&GM.shelly()===true);
       return !p.model||p.model===a;
     })});
   }

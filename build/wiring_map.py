@@ -630,7 +630,7 @@ END = {
     "L2b, to the boiler lamp's X1a": "x1a:hx", "X1a, into L2b": "x1a:lamp",
     "L4b, to the lamps' X1b": "x1b:hx", "X1b, into L4b": "x1b:lamp", "X1c, onto N1f's tab": "sol:L",
     "L4b, left loose": "l4b",
-    "N1a, on the pump fuse's P2b": "n1a:hx", "P2b, into N1a": "n1a:fuse", "N1a, on the pump fuse's tab": "pf:tab",
+    "N1a, on the pump fuse's P2b": "n1a:hx", "P2b, into N1a": "n1a:fuse", "N1a, on the pump fuse's lead": "pf:tab",
     "Pump Thermal Fuse 110C, lead 1": "pf:1", "Pump Thermal Fuse 110C, lead 2": "pf:2",
     # the Shelly add-on (Pro family, custom wiring)
     "Shelly L terminal": "sh:L", "Shelly N terminal": "sh:N", "Shelly O terminal": "sh:O", "Shelly SW terminal": "sh:SW",

@@ -27,7 +27,7 @@
         return {w:'A pressure transducer, 0 to 12 bar (1.2 MPa), on a T-fitting in the pump-to-boiler line or a tap block at the group.',
           p:'The PCB powers it with 5 V and reads its signal on J6, then adjusts the pump to follow a pressure or flow profile.'};
       case 'pump':
-        return {w:'The vibratory pump'+(gc&&si&&v.volts===230?' (the 230 V Classic\'s stock-integration drawing shows no pump fuse)':', with its 110 °C thermal fuse on the neutral side')+(!si&&!gc?': on the Pro family the fuse has its own short leads, P2a on the pump and P2b into N1a':!si?': on the original Classic N1a goes straight onto the fuse\'s tab':'')+'. It pushes water from the tank into the boiler and on to the group or the wand.',
+        return {w:'The vibratory pump'+(gc&&si&&v.volts===230?' (the 230 V Classic\'s stock-integration drawing shows no pump fuse)':', with its 110 °C thermal fuse on the neutral side')+(!si&&!gc?': on the Pro family the fuse has its own short leads, P2a on the pump and P2b into N1a':!si?': on the original Classic it\'s drawn the same way, with the two leads unlabeled: one goes on the pump\'s right spade and N1a plugs onto the male connector on the other':'')+'. It pushes water from the tank into the boiler and on to the group or the wand.',
           p:'The PCB switches it from J12'+(si?' (wire P)':'')+' and lets through only part of each second\'s mains half-cycles, which sets the pressure and flow during a shot.'};
       case 'sol':
         return {w:'The 3-way solenoid valve. Open, it connects the boiler to the group; closed, it vents the group into the drip tray, so the portafilter comes off without spraying.',
@@ -73,7 +73,7 @@
       case 'lampS':
         return {w:'The steam lamp, now a boiler lamp: it sits across the SSR, so it lights while the boiler isn\'t heating.'+(si?'':' Its leads end in X1a (into L2b) and X1b (into L4b).')};
       case 'lampB':
-        return {w:gc?'The internal boiler lamp. It stays dark now.':'The brew lamp. Unused now, it stays dark.'};
+        return {w:gc?(si?'The internal boiler lamp. It stays dark now.':'The internal brew lamp. Unused on Plug-and-Play wiring, it stays dark.'):'The brew lamp. Unused now, it stays dark.'};
     }
     return null;
   }

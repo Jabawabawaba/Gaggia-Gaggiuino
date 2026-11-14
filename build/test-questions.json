@@ -2253,7 +2253,7 @@
    "On the pump's neutral lead, by its thermal fuse",
    "Inline in the PCB's J11 line wire"
   ],
-  "why": "It replaces the stock 184 °C one-shot fuse: part of the harness on Plug-and-Play wiring, optional on stock wiring. It opens at 185 °C if the boiler overheats and stays open until you press its button.",
+  "why": "It replaces the stock 184 °C one-shot fuse: drawn into the harness on Plug-and-Play wiring, optional on stock wiring. It opens at 185 °C if the boiler overheats and stays open until you reset it.",
   "r": [
    [
     "pg",
@@ -3746,7 +3746,33 @@
     "t-thermal-fuse"
    ]
   ],
+  "w": "wpath:SI",
   "src": "trouble-data.js 'The boiler's thermal fuse blew' (d:1): check 'Find the cause before fitting a new one: the stock fuse is one-shot.' 'Never bridge it.' causes 'A reversed or loose thermocouple, or an SSR stuck on, let the boiler overheat.' 'The boiler heated dry'. trouble.tpl.html warning: 'Never bridge the boiler's thermal fuse to get it running.'",
+  "g": "fuseblow"
+ },
+ {
+  "id": "trouble-21",
+  "k": "trouble",
+  "q": "On Plug-and-Play wiring, the boiler's resettable fuse has tripped. What's the right response?",
+  "a": [
+   "Unplug, find why the boiler overheated, and reset it once it's cool",
+   "Join L2c to L3a until it cools down",
+   "Reset it straight away and carry on",
+   "Replace it: resettable fuses only trip once"
+  ],
+  "why": "It's the boiler's only thermal cut-out on Plug-and-Play wiring, and it trips because the boiler overheated: a reversed or loose thermocouple, an SSR stuck on, or the boiler heating dry. Never bridge it.",
+  "r": [
+   [
+    "tr",
+    "The boiler's resettable fuse tripped"
+   ],
+   [
+    "gl",
+    "t-resettable-thermal-fuse"
+   ]
+  ],
+  "w": "wpath:CW",
+  "src": "trouble-data.js 'The boiler's resettable fuse tripped' (d:1, wpath:CW): check 'Unplug, and find the cause before you reset it.' 'Never bridge it: on Plug-and-Play wiring it's the boiler's only thermal cut-out, and L2c and L3a must only meet through it.' Official drawings: the fuse between L2c and L3a, in place of the stock fuse.",
   "g": "fuseblow"
  },
  {

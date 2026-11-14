@@ -2452,7 +2452,7 @@
        "BN2-N1c"
       ]
      ],
-     "note": "Neutral from the socket to the pump, through its 110 °C thermal fuse, and on to the PCB.",
+     "note": "Neutral from the socket to N1a, which feeds the PCB (N1b) directly and the pump through its 110 °C thermal fuse.",
      "opt": false,
      "stock": false,
      "repl": "",
@@ -2805,7 +2805,7 @@
      "short": "Pump fuse → Pump right spade",
      "frm": "Pump Thermal Fuse 110C, lead 1",
      "to": "Pump right spade",
-     "color": "black",
+     "color": "white",
      "wire": "Stock lead",
      "mm": 80,
      "ends": [
@@ -2843,7 +2843,7 @@
      "short": "Pump fuse → P2b (into N1a)",
      "frm": "Pump Thermal Fuse 110C, lead 2",
      "to": "P2b, into N1a",
-     "color": "black",
+     "color": "white",
      "wire": "Stock lead",
      "mm": 80,
      "ends": [
@@ -3742,7 +3742,7 @@
        "BN2-N1c"
       ]
      ],
-     "note": "Neutral from the socket to the pump, through its 110 °C thermal fuse, and on to the PCB.",
+     "note": "Neutral from the socket to N1a, which feeds the PCB (N1b) directly and the pump through its 110 °C thermal fuse.",
      "opt": false,
      "stock": false,
      "repl": "",
@@ -4050,7 +4050,7 @@
      "short": "Pump fuse → Pump right spade",
      "frm": "Pump Thermal Fuse 110C, lead 1",
      "to": "Pump right spade",
-     "color": "black",
+     "color": "white",
      "wire": "Stock lead",
      "mm": 80,
      "ends": [
@@ -4088,7 +4088,7 @@
      "short": "Pump fuse → P2b (into N1a)",
      "frm": "Pump Thermal Fuse 110C, lead 2",
      "to": "P2b, into N1a",
-     "color": "black",
+     "color": "white",
      "wire": "Stock lead",
      "mm": 80,
      "ends": [
@@ -4934,13 +4934,13 @@
      "hot": "",
      "sys": "N",
      "short": "N1a (pump fuse) → J10 N",
-     "frm": "N1a, on the pump fuse's tab",
+     "frm": "N1a, on the pump fuse's lead",
      "to": "PCB J10 AC Neutral N",
      "color": "white",
      "wire": "18 AWG silicone",
      "mm": 200,
      "ends": [
-      "Nylon female 6.3 mm for two wires (with N1a-N1c)",
+      "Nylon female 6.3 mm for two wires (with N1a-N1c); the fuse lead's male spade plugs in",
       "Female 6.3 mm with a thin sleeve"
      ],
      "share": [
@@ -4954,7 +4954,7 @@
      "stock": false,
      "repl": "",
      "term": [
-      "n1a, on the pump fuse's tab",
+      "n1a, on the pump fuse's lead",
       "pcb j10 ac neutral n"
      ],
      "conf": "clear",
@@ -4974,13 +4974,13 @@
      "hot": "",
      "sys": "N",
      "short": "N1a (pump fuse) → Socket N",
-     "frm": "N1a, on the pump fuse's tab",
+     "frm": "N1a, on the pump fuse's lead",
      "to": "Power Socket N",
      "color": "white",
      "wire": "18 AWG silicone",
      "mm": 200,
      "ends": [
-      "Nylon female 6.3 mm for two wires (with N1a-N1b)",
+      "Nylon female 6.3 mm for two wires (with N1a-N1b); the fuse lead's male spade plugs in",
       "Nylon flag female 6.3 mm, blue: two wires (with BN2-N1c)"
      ],
      "share": [
@@ -4991,12 +4991,12 @@
        "BN2-N1c"
       ]
      ],
-     "note": "Neutral from the socket to the pump, through its 110 °C thermal fuse, and on to the PCB.",
+     "note": "Neutral from the socket to N1a, which feeds the PCB (N1b) directly and the pump through its 110 °C thermal fuse.",
      "opt": false,
      "stock": false,
      "repl": "",
      "term": [
-      "n1a, on the pump fuse's tab",
+      "n1a, on the pump fuse's lead",
       "power socket n"
      ],
      "conf": "clear",
@@ -5995,13 +5995,13 @@
      "hot": "",
      "sys": "N",
      "short": "N1a (pump fuse) → J10 N",
-     "frm": "N1a, on the pump fuse's tab",
+     "frm": "N1a, on the pump fuse's lead",
      "to": "PCB J10 AC Neutral N",
      "color": "blue",
      "wire": "18 AWG silicone",
      "mm": 200,
      "ends": [
-      "Nylon female 6.3 mm for two wires (with N1a-N1c)",
+      "Nylon female 6.3 mm for two wires (with N1a-N1c); the fuse lead's male spade plugs in",
       "Female 6.3 mm with a thin sleeve"
      ],
      "share": [
@@ -6015,7 +6015,7 @@
      "stock": false,
      "repl": "",
      "term": [
-      "n1a, on the pump fuse's tab",
+      "n1a, on the pump fuse's lead",
       "pcb j10 ac neutral n"
      ],
      "conf": "clear",
@@ -6035,13 +6035,13 @@
      "hot": "",
      "sys": "N",
      "short": "N1a (pump fuse) → Socket N",
-     "frm": "N1a, on the pump fuse's tab",
+     "frm": "N1a, on the pump fuse's lead",
      "to": "Power Socket N",
      "color": "blue",
      "wire": "18 AWG silicone",
      "mm": 200,
      "ends": [
-      "Nylon female 6.3 mm for two wires (with N1a-N1b)",
+      "Nylon female 6.3 mm for two wires (with N1a-N1b); the fuse lead's male spade plugs in",
       "Nylon flag female 6.3 mm, blue: two wires (with BN2-N1c)"
      ],
      "share": [
@@ -6052,12 +6052,12 @@
        "BN2-N1c"
       ]
      ],
-     "note": "Neutral from the socket to the pump, through its 110 °C thermal fuse, and on to the PCB.",
+     "note": "Neutral from the socket to N1a, which feeds the PCB (N1b) directly and the pump through its 110 °C thermal fuse.",
      "opt": false,
      "stock": false,
      "repl": "",
      "term": [
-      "n1a, on the pump fuse's tab",
+      "n1a, on the pump fuse's lead",
       "power socket n"
      ],
      "conf": "clear",
@@ -6570,7 +6570,7 @@
          "SH2"
         ]
        ],
-       "note": "Neutral from the socket to the pump fuse and on to the PCB. N1c's flag now plugs onto the tab of SH2's piggyback, on the socket's N tab. If the socket moves out into the Shelly's enclosure, it needs to be that much longer: extend it with a BN1.25 butt splice under silicone heat shrink, or cut a new one.",
+       "note": "Neutral from the socket to N1a, which feeds the PCB (N1b) directly and the pump through its 110 °C thermal fuse. N1c's flag now plugs onto the tab of SH2's piggyback, on the socket's N tab. If the socket moves out into the Shelly's enclosure, it needs to be that much longer: extend it with a BN1.25 butt splice under silicone heat shrink, or cut a new one.",
        "sh": "chg"
       },
       "BN2-N1c": {
@@ -6816,7 +6816,7 @@
          "SH2"
         ]
        ],
-       "note": "Neutral from the socket to the pump fuse and on to the PCB. N1c's flag now plugs onto the tab of SH2's piggyback, on the socket's N tab. If the socket moves out into the Shelly's enclosure, it needs to be that much longer: extend it with a BN1.25 butt splice under silicone heat shrink, or cut a new one.",
+       "note": "Neutral from the socket to N1a, which feeds the PCB (N1b) directly and the pump through its 110 °C thermal fuse. N1c's flag now plugs onto the tab of SH2's piggyback, on the socket's N tab. If the socket moves out into the Shelly's enclosure, it needs to be that much longer: extend it with a BN1.25 butt splice under silicone heat shrink, or cut a new one.",
        "sh": "chg"
       },
       "BN2-N1c": {
