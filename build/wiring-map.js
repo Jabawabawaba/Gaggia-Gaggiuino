@@ -119,7 +119,7 @@
       }
       var r=runOf(sel.id);
       if(!r){
-        var nm=(mp.cables||{})[sel.id]||sel.id,pins=(v.cables||[]).filter(function(c){return (sel.id==='TC'&&/Thermocouple/.test(c.frm))||(sel.id==='PS'&&/Pressure/.test(c.frm))||(sel.id==='SCR'&&/Display/.test(c.frm+c.to))});
+        var nm=(mp.cables||{})[sel.id]||sel.id,pins=(v.cables||[]).filter(function(c){return (sel.id==='TC'&&/Thermocouple/.test(c.frm))||(sel.id==='PS'&&/Pressure/.test(c.frm))||(sel.id==='SCR'&&/J1/.test(c.frm+c.to))});
         d.className='mdetail';d.style.borderLeftColor=SYSC.S;
         d.innerHTML='<div class="d-head"><span class="d-id">'+esc(sel.id)+'</span><span class="d-route">'+esc(nm)+'</span>'+acts+'</div><p>This cable comes with its part. Plug it in by pin, not by color:</p>'+
           '<div class="d-grid">'+pins.map(function(c){return '<div><span class="k">'+esc(c.frm)+'</span><span>'+swatch(c.color)+esc(c.to)+'</span></div>'}).join('')+'</div>';
@@ -131,8 +131,8 @@
         '<div class="d-grid"><div><span class="k">Circuit</span><span><span class="sysdot" style="background:'+(SYSC[r.sys]||'var(--muted)')+'"></span>'+esc(SYSN[r.sys]||r.sys)+'</span></div>'+
         '<div><span class="k">Wire</span><span>'+swatch(r.color)+esc(r.wire||'')+(r.color?', '+esc(r.color):'')+'</span></div>'+
         '<div><span class="k">Length</span><span>'+lenTxt(r)+'</span></div>'+
-        '<div><span class="k">End at '+esc(r.frm)+'</span><span>'+esc((r.ends||[])[0]||'—')+'</span></div>'+
-        '<div><span class="k">End at '+esc(r.to)+'</span><span>'+esc((r.ends||[])[1]||'—')+'</span></div>'+
+        '<div><span class="k">'+(r.lab&&r.lab[0]?esc(r.lab[0])+' at ':'End at ')+esc(r.frm)+'</span><span>'+esc((r.ends||[])[0]||'—')+'</span></div>'+
+        '<div><span class="k">'+(r.lab&&r.lab[1]?esc(r.lab[1])+' at ':'End at ')+esc(r.to)+'</span><span>'+esc((r.ends||[])[1]||'—')+'</span></div>'+
         '<div><span class="k">Notes</span><span>'+(r.stock?'Stock lead. ':'')+(r.opt?'Optional run. ':'')+(bare?'An end at the boiler or valve: bare spade under silicone. ':'')+(!r.stock&&!r.opt&&!bare?'—':'')+'</span></div></div>'+
         (r.what?'<p>'+esc(r.what)+'.</p>':'')+(r.note?'<p>'+esc(r.note)+'</p>':'');
     }
@@ -170,7 +170,7 @@
     function hasRun(id){return !!(svg&&svg.querySelector('.run[data-run="'+id+'"]'))}
     function hasPart(id){return !!(svg&&svg.querySelector('.part[data-part="'+id+'"]'))}
     /* a link from another page (see maplink.js): run=TC, part=ssr (| between alternatives, the first on this drawing wins),
-       runs=AC1,AC2 or short=J9 R1,J9 GND (every run whose name starts that way) for a set, layer=E for a layer.
+       runs=L1a-L1b,LV1 or short=J9 R1,J9 GND (every run whose name starts that way) for a set, layer=E for a layer.
        Returns false when nothing it asked for is on this drawing; the whole map shows instead. */
     function deep(q){
       if(!mp)return false;

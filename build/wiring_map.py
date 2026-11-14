@@ -283,12 +283,13 @@ def thermocouple(m, x, y):
 
 
 def screen(m, x0, y0):
-    s = box(x0, y0, 184, 120, "box", 10) + text(x0 + 92, y0 + 52, "4.3 in screen", "nm") + text(x0 + 92, y0 + 68, "view: back", "tiny")
-    for i, lab in enumerate(("GND", "IO18", "IO17", "5V")):
+    s = box(x0, y0, 184, 120, "box", 10) + text(x0 + 92, y0 + 48, "Screen", "nm") + text(x0 + 92, y0 + 64, "Gen 3.5, Gen 3 or headless", "tiny")
+    for i, lab in enumerate(("GND", "RX", "TX", "5V")):
         x = x0 + 24 + 32 * i
         s += pin(x, y0 + 120) + text(x, y0 + 110, lab, "pinl")
         m.t("scr:" + lab, x, y0 + 120, "d", "screen")
-    m.part("screen", "Screen", s, (x0, y0, x0 + 184, y0 + 120))
+    m.part("screen", "Screen", s, (x0, y0, x0 + 184, y0 + 120),
+           note="Its cable plugs into J1. The screen's own pin names: GND, IO27, IO28, 5V on the Gen 3.5 (ESP32-P4); GND, IO18, IO17, 5V on the Gen 3 (ESP32-S3); GND, RX, TX, 5V on the headless board. J1's TX goes to the first of the middle two, its RX to the second.")
 
 
 def pcb(m, x0=1176, y0=296):
@@ -458,6 +459,126 @@ def layout_gc(key, title, si, data, volts):
     return m
 
 
+# ---------- Plug-and-Play wiring (the official PnP/custom drawings, November 2026) ----------
+def boiler_pnp(m, volts):
+    """the boiler from the top, as the PnP drawings show it: four element pins (2 mm circular connectors under covers),
+    the earth spade, and the 185 °C resettable fuse in the steam thermostat's hole on the right; no stock thermal fuse"""
+    x0, y0 = 120, 552
+    s = box(x0, y0, 280, 280, "box", 26) + f'<circle cx="{x0 + 140}" cy="{y0 + 140}" r="120" class="inner"/>'
+    for (cx, cy) in ((x0 + 24, y0 + 24), (x0 + 256, y0 + 24), (x0 + 24, y0 + 256), (x0 + 256, y0 + 256)):
+        s += f'<circle cx="{cx}" cy="{cy}" r="9" class="inner"/>'
+    s += f'<path d="M{x0 + 72},{y0 + 104} l10,-14 l12,28 l12,-28 l12,28 l12,-28 l12,28 l12,-28 l10,14" class="elem"/>'
+    s += f'<path d="M{x0 + 72},{y0 + 196} l10,-14 l12,28 l12,-28 l12,28 l12,-28 l12,28 l12,-28 l10,14" class="elem"/>'
+    s += spade(x0 + 140, y0 + 32, 18, 9) + text(x0 + 164, y0 + 36, "gnd", "tiny", "start")
+    m.t("b:gnd", x0 + 140, y0 + 24, "u", "boiler")
+    names = {120: {"TL": "L3b", "BL": "L3c", "TR": "N1d", "BR": "N1e"}, 230: {"TL": "B1a", "BL": "L3b", "TR": "N1d", "BR": "B1b"}}[volts]
+    for tn, (dx, dy, d) in {"TL": (64, 56, "l"), "TR": (196, 56, "u"), "BL": (64, 240, "l"), "BR": (196, 240, "d")}.items():
+        cx, cy = x0 + dx, y0 + dy
+        s += f'<circle cx="{cx}" cy="{cy}" r="7" class="term"/>'
+        s += text(cx + (16 if d in "ud" else 0), cy + (4 if d in "ud" else -12), names[tn], "pinl", "start" if d in "ud" else "middle")
+        m.t("b:" + tn, cx, cy, d, "boiler")
+    # the resettable fuse: round body, a spade each side
+    fx, fy = x0 + 236, y0 + 140
+    s += f'<circle cx="{fx}" cy="{fy}" r="15" class="term"/>' + spade(fx - 26, fy, 18, 9) + spade(fx + 26, fy, 18, 9)
+    s += text(fx, fy - 22, "185 °C fuse", "tiny") + text(fx - 30, fy + 22, "L3a", "pinl") + text(fx + 30, fy + 22, "L2c", "pinl")
+    m.t("rf:L", fx - 36, fy, "l", "rf")
+    m.t("rf:R", fx + 36, fy, "r", "rf")
+    s += text(x0 + 8, y0 + 304, "Boiler", "nm", "start") + text(x0 + 60, y0 + 304, "view: top · elements in " + ("parallel" if volts == 120 else "series"), "tiny", "start")
+    m.part("boiler", "Boiler", s, (x0, y0, x0 + 280, y0 + 280), block=False)
+    m.part("rf", "Resettable fuse, 185 °C", "", (fx - 36, fy - 16, fx + 36, fy + 16), block=False)
+    m.soft.append((x0 + 8, y0 + 8, x0 + 272, y0 + 272, 2))
+    for ring in ((x0, y0, x0 + 280, y0), (x0, y0 + 280, x0 + 280, y0 + 280), (x0, y0, x0, y0 + 280), (x0 + 280, y0, x0 + 280, y0 + 280)):
+        m.soft.append(ring + (5,))
+    m.obs.append((fx - 18, fy - 18, fx + 18, fy + 18, "rf"))
+
+
+def mated(m, pid, name, x, y, left, right, note=""):
+    """a plug-in pair on the PnP harness: the lamp lead's male connector (left) in the harness's female (right)"""
+    s = (f'<rect x="{x - 22}" y="{y - 8}" width="22" height="16" rx="3" class="flag"/>'
+         f'<rect x="{x}" y="{y - 8}" width="22" height="16" rx="3" class="splice"/>'
+         + text(x - 11, y - 12, left, "pinl") + text(x + 11, y - 12, right, "pinl"))
+    m.t(pid + ":lamp", x - 22, y, "l", pid)
+    m.t(pid + ":hx", x + 22, y, "r", pid)
+    m.part(pid, name, s, (x - 24, y - 22, x + 24, y + 8), note=note)
+
+
+def loose_end(m, x, y):
+    s = (f'<rect x="{x - 10}" y="{y - 8}" width="20" height="16" rx="3" class="splice"/>'
+         + text(x, y - 12, "L4b", "pinl") + text(x, y + 22, "loose, insulated", "tiny"))
+    m.t("l4b", x + 10, y, "r", "l4b")
+    m.part("l4b", "L4b, left loose", s, (x - 44, y - 22, x + 44, y + 26),
+           note="Live whenever the machine is on. Its insulated spade stays on and it's tied back clear of everything.")
+
+
+def n1a_conn(m, x, y):
+    """GCP: the pump fuse's P2b (male) plugged into the harness's N1a (female), above the pump"""
+    s = (f'<rect x="{x - 8}" y="{y - 22}" width="16" height="22" rx="3" class="splice"/>'
+         f'<rect x="{x - 8}" y="{y}" width="16" height="20" rx="3" class="flag"/>'
+         + text(x + 14, y - 8, "N1a", "pinl", "start") + text(x + 14, y + 14, "P2b", "pinl", "start"))
+    m.t("n1a:hx", x, y - 22, "u", "n1a")
+    m.t("n1a:fuse", x, y + 20, "d", "n1a")
+    m.part("n1a", "N1a and P2b at the pump fuse", s, (x - 10, y - 24, x + 44, y + 22))
+
+
+def pump_pnp(m, x0, y0, fam):
+    s = box(x0, y0, 96, 176) + box(x0 + 32, y0 + 176, 32, 40, "box", 3)
+    s += spade(x0 + 24, y0 + 16, 9, 16) + spade(x0 + 48, y0 + 16, 9, 16)
+    s += text(x0 + 24, y0 + 40, "P1a", "pinl") + text(x0 + 48, y0 + 40, "P2a" if fam == "GCP" else "", "pinl")
+    s += text(x0 + 48, y0 + 104, "Ulka pump", "nm") + text(x0 + 48, y0 + 118, "connector side", "tiny")
+    m.t("pump:A", x0 + 24, y0, "u", "pump")
+    m.t("pump:B", x0 + 48, y0, "u", "pump")
+    if fam == "GCP":
+        s += box(x0 + 64, y0 + 52, 24, 28, "fuse", 2) + text(x0 + 76, y0 + 92, "110 °C", "tiny")
+        m.t("pf:1", x0 + 70, y0 + 52, "u", "pump")
+        m.t("pf:2", x0 + 84, y0 + 52, "u", "pump")
+        m.part("pump", "Pump and its 110 °C fuse", s, (x0, y0, x0 + 96, y0 + 216))
+    else:
+        # the Classic's pump: its 110 °C fuse sits on a lead from the second spade, with a tab for N1a
+        s += (f'<path d="M{x0 + 48},{y0 + 8} V{y0 - 4} H{x0 + 80} V{y0 + 24}" class="lead"/>'
+              + box(x0 + 68, y0 + 24, 24, 28, "fuse", 2) + text(x0 + 80, y0 + 64, "110 °C", "tiny")
+              + spade(x0 + 80, y0 - 18, 9, 16) + text(x0 + 92, y0 - 16, "N1a", "pinl", "start"))
+        m.t("pf:tab", x0 + 80, y0 - 26, "u", "pump")
+        m.part("pump", "Pump and its 110 °C fuse", s, (x0, y0 - 30, x0 + 96, y0 + 216))
+
+
+def layout_pnp(key, title, fam, volts, sh=False):
+    m = Map(key, title)
+    if fam == "GCP":
+        lamp(m, "lampS", "Steam lamp", "now the boiler lamp", 360, [("lampS:A", "A"), ("lampS:B", "B")])
+        rocker(m, "swS", "Steam switch", "DPDT · view: back", 424, "steam", (1, 2))
+        lamp(m, "lampB", "Brew lamp", "unused", 568, [], used=False)
+        rocker(m, "swB", "Brew switch", "DPST · view: back", 616, "brew", (1, 2))
+        lamp(m, "lampP", "Power lamp", "", 760, [("lampP:A", "A"), ("lampP:B", "B")])
+        rocker(m, "swP", "Power switch", "DPST · view: back", 808, "pwr", (4, 5))
+        mated(m, "x1b", "X1b in L4b: the lamps' switched line", 856, 208, "X1b", "L4b")
+        mated(m, "x1a", "X1a in L2b: the boiler lamp's heater side", 856, 256, "X1a", "L2b")
+        chassis(m, 896, 408)
+        n1a_conn(m, 1048, 592)
+    else:
+        used = {"Brew 1", "Brew P", "Steam 3", "Steam P", "On/Off 7", "On/Off P", "On/Off 8"}
+        il = box(536, 64, 56, 96, "opt", 6) + text(564, 40, "Brew lamp", "nm") + text(564, 53, "inside, unused", "tiny")
+        m.part("lampB", "Internal brew lamp (unused)", il, (528, 24, 600, 160), faded=True, obs=[(536, 24, 592, 56)])
+        housing(m, 616, used)
+        ip = box(896, 64, 56, 96, "opt", 6) + text(924, 40, "Power lamp", "nm") + text(924, 53, "now the boiler lamp", "tiny")
+        m.part("lampP", "Internal power lamp", ip, (888, 24, 960, 160), obs=[(896, 24, 952, 56)])
+        loose_end(m, 904, 248)
+    screen(m, 1184, 48)
+    pcb(m)
+    sensor(m, 1040, 384)
+    cup_warmer(m)
+    boiler_pnp(m, volts)
+    thermocouple(m, 456, 424)
+    ssr(m, 552, 296)
+    solenoid(m, 760, 352)
+    socket(m, 744, 712)
+    pump_pnp(m, 920, 632, fam)
+    splice(m, "sn", "BN2 neutral splice", 456, 632, label="BN2")
+    if sh:
+        shelly(m, 616, 724, (608, 700, 860, 812))
+        splice(m, "s6", "BN2 S6 Shelly output splice", 968, 200, horiz=False, label="BN2 S6")
+    return m
+
+
 # ---------- which terminal each end names ----------
 END = {
     # stock wiring, both families
@@ -505,18 +626,24 @@ END = {
     "Pump Thermal Fuse lead, inline Spade 6.3mm": "inl", "inline Spade 6.3mm (joins R12)": "inl", "inline Spade 6.3mm (joins R11)": "inl",
     "Pump Thermal Fuse 110C, leg 1": "pf:in", "Pump Thermal Fuse 110C, leg 2": "pf:out",
     "Cup Heater Ground, lower spade": "cup", "Boiler GND tab": "b:gnd",
+    # Plug-and-Play wiring
+    "L2b, to the boiler lamp's X1a": "x1a:hx", "X1a, into L2b": "x1a:lamp",
+    "L4b, to the lamps' X1b": "x1b:hx", "X1b, into L4b": "x1b:lamp", "X1c, onto N1f's tab": "sol:L",
+    "L4b, left loose": "l4b",
+    "N1a, on the pump fuse's P2b": "n1a:hx", "P2b, into N1a": "n1a:fuse", "N1a, on the pump fuse's tab": "pf:tab",
+    "Pump Thermal Fuse 110C, lead 1": "pf:1", "Pump Thermal Fuse 110C, lead 2": "pf:2",
     # the Shelly add-on (Pro family, custom wiring)
     "Shelly L terminal": "sh:L", "Shelly N terminal": "sh:N", "Shelly O terminal": "sh:O", "Shelly SW terminal": "sh:SW",
     "BN2 S6 Shelly output splice (left side)": "s6:out", "BN2 S6 Shelly output splice (right side)": "s6:in",
 }
 # ends that name a splice or fuse without saying which side: the run that arrives takes one side, the run that leaves the other
-SIDED = {"BN1.25 S1": "s1", "BN1.25 S2": "s2", "Pump Thermal Fuse 110C": "pf"}
+SIDED = {"BN1.25 S1": "s1", "BN1.25 S2": "s2", "Pump Thermal Fuse 110C": "pf", "BN2 neutral splice": "sn"}
 # the SSR load terminal on the stock-wiring drawings: Sb comes off the left screw, Sa off the right
 SSR_LOAD = {"Sb": "ssr:L", "Sa": "ssr:R"}
 CABLES = {
     "TC": ("Thermocouple to J4", [("tc", "J4:+"), ("tc", "J4:−")]),
     "PS": ("Pressure sensor to J6", [("ps:5V", "J6:5V"), ("ps:GND", "J6:GND"), ("ps:OUT", "J6:P")]),
-    "SCR": ("Screen to J1", [("scr:GND", "J1:GND"), ("scr:IO18", "J1:TX"), ("scr:IO17", "J1:RX"), ("scr:5V", "J1:5V")]),
+    "SCR": ("Screen to J1", [("scr:GND", "J1:GND"), ("scr:RX", "J1:TX"), ("scr:TX", "J1:RX"), ("scr:5V", "J1:5V")]),
 }
 
 
@@ -735,7 +862,9 @@ def build_variant(key, v):
     flags = {f["id"]: f["l1"] + "; " + f["l2"] for f in v.get("flags", [])}
     si = v["path"] == "SI"
     title = v["name"]
-    if v["fam"] == "GCP":
+    if not si:
+        m = layout_pnp(key, title, v["fam"], v["volts"], sh=bool(v.get("shelly")))
+    elif v["fam"] == "GCP":
         m = layout_gcp(key, title, si, flags, sh=bool(v.get("shelly")))
     else:
         m = layout_gc(key, title, si, flags, v["volts"])

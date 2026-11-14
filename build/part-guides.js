@@ -3,7 +3,7 @@
    after a step is everything before it plus its own moves, so any step can be shown on its own and replayed.
    x,y move (user units), r turns (deg), s/sx/sy scale, o is opacity, d the hidden share of a drawn path (1 hidden, 0 drawn).
    loop names the data-loop pieces that run during the step, text sets a readout, count runs a number up.
-   Steps and wording follow Your Gaggia (machine.js); the tap block or T-fitting and stock or custom wiring can also be
+   Steps and wording follow Your Gaggia (machine.js); the tap block or T-fitting and stock or Plug-and-Play wiring can also be
    switched on the guide itself. Reduced motion shows each step's end state without movement. */
 (function(){
   var GM=window.GaggiaMachine,RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -63,7 +63,7 @@
     Array.prototype.forEach.call((this.root.closest('section')||this.root).querySelectorAll('[data-pv]'),function(e){e.hidden=e.getAttribute('data-pv').split(',').indexOf(v)<0});
     /* drawing variants: wiring path and family (the Pro family is drawn when no model is set) */
     var fam=famOf()||'GCP';
-    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-v]'),function(e){var dv=e.getAttribute('data-v');e.style.display=(d.vars?dv===v:m('wpath:'+dv))?'':'none'});
+    Array.prototype.forEach.call(this.svg.querySelectorAll('[data-v]'),function(e){var dv=e.getAttribute('data-v');e.style.display=(d.vars?dv===v:(m('wpath:'+dv)&&(dv==='SI'||!m('wpath:SI'))))?'':'none'});
     Array.prototype.forEach.call(this.svg.querySelectorAll('[data-fam]'),function(e){e.style.display=e.getAttribute('data-fam')===fam?'':'none'});
     var volts=prof().volts||120;
     Array.prototype.forEach.call(this.svg.querySelectorAll('[data-volts]'),function(e){e.style.display=Number(e.getAttribute('data-volts'))===volts?'':'none'});
@@ -147,7 +147,7 @@
   Guide.prototype.renderList=function(){
     var self=this,n=this.steps.length;
     this.list.innerHTML=this.steps.map(function(s,i){
-      var ph=s.ph==='ssrW'?(famOf()==='GC'?PH.ssrWc:PH.ssrW):s.ph==='tee'?(famOf()==='GC'?PH.teeGC:PH.teeGCP):s.ph==='xf'?(famOf()==='GC'?PH.xf:PH.xfp):s.ph==='cw'?PH.cw+(famOf()==='GC'?'GC':'GCP')+'_wiring_PCBv3_1_'+(prof().volts===230?'220':'120')+'v.png':s.ph;
+      var ph=s.ph==='ssrW'?(famOf()==='GC'?PH.ssrWc:PH.ssrW):s.ph==='tee'?(famOf()==='GC'?PH.teeGC:PH.teeGCP):s.ph==='xf'?(famOf()==='GC'?PH.xf:PH.xfp):s.ph==='cw'?PH.cw+(famOf()==='GC'?'GC':'GCP')+'_pnp_custom_g3_5_'+(prof().volts===230?'220':'120')+'v.png':s.ph;
       var phl=s.ph==='cw'?'Official drawing':'Official photo',pht=phHtml(ph,phl);
       var chk=(s.chk||[]).map(function(c){return '<a href="power-on-checks.html#'+c[0]+'">'+c[0]+' '+esc(c[1])+'</a>'}).join(' · ');
       var lk=(s.links||[]).map(function(l){return '<a href="'+l[1]+'">'+esc(l[0])+'</a>'}).join(' · ');
@@ -194,7 +194,7 @@
     window.addEventListener('gaggia-machine',function(){where();for(var k in guides)if(guides[k].root)guides[k].setup(false)});
     window.addEventListener('hashchange',fromHash);fromHash();
   }
-  /* links from other pages (the wiring map's back-links): #tc/5 opens step 5, #ssr/CW/3 the custom wiring version's step 3 */
+  /* links from other pages (the wiring map's back-links): #tc/5 opens step 5, #ssr/CW/3 the Plug-and-Play wiring version's step 3 */
   function fromHash(){
     var h=(location.hash||'').slice(1).split('/'),g=guides[h[0]];if(!g||!g.root||h.length<2)return;
     if(h.length>2&&g.def.vars&&g.def.vars.some(function(x){return x.k===h[1]})){g.pick=h[1];g.setup(false)}

@@ -146,7 +146,7 @@
   function label(p){
     p=p||prof;if(!p)return 'Set it';
     var a=[];if(p.model)a.push(shortName(p.model,p.volts));if(p.volts)a.push(p.volts+' V');
-    if(p.path)a.push(p.path==='SI'?'stock wiring':'custom wiring');
+    if(p.path)a.push(p.path==='SI'?'stock wiring':'Plug-and-Play wiring');
     if(shellyOf(p))a.push('Shelly');
     return a.join(', ');
   }
@@ -164,14 +164,14 @@
     if(!p)return 'Pick your model, voltage and install path. Until you do, every page shows all the model notes, each tagged with the machines it applies to.';
     var m=missing(p),e=ecoOf(p),w=wpathOf(p);
     var what=(p.model?longName(p.model,p.volts):'Gaggia')+(p.volts?' ('+p.volts+' V'+(e?', Eco board':'')+')':'');
-    var how=w==='CW'||p.path==='CW'?' with custom wiring':p.path==='SI'?' with stock wiring integration':'';
+    var how=w==='CW'||p.path==='CW'?' with Plug-and-Play wiring':p.path==='SI'?' with stock wiring integration':'';
     var nodraw=p.path==='SI'&&w==='CW'?' The current official guide has no stock-integration drawing for a 230 V Pro-family machine.':'';
-    var warn=e&&p.path==='SI'&&!nodraw?' The official guide recommends custom wiring for Eco-board machines.':'';
+    var warn=e&&p.path==='SI'&&!nodraw?' The official guide doesn\'t recommend stock wiring for Eco-board machines: use Plug-and-Play wiring.':'';
     var asks=[];if(m.length)asks.push('add your '+andList(m));if(ecoOpen(p))asks.push('say whether it has the Eco board');
     var more=asks.length?' '+andList(asks).replace(/^./,function(c){return c.toUpperCase()})+' to narrow them down; until then those notes all show.':'';
     var sh=shellyOf(p),shs=sh?' The Shelly smart relay\'s wires, checks and steps are added.':
-      sh===null?' The Shelly smart relay is drawn for Pro-family machines on custom wiring; its steps show as well until yours is known.':
-      p.shelly?' The Shelly smart relay is drawn for Pro-family machines on custom wiring only, so the pages leave it out for yours.':'';
+      sh===null?' The Shelly smart relay is drawn for Pro-family machines on Plug-and-Play wiring; its steps show as well until yours is known.':
+      p.shelly?' The Shelly smart relay is drawn for Pro-family machines on Plug-and-Play wiring only, so the pages leave it out for yours.':'';
     return 'Pages now show the steps and notes for a '+what+how+'.'+nodraw+warn+more+shs;
   }
   function apply(root){
@@ -198,7 +198,7 @@
     Array.prototype.forEach.call(root.querySelectorAll('[data-mtext]'),function(el){var t=text(el.getAttribute('data-mtext'));if(t)el.textContent=t});
     var l=document.getElementById('mchip-l');
     if(l){var main=[];if(prof&&prof.model)main.push(shortName(prof.model,prof.volts));if(prof&&prof.volts)main.push(prof.volts+' V');
-      var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'custom wiring'):'';
+      var x=prof&&prof.path?(prof.path==='SI'?'stock wiring':'Plug-and-Play wiring'):'';
       if(shellyOf(prof))x+=(x?', ':'')+'Shelly';
       l.textContent=!prof?'Set it':main.length?main.join(', '):x;
       if(main.length&&x){var sp=document.createElement('span');sp.className='mchip-x';sp.textContent=', '+x;l.appendChild(sp)}}

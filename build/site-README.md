@@ -23,8 +23,8 @@ Gaggiuino was built for the Gaggia Classic, and its official guide covers the in
 | `parts-tracker.html` | Ordering | The parts list with links, status, price paid and box contents |
 | `test-yourself.html` | Before opening the machine | Questions on everything on the site, matched to your machine, each linked to where to review it; clear every topic, then pass a final exam for a certificate that you're ready to start the modifications |
 | `runbook.html` | Install day | Eight phases of tickable steps, each written out step by step and linked to its section of the official guide, with drawings, diagrams, the official photos inline, a power badge on every step and a stop point before first power-on; prints as one checklist |
-| `part-guides.html` | Install day | The thermocouple, pressure sensor, resettable fuse, wires, SSR and switches, each drawn step by step, following your model and install path |
-| `wiring.html` | Install day | Every wire for your model, voltage and install path, taken from the official schematic: ends, color, connectors and length |
+| `part-guides.html` | Install day | The thermocouple, pressure sensor, resettable fuse, wires, SSR, switches, screen housing, ToFnLED, firmware updates, scales and the Shelly, each drawn step by step, following your model and install path |
+| `wiring.html` | Install day | Every wire for your model, voltage and install path, taken from the official drawing (the Plug-and-Play harness by its official end labels): ends, color, connectors and length, on a map you can tap, with the official drawing and cut list shown inline |
 | `cut-list.html` | Install day | Wire to buy by color, connectors to crimp, and every wire to cut, with adjustable extra length |
 | `wire-labels.html` | Install day | Printable flag labels for each wire end, PDF for Letter or A4 |
 | `power-on-checks.html` | Before plugging in | About %%NCHECKS%% unplugged multimeter and visual checks, picked for your schematic, that mark themselves pass or fail; prints with blanks for readings |
@@ -33,9 +33,9 @@ Gaggiuino was built for the Gaggia Classic, and its official guide covers the in
 
 Every page is a single self-contained HTML file. Ticks, readings and prices are saved in your own browser (localStorage), so nothing leaves your machine and nothing is shared between devices.
 
-**Your Gaggia.** Set your model, mains voltage and install path (stock wiring integration or custom wiring) from "Your Gaggia" in the top bar or on the home page. The runbook, wiring, cut list, labels, checks and troubleshooting pages then show only what applies to your machine, and use GFCI or RCD wording to match your voltage. With nothing set, every note shows with a tag saying which machines it's for.
+**Your Gaggia.** Set your model, mains voltage and install path (stock wiring integration or Plug-and-Play wiring) from "Your Gaggia" in the top bar or on the home page. The runbook, wiring, cut list, labels, checks and troubleshooting pages then show only what applies to your machine, and use GFCI or RCD wording to match your voltage. With nothing set, every note shows with a tag saying which machines it's for.
 
-**Shelly smart relay (optional, unofficial).** Under Extras in Your Gaggia you can add a Shelly 1PM, a Wi-Fi relay that switches the machine on and off from a phone or a schedule, with the power switch as its input. It's drawn for Pro-family machines on custom wiring, from fusio's build on the Gaggiuino Discord. Its wires, map, checks, runbook steps, part guide, parts and questions show only once you add it. Nothing about it is in the official docs.
+**Shelly smart relay (optional, unofficial).** Under Extras in Your Gaggia you can add a Shelly 1PM, a Wi-Fi relay that switches the machine on and off from a phone or a schedule, with the power switch as its input. It's drawn for Pro-family machines on Plug-and-Play wiring, adapted from fusio's build on the Gaggiuino Discord. Its wires, map, checks, runbook steps, part guide, parts and questions show only once you add it. Nothing about it is in the official docs.
 
 **Printing.** The runbook prints every phase as one checklist with your settings and blank lines for notes. The power-on checks print with a reading blank and pass or fail boxes on every item, or with your recorded readings if you've entered them. The cut list prints as a shopping and cutting sheet. Use your browser's print command on the published site.
 
@@ -45,8 +45,8 @@ This conversion involves mains voltage. Work only with the cord out of the wall.
 
 ## Known gaps
 
-- The current official guide has no stock-integration drawing for 230 V Pro-family machines, so the site points them to custom wiring, as the guide does for Eco boards.
-- Wire lengths come from the official schematics' tables. Cut long and trim.
+- The current official guide has no stock-integration drawing for 230 V Pro-family machines, so the site points them to Plug-and-Play wiring, as the guide does for Eco boards.
+- Wire lengths come from the official stock-integration table and the Plug-and-Play cut lists. Cut long and trim.
 - The Learn pages describe the heating and pump control from the public Gen 2 firmware, because Gen 3's source isn't published; Gen 3 uses the same settings. The stock circuit is redrawn from Gaggia's 2018 wiring diagram for the 120 V Classic Pro. Where the tank and some parts sit inside the case isn't published, so the drawings place them approximately.
 - Prices are from October 2026 and go stale.
 
@@ -54,7 +54,7 @@ If you have a finished build, your lengths, photos and corrections are exactly w
 
 ## Rebuilding the pages
 
-`build/` holds the generators. `wiring-data.json` is the single source of truth for the wires: every run for each official schematic (stock wiring integration and custom wiring, by model family and voltage), and `wiring.html`, `wire-labels.html`, `cut-list.html` and the power-on checks read it. The site-only pages (home, which Gaggia, cut list, troubleshooting, the Learn pages and the glossary) are templates in `build/` that share `base.css`; the scroll animation on `conversion.html` is `story.tpl.html`, and `img/` holds the still the home page uses for it. The runbook steps are in `runbook-phases.js` and the links into the official guide in `official-links.js`. The Learn pages pull their parts from `learn-*.html`, `learn-*.css` and `learn-*.js`, and the glossary entries live in `gen_glossary.py`. `machine.js` is the "Your Gaggia" picker, inlined into every page. Add-ons to the official wiring (the Shelly) are change lists under `addons` in `wiring-data.json`, which `addons.py` turns into whole schematics; `gen_part_shelly.py` draws the Shelly guide. The Part guides drawings come from `gen_part_svgs.py` (it writes the `part-*.svg.html` files), animated by `part-guides.js`.
+`build/` holds the generators. `wiring-data.json` is the single source of truth for the wires: every run for each official schematic (stock wiring integration and the Plug-and-Play harness, by model family and voltage), and `wiring.html`, `wire-labels.html`, `cut-list.html` and the power-on checks read it. The site-only pages (home, which Gaggia, cut list, troubleshooting, the Learn pages and the glossary) are templates in `build/` that share `base.css`; the scroll animation on `conversion.html` is `story.tpl.html`, and `img/` holds the still the home page uses for it. The runbook steps are in `runbook-phases.js` and the links into the official guide in `official-links.js`. The Learn pages pull their parts from `learn-*.html`, `learn-*.css` and `learn-*.js`, and the glossary entries live in `gen_glossary.py`. `machine.js` is the "Your Gaggia" picker, inlined into every page. Add-ons to the official wiring (the Shelly) are change lists under `addons` in `wiring-data.json`, which `addons.py` turns into whole schematics; `gen_part_shelly.py` draws the Shelly guide. The Part guides drawings come from `gen_part_svgs.py` (it writes the `part-*.svg.html` files), animated by `part-guides.js`.
 
 ```
 cd build

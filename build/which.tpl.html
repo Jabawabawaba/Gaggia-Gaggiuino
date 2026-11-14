@@ -86,7 +86,7 @@
         <div><h3>What it means for the build</h3><ul class="build">
           <li>Supported. The official docs call it GC, and there are drawings for both install paths at 120 V and 230 V.</li>
           <li>120 V: fit the official grounding retrofit, a three-pin inlet and earth wires, before anything else.</li>
-          <li>The boiler's thermal fuse sits in the neutral feed to the whole machine, and stock wiring integration keeps it there: if it blows, the PCB goes dark too. Custom wiring moves it into the heater's own line.</li>
+          <li>The boiler's thermal fuse sits in the neutral feed to the whole machine, and stock wiring integration keeps it there: if it blows, the PCB goes dark too. Plug-and-Play wiring replaces it with a 185 °C resettable fuse in the heater's own line.</li>
           <li>Pressure sensor: a push-to-connect T in the PTFE pump tube, or the pressure tap block between the group and that metal valve.</li>
         </ul></div>
         <div class="vact"><button type="button" class="btn primary" data-setmachine="model:GC;volts:120">This is mine, 120 V</button><button type="button" class="btn" data-setmachine="model:GC;volts:230">This is mine, 230 V</button><span class="isyours" data-yours="GC" hidden>Set as your Gaggia</span></div>
@@ -120,7 +120,7 @@
         </ul></div>
         <div><h3>What it means for the build</h3><ul class="build">
           <li>Supported (GCP). At 120 V, either install path.</li>
-          <li>230 V EU and UK machines have the Eco auto-off board and a power button that springs back: the official power switch mod, then custom wiring.</li>
+          <li>230 V EU and UK machines have the Eco auto-off board and a power button that springs back: the official power switch mod, then Plug-and-Play wiring.</li>
           <li>A 230 V machine without the Eco board (SIN035R) is uncommon, and the docs call it easier to convert.</li>
           <li>Gaggia specifies 11 bar for the valve on the pump, inside the 10 to 12 bar Gaggiuino needs; reviewers have measured 12 to 14. Owners often swap in 9 bar springs, so check.</li>
           <li>Pressure sensor: a barbed T in the braided pump hose about 65 mm above the boiler, or the pressure tap block.</li>
@@ -141,7 +141,7 @@
         <div><h3>What it means for the build</h3><ul class="build">
           <li>US: it ships with a 9 bar valve, which has to go up to 10 to 12 bar with a new spring or three or four M3 washers.</li>
           <li>Stock wiring integration means taking the combined block apart and insulating each connector, because some stay in the machine unplugged.</li>
-          <li>Europe: the Eco board, so the power switch mod and custom wiring.</li>
+          <li>Europe: the Eco board, so the power switch mod and Plug-and-Play wiring.</li>
           <li>On a used 2023 machine, look into the boiler for flaking coating.</li>
         </ul></div>
         <div class="vact"><button type="button" class="btn primary" data-setmachine="model:EVO;volts:120">This is mine, 120 V</button><button type="button" class="btn" data-setmachine="model:EVO;volts:230;eco:yes">230 V with the Eco board</button><button type="button" class="btn" data-setmachine="model:EVO;volts:230;eco:no">230 V without it</button><span class="isyours" data-yours="EVO" hidden>Set as your Gaggia</span></div>
@@ -158,7 +158,7 @@
         </ul></div>
         <div><h3>What it means for the build</h3><ul class="build">
           <li>The same as the Evo: in the US, raise the 9 bar valve to 10 to 12 bar, and insulate the combined connectors for stock wiring integration.</li>
-          <li>Europe: the Eco board, so the power switch mod and custom wiring.</li>
+          <li>Europe: the Eco board, so the power switch mod and Plug-and-Play wiring.</li>
           <li>It's the Classic sold new today: Whole Latte Love listed it at $499 in October 2026.</li>
         </ul></div>
         <div class="vact"><button type="button" class="btn primary" data-setmachine="model:E24;volts:120">This is mine, 120 V</button><button type="button" class="btn" data-setmachine="model:E24;volts:230;eco:yes">230 V with the Eco board</button><button type="button" class="btn" data-setmachine="model:E24;volts:230;eco:no">230 V without it</button><span class="isyours" data-yours="E24" hidden>Set as your Gaggia</span></div>
@@ -174,7 +174,7 @@
         <p>230 V machines sold in the EU and UK from 2019 (RI9480, then RI9481 for the Evo and E24) switch themselves off after 20 minutes to meet EU energy rules.</p>
         <ul>
           <li>Gaggia calls it the S-OFF board: a small relay board on the pump bracket, fed straight from the mains inlet. The power button springs back and works through the board, whose circuit isn't published, so treat the button's wires as mains.</li>
-          <li>Gaggiuino's power switch mod takes one spring out so the button latches. Custom wiring then leaves the board out of the circuit, and the official guide recommends it over stock integration for these machines.</li>
+          <li>Gaggiuino's power switch mod takes one spring out so the button latches. Plug-and-Play wiring then leaves the board out of the circuit, and the official guide doesn't recommend stock integration for these machines.</li>
           <li>Afterwards the machine never switches itself off; Gaggiuino only puts the screen to sleep.</li>
         </ul>
       </div>

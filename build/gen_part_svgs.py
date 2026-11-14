@@ -286,11 +286,10 @@ def fuse():
              '<g data-k="sp1"><rect class="sleeveS" x="216" y="178" width="13" height="20" rx="4"/><rect class="spade" x="219" y="182" width="7" height="12" rx="1"/></g>'
              '<g data-k="sp2"><rect class="sleeveS" x="234" y="154" width="13" height="20" rx="4"/><rect class="spade" x="237" y="158" width="7" height="12" rx="1"/></g>'
              '<g data-k="xt"><text class="cap onmetal" x="40" y="246">extend with</text><text class="cap onmetal" x="40" y="260">18 AWG if short</text></g></g>')
-    # custom wiring: the harness runs that went to the stock fuse
+    # Plug-and-Play wiring: L2c from the SSR and L3a to the elements
     s.append('<g data-v="CW"><path data-k="cw1" class="wire-m draw" pathLength="1" d="M110,302 C120,250 190,222 222.5,192"/>'
              '<path data-k="cw2" class="wire-m draw" pathLength="1" d="M300,150 C272,150 250,150 240.5,162"/>'
-             '<g data-k="cwl"><g data-fam="GCP"><g data-volts="120"><text class="lbl" x="120" y="296">AC18</text><text class="lbl" x="282" y="140">AC17</text></g><g data-volts="230"><text class="lbl" x="120" y="296">AC17</text><text class="lbl" x="282" y="140">AC16</text></g></g>'
-             '<g data-fam="GC"><text class="lbl" x="120" y="296">AC8 (AC9)</text><text class="lbl" x="280" y="140">AC6, AC7</text></g></g>'
+             '<g data-k="cwl"><text class="lbl" x="120" y="296">L3a, to the elements</text><text class="lbl" x="282" y="140">L2c, from the SSR</text></g>'
              '<g data-k="spc"><rect class="sleeveS" x="216" y="178" width="13" height="20" rx="4"/><rect class="spade" x="219" y="182" width="7" height="12" rx="1"/>'
              '<rect class="sleeveS" x="234" y="154" width="13" height="20" rx="4"/><rect class="spade" x="237" y="158" width="7" height="12" rx="1"/></g></g>')
     # side view of the fuse
@@ -347,7 +346,7 @@ def wires():
     s.append('<g data-k="wv1"><rect class="ins-r" x="20" y="134" width="282" height="12" rx="5"/>'
              '<g data-k="waste"><rect class="ins-r" x="300" y="134" width="70" height="12" rx="5"/></g>'
              '<g data-k="cutT"><path class="blade" d="M286,40 L314,40 L304,138 L298,138 Z"/></g><g data-k="cutB"><path class="blade" d="M286,240 L314,240 L304,142 L298,142 Z"/></g>'
-             '<g data-k="flag"><rect class="flagw" x="62" y="96" width="46" height="30" rx="3"/><text class="lbl onmetal" x="85" y="117" text-anchor="middle">J</text>'
+             '<g data-k="flag"><rect class="flagw" x="62" y="96" width="46" height="30" rx="3"/><text class="lbl onmetal" data-v="SI" x="85" y="117" text-anchor="middle">J</text><text class="lbl onmetal" data-v="CW" x="85" y="117" text-anchor="middle">L1a</text>'
              '<rect class="flagw" x="78" y="126" width="14" height="26" rx="2"/></g>'
              '<g data-k="wd1"><path class="dimln" d="M20,176 V188 M300,176 V188 M20,182 H300"/><text class="cap" x="160" y="204" text-anchor="middle">length from the cut list</text></g></g>')
     # 2 strip
@@ -402,7 +401,7 @@ def wires():
              '<rect class="dimple" x="240" y="130.5" width="14" height="19" rx="3"/></g>'
              '<g data-loop="tug" class="tug"><path d="M30,140 H-2 M8,130 L-2,140 L8,150"/><path d="M322,140 H360 M350,130 L360,140 L350,150"/></g>'
              '<g data-k="okm"><circle class="okc" cx="420" cy="80" r="22"/><path class="okt" d="M409,80 l8,8 l14,-16"/></g>'
-             '<text class="cap" x="176" y="196" text-anchor="middle">a gentle pull: nothing moves</text></g>')
+             '<text class="cap" x="176" y="196" text-anchor="middle">a firm tug: nothing moves</text></g>')
     s.append('</svg>')
     return "".join(s)
 
@@ -462,11 +461,11 @@ def ssr():
     # load side, stock wiring
     s.append('<g data-v="SI"><g data-k="lw1">' + fork(190, 210) + '<path class="wire-m" d="M190,252 V300"/><text class="lbl" x="172" y="290" text-anchor="end">Sa</text></g>'
              '<g data-k="lw2">' + fork(290, 210) + '<path class="wire-m" d="M290,252 V300"/><text class="lbl" x="308" y="290">Sb</text></g></g>')
-    # load side, custom wiring: one run on the fuse side, two on the line side in one fork
-    s.append('<g data-v="CW"><g data-k="lw1">' + fork(190, 210) + '<path class="wire-m" d="M190,252 V300"/>'
-             '<g data-fam="GCP"><text class="lbl" x="172" y="290" text-anchor="end">AC11</text></g><g data-fam="GC"><text class="lbl" x="172" y="290" text-anchor="end">AC6</text></g></g>'
+    # load side, Plug-and-Play wiring: two wires in one fork on each screw, L2a on the heater side, L4c on the line side
+    s.append('<g data-v="CW"><g data-k="lw1">' + fork(190, 210, two=True) + '<path class="wire-m" d="M186,252 V300 M194,252 V300"/>'
+             '<text class="lbl" x="172" y="284" text-anchor="end">L2a</text><text class="cap" x="172" y="298" text-anchor="end">lamp + fuse</text></g>'
              '<g data-k="lw2">' + fork(290, 210, two=True) + '<path class="wire-m" d="M286,252 V300 M294,252 V300"/>'
-             '<g data-fam="GCP"><text class="lbl" x="308" y="290">AC2 + AC4</text></g><g data-fam="GC"><text class="lbl" x="308" y="290">AC2 + AC3</text></g></g></g>')
+             '<text class="lbl" x="308" y="284">L4c</text><text class="cap" x="308" y="298">switch + PCB</text></g></g>')
     # control side
     s.append('<g data-k="cwp">' + fork(190, 90, up=False, cls="isl") + '<path class="lvw" d="M190,48 V0"/><text class="lbl" x="172" y="18" text-anchor="end">J9 R1</text></g>'
              '<g data-k="cwm">' + fork(290, 90, up=False, cls="isl") + '<path class="lvg" d="M290,48 V0"/><text class="lbl" x="308" y="18">J9 GND</text></g>')

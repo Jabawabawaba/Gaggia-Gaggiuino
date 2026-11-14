@@ -6,6 +6,12 @@
      [label](key#hash) links to a page on this site (a key in the runbook's L) or a full address.
      Written from the official Gaggiuino docs as read in November 2026; where a detail is this site's own advice, the text says so. */
   var PIC={
+    pnpCut120:"https://gaggiuino.github.io/schematics/custom-3pln/GC_P_HV_wire_guide_120v.png",
+    pnpCut230:"https://gaggiuino.github.io/schematics/custom-3pln/GC_P_HV_wire_guide_220v.png",
+    pnpGCP120:"https://gaggiuino.github.io/schematics/custom-3pln/GCP_pnp_custom_g3_5_120v.png",
+    pnpGCP230:"https://gaggiuino.github.io/schematics/custom-3pln/GCP_pnp_custom_g3_5_220v.png",
+    pnpGC120:"https://gaggiuino.github.io/schematics/custom-3pln/GC_pnp_custom_g3_5_120v.png",
+    pnpGC230:"https://gaggiuino.github.io/schematics/custom-3pln/GC_pnp_custom_g3_5_220v.png",
     uiHome:"https://gaggiuino.github.io/manual/gen3/mbed/001_000_home.png",
     uiSystem:"https://gaggiuino.github.io/manual/gen3/mbed/003_002_settings_system.png",
     uiBoiler:"https://gaggiuino.github.io/manual/gen3/mbed/003_000_settings_boiler.png",
@@ -114,9 +120,9 @@
     p0p:{
       how:[
         "**Stock wiring integration:** the machine's own wiring stays. You add seven short new wires (J, Sa, Sb, 3, P, L and N), move a few connectors on the switches, and add the low-voltage switch wires. Less wiring, but the official guide warns it's more confusing and has more places for a fault, and some stock connectors stay in the machine unplugged and still live.",
-        "**Custom wiring:** the whole stock harness comes out and a new one goes in. More crimping, but every wire is new, labeled and follows one drawing. The official guide calls Plug-and-Play/custom wiring the standard path, and sells a ready-made Plug-and-Play harness through its approved suppliers.",
-        "What this site covers: stock wiring, wire by wire. Its custom wiring pages follow the official May 2024 custom drawing (now in the official archive). A Plug-and-Play harness follows the newer official drawing instead, with different wire names.",
-        "Pick the one you're more comfortable with, then set **Install path** in Your Gaggia. A 230 V Pro-family machine goes custom whatever you pick (next steps)."
+        "**Plug-and-Play wiring:** the whole stock harness comes out and the official harness goes in, bought made up from an approved supplier or made from its cut list. Every wire is labeled at both ends and follows one drawing. The official guide calls Plug-and-Play/custom wiring the standard path, and stock integration a nonstandard option for machines without the Eco board.",
+        "What this site covers: both, wire by wire. Its wiring, cut list, labels and checks pages follow the official Plug-and-Play drawing for your model and voltage, with the official wire names (L1a, N1a and so on).",
+        "Pick the one you're more comfortable with, then set **Install path** in Your Gaggia. A 230 V Pro-family machine goes Plug-and-Play whatever you pick (next steps)."
       ],
       ok:"Install path is set in Your Gaggia."
     },
@@ -124,15 +130,15 @@
       how:[
         "You have the Eco board if your 230 V Pro-family machine's label reads SIN035UR, or its power switch springs back when you let go.",
         "It switches the machine off after 20 idle minutes, and Gaggiuino needs 10 to 15 minutes to settle, so the Eco board comes out with the stock harness.",
-        "Plan on custom wiring: the official guide doesn't recommend stock wiring with the Eco board.",
+        "Plan on Plug-and-Play wiring: the official guide doesn't recommend stock wiring with the Eco board.",
         "Plan the power switch mod (Phase 2): one spring comes out so the switch stays on.",
         "Set Eco board to Yes in Your Gaggia."
       ]
     },
     p0w:{
       how:[
-        "There's no official stock wiring drawing for a 230 V Classic Pro, Eco, Evo or E24, and the official guide recommends custom wiring for the Eco-board ones, so this site gives every 230 V Pro-family machine custom wiring.",
-        "Set Install path to custom wiring in Your Gaggia. If you leave it on stock wiring, this runbook and the wiring, cut list, labels and checks pages show custom wiring for your machine anyway."
+        "There's no official stock wiring drawing for a 230 V Classic Pro, Eco, Evo or E24, and the official guide doesn't recommend stock wiring with the Eco board, so this site gives every 230 V Pro-family machine Plug-and-Play wiring.",
+        "Set Install path to Plug-and-Play wiring in Your Gaggia. If you leave it on stock wiring, this runbook and the wiring, cut list, labels and checks pages show Plug-and-Play wiring for your machine anyway."
       ]
     },
     p0g:{
@@ -161,7 +167,7 @@
     p0t:{
       how:[
         "**A multimeter** that reads resistance (Ω) and beeps for continuity. The official guide calls it optional; this runbook's power-on checks need one, because they prove the wiring is safe before the first plug-in.",
-        "**Crimpers:** a ratcheting crimper for insulated terminals (its dies are color-coded red and blue, like the spades); an open-barrel crimper for the bare spades at the boiler; and an uninsulated-terminal crimper, or a punch and block, for BN butt splices (custom wiring has several; stock wiring only needs one if a wire has to be lengthened).",
+        "**Crimpers:** a ratcheting crimper for insulated terminals (its dies are color-coded red and blue, like the spades); an open-barrel crimper for the bare spades at the boiler; and an uninsulated-terminal crimper, or a punch and block, for BN butt splices (the Plug-and-Play harness has one, the BN2 by the boiler; stock wiring only needs one if a wire has to be lengthened).",
         "**Wire strippers** and side cutters.",
         "**Spanners:** a 17 mm spanner for the thermostats, a 4 mm Allen key for the boiler's screws, and an adjustable spanner, or two, for the pressure sensor's fittings.",
         "**Screwdrivers:** Phillips for the case, a long thin one with a magnetic tip for screws deep in the back, and a tiny flat one for the PCB's thermocouple clamp.",
@@ -179,7 +185,7 @@
         "**SSR hardware:** an M4 × 10 screw, washer and nut, or an 8-32 set from a hardware store.",
         "**ST-Link programmer:** on the official parts list, but PCB v4 updates over Wi-Fi, so it's only needed for a wired recovery.",
         ["**Stock wiring:** the seven integration wires (J, Sa, Sb, 3, P, L and N), made up, or 2 m or more of 18 AWG silicone wire (1 m each of red, black and white is plenty), 6.3 mm male and female spades, uninsulated spades and silicone sleeve for the boiler ends, one piggyback spade and SV1.25-5 fork terminals.","wpath:SI"],
-        ["**Custom wiring:** a Plug-and-Play harness from an official supplier, or everything on this site's [cut list](cut): 18 AWG silicone wire in the drawing's colors, insulated and bare 6.3 mm spades, SV1.25-5 and SV2-5 forks, BN1.25 and BN2 butt splices, and silicone heat shrink or self-fusing tape.","wpath:CW"],
+        ["**Plug-and-Play wiring:** the official harness from an approved supplier, or everything on this site's [cut list](cut) to make it: 18 AWG silicone wire in the drawing's colors, red and blue nylon flags, nylon and thin-sleeved 6.3 mm females, uninsulated spades for the earth wires, SSR forks, a piggyback, a BN2 splice and silicone heat shrink. Plus the 185 °C resettable fuse the harness plugs onto (check your kit has one), and the element connectors (reuse the stock ones, or TE 160783-7).","wpath:CW"],
         "**Pressure plumbing, one of:** the pressure tap block kit (the block, a PC 6-M5 fitting, a PLF 6-02 fitting, 4 × 6 mm PTFE tube, an 010 silicone O-ring and two M5 × 25 screws), or a T-fitting kit.",
         ["**Pro-family T-fitting:** a 6 mm barbed T, a 6 mm barb to 1/4 inch sensor fitting, high-pressure braided hose (Saeco 996530009505) and hose clamps with their pliers.","fam:GCP"],
         ["**Classic T-fitting:** a PE 6 mm push-to-connect T, a PLF 6-02 sensor fitting and 4 × 6 mm PTFE tube.","fam:GC"],
@@ -323,7 +329,7 @@
         "In the web UI, Settings, OTA Update: choose **Core Upgrade Package**, SELECT FILE, pick the core file, then UPLOAD. The screen goes black while it flashes and reboots.",
         "Then START OVER, choose **LCD Upgrade Package** and upload ui-embedded (or ui-headless); START OVER again for ui-web. The order is core, then ui-embedded, then ui-web, unless the release notes say otherwise. Refresh the browser after ui-web.",
         "Back in About, all three build numbers should now match.",
-        "Bench test done: unplug the USB cable, then unplug each part from the PCB and loosen J4's screws to free the thermocouple. Each part goes into the machine on its own, and everything plugs back into the PCB at the end of Phase 4 (the official custom wiring guide calls this the easiest way)."
+        "Bench test done: unplug the USB cable, then unplug each part from the PCB and loosen J4's screws to free the thermocouple. Each part goes into the machine on its own, and everything plugs back into the PCB at the end of Phase 4 (the official Plug-and-Play/custom wiring guide calls this the easiest way)."
       ],
       warn:"Don't power off during an update. A failed or cancelled one falls back to the old firmware by itself. If updates keep failing on your home network, disconnect Gaggiuino from that network, then join Gaggiuino AP directly and try again, as the official guide says.",
       pics:[["About page","ABOUT"],["OTA Update section","OTA1"],["Choosing the package","OTA2"],["START OVER","OTA3"]]
@@ -416,7 +422,7 @@
         "Push the new three-pin inlet into the hole until all its locking tabs seat.",
         ["Cut two wires of about 200 mm: one from the inlet's earth tab to the boiler's fuse clip (its earth connector), one from there on to the cup warmer plate's tab. Crimp spades on, uninsulated at the boiler end. Leave the cup warmer end loose until the plate goes back on in Phase 5.","wpath:SI"],
         ["Connect the wires by where each one goes, not where it sat on the old socket: the wire to the power switch goes on the inlet's L tab, the wire to the boiler's thermal fuse on its N tab, as the stock wiring drawing shows (gray and blue on Gaggia's 2009 120 V drawing; colors vary by year). The new earth wire goes on the earth tab. The official photo shows which tab is which, and checks e21 to e23 prove it.","wpath:SI"],
-        ["On custom wiring, fit just the inlet now and leave its tabs empty: its runs (AC1 on L, AC12 and AC15 on N, G3 on earth) go on with the harness in Phase 4.","wpath:CW"]
+        ["On Plug-and-Play wiring, fit just the inlet now and leave its tabs empty: the harness's L1a, N1c and G1b flags go on in Phase 4.","wpath:CW"]
       ],
       warn:"Insulated spades melt at the boiler: bare ones there. And earth never connects to the PCB's 5 V GND.",
       pics:[["Wires off the old socket","GND1"],["The socket's retaining tabs","GND2"],["New inlet seated","GND3"],["Ground wires","GND4"],["Line, neutral and earth","GND5"]]
@@ -456,32 +462,37 @@
     },
     p2h:{
       how:[
-        "**Bought the official Plug-and-Play harness?** It follows the newer official drawing, whose wire names (L1a, N1a, G1a and so on) differ from this site's. Fit it by [that drawing](https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring?id=wire-harness-schematics) instead, and skip this step and the next two. Later, the harness step and the power-on checks use this site's run names: where a check names a run, follow the same path on the official drawing, and ask in your help thread if one doesn't match. That drawing also has the 185 °C resettable fuse built in.",
-        "Building your own: open the [cut list](cut) and the [wiring page](wiring) with Your Gaggia set. They follow the official May 2024 custom wiring drawing for your model and voltage, which the official site keeps in its archive.",
-        "Take out the stock harness, keeping the stock parts the cut list reuses: the lamps with their leads, each heating element connector with about 80 mm of its lead, the boiler fuse's connectors and the pump fuse's lead. If the Eco board is fitted, it comes out now. The thermostats come out in Phase 3.",
-        "Cut each run to its cut-list length (they're generous: route it first, then trim) and label both ends before you crimp.",
-        "Crimp each end as its row says: red insulated spades for one 18 AWG wire and blue for two; bare spades under silicone at the boiler and the valve; forks at the SSR; butt splices where the drawing joins wires.",
-        "For a butt splice (BN1.25, or BN2 for two 18 AWG wires a side): slide silicone heat shrink on first, push each wire in to the splice's middle stop, crimp each half with the uninsulated-terminal crimper, then shrink the sleeve over it. Mains wires are crimped, never soldered.",
+        "**Bought the official Plug-and-Play harness?** Lay it out and check each end's label against this site's [cut list](cut) for your model and voltage: every run is named by its two end labels, as on the official cut list. Then go on to the next step.",
+        "Making your own: open the [cut list](cut) and the [wiring page](wiring) with Your Gaggia set. They follow the official Plug-and-Play cut list and drawing for your model and voltage.",
+        ["Take out the stock harness, keeping what the new one reuses: the power and steam lamps with their leads, the pump's thermal fuse with its leads, and the element connectors if you'll reuse them. If the Eco board is fitted, it comes out now. The thermostats come out in Phase 3.","fam:GCP"],
+        ["Take out the stock harness, keeping the element connectors if you'll reuse them. The switch housing and its lamps stay. The thermostats come out in Phase 3.","fam:GC"],
+        "Cut each run to its cut-list length and label both ends with their own labels: the [wire labels](labels) page prints them.",
+        "Crimp each end as its row says: red flags for one 18 AWG wire and blue for two (a flag crimper), nylon females, thin-sleeved females for the PCB's four tabs, uninsulated females for the earth spades, SSR forks sized for two, and a piggyback for N1f.",
+        ["Pro family: the boiler lamp's and power lamp's own leads, cut to 250 mm, get X1a, X1b (one lead from each lamp in one connector) and X1c; the pump fuse's leads, cut to 80 mm, get P2a and P2b.","fam:GCP"],
+        "The BN2 splice joins the element neutrals to N1c and N1f: slide silicone heat shrink on first, push each wire in to the splice's middle stop (two 18 AWG wires a side at most), crimp each half with the uninsulated-terminal crimper, then shrink the sleeve over it. Mains wires are crimped, never soldered.",
         "Tick each run off on the cut list as it's made."
       ],
       ok:"Every run on the cut list made, labeled at both ends and pull-tested.",
-      links:[["Part guide: making the wires","gwire"],["Official May 2024 custom wiring (archived)","https://gaggiuino.github.io/#/archive/3pln-custom-wiring-2024"]]
+      pics:[["The official cut list, 100 to 120 V","pnpCut120","volts:120"],["The official cut list, 220 to 240 V","pnpCut230","volts:230"],["The official drawing: Classic Pro family, 120 V","pnpGCP120","fam:GCP;volts:120"],["The official drawing: Classic Pro family, 230 V","pnpGCP230","fam:GCP;volts:230"],["The official drawing: Classic, 120 V","pnpGC120","fam:GC;volts:120"],["The official drawing: Classic, 230 V","pnpGC230","fam:GC;volts:230"]],
+      links:[["Part guide: making the wires","gwire"],["Official Plug-and-Play/custom wiring","https://gaggiuino.github.io/#/guides-stm32/3pln-custom-wiring"]]
     },
     p2i:{
       how:[
-        "Each SSR screw takes a fork: SV1.25-5 (red) for one 18 AWG wire, SV2-5 (blue) where two wires share a screw.",
-        ["Pro family: the right load screw takes AC2 and AC4 together in one SV2 fork; the left takes AC11, or the resettable fuse's run if you fit one (AC17 at 120 V, AC16 at 230 V).","fam:GCP"],
-        ["Classic: the right load screw takes AC2 and AC3 together in one SV2 fork; the left takes AC6.","fam:GC"],
+        "Each SSR screw takes a fork. On the load side each holds two 18 AWG wires, so it's sized for two (SV2-5, blue).",
+        "The right load screw takes L4c: L4a-L4c from the power switch and L4d-L4c to the PCB's L.",
+        ["The left load screw takes L2a: L2a-L2c to the resettable fuse and L2a-L2b to the boiler lamp's X1a.","fam:GCP;set:model"],
+        ["The left load screw takes L2a: L2a-L2c to the resettable fuse and L2a-L2b to the housing's On/Off 8, for the lamp inside it.","fam:GC;set:model"],
+        ["The left load screw takes L2a: L2a-L2c to the resettable fuse and L2a-L2b to the boiler lamp (X1a on the Pro family, On/Off 8 on the original Classic).","unset:model"],
         "The control wires, J9 R1 and J9 GND, get SV1.25 forks. They're 22 AWG: fold the stripped end back on itself first, or join it to 18 AWG."
       ]
     },
     p2j:{
       how:[
-        "Anything on or near the boiler, or on the valve, gets an uninsulated spade under silicone: insulated ones melt there.",
-        "Slide a piece of silicone heat shrink onto the wire first.",
-        "Lay the end in the spade with the bare copper under the front tabs and the insulation under the rear tabs, and squeeze it in the open-barrel crimper's matching die.",
-        "Slide the sleeve over and shrink it with the heat gun, or wrap the spade in self-fusing silicone tape.",
-        "Two wires on one terminal: a spade sized for two, or a BN2 splice to one lead."
+        "The cut list marks each end's insulation: no mark is nylon (rated 105 °C), S a thin sleeve, C a cover, U uninsulated.",
+        "**Element connectors (C):** each sits on its element pin under its cover. Reusing the stock ones is easiest. New ones are TE 160783-7: the official component list crimps the wire with an open-barrel crimper and closes the insulation grip with pliers.",
+        "**Earth spades (U):** G1a, G1c and G1d stay uninsulated.",
+        "**The BN2 splice:** under silicone heat shrink.",
+        "**The fuse's flags:** the cut list puts nylon flags on L3a and L2c, at the resettable fuse on the boiler, while the same guide rates nylon at 105 °C. If you crimp these yourself, this site suggests uninsulated flags or spades under silicone sleeve there: slide the sleeve on first, crimp with the open-barrel crimper, then shrink it. A kit harness comes made: ask your supplier what its flags are rated for if you're unsure."
       ],
       links:[["Part guide: making the wires","gwire"]]
     },
@@ -503,8 +514,9 @@
         "Take off the steam knob and the steam wand, then undo the four socket head screws (a 4 mm Allen key) that come up into the boiler from under the sheet metal. Lift and tip the boiler a little, leaving its hoses and wires attached. The official tools page links a [video of a Gaggia boiler coming out](https://www.youtube.com/watch?v=JTTLYj1l0KI&t=204s).",
         "Find the brew thermostat on the boiler and pull its two connectors, Ba and Bb, straight off. Grip the connector, not the wire.",
         "Unscrew the thermostat with the 17 mm spanner. There should be high-temperature thermal paste under it: you'll move it onto the thermocouple. If there's none, or it has dried out, you'll need fresh paste rated for 180 °C or more.",
-        ["Custom wiring: unscrew the steam thermostat too. The official guide takes out all the stock wiring and both thermostats: the SSR and Gaggiuino control the heat.","wpath:CW"],
-        "Leave the boiler's thermal fuse alone: it stays in the circuit, unless you fit the optional resettable fuse in its place (a step below).",
+        ["Plug-and-Play wiring: unscrew the steam thermostat too. The official guide takes out all the stock wiring and both thermostats: the SSR and Gaggiuino control the heat, and the resettable fuse goes in the steam thermostat's hole (a step below).","wpath:CW"],
+        ["Leave the boiler's thermal fuse alone: it stays in the circuit, unless you fit the optional resettable fuse in its place (a step below).","wpath:SI"],
+        ["The stock one-shot thermal fuse comes out with the old harness: the resettable fuse replaces it. Leave its clip, and any earth wire on it, in place.","wpath:CW"],
         "If the thermocouple is still clamped in the PCB's J4 from the bench test, loosen J4's screws and free it first."
       ],
       pics:[["Thermocouple in the brew thermostat's place","TC"]],
@@ -534,11 +546,14 @@
     },
     p3r:{
       how:[
-        "Skip this if your kit has no resettable fuse: the boiler's stock 184 °C fuse stays and does the same job.",
+        ["Skip this if your kit has no resettable fuse: the boiler's stock 184 °C fuse stays and does the same job.","wpath:SI"],
         ["On stock wiring this is this site's suggestion: the official stock wiring guide doesn't fit one. The official wiring basics page says a kit's resettable fuse goes in the steam thermostat's hole as a replacement for the stock fuse.","wpath:SI"],
-        "If it's still in, pull the steam thermostat's two leads off (Sa and Sb, labeled) and unscrew it with the 17 mm spanner.",
+        ["On Plug-and-Play wiring it's part of the harness, in place of the stock one-shot fuse.","wpath:CW"],
+        ["If it's still in, pull the steam thermostat's two leads off (Sa and Sb, labeled) and unscrew it with the 17 mm spanner.","wpath:SI"],
+        ["If it's still in, unscrew the steam thermostat with the 17 mm spanner.","wpath:CW"],
         "A thin film of the same 180 °C paste on the fuse's stud and face, then screw it into the steam thermostat's hole by hand until it seats. Its body is ceramic: no spanner.",
-        "Then move the stock fuse's wires onto it, as the [resettable fuse guide](gfuse) shows step by step, and check it reads under 1 Ω across its spades."
+        ["Then move the stock fuse's wires onto it, as the [resettable fuse guide](gfuse) shows step by step, and check it reads under 1 Ω across its spades.","wpath:SI"],
+        ["Check it reads under 1 Ω across its spades. L2c and L3a go on with the harness in Phase 4, as the [resettable fuse guide](gfuse) shows.","wpath:CW"]
       ],
       warn:"It replaces the stock fuse in the circuit; nothing ever bypasses a thermal fuse."
     },
@@ -723,14 +738,17 @@
     },
     p4i:{
       how:[
-        "Work from the [wiring page](wiring) with Your Gaggia set: its list gives every run with both ends, and its map shows where each lands.",
+        "Work from the [wiring page](wiring) with Your Gaggia set: its list gives every run with both ends and their labels, and its map shows where each lands.",
         "Fit one run at a time, and tick it off on the [cut list](cut).",
         "Mains runs on the left side, above the thermocouple lead; low-voltage wires on the right.",
-        "Where two runs share a terminal, they share one spade or fork sized for two.",
-        "Leave the ends of the runs that go on the PCB's four mains tabs, N (J10), L (J11), P (J12) and 3 (J13), loose for now: they go on in the plug-in step, once the PCB is mounted.",
-        "With the official Plug-and-Play harness, fit it by its own drawing instead: this page's run names won't match it."
+        "The flags go on the socket, the power switch and the resettable fuse. Push every connector fully home.",
+        ["Pro family: plug X1a into L2b and X1b into L4b behind the switches, X1c onto N1f's piggyback tab at the 3-way valve, and P2b into N1a at the pump.","fam:GCP;set:model"],
+        ["Original Classic: L4b stays loose. It's live whenever the machine is on: leave its insulated spade on and tie it back clear of everything (this site's advice). Nothing plugs onto N1f's piggyback tab: this site suggests covering it.","fam:GC;set:model"],
+        ["Pro family: plug X1a into L2b, X1b into L4b, X1c onto N1f's piggyback tab and P2b into N1a. Original Classic: L4b stays loose, live whenever the machine is on, so tie it back with its insulated spade on.","unset:model"],
+        "Leave the four ends for the PCB's mains tabs loose for now: N1b (J10), L4d (J11), P1b (J12) and V1b (J13). They go on in the plug-in step, once the PCB is mounted."
       ],
       ok:"Every run on the cut list is ticked, and each end matches the wiring page.",
+      pics:[["The official drawing: Classic Pro family, 120 V","pnpGCP120","fam:GCP;volts:120"],["The official drawing: Classic Pro family, 230 V","pnpGCP230","fam:GCP;volts:230"],["The official drawing: Classic, 120 V","pnpGC120","fam:GC;volts:120"],["The official drawing: Classic, 230 V","pnpGC230","fam:GC;volts:230"]],
       links:[["Cut list","cut"]]
     },
     p4s:{links:[["Part guide: Shelly","gshl"]]},
@@ -748,6 +766,7 @@
         "Thermocouple into J4, as on the bench: folded ends, and + and − the way they passed the warm-hand test.",
         "Pressure sensor into J6, screen cable into J1, switch wires into J7, SSR control into J9, and the ToFnLED into J2 if you have one.",
         "The mains wires onto the PCB's tabs: N on J10, L on J11, P on J12 and 3 on J13. Check each against the wiring page before you push it on.",
+        ["On Plug-and-Play wiring those ends are N1b, L4d, P1b and V1b.","wpath:CW"],
         "Leave a little slack on each, so the PCB can come out without pulling anything."
       ],
       ok:"Every plug fully home, and the four mains tabs match the wiring page: check [g10](checks#g10)."
@@ -774,7 +793,7 @@
     p4l:{
       how:[
         "The cable's PCB end is already in J1. Feed its screen end out through the vent your mount uses (Phase 5's photos show each). The small screen-end plug fits through gaps the PCB end won't.",
-        "Where it passes the vent's sharp edge, slide a short length of heat shrink over the cable and leave it unshrunk: a sleeve, so the edge can't cut the soft silicone jacket (the archived May 2024 official guide's advice; check g13 asks for it).",
+        "Where it passes the vent's sharp edge, slide a short length of heat shrink over the cable and leave it unshrunk: a sleeve, so the edge can't cut the soft silicone jacket (the official screen guide still has it there; check g13 asks for it).",
         ["Headless: route the cable to where the board will sit. The official guide recommends the left vent on every Classic model.","scr:hl"],
         "No ST-Link needs to stay in the machine for updates: PCB v4 updates over Wi-Fi.",
         "If your kit has one, you can do as the archived official guide did: leave it plugged into J27, its wires through the back vent, and tape it to the back. Checks h5 and h6 then use its GND pin as a 5 V ground you can reach with the covers on. Without one, those checks use the screen cable's GND pin instead."

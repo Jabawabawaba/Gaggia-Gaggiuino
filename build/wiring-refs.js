@@ -28,7 +28,7 @@
     })();
     var CKT=%%CHECK_INDEX%%;
     var GNAME={tc:'Thermocouple',ps:'Pressure sensor',fuse:'Resettable fuse',wire:'Making the wires',ssr:'SSR',sw:'Switches',scr:'Screen housing',tof:'ToFnLED',fw:'Firmware updates',scl:'Hardware scales',shl:'Shelly smart relay'};
-    var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'custom wiring',GCP:'Pro family',GC:'original Classic',front:'front mount',funnel:'funnel mount',rear:'rear mount',ota:'over Wi-Fi',wired:'by wire'};
+    var VNAME={ptb:'tap block',tee:'T-fitting',SI:'stock wiring',CW:'Plug-and-Play wiring',GCP:'Pro family',GC:'original Classic',front:'front mount',funnel:'funnel mount',rear:'rear mount',ota:'over Wi-Fi',wired:'by wire'};
     function GMo(){return window.GaggiaMachine||null}
     function e(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
     /* a machine.js condition, with the install path, family and voltage taken from the drawing on show */

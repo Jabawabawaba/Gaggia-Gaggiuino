@@ -612,12 +612,12 @@
   "k": "gg",
   "q": "After the conversion, which of these still protects the boiler without depending on any software?",
   "a": [
-   "The 184 °C boiler thermal fuse",
+   "The boiler's thermal fuse",
    "The 107 °C brew thermostat",
    "The 145 °C steam thermostat",
    "The thermocouple in the boiler's side"
   ],
-  "why": "Both thermostats leave the circuit and the thermocouple only reports to the PCB. The boiler's thermal fuse and earth stay, and neither depends on software.",
+  "why": "Both thermostats leave the circuit and the thermocouple only reports to the PCB. The boiler's thermal fuse stays (the stock 184 °C one on stock wiring, the 185 °C resettable one on Plug-and-Play wiring), and so does earth; neither depends on software.",
   "r": [
    [
     "url",
@@ -630,7 +630,7 @@
     "How the Gaggia works: thermostats and thermal fuse"
    ]
   ],
-  "src": "learn-gg-body.html #blocks: 'What stays: the power switch still breaks mains, the boiler's thermal fuse (184 °C on the official schematics) stays in circuit... None of those depend on software.' learn-gaggia-parts.html part-tstat: 'both thermostats leave the circuit... The fuse stays as the safety cut-out.'"
+  "src": "learn-gg-body.html #blocks: the boiler's thermal fuse stays in circuit. Official PnP drawings: 185 °C resettable fuse in the harness; stock integration drawings keep the 184 °C fuse."
  },
  {
   "id": "gg-03",
@@ -882,7 +882,7 @@
    "Reads the thermocouple and the pressure sensor",
    "Powers the PCB from its own mains supply"
   ],
-  "why": "The screen is its own ESP32-S3 computer: interface, profiles and settings, the Gaggiuino Wi-Fi network and gaggiuino.local, and updates. The STM32 on the PCB runs the machine, and powers and talks to the screen over J1.",
+  "why": "The screen is its own computer (an ESP32-P4 on the Gen 3.5, an ESP32-S3 on the Gen 3): interface, profiles and settings, the Gaggiuino Wi-Fi network and gaggiuino.local, and updates. The STM32 on the PCB runs the machine, and powers and talks to the screen over J1.",
   "r": [
    [
     "url",
@@ -894,7 +894,7 @@
     "t-esp32-esp32-s3"
    ]
   ],
-  "src": "learn-gg-parts.html screen: 'It draws the interface, stores your profiles and settings, runs the Gaggiuino Wi-Fi network and the web page at gaggiuino.local, and installs updates for itself and the board. It talks to the PCB over a serial link on J1, which also powers it.' pcb: 'Its STM32 microcontroller... runs the machine'"
+  "src": "learn-gg-parts.html screen; official screen guide: Gen 3.5 ESP32-P4 and Gen 3 ESP32-S3 screens; official README BOM: 4.3\" ESP32-P4 (Gen 3.5) or ESP32-S3 (Gen 3) screen."
  },
  {
   "id": "gg-15",
@@ -972,14 +972,14 @@
  {
   "id": "gg-18",
   "k": "gg",
-  "q": "With custom wiring, which front switch still carries mains?",
+  "q": "With Plug-and-Play wiring, which front switch still carries mains?",
   "a": [
    "The power switch",
    "The brew switch",
    "The steam switch",
    "None of them"
   ],
-  "why": "With custom wiring the brew and steam switches carry only the low-voltage signals to J7. The power switch stays on mains, right beside them.",
+  "why": "With Plug-and-Play wiring the brew and steam switches carry only the low-voltage signals to J7. The power switch stays on mains, right beside them.",
   "r": [
    [
     "url",
@@ -992,7 +992,7 @@
    ]
   ],
   "w": "wpath:CW",
-  "src": "learn-gaggia-parts.html part-panel: 'With custom wiring that's all they carry... The power switch stays on mains.' checks.tpl.html f8 (CW): 'The power switch carries mains right beside the signal switches.'"
+  "src": "learn-gaggia-parts.html part-panel; official PnP drawings: J7 GND, S, B to the brew and steam switches; L1b and L4a on the power switch. checks.tpl.html f8 (CW)."
  },
  {
   "id": "gg-19",
@@ -1029,7 +1029,7 @@
    "It lights while the pump runs",
    "It works exactly as before"
   ],
-  "why": "Stock integration leaves the Classic's internal boiler lamp dark, which is expected. Custom wiring would turn the power lamp into the boiler lamp instead.",
+  "why": "Stock integration leaves the Classic's internal boiler lamp dark, which is expected. Plug-and-Play wiring would turn the power lamp into the boiler lamp instead.",
   "r": [
    [
     "tr",
@@ -1047,14 +1047,14 @@
  {
   "id": "gg-21",
   "k": "gg",
-  "q": "After custom wiring on your original Classic, which lamp shows the boiler state?",
+  "q": "After Plug-and-Play wiring on your original Classic, which lamp shows the boiler state?",
   "a": [
    "The power lamp, now the boiler lamp",
    "The internal ready lamp, as before",
    "None; only the screen shows it",
    "The red LED beside the PCB's valve output"
   ],
-  "why": "Custom wiring turns the Classic's power lamp into the boiler lamp. The red LED on the PCB only shows when the 3-way valve is powered.",
+  "why": "Plug-and-Play wiring turns the Classic's power lamp into the boiler lamp: it sits between On/Off P and 8, and L2b puts the SSR's heater side on 8. The red LED on the PCB only shows when the 3-way valve is powered.",
   "r": [
    [
     "tr",
@@ -1067,7 +1067,7 @@
    ]
   ],
   "w": "fam:GC;wpath:CW",
-  "src": "learn-gaggia-parts.html part-panel (GC): 'custom wiring turns the power lamp into the boiler lamp.' learn-gg-parts.html pcb: 'a red LED beside it lights whenever the valve is powered.'"
+  "src": "Official GC PnP drawing: 'Internal Power Lamp (Used as Boiler Status)', L2b on On/Off 8. learn-gg-parts.html pcb: 'a red LED beside it lights whenever the valve is powered.'"
  },
  {
   "id": "gg-22",
@@ -1203,7 +1203,7 @@
    "Keeps both thermostats and adds an SSR beside them",
    "Moves every mains wire onto the PCB's spades"
   ],
-  "why": "Stock wiring integration adds J, Sa, Sb, 3, P, L and N to the machine's own harness. Custom wiring is the one that replaces the harness, reusing the stock lamps, element leads and fuses.",
+  "why": "Stock wiring integration adds J, Sa, Sb, 3, P, L and N to the machine's own harness. Plug-and-Play wiring is the one that replaces the harness: the official one, bought made up or made from its cut list.",
   "r": [
    [
     "url",
@@ -1220,14 +1220,14 @@
  {
   "id": "plan-06",
   "k": "plan",
-  "q": "Which machines have no stock-integration drawing in the current official guide, so this site gives them custom wiring?",
+  "q": "Which machines have no stock-integration drawing in the current official guide, so this site gives them Plug-and-Play wiring?",
   "a": [
    "Any 230 V Pro-family machine",
    "The 230 V original Classic",
    "The 120 V Classic Pro and Evo Pro",
    "Only the US Evo Pro and E24"
   ],
-  "why": "The current stock-integration drawings cover the 120 V Pro family and the Classic at 120 V and 230 V. A 230 V Pro-family machine, Eco board or not, gets custom wiring even if stock wiring was picked. The docs' archive keeps an older Eco-board drawing, not for new builds.",
+  "why": "The current stock-integration drawings cover the 120 V Pro family and the Classic at 120 V and 230 V. A 230 V Pro-family machine, Eco board or not, gets Plug-and-Play wiring even if stock wiring was picked. The docs' archive keeps an older Eco-board drawing, not for new builds.",
   "r": [
    [
     "url",
@@ -1274,12 +1274,12 @@
   "k": "plan",
   "q": "Your machine has the Eco board. What does the official guide have you do?",
   "a": [
-   "The power switch mod, then custom wiring",
+   "The power switch mod, then Plug-and-Play wiring",
    "Stock wiring integration, with the board left in",
-   "Custom wiring, with the board feeding the PCB",
+   "Plug-and-Play wiring, with the board feeding the PCB",
    "A firmware setting that turns off the timer"
   ],
-  "why": "One spring comes out of the power switch so it latches, and custom wiring feeds the switch straight from the inlet, so the board drops out. Afterwards the Eco board's 20-minute auto-off is gone; Gaggiuino only puts the screen to sleep.",
+  "why": "One spring comes out of the power switch so it latches, and the Plug-and-Play harness feeds the switch straight from the inlet, so the board drops out. Afterwards the Eco board's 20-minute auto-off is gone; Gaggiuino only puts the screen to sleep.",
   "r": [
    [
     "rb",
@@ -1604,7 +1604,7 @@
  {
   "id": "safety-02",
   "k": "safety",
-  "q": "The optional resettable boiler fuse has tripped. When do you press its button?",
+  "q": "The resettable boiler fuse has tripped. When do you press its button?",
   "a": [
    "After you unplug, let it cool and find why",
    "Right away, so the boiler can heat again",
@@ -1637,7 +1637,7 @@
    "Leave it out: the PCB's triac replaces it",
    "Ignore it unless the pump overheats"
   ],
-  "why": "The pump's protector stays in its path in a Gaggiuino build, and the pump won't run with it open. The official custom wiring guide lists a 120 °C KSD9700 as a substitute.",
+  "why": "The pump's protector stays in its path in a Gaggiuino build, and the pump won't run with it open. The official Plug-and-Play/custom guide's component list has a 120 °C KSD9700 as a substitute.",
   "r": [
    [
     "url",
@@ -2246,14 +2246,14 @@
  {
   "id": "install-08",
   "k": "install",
-  "q": "Where does the optional resettable fuse go?",
+  "q": "Where does the resettable fuse go?",
   "a": [
    "In the steam thermostat's hole in the top of the boiler",
    "In the brew thermostat's hole in the side of the boiler",
    "On the pump's neutral lead, by its thermal fuse",
    "Inline in the PCB's J11 line wire"
   ],
-  "why": "It replaces the stock 184 °C one-shot fuse. It opens at 185 °C if the boiler overheats and stays open until you press its button.",
+  "why": "It replaces the stock 184 °C one-shot fuse: part of the harness on Plug-and-Play wiring, optional on stock wiring. It opens at 185 °C if the boiler overheats and stays open until you press its button.",
   "r": [
    [
     "pg",
@@ -2351,7 +2351,7 @@
    "Flow some solder into the crimp",
    "Cover it with heat shrink to hold it"
   ],
-  "why": "Every crimp gets a gentle pull. One that moves gets a new connector, and any bare metal left afterwards gets covered.",
+  "why": "Every crimp gets a firm tug. One that moves gets a new connector, and any bare metal left afterwards gets covered.",
   "r": [
    [
     "pg",
@@ -2364,7 +2364,7 @@
     "p2k"
    ]
   ],
-  "src": "part-guides-data.js wire 'Pull-test every crimp': 'Pull gently on each one. If it moves, cut the connector off and crimp a new one. Then cover any bare metal that's left.'"
+  "src": "part-guides-data.js wire 'Pull-test every crimp': 'Give each one a firm tug. If it moves, cut the connector off and crimp a new one. Then cover any bare metal that's left.'"
  },
  {
   "id": "install-15",
@@ -2917,46 +2917,42 @@
  {
   "id": "wiring-17",
   "k": "wiring",
-  "q": "In the 120 V Pro-family custom harness, how are the two heating elements wired?",
+  "q": "In the 120 V Pro-family Plug-and-Play harness, how are the two heating elements wired?",
   "a": [
-   "In parallel, each fed from the heater splice",
-   "In series, joined by a short link lead",
+   "In parallel, both fed from L3a",
+   "In series, joined by B1a-B1b",
    "Each through its own SSR",
    "Only one is connected at 120 V"
   ],
-  "why": "AC13 and AC14 run from the heater splice to one end of each element, and AC15 and AC16 take the other ends to the element splice. A 230 V machine has them in series instead.",
+  "why": "L3a-L3b and L3a-L3c run from the resettable fuse to one end of each element, and N1d-BN2 and N1e-BN2 take the other ends to the BN2 splice. A 230 V machine has them in series, joined by B1a-B1b.",
   "r": [
    [
     "map",
-    "runs=AC13,AC14,AC15,AC16",
+    "runs=L3a-L3b,L3a-L3c,N1d-BN2,N1e-BN2",
     "The element runs on the wiring map"
-   ],
-   [
-    "ck",
-    "c1"
    ]
   ],
   "w": "fam:GCP;volts:120;wpath:CW",
-  "src": "wiring-parts.js boiler: 'two heating elements (in parallel at 120 V)'. wiring-data.json cw-gcp-120: AC13 'BN2 heater splice to Element TL', AC14 'BN2 heater splice to Element BL', AC15 'Element TR to BN2 element splice', AC16 'Element BR to BN2 element splice'.",
+  "src": "Official GCP PnP 120 V drawing and GC_P cut list 120 V: L3a to L3b and L3c (80 mm), N1d and N1e to BN2. wiring-parts.js boiler.",
   "g": "el120"
  },
  {
   "id": "wiring-18",
   "k": "wiring",
-  "q": "On a 120 V Pro-family custom harness with the optional resettable fuse, which runs take the place of AC11 and AC12?",
+  "q": "On the Plug-and-Play harness, which wires go on the resettable fuse's two spades?",
   "a": [
-   "AC17 from the SSR and AC18 to the heater splice",
-   "AC16 from the SSR and AC17 to the heater splice",
-   "AC13 and AC14, to the two elements",
-   "AC2 and AC4, on the SSR's right screw"
+   "L2c from the SSR and L3a to the elements",
+   "L2b from the SSR and L3b to the elements",
+   "L4a and L4c from the power switch",
+   "N1d and N1e to the BN2 splice"
   ],
-  "why": "AC17 and AC18 go on the resettable fuse's two spades, in the steam thermostat's hole, instead of AC11 and AC12 to the stock fuse.",
+  "why": "The fuse sits in the steam thermostat's hole, in place of the stock one-shot fuse: L2c brings the SSR's heater line, and L3a feeds the elements (both of them at 120 V, the series pair at 230 V).",
   "r": [
    [
     "pg",
     "fuse",
     "CW",
-    "Wire it instead of the stock fuse"
+    "Wire it: L2c and L3a"
    ],
    [
     "map",
@@ -2964,46 +2960,42 @@
     "The resettable fuse on the wiring map"
    ]
   ],
-  "w": "fam:GCP;volts:120;wpath:CW",
-  "src": "part-guides-data.js fuse CW 'Wire it instead of the stock fuse': 'Classic Pro family: AC17, from the SSR, goes on one spade and AC18, to the heater splice, on the other, instead of AC11 and AC12 to the stock fuse.' wiring-data.json cw-gcp-120: AC17 repl AC11, AC18 repl AC12."
+  "w": "wpath:CW",
+  "src": "Official PnP cut lists: L2a to L2c (Re-setable Fuse, flag), L3a (Re-setable Fuse, flag) to L3b (and L3c at 120 V). part-guides-data.js fuse CW 'Wire it: L2c and L3a'."
  },
  {
   "id": "wiring-19",
   "k": "wiring",
-  "q": "In the 230 V Pro-family custom harness, what does run AC14 do?",
+  "q": "In the 230 V Plug-and-Play harness, what does B1a-B1b do?",
   "a": [
    "Links the two elements so they run in series",
-   "Feeds the second element from the heater splice",
+   "Feeds the second element from the resettable fuse",
    "Carries switched line from the SSR to the PCB",
    "Earths the boiler to the chassis earth point"
   ],
-  "why": "AC14 is a stock lead from element TR to element BL. AC13 feeds the first element from the heater splice and AC15 takes the last to the element splice.",
+  "why": "B1a-B1b is an 80 mm gray wire between element pins TL and BR. L3a-L3b feeds the first element and N1d-BN2 takes the far end to the BN2 splice.",
   "r": [
    [
     "map",
-    "run=AC14",
-    "AC14 on the wiring map"
-   ],
-   [
-    "ck",
-    "c1"
+    "run=B1a-B1b",
+    "B1a-B1b on the wiring map"
    ]
   ],
-  "w": "fam:GCP;volts:230",
-  "src": "wiring-data.json cw-gcp-230: AC13 'BN2 heater splice to Element TL', AC14 'Element TR to Element BL' (stock lead, 100 mm), AC15 'Element BR to BN2 element splice'. wiring-parts.js boiler: 'in series at 230 V'.",
+  "w": "volts:230;wpath:CW",
+  "src": "Official GC_P cut list 220 V: B1a to B1b, 80 mm, gray, boiler circular connectors. GCP and GC PnP 220 V drawings.",
   "g": "el230"
  },
  {
   "id": "wiring-20",
   "k": "wiring",
-  "q": "Why does a 230 V Pro-family machine follow the custom wiring schematic, even if stock wiring was picked?",
+  "q": "Why does a 230 V Pro-family machine follow the Plug-and-Play drawing, even if stock wiring was picked?",
   "a": [
    "The current official guide has no stock-integration drawing for it",
    "Stock wiring can't carry the current at 230 V",
    "Its SSR only fits a new harness",
    "Its switches have no spare spades for signals"
   ],
-  "why": "The current stock-integration schematics cover the 120 V Pro family and both Classics, and the guide recommends custom wiring for Eco-board machines. The older drawings in the docs' archive aren't for new builds. So the wiring, cut list, labels and checks all show custom wiring for a 230 V Pro-family machine.",
+  "why": "The current stock-integration drawings cover the 120 V Pro family and both Classics, and the guide doesn't recommend stock integration with the Eco board. The older drawings in the docs' archive aren't for new builds. So the wiring, cut list, labels and checks all show Plug-and-Play wiring for a 230 V Pro-family machine.",
   "r": [
    [
     "url",
@@ -3023,7 +3015,7 @@
  {
   "id": "wiring-21",
   "k": "wiring",
-  "q": "The 120 V Classic custom harness runs earth from the inlet to the valve, boiler and cup warmer. What do most US Classics need for that?",
+  "q": "The 120 V Classic's Plug-and-Play harness runs earth from the inlet to the valve, boiler and cup warmer. What do most US Classics need for that?",
   "a": [
    "A three-pin inlet and a grounded cord",
    "Nothing: the stock cord already has earth",
@@ -3043,78 +3035,69 @@
    ]
   ],
   "w": "fam:GC;volts:120;wpath:CW",
-  "src": "runbook-phases.js p0g: 'Most US Classics were sold with a two-prong cord and an ungrounded case. The machine-specific guide fits a three-pin inlet, a grounded cord and ground wires.' p2f: 'A three-pin C14 inlet ... Earth never connects to the PCB's 5 V ground.' wiring-data.json cw-gc-120: G1 'Cup warmer gnd to Boiler gnd', G2 'Boiler gnd to Valve gnd', G3 'Valve gnd to Socket GND'.",
+  "src": "runbook-phases.js p0g and p2f. Official GC PnP 120 V drawing: 'Remember to check and add Grounding if needed.' G1a (valve gnd) to G1b (socket) and G1c (boiler), G1d (cup warmer) to G1c.",
   "g": "ground"
  },
  {
   "id": "wiring-22",
   "k": "wiring",
-  "q": "In the 120 V Classic's custom harness, which runs leave the boiler fuse's left end?",
+  "q": "In the 120 V Classic's Plug-and-Play harness, what goes on the resettable fuse's left spade?",
   "a": [
-   "AC8 and AC9, one to each element",
-   "AC8 alone, with AC9 linking the elements",
-   "AC6 and AC7, from the SSR and power switch",
-   "AC10 and AC11, to the element splice"
+   "L3a, with two wires: one to each element",
+   "L3a, with B1a-B1b linking the elements",
+   "L2c, from the SSR",
+   "N1d and N1e, to the BN2 splice"
   ],
-  "why": "At 120 V the elements are in parallel, so both element leads share the fuse's left end. AC6 and AC7 land on its right end.",
+  "why": "At 120 V the elements are in parallel, so L3a is a blue flag holding both element wires, L3a-L3b and L3a-L3c. L2c, from the SSR, goes on the other spade.",
   "r": [
    [
     "map",
-    "runs=AC8,AC9",
-    "AC8 and AC9 on the wiring map"
-   ],
-   [
-    "map",
-    "part=boiler",
-    "The boiler on the wiring map"
+    "runs=L3a-L3b,L3a-L3c",
+    "L3a's two wires on the wiring map"
    ]
   ],
   "w": "fam:GC;volts:120;wpath:CW",
-  "src": "wiring-data.json cw-gc-120: AC8 'Fuse left to Element TL' (shared with AC9), AC9 'Fuse left to Element BL', AC6 'SSR load L to Fuse right', AC7 'Power sw 8 to Fuse right', AC10 and AC11 'Element TR/BR to BN2 element splice'. wiring-parts.js boiler: 'in parallel at 120 V'."
+  "src": "Official GC PnP 120 V drawing and cut list: L3a (flag) to L3b and L3c; L2c from L2a at the SSR."
  },
  {
   "id": "wiring-23",
   "k": "wiring",
-  "q": "How are the two heating elements wired in the 230 V Classic's custom harness?",
+  "q": "How are the two heating elements wired in the 230 V Classic's Plug-and-Play harness?",
   "a": [
-   "In series, joined by run AC9",
+   "In series, joined by B1a-B1b",
    "In parallel, both on the fuse's left spade",
    "Each through its own SSR",
    "Only one is connected at 230 V"
   ],
-  "why": "AC8 feeds one element from the boiler fuse, AC9 (a stock lead) links element TR to element BL, and AC10 takes the far end to the element splice.",
+  "why": "L3a-L3b feeds one element from the resettable fuse, B1a-B1b links element TL to element BR, and N1d-BN2 takes the far end to the BN2 splice.",
   "r": [
    [
     "map",
-    "run=AC9",
-    "AC9 on the wiring map"
-   ],
-   [
-    "ck",
-    "c1"
+    "run=B1a-B1b",
+    "B1a-B1b on the wiring map"
    ]
   ],
   "w": "fam:GC;volts:230;wpath:CW",
-  "src": "wiring-data.json cw-gc-230: AC8 'Fuse left to Element TL', AC9 'Element TR to Element BL' (stock lead), AC10 'Element BR to BN2 element splice'. wiring-parts.js boiler: 'in series at 230 V'.",
+  "src": "Official GC PnP 220 V drawing and cut list: L3a to L3b, B1a to B1b (gray, 80 mm), N1d to BN2.",
   "g": "el230"
  },
  {
   "id": "wiring-24",
   "k": "wiring",
-  "q": "On a 230 V Classic's custom harness with the optional resettable fuse, what goes on the fuse's left spade?",
+  "q": "On a 230 V Classic's Plug-and-Play harness, what goes on the resettable fuse's left spade?",
   "a": [
-   "AC8, the element lead",
-   "AC8 and AC9, one per element",
-   "AC6 and AC7",
-   "AC3, the PCB's line"
+   "L3a, one wire to the first element",
+   "L3a, with one wire to each element",
+   "L2c, from the SSR",
+   "L4c, the PCB's line"
   ],
-  "why": "AC6 and AC7 move to its right spade and the element lead AC8 to its left, in place of the stock fuse. Only a 120 V Classic has two element leads there.",
+  "why": "At 230 V the elements are in series, so L3a is a red flag with one wire, L3a-L3b. L2c, from the SSR, goes on the other spade.",
   "r": [
    [
     "pg",
     "fuse",
     "CW",
-    "Wire it instead of the stock fuse"
+    "Wire it: L2c and L3a"
    ],
    [
     "map",
@@ -3123,7 +3106,7 @@
    ]
   ],
   "w": "fam:GC;volts:230;wpath:CW",
-  "src": "part-guides-data.js fuse CW 'Wire it instead of the stock fuse': 'Original Classic: AC6 and AC7 go on its right spade and the element lead AC8 on its left (AC8 and AC9 on a 120 V machine), instead of the stock fuse's ends.'"
+  "src": "Official GC_P cut list 220 V: L3a (flag) to L3b only; L2a to L2c."
  },
  {
   "id": "checks-01",
@@ -3458,7 +3441,7 @@
  {
   "id": "checks-17",
   "k": "checks",
-  "q": "In custom wiring, which conductor does the power switch break?",
+  "q": "On Plug-and-Play wiring, which conductor does the power switch break?",
   "a": [
    "Line only; neutral stays connected",
    "Line and neutral both",
@@ -3473,7 +3456,7 @@
    ]
   ],
   "w": "wpath:CW;!shelly",
-  "src": "checks.tpl.html section e intro (CW): 'In custom wiring the power switch breaks line only; neutral stays connected.' e2: 'Same probes, power switch off. Should now be open.'"
+  "src": "checks.tpl.html section e intro (CW): 'On Plug-and-Play wiring the power switch breaks line only; neutral stays connected.' e2: 'Same probes, power switch off. Should now be open.'"
  },
  {
   "id": "checks-18",
@@ -3591,7 +3574,7 @@
    "The thermocouple is reversed at J4",
    "The boiler's thermal fuse keeps tripping"
   ],
-  "why": "Custom wiring takes the Eco board out: the inlet goes straight to the power switch, with nothing to the board. The switch mod is what makes the button stay on.",
+  "why": "Plug-and-Play/custom wiring takes the Eco board out: the inlet goes straight to the power switch, with nothing to the board. The switch mod is what makes the button stay on.",
   "r": [
    [
     "tr",
@@ -3721,14 +3704,14 @@
  {
   "id": "trouble-09",
   "k": "trouble",
-  "q": "Custom wiring: the SSR light comes on and the screen works, but the boiler stays cold. What's the most likely cause?",
+  "q": "Plug-and-Play wiring: the SSR light comes on and the screen works, but the boiler stays cold. What's the most likely cause?",
   "a": [
-   "The boiler's thermal fuse has blown or tripped",
+   "The resettable boiler fuse has tripped",
    "The SSR control wires are reversed",
    "The thermocouple is reversed at J4",
    "A break in the switches' ground jumper"
   ],
-  "why": "In custom wiring the thermal fuse sits in the heater's own line, so the PCB stays on when it opens. Rerun c3 and c1 unplugged, and find out why the boiler overheated.",
+  "why": "On Plug-and-Play wiring the resettable fuse sits in the heater's own line (L2c in, L3a out), so the PCB stays on when it opens. Rerun c3 and c1 unplugged, find out why the boiler overheated, and only then press its button.",
   "r": [
    [
     "tr",
@@ -3740,7 +3723,7 @@
    ]
   ],
   "w": "wpath:CW",
-  "src": "trouble-data.js (w wpath:CW) cause 1: 'The boiler's thermal fuse has blown, or the optional resettable one has tripped. In custom wiring it sits in the heater's own line, so the PCB stays on.' check 'Unplugged, rerun [c3] and [c1]'. 'The SSR light never comes on' cause: 'SSR control reversed or open'. checks.tpl.html c3 fix: 'find out why the boiler overheated before powering up.'"
+  "src": "trouble-data.js (w wpath:CW) 'The SSR light comes on but the boiler doesn't heat' cause 1. checks.tpl.html c3 fix."
  },
  {
   "id": "trouble-10",
@@ -3991,7 +3974,7 @@
    "Only the socket's tabs, up to the power switch",
    "Only the PCB's 5 V side, through its supply"
   ],
-  "why": "The relay breaks line only. The socket, the Shelly, the power switch and AC1 carry line whenever the cord is in, and SH4 too while the switch is on. Everything after the relay stays joined to the outlet's neutral, which a plug that fits either way round makes line, and the app or a schedule can switch it on. Unplug before you open anything.",
+  "why": "The relay breaks line only. The socket, the Shelly, the power switch and L1a-L1b carry line whenever the cord is in, and SH4 too while the switch is on. Everything after the relay stays joined to the outlet's neutral, which a plug that fits either way round makes line, and the app or a schedule can switch it on. Unplug before you open anything.",
   "r": [
    [
     "pg",
@@ -4048,14 +4031,14 @@
    "The drip tray is in",
    "The portafilter is locked in"
   ],
-  "why": "It heats with no one watching. The PCB fills the boiler at start-up, and with steam switched on it would heat to the steam setpoint. End each session with water through the group after steaming, so the boiler is full, keep the tank filled and the switches off; the boiler's 184 °C thermal fuse is the last line if not.",
+  "why": "It heats with no one watching. The PCB fills the boiler at start-up, and with steam switched on it would heat to the steam setpoint. End each session with water through the group after steaming, so the boiler is full, keep the tank filled and the switches off; the boiler's 185 °C resettable fuse is the last line if not.",
   "r": [
    [
     "rb",
     "p7s"
    ]
   ],
-  "src": "runbook p7s; Gaggia manual: water through the group after steaming refills the boiler; official PCB guide: 'Filling boiler' after boot, brew temperature the target; 184 C fuse in the official schematics."
+  "src": "runbook p7s; Gaggia manual: water through the group after steaming refills the boiler; official PCB guide: 'Filling boiler' after boot; the official PnP drawings' 185 °C resettable fuse."
  },
  {
   "id": "sh-04",
@@ -4123,7 +4106,7 @@
    "SH1, from socket L to L",
    "LV4, from J7 B to the brew switch"
   ],
-  "why": "AC1 brings line to spade 5. With the switch on, SH4 carries it to the Shelly's SW input, so it's a mains wire.",
+  "why": "L1a-L1b brings line to spade 5. With the switch on, SH4 carries it to the Shelly's SW input, so it's a mains wire.",
   "r": [
    [
     "map",
@@ -4144,14 +4127,14 @@
   "k": "wiring",
   "g": "sh-s6",
   "w": "shelly",
-  "q": "With the Shelly in, where do AC2 and AC3 start?",
+  "q": "With the Shelly in, where do L4a's two wires, L4a-L4b and L4a-L4c, start?",
   "a": [
    "Splice S6, fed from the Shelly's O terminal by SH3",
-   "Power switch spade 4, as before",
+   "Power switch spade 4, in the L4a flag, as before",
    "The Shelly's L terminal",
    "The SSR's line-side screw"
   ],
-  "why": "They used to share spade 4 of the power switch. Now SH3 brings the Shelly's switched output to splice S6 by the switch, and AC2 and AC3 carry on from there.",
+  "why": "Their L4a flag used to sit on spade 4 of the power switch. With the Shelly it's cut off, and SH3 brings the Shelly's switched output to splice S6 by the switch, where the two wires carry on.",
   "r": [
    [
     "map",
@@ -4165,7 +4148,7 @@
     "Output: O to splice S6"
    ]
   ],
-  "src": "wiring-data.json addons.shelly AC2/AC3 edits; fusio: Orange (O) to female spade that was connected to Power Switch."
+  "src": "wiring-data.json addons.shelly L4a-L4b and L4a-L4c edits; fusio: Orange (O) to the female spade that was connected to the power switch."
  },
  {
   "id": "sh-08",
@@ -4268,12 +4251,12 @@
   "w": "shelly",
   "q": "The power switch does nothing, but the app turns the machine on. What do you check first?",
   "a": [
-   "The Shelly's input mode, then SH4 and AC1 with e33 and e34",
+   "The Shelly's input mode, then SH4 and L1a-L1b with e33 and e34",
    "The SSR's control wires",
    "The thermocouple's polarity",
    "The pressure sensor's O-ring"
   ],
-  "why": "The Shelly works, so the problem is its input: Detached or the wrong mode, or SH4 or AC1 off their spades.",
+  "why": "The Shelly works, so the problem is its input: Detached or the wrong mode, or SH4 or L1b off their spades.",
   "r": [
    [
     "tr",

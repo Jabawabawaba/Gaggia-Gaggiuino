@@ -100,9 +100,9 @@ ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
     <div class="phase">
       <h3 class="ph">Install<small>At the bench, cord out</small></h3>
       <div class="tools">
-        <a class="tool" href="runbook.html"><span class="n">6</span><h3>Install runbook</h3><p>Eight phases of tickable steps, from the bench test to calibration, each linked to its section of the official guide, with a stop before first power-on. Prints as one checklist.</p></a>
-        <a class="tool" href="part-guides.html"><span class="n">7</span><h3>Part guides</h3><p>The thermocouple, the pressure sensor (tap block or T-fitting), the optional resettable fuse, making the wires, the SSR and the switches, each drawn step by step with the official photos linked.</p></a>
-        <a class="tool" href="wiring.html"><span class="n">8</span><h3>Wiring</h3><p>Every wire for your path: the seven stock-integration wires, or each run of a custom harness, with its ends, connectors and length, beside a link to the official schematic.</p></a>
+        <a class="tool" href="runbook.html"><span class="n">6</span><h3>Install runbook</h3><p>Eight phases and about a hundred tickable steps, from the bench test to calibration, each written out step by step with drawings, the official photos and a link to its section of the official guide, with a stop before first power-on. Prints as one checklist.</p></a>
+        <a class="tool" href="part-guides.html"><span class="n">7</span><h3>Part guides</h3><p>The thermocouple, the pressure sensor (tap block or T-fitting), the resettable fuse, making the wires, the SSR and the switches, the screen housing, the ToFnLED, firmware updates and the scales, each drawn step by step with the official photos linked.</p></a>
+        <a class="tool" href="wiring.html"><span class="n">8</span><h3>Wiring</h3><p>Every wire for your path: the seven stock-integration wires, or each run of the Plug-and-Play harness by its official end labels, with its connectors and length, on a map you can tap, beside the official drawing.</p></a>
         <a class="tool" href="cut-list.html"><span class="n">9</span><h3>Cut list</h3><p>Wire to buy by gauge and color, the connectors to crimp, and every run to cut, with your own extra length. Tick runs off as you cut.</p></a>
         <a class="tool" href="wire-labels.html"><span class="n">10</span><h3>Wire labels</h3><p>Printable flag labels for each wire end and for the stock connectors, using the official guide's names, as a PDF for Letter or A4.</p></a>
         <a class="tool" href="power-on-checks.html"><span class="n">11</span><h3>Power-on checks</h3><p>About %%NCHECKS%% unplugged checks for your schematic. Enter the meter reading and each one marks itself pass or fail; the page says when you're ready to plug in. Prints with blanks for readings.</p></a>
@@ -130,7 +130,7 @@ ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
         <button type="button" data-yeco="yes" aria-pressed="false">Eco board</button><button type="button" data-yeco="no" aria-pressed="false">No Eco board</button>
       </div><span class="mh">Most 230 V Pro-family machines sold in Europe and the UK have one: it turns the machine off after 20 idle minutes, and its power switch springs back.</span></div>
       <div class="mrow"><span class="mk">Wiring</span><div class="mseg" role="group" aria-label="Install path">
-        <button type="button" data-ypath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-ypath="CW" aria-pressed="false">Custom wiring</button>
+        <button type="button" data-ypath="SI" aria-pressed="false">Stock wiring</button><button type="button" data-ypath="CW" aria-pressed="false">Plug-and-Play wiring</button>
       </div></div>
       <div class="mact"><a href="which-gaggia.html">Not sure? Identify your Gaggia</a><button type="button" class="btn" id="y-clear" hidden>Clear</button></div>
     </div>
@@ -138,14 +138,14 @@ ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
     <ul class="ynotes">
       <li data-when="model:GC;volts:230"><b>2015 to 2018 Classic: not compatible.</b> The 230 V Classic from those years (SIN035U, RI9403) has no 3-way valve. Check the label before buying parts. <span class="vtag">230 V Classic</span></li>
       <li data-when="ground"><b>Ungrounded cord.</b> Most US Classics were sold with a two-prong cord and an ungrounded case. The machine-specific guide adds a grounded inlet and ground wires. <span class="vtag">120 V Classic</span></li>
-      <li data-when="eco:yes"><b>Eco board.</b> The power switch needs a small mod so it stays on, and the official guide recommends custom wiring over stock integration. <span class="vtag">Eco board</span></li>
+      <li data-when="eco:yes"><b>Eco board.</b> The power switch needs a small mod so it stays on, and the official guide doesn't recommend stock integration: use Plug-and-Play wiring. <span class="vtag">Eco board</span></li>
       <li data-when="opv9"><b>9 bar OPV.</b> Raise it to 10 to 12 bar with a 12 bar spring or M3 washers, so it stays shut below your highest shot pressure. <span class="vtag">US Evo Pro, E24</span></li>
       <li data-when="model:EVO,E24"><b>Combined switch connectors.</b> On most of these, each switch's connectors are gathered in one combined block. Take each connector out, insulate it on its own and label it, above all for stock wiring. <span class="vtag">Evo, E24</span></li>
       <li data-when="fam:GC"><b>Classic plumbing.</b> PTFE tube with push-to-connect fittings for the pressure T. The Classic's metal OPV sits at the group inlet. <span class="vtag">Classic</span></li>
       <li data-when="fam:GCP"><b>Pro plumbing.</b> Braided silicone hose, so the pressure T is a barbed fitting with hose clamps. <span class="vtag">Pro family</span></li>
-      <li data-when="path:SI;fam:GCP;volts:230"><b>No 230 V Pro stock-integration drawing.</b> The official stock-integration schematics cover the 120 V Pro family and both Classics. For a 230 V Pro, follow the custom wiring guide. <span class="vtag">230 V Pro family</span></li>
-      <li data-when="wpath:SI"><b>Stock wiring.</b> Seven short integration wires, and the stock harness stays. Label every stock connector before you move it. <span class="vtag">Stock wiring</span></li>
-      <li data-when="wpath:CW"><b>Custom wiring.</b> A new 18 AWG harness from the official schematic for your model and voltage. The cut list and labels pages give every run. <span class="vtag">Custom wiring</span></li>
+      <li data-when="path:SI;fam:GCP;volts:230"><b>No 230 V Pro stock-integration drawing.</b> The official stock-integration schematics cover the 120 V Pro family and both Classics. For a 230 V Pro, follow the Plug-and-Play wiring guide. <span class="vtag">230 V Pro family</span></li>
+      <li data-when="wpath:SI"><b>Stock wiring.</b> Seven short integration wires, and the stock harness stays. Label every stock connector before you move it. The official build path now calls it a nonstandard option. <span class="vtag">Stock wiring</span></li>
+      <li data-when="wpath:CW"><b>Plug-and-Play wiring.</b> The official harness for your model and voltage, bought made up or made from its cut list, with the 185 °C resettable fuse built in. The cut list and labels pages give every run by its official end labels. <span class="vtag">Plug-and-Play wiring</span></li>
       <li data-when="volts:230"><b>230 V.</b> Protection is an RCD, and the checks expect a 230 V element. <span class="vtag">230 V</span></li>
       <li data-when="volts:120"><b>120 V.</b> First power-on goes through a GFCI-protected outlet, and the checks expect a 120 V element. <span class="vtag">120 V</span></li>
     </ul>
@@ -156,7 +156,7 @@ ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
     <div class="diff" id="diff-cards">
       <div class="d"><span class="k">Two families</span><p>The official guide splits the machines in two: the Gaggia Classic (GC), and the Gaggia Classic Pro (GCP), which takes in the Pro, Eco, Evo Pro and E24. Plumbing, switch layout and schematics follow the family.</p></div>
       <div class="d" data-when="model:GC;volts:230"><span class="k">One to avoid</span><p>The 230 V Classic sold from 2015 to 2018 (SIN035U, RI9403) has no 3-way valve, and the official docs list it as not compatible. Every other model in their compatibility table is; the Classic UP and GT aren't in it.</p></div>
-      <div class="d" data-when="eco:yes"><span class="k">Eco board</span><p>230 V Pro-family machines with the Eco board switch themselves off after 20 idle minutes, and their power switch springs back. Remove a spring so the switch stays on, and use custom wiring: the guide recommends against stock integration on these.</p></div>
+      <div class="d" data-when="eco:yes"><span class="k">Eco board</span><p>230 V Pro-family machines with the Eco board switch themselves off after 20 idle minutes, and their power switch springs back. Remove a spring so the switch stays on, and use Plug-and-Play wiring: the guide doesn't recommend stock integration on these.</p></div>
       <div class="d" data-when="opv9"><span class="k">9 bar OPV</span><p>US Evo Pro and E24 machines ship with a 9 bar OPV. Gaggiuino needs it at 10 to 12 bar, because an OPV starts to open below its rating and the controller can't tell when. A 12 bar spring, or 3 or 4 M3 washers behind the 9 bar one.</p></div>
       <div class="d" data-when="model:EVO,E24"><span class="k">Connector block</span><p>Most Evo Pro and E24 machines gather the switch connectors in one shield. Each connector comes out, gets its own silicone tape or heat shrink and a label, so none is left bare when it's disconnected.</p></div>
       <div class="d" data-when="ground"><span class="k">Grounding</span><p>Most US Classics have a two-prong cord and an ungrounded case. The guide fits a C14 three-pin inlet, a grounded cord and ground wires to the boiler and the cup warmer.</p></div>
@@ -178,7 +178,7 @@ ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
   <section class="block" aria-labelledby="h-open">
     <div class="sec-h"><h2 id="h-open">Known gaps</h2></div>
     <ul class="plain">
-      <li>The current official guide has no stock-integration schematic for 230 V Pro-family machines (its archive keeps an older Eco-board one), so this site points them to custom wiring, as the guide does for Eco boards.</li>
+      <li>The current official guide has no stock-integration schematic for 230 V Pro-family machines (its archive keeps an older Eco-board one), so this site points them to Plug-and-Play wiring, as the guide does for Eco boards.</li>
       <li>Gen 3's source isn't published. The Learn pages describe the heating and pump control from the public Gen 2 firmware, which uses the same settings.</li>
       <li>Prices and stock change weekly. The budget and parts tracker carry the date each price was checked.</li>
     </ul>
@@ -187,7 +187,7 @@ ul.plain{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
   <section class="block" aria-labelledby="h-src">
     <div class="sec-h"><h2 id="h-src">Sources and credits</h2></div>
     <ul class="plain">
-      <li><a href="https://gaggiuino.github.io/">Official Gaggiuino docs</a>: the compatibility table, BOM, PCB guide, stock wiring integration, custom wiring, machine-specific guide, screen and flashing guides, and the Gen 3 manual. Every step here is summarized from them and links back.</li>
+      <li><a href="https://gaggiuino.github.io/">Official Gaggiuino docs</a>: the build path, compatibility table, BOM, PCB guide, stock wiring integration, Plug-and-Play/custom wiring, machine-specific guide, screen (Gen 3.5 and Gen 3), headless and flashing guides, and the Gen 3 manual. Every step here is summarized from them and links back.</li>
       <li>banoz, <a href="https://github.com/banoz/CoffeeHat">CoffeeHat</a>: the PCB hardware. The <a href="https://github.com/Zer0-bit/gaggiuino">Gaggiuino firmware</a> for how the Gen 2 code heats and drives the pump.</li>
       <li><a href="model-notes.html">Model notes</a> collects what each model changes, with sources.</li>
       <li>The sister <a href="https://jabawabawaba.github.io/silvia-gaggiuino/">Silvia Gaggiuino toolkit</a>, for the Rancilio Silvia.</li>

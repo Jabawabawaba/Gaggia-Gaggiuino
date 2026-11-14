@@ -1,5 +1,5 @@
   /* Links into the wiring page's map; wiring.html reads them (applyHash there). A target is 'run:TC' (| between
-     alternatives: the first one on the reader's drawing wins), 'part:ssr', 'runs:AC1,AC2', 'short:J9 R1,J9 GND'
+     alternatives: the first one on the reader's drawing wins), 'part:ssr', 'runs:L1a-L1b,LV1', 'short:J9 R1,J9 GND'
      (every run whose name starts that way), 'layer:E', or '' for the whole map; join two with ';'. o.path (SI or CW) or o.v (a schematic
      key) picks the drawing when it isn't the reader's own, and o.fam (GC or GCP) the family; o.label names a set of runs. */
   function mapHref(t,o){

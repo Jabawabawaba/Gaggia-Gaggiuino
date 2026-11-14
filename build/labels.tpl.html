@@ -90,6 +90,8 @@ ol.steps li::before{content:counter(s);font:600 13px/26px var(--f-mono);text-ali
 .fine{margin:0;font-size:14px;color:var(--muted);max-width:80ch}
 a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
 %%INCLUDE:wiring-switch.css%%
+%%INCLUDE:runbook-figs.css%%
+.howfig .rfigs{margin-top:22px}
 </style>
 
 <div class="wrap">
@@ -100,7 +102,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       <span class="rivet" aria-hidden="true"></span>
     </div>
     <h1>Gaggia Wire Labels</h1>
-    <p class="lede">A flag label for each end of every new wire, using the IDs from the <a href="%%LINK_WIRING%%">wiring page</a>. Each label says which end it sits on and where the other end goes, so you can check a wire without tracing it. For stock integration there are flags for the stock connectors the guide names, too.</p>
+    <p class="lede">A flag label for each end of every new wire, using the IDs from the <a href="%%LINK_WIRING%%">wiring page</a>. Each label says which end it sits on and where the other end goes, so you can check a wire without tracing it. On Plug-and-Play wiring each end gets its own official label (L1a on one end, L1b on the other), as on the official cut list. For stock integration there are flags for the stock connectors the guide names, too.</p>
   </header>
 
   <section class="vbox" aria-label="Which schematic" style="margin-bottom:16px">
@@ -136,7 +138,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
         <li><span>Plain paper with clear tape over it works. Full-sheet sticker paper is quicker.</span></li>
         <li><span>Cut on the solid lines. Label each wire as you cut and crimp it, before it goes into the machine.</span></li>
         <li><span>Wrap the blank middle strip around the wire about 3 cm from the end, fold the two halves together, text outward. Seal with tape if it's plain paper.</span></li>
-        <li><span>Each wire's row has two labels: the left one goes on the first-named end, the right one on the other. Stock connector flags go on the stock wire, just behind its connector.</span></li>
+        <li><span>Each wire's row has two labels: the left one goes on the first-named end, the right one on the other. Stock connector flags go on the stock wire, just behind its connector. A kit harness may come labeled already: check its labels against these.</span></li>
       </ol>
     </div>
     <div>
@@ -145,6 +147,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       <p class="note">These ends sit on or beside the boiler, where paper and tape adhesive won't last. Write the ID on the silicone jacket with an oil-based permanent marker, which the official guide recommends for silicone.</p>
     </div>
   </section>
+  <div class="howfig" id="howfig"></div>
 
   <section class="sheets" id="sheets" aria-label="Sheet preview"></section>
 
@@ -155,7 +158,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       <a href="%%LINK_CHECKS%%">Power-on checks</a>
       <a href="%%LINK_RUNBOOK%%">Runbook</a>
     </div>
-    <p class="fine">IDs and connections come from the wiring page, which lists the official Gaggiuino schematics as data. The seven stock-integration wires and the stock connector names are the guide's; the AC, G and LV run IDs are this site's.</p>
+    <p class="fine">IDs and connections come from the wiring page, which lists the official Gaggiuino schematics as data. The seven stock-integration wires, the stock connector names and the Plug-and-Play end labels are the official guides'; the LV run IDs, and the BL, PL and PF lead names, are this site's.</p>
   </footer>
 </div>
 
@@ -164,6 +167,11 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
 %%INCLUDE:labels-core.js%%
 (function(){
   %%INCLUDE:wiring-core.js%%
+  %%INCLUDE:runbook-figs.js%%
+  %%INCLUDE:page-figs.js%%
+  RBF.init(PF(function(){return v()}));
+  /* how a label goes on, with IDs from the schematic shown: a paper flag at one end, marker on silicone at the boiler */
+  function howFig(V){return V.path==='CW'?{t1:'L1a',c1:'k',t2:'L3b',c2:'r'}:{t1:'L',c1:'k',t2:'J',c2:'r'}}
   var GROUPS=[['mains','Mains',function(r){return r.sys==='L'||r.sys==='H'||r.sys==='N'}],['earth','Earth',function(r){return r.sys==='E'}],['lv','Low voltage',function(r){return r.sys==='LV'||r.sys==='LVG'}],['opt','Optional fuse',null],['stock','Stock connectors',null]];
   var KEY='gaggia-wire-labels-v1';
   var prefs={groups:{mains:true,earth:true,lv:true,opt:false,stock:true},paper:'letter',cur:null};
@@ -178,7 +186,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     var useOpt=prefs.groups.opt&&V.runs.some(function(r){return r.opt}),repl={};
     if(useOpt)V.runs.forEach(function(r){if(r.opt&&r.repl)repl[r.repl]=1});
     return V.runs.filter(function(r){
-      if(r.stock)return false;
+      if(r.stock&&!(r.lab&&r.lab[1]))return false;
       if(r.opt)return useOpt;
       if(repl[r.id])return false;
       return GROUPS.some(function(g){return g[2]&&prefs.groups[g[0]]&&g[2](r)});
@@ -190,7 +198,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   function chips(){
     var V=v();
     $('groups').innerHTML=GROUPS.map(function(g){
-      var n=g[0]==='opt'?V.runs.filter(function(r){return r.opt}).length:g[0]==='stock'?(V.flags||[]).length:V.runs.filter(function(r){return !r.stock&&!r.opt&&g[2](r)}).length;
+      var n=g[0]==='opt'?V.runs.filter(function(r){return r.opt}).length:g[0]==='stock'?(V.flags||[]).length:V.runs.filter(function(r){return (!r.stock||(r.lab&&r.lab[1]))&&!r.opt&&g[2](r)}).length;
       if(!n)return '';
       return '<label class="chip"><input type="checkbox" id="g-'+g[0]+'" data-g="'+g[0]+'"'+(prefs.groups[g[0]]?' checked':'')+'><span class="box" aria-hidden="true"></span>'+g[1]+' <span class="n">'+n+'</span></label>';
     }).join('');
@@ -232,7 +240,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     prefs.cur=vk;
     switcher($('vsel'),vk,function(k){override=k===mine?null:k;prefs.cur=k;save();render()});
     var noSI=p&&p.path==='SI'&&mine&&VARS[mine].path==='CW';
-    $('vnote').textContent=mine?(vk===mine?'Labels for your Gaggia\'s schematic. Pick another to compare.':'Showing '+vlabel(vk)+'. The dot marks yours.')+(noSI?' The current official guide has no stock-integration drawing for a 230 V Pro-family machine, so yours is custom wiring.':''):
+    $('vnote').textContent=mine?(vk===mine?'Labels for your Gaggia\'s schematic. Pick another to compare.':'Showing '+vlabel(vk)+'. The dot marks yours.')+(noSI?' The official guide has no stock-integration drawing for a 230 V Pro-family machine, so yours is Plug-and-Play wiring.':''):
       'Set your model, voltage and install path in the top bar and this page opens on your schematic. Until then, pick one here.';
     chips();
     var rows=selRows(),S=LabelCore.sheets(rows,prefs.paper);
@@ -242,6 +250,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     $('s-labels').textContent=labels;
     $('s-sheets').textContent=S.pages.length;
     $('s-sheets-s').textContent=(S.pages.length===1?'sheet':'sheets')+' of '+S.paper.name;
+    $('howfig').innerHTML=RBF.figs([['d','flag',howFig(V)]]);
     $('hand').innerHTML=hot.length?hot.map(function(h){return '<li><b>'+esc(h[0])+'</b><span>at '+esc(h[1])+'</span></li>'}).join(''):'<li><span>None in this selection.</span></li>';
     $('sheets').innerHTML=S.pages.length?S.pages.map(function(pg,i){return '<div class="sheet"><span class="cap">Sheet '+(i+1)+' of '+S.pages.length+', '+S.paper.name+', preview</span>'+sheetSvg(S,pg,i,S.pages.length,title())+'</div>'}).join(''):'<p class="note">Pick at least one group to see the sheets.</p>';
     Array.prototype.forEach.call(document.querySelectorAll('[data-paper]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-paper')===prefs.paper))});

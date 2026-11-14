@@ -36,7 +36,7 @@
     return null;
   }
   function famName(f){return f==='GC'||f==='gc'?'Classic':'Pro family'}
-  function vlabel(k){var v=VARS[k];return (v.path==='SI'?'Stock wiring':'Custom wiring')+', '+famName(v.fam)+' '+v.volts+' V'+(v.shelly?', with a Shelly':'')}
+  function vlabel(k){var v=VARS[k];return (v.path==='SI'?'Stock wiring':'Plug-and-Play wiring')+', '+famName(v.fam)+' '+v.volts+' V'+(v.shelly?', with a Shelly':'')}
   /* the switcher: data-wv buttons; picking one doesn't change the reader's saved Gaggia unless they ask */
   function switcher(el,cur,onpick){
     var prof=GM()&&GM().get(),mine=variantFor(prof);
@@ -44,7 +44,7 @@
     ORDERV.forEach(function(k){g[VARS[k].shelly?'SH':VARS[k].path].push(k)});
     /* the Shelly schematics are listed once the reader has chosen the Shelly, or while one is on show */
     if(!(prof&&prof.shelly)&&!(VARS[cur]&&VARS[cur].shelly))g.SH=[];
-    var NM={SI:['Stock','Stock wiring integration'],CW:['Custom','Custom wiring'],SH:['Shelly','Custom wiring with a Shelly']};
+    var NM={SI:['Stock','Stock wiring integration'],CW:['PnP','Plug-and-Play/custom wiring'],SH:['Shelly','Plug-and-Play wiring with a Shelly']};
     el.innerHTML=['SI','CW','SH'].map(function(p){
       if(!g[p].length)return '';
       return '<div class="mrow"><span class="mk">'+NM[p][0]+'</span><div class="mseg" role="group" aria-label="'+NM[p][1]+'">'+g[p].map(function(k){var v=VARS[k];return '<button type="button" data-wv="'+k+'" aria-pressed="'+(k===cur)+'">'+famName(v.fam)+' '+v.volts+' V'+(k===mine?' <span class="mine-dot" title="Your Gaggia">●</span>':'')+'</button>'}).join('')+'</div></div>';

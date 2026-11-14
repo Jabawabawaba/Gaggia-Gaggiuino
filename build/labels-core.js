@@ -10,9 +10,12 @@ var LabelCore=(function(){
     return [parts[0].trim(),(parts[1]||'').trim()];
   }
   function hotAt(r,i){return r.hot==='both'||(r.hot==='a'&&i===0)||(r.hot==='b'&&i===1)}
+  /* a Plug-and-Play run carries the official end labels (r.lab): each end's flag shows its own label, and says the
+     other end's; longer names (a lamp or the fuse) fall back to the run's ID */
+  function endId(r,i){var l=r.lab&&r.lab[i];return l&&l.length<=4?l:r.id}
   function runRow(r){
     var e=ends(r),tag=r.stock?'stock lead':/^22/.test(r.wire||'')?'22 AWG':'18 AWG';
-    return [0,1].map(function(i){return {id:r.id,sys:r.sys,tag:tag,l1:'this end: '+e[i],l2:'to: '+e[1-i],here:e[i],hot:hotAt(r,i)}});
+    return [0,1].map(function(i){var o=r.lab&&r.lab[1-i]&&r.lab[1-i].length<=4?r.lab[1-i]+', ':'';return {id:endId(r,i),sys:r.sys,tag:tag,l1:'this end: '+e[i],l2:'to: '+o+e[1-i],here:e[i],hot:hotAt(r,i)}});
   }
   function flagCell(f){return {id:f.id,sys:'STK',tag:'stock',l1:f.l1,l2:f.l2,here:f.at||f.l1.replace(/^stock: /,''),hot:!!f.hot}}
   function rows(runs,flags){
