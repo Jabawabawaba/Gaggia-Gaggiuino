@@ -25,10 +25,10 @@ Gaggiuino was built for the Gaggia Classic, and its official guide covers the in
 | `runbook.html` | Install day | Eight phases of tickable steps, each written out step by step and linked to its section of the official guide, with drawings, diagrams, the official photos inline, a power badge on every step and a stop point before first power-on; prints as one checklist |
 | `part-guides.html` | Install day | The thermocouple, pressure sensor, resettable fuse, wires, SSR, switches, screen housing, ToFnLED, firmware updates, scales and the Shelly, each drawn step by step, following your model and install path |
 | `wiring.html` | Install day | Every wire for your model, voltage and install path, taken from the official drawing (the Plug-and-Play harness by its official end labels): ends, color, connectors and length, on a map you can tap, with the official drawing and cut list shown inline |
-| `cut-list.html` | Install day | Wire to buy by color, connectors to crimp, and every wire to cut, with adjustable extra length |
-| `wire-labels.html` | Install day | Printable flag labels for each wire end, PDF for Letter or A4 |
-| `power-on-checks.html` | Before plugging in | About %%NCHECKS%% unplugged multimeter and visual checks, picked for your schematic, that mark themselves pass or fail; prints with blanks for readings |
-| `troubleshooting.html` | After | Symptoms with likely causes and checks, linked to check and wire IDs |
+| `cut-list.html` | Install day | Wire to buy by color, connectors to crimp, and every wire to cut, with adjustable extra length, the official cut list inline and the wire guide's drawing of each crimp |
+| `wire-labels.html` | Install day | Printable flag labels for each wire end, PDF for Letter or A4, with a drawing of how they go on |
+| `power-on-checks.html` | Before plugging in | About %%NCHECKS%% unplugged multimeter and visual checks, picked for your schematic, that mark themselves pass or fail, with diagrams of the cord, the meter, the PCB plugs, the SSR and the pull test; prints with blanks for readings |
+| `troubleshooting.html` | After | Symptoms with likely causes and checks, linked to check and wire IDs, with diagrams of the parts to check |
 | `docs/gaggia-models.md` | Reference | The model notes as Markdown |
 
 Every page is a single self-contained HTML file. Ticks, readings and prices are saved in your own browser (localStorage), so nothing leaves your machine and nothing is shared between devices.
