@@ -4,7 +4,7 @@
   var WD=%%WIRING_DATA%%;
   var VARS=WD.variants;
   var ORDERV=['si-gcp-120','si-gc-120','si-gc-230','cw-gcp-120','cw-gcp-230','cw-gc-120','cw-gc-230','cw-gcp-120-sh','cw-gcp-230-sh'].filter(function(k){return VARS[k]});
-  var SWATCH={red:'#C2412F',orange:'#E08A1E',blue:'#2F5FB3',green:'#2D7A4C',white:'#F4F4F2',black:'#1B1D20',yellow:'#E3C21A',purple:'#7A4FC0',brown:'#7A4A2A',gray:'#8C939A',pink:'#D9479B'};
+  var SWATCH={red:'#C2412F',orange:'#E08A1E',blue:'#2F5FB3',green:'#2D7A4C',white:'#F4F4F2',black:'#1B1D20',yellow:'#E3C21A',purple:'#7A4FC0',brown:'#7A4A2A',gray:'#8C939A',pink:'#D9479B',grey:'#8C939A',lightblue:'#4A9BE0',yellowgreen:'repeating-linear-gradient(135deg,#2D7A4C 0 4px,#E3C21A 4px 7px)'};
   var SYSNAME={L:'Line',H:'Heater line',N:'Neutral',E:'Earth',LV:'Switch signals and SSR control',LVG:'Switch signals and SSR control'};
   function GM(){return window.GaggiaMachine||null}
   /* the variant for a profile: Pro-family models share the Pro schematics; there is no stock-integration drawing for 230 V Pros */

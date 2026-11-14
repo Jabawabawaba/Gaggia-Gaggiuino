@@ -87,11 +87,11 @@ def rocker(m, pid, name, sub, x0, prefix, used):
     m.part(pid, name, s, (x0, 20, x0 + 80, 152))
 
 
-def housing(m, x0, used, y0=72):
+def housing(m, x0, used, y0=72, exits=None):
     """the original Classic's switch housing viewed from the back: Brew, Steam, spare, On/Off, each top, P, bottom"""
     secs = (("Brew", "1", "2"), ("Steam", "3", "4"), ("", "5", "6"), ("On/Off", "7", "8"))
     s = box(x0, y0, 256, 120) + text(x0 + 128, 30, "Switch housing", "nm") + text(x0 + 128, 44, "view: back", "tiny")
-    exits = {"Brew": ("l", "r", "l"), "Steam": ("r", "l", "r"), "": ("r", "r", "r"), "On/Off": ("r", "r", "r")}
+    exits = exits or {"Brew": ("l", "r", "l"), "Steam": ("r", "l", "r"), "": ("r", "r", "r"), "On/Off": ("r", "r", "r")}
     for i, (nm, a, b) in enumerate(secs):
         cx = x0 + 32 + 64 * i
         if i:
@@ -744,6 +744,17 @@ class Router:
             self.fallback.append(rid)
             return self._route(a, b, rid, grp, hard=False)
 
+    def occupy(self, rid, pts):
+        """take the cells along an already-routed wire (another map's), so the wires routed now keep off it"""
+        nets = {"occ:" + rid}
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            i0, j0, i1, j1 = round(x0 / G), round(y0 / G), round(x1 / G), round(y1 / G)
+            axis = "h" if j0 == j1 else "v"
+            n = max(abs(i1 - i0), abs(j1 - j0))
+            for k in range(n + 1):
+                c = (i0 + (i1 - i0) * k // max(n, 1), j0 + (j1 - j0) * k // max(n, 1))
+                self.occ.setdefault(c, []).append((axis, rid, nets, "T"))
+
     def unroute(self, rid):
         for d in (self.occ, self.bends):
             for c in list(d):
@@ -994,15 +1005,308 @@ def svg_variant(key, v):
     return "".join(o), parts, ends, paths, m
 
 
+# ---------- out of the box: the factory harness (factory-data.json) ----------
+# Where the machine's own parts sit on each kind of map, so the Out of the box view lines up part for part with the
+# map it turns into (main() checks it), plus the factory-only parts: the two thermostats and the factory's crimp splices.
+FAC_AT = {
+    ("GCP", "SI"): {"cup": (680, 760), "sol": (656, 392), "chassis": (680, 560), "sock": (544, 760), "pump": (824, 600),
+                    "bt": (234, 558, "u"), "st": (404, 692, "r"),
+                    "J": {"J0": (872, 576), "J1": (776, 232), "J2": (584, 232), "J3": (432, 616), "J4": (312, 232),
+                          "J5": (72, 632), "J6": (72, 760)}},
+    ("GCP", "CW"): {"cup": (48, 304), "sol": (760, 352), "chassis": (896, 408), "sock": (744, 712), "pump": (920, 632),
+                    "bt": (234, 558, "u"), "st": (356, 692, "r"),
+                    "J": {"J0": (872, 584), "J1": (776, 232), "J2": (584, 232), "J3": (464, 616), "J4": (312, 232),
+                          "J5": (72, 632), "J6": (72, 760)}},
+    # the Classic: no crimp splices (two wires share a connector instead), the lamps inside the switch housing
+    ("GC", "SI"): {"cup": (680, 760), "sol": (656, 392), "sock": (544, 760), "pump": (824, 600),
+                   "bt": (234, 558, "u"), "st": (404, 692, "r"), "lamps": (472, 896), "J": {}},
+    ("GC", "CW"): {"cup": (48, 304), "sol": (760, 352), "sock": (744, 712), "pump": (920, 632),
+                   "bt": (234, 558, "u"), "st": (356, 692, "r"), "lamps": (536, 896), "J": {}},
+}
+FAC_COL = dict(WIRECOL, grey="#8C939A", yellowgreen="#7DA82E", lightblue="#4A9BE0")
+GC_FAC_USED = {"Brew 1", "Brew P", "Brew 2", "Steam 3", "Steam P", "Spare P", "Spare 6", "On/Off 7", "On/Off P", "On/Off 8"}
+
+
+def fac_thermostat(m, pid, name, cx, cy, d, note):
+    """a stock thermostat: a hexagon on the boiler and its two spades, both leaving toward d (u or r)"""
+    s = (f'<polygon points="{cx - 8},{cy - 13} {cx + 8},{cy - 13} {cx + 15},{cy} {cx + 8},{cy + 13} {cx - 8},{cy + 13} {cx - 15},{cy}" class="term"/>'
+         f'<circle cx="{cx}" cy="{cy}" r="4" class="inner"/>')
+    if d == "u":
+        pts = ((cx - 8, cy - 20), (cx + 8, cy - 20))
+        s += spade(cx - 8, cy - 15, 7, 10) + spade(cx + 8, cy - 15, 7, 10)
+        s += text(cx - 22, cy - 10, name, "tiny ring", "end")
+        bb = (cx - 16, cy - 22, cx + 16, cy + 14)
+    else:
+        pts = ((cx + 20, cy - 7), (cx + 20, cy + 7))
+        s += spade(cx + 16, cy - 7, 10, 7) + spade(cx + 16, cy + 7, 10, 7)
+        w1, w2 = name.split(" ", 1)
+        s += text(cx, cy + 28, w1, "tiny ring") + text(cx, cy + 40, w2, "tiny ring")
+        bb = (cx - 16, cy - 14, cx + 22, cy + 14)
+    for suf, (x, y) in zip(("a", "b"), pts):
+        m.t(f"{pid}:{suf}", x, y, d, pid)
+    m.part(pid, name, s, bb, note=note)
+
+
+def fac_splice(m, jid, name, x, y):
+    """one of the factory's crimp splices: a short sleeve that joins several wires, drawn as on Gaggia's diagram"""
+    s = (f'<rect x="{x - 12}" y="{y - 6}" width="24" height="12" rx="2" class="fsp"/>'
+         + "".join(f'<line x1="{x + dx}" y1="{y - 6}" x2="{x + dx}" y2="{y + 6}" class="fspl"/>' for dx in (-6, 0, 6)))
+    m.t(jid + ":a", x - 16, y, "l", jid)
+    m.t(jid + ":b", x + 16, y, "r", jid)
+    m.part(jid, name, s, (x - 14, y - 8, x + 14, y + 8))
+
+
+def fac_chassis(m, x, y):
+    s = (f'<path d="M{x - 24},{y - 16} l8,8 h12 v-8 h8 v8 h12 l8,-8" class="lead"/>' + spade(x - 8, y, 9, 16) + spade(x + 8, y, 9, 16)
+         + text(x, y - 24, "Chassis ground", "tiny"))
+    m.t("chassis", x - 8, y + 8, "d", "chassis")
+    m.t("chassis:b", x + 8, y + 8, "d", "chassis")
+    m.part("chassis", "Chassis ground", s, (x - 42, y - 34, x + 42, y + 8))
+
+
+def fac_cup(m, at):
+    x, y = at
+    s = (f'<path d="M{x},{y + 24} L{x + 128},{y} V{y + 112} L{x},{y + 88} Z" class="box"/>'
+         + spade(x + 120, y + 52, 18, 9) + spade(x + 120, y + 80, 18, 9)
+         + text(x + 56, y + 52, "Cup warmer", "nm") + text(x + 56, y + 66, "ground spades", "tiny"))
+    m.t("cup:a", x + 128, y + 52, "r", "cup")
+    m.t("cup", x + 128, y + 80, "r", "cup")
+    m.part("cup", "Cup warmer ground", s, (x, y, x + 128, y + 112))
+
+
+FAC_PART_NOTE = {
+    "bt": "Out on every Gaggiuino install: the thermocouple goes in its hole, and the PCB takes over brew temperature.",
+    "st": "On stock wiring it can stay, unplugged, or come out. On Plug-and-Play wiring the 185 °C resettable fuse goes in its hole.",
+}
+MACHINE_PARTS = {"lampS", "lampB", "lampP", "swS", "swB", "swP", "housing", "boiler", "pump", "sol", "chassis", "sock", "cup"}
+# what each machine part does as it leaves the factory, for its card in the Out of the box view (the install map's
+# own part notes describe the finished install, so they aren't used there)
+FAC_NOTES = {
+    "lampS": "Across the steam thermostat, so it lights once the boiler reaches steam temperature.",
+    "lampB": "Across the brew thermostat, so it lights once the boiler reaches brew temperature.",
+    "lampP": "Between switched line and neutral, so it lights while the machine is on.",
+    "swP": "It breaks both line (spades 4 and 5) and neutral (spades 1 and 2).",
+    "swB": "It joins line from after the thermal fuse (spade 4) to the 3-way valve's feed (spade 5), which also feeds the pump.",
+    "swS": "Steam off, it completes the 3-way valve's return to neutral. Steam on, it bypasses the brew thermostat, so the boiler heats to the steam thermostat's setting.",
+    "housing": "Brew, steam and power rockers in one block, with the boiler and power lamps inside. Brew 2 and on/off 8 also serve as tie points, where wires meet and the internal lamps connect.",
+    "boiler120": "Two elements in parallel, with the 184 °C thermal fuse in series.",
+    "boiler230": "Two elements in series, linked TL to BL, with the 184 °C thermal fuse in series.",
+    "sol": "The 3-way solenoid valve. It opens while the brew switch is on with steam off.",
+    "sock": "The IEC inlet: line, neutral and earth come in here.",
+    "cup": "The cup warmer plate's earth spades.",
+    "cup-noearth": "The cup warmer plate's earth spades. Most 120 V Classics left the factory with no earth wire, so none lands here: the grounding retrofit adds one.",
+    "chassis": "Two earth spades on the frame.",
+    "pump-nofuse": "This drawing shows no pump fuse. Connector F, on spade B, joins two neutral wires.",
+}
+
+
+def factory_map(key, v, hz, tm=None, troutes=()):
+    """the machine as it leaves the factory, on the layout of the map it turns into. For a stock-wiring map, tm is that
+    map and troutes its routes: its Gaggiuino parts and new runs are kept clear, so a factory wire that stays sits where
+    it will on the finished map."""
+    fam, path = v["fam"], v["path"]
+    at = FAC_AT[(fam, path)]
+    m = Map(key + "-factory", hz["name"])
+    if fam == "GCP":
+        lamp(m, "lampS", "Steam lamp", "steam temperature", 360, [("lampS:A", "A"), ("lampS:B", "B")])
+        rocker(m, "swS", "Steam switch", "DPDT · view: back", 424, "steam", (2, 3, 4, 5))
+        lamp(m, "lampB", "Brew lamp", "brew temperature", 568, [("lampB:A", "A"), ("lampB:B", "B")])
+        rocker(m, "swB", "Brew switch", "DPST · view: back", 616, "brew", (4, 5))
+        lamp(m, "lampP", "Power lamp", "", 760, [("lampP:A", "A"), ("lampP:B", "B")])
+        rocker(m, "swP", "Power switch", "DPST · view: back", 808, "pwr", (1, 2, 4, 5))
+        fac_chassis(m, *at["chassis"])
+    else:
+        lx, px = at["lamps"]
+        il = box(lx, 64, 56, 96, "opt", 6) + text(lx + 28, 40, "Boiler lamp", "nm") + text(lx + 28, 53, "inside the housing", "tiny")
+        m.part("lampB", "Internal boiler lamp", il, (lx - 8, 24, lx + 64, 160), obs=[(lx, 24, lx + 56, 56)],
+               note="Inside the switch housing, wired across brew P(1-2) and 2 (dotted on the drawing). It lights once the boiler is up to temperature.")
+        # the factory harness leaves spade 1 toward P(5-6), not toward the PCB as the install's map does
+        housing(m, 616, GC_FAC_USED, exits={"Brew": ("r", "r", "l"), "Steam": ("r", "l", "r"), "": ("r", "r", "r"), "On/Off": ("r", "r", "r")})
+        ip = box(px, 64, 56, 96, "opt", 6) + text(px + 28, 40, "Power lamp", "nm") + text(px + 28, 53, "inside the housing", "tiny")
+        m.part("lampP", "Internal power lamp", ip, (px - 8, 24, px + 64, 160), obs=[(px, 24, px + 56, 56)],
+               note="Inside the switch housing, wired across on/off P and 8 (dotted on the drawing). It lights while the machine is on.")
+    fac_cup(m, at["cup"])
+    boiler(m)
+    bx, by, bd = at["bt"]
+    fac_thermostat(m, "bt", "Brew thermostat", bx, by, bd, FAC_PART_NOTE["bt"])
+    sx, sy, sd = at["st"]
+    fac_thermostat(m, "st", "Steam thermostat", sx, sy, sd, FAC_PART_NOTE["st"])
+    solenoid(m, *at["sol"], gnd_down=(fam == "GC" and path == "SI"))
+    socket(m, *at["sock"])
+    fused = not (fam == "GC" and v["volts"] == 230)
+    pump(m, *at["pump"], fam, si=True, fuse=fused)
+    if fused:
+        # the fuse's own lead to spade B: Pa on the stock-wiring drawings
+        x0, y0 = at["pump"]
+        i = next(i for i, p in enumerate(m.parts) if p[0] == "pump")
+        pid, nm, _, g, bb = m.parts[i]
+        lead = f'<path d="M{x0 + 60},{y0 + 30} H{x0 + 48} V{y0 + 24}" class="lead"/>'
+        other = "ends in connector F, which joins two wires" if fam == "GC" else "runs to factory splice J0"
+        m.parts[i] = (pid, nm, f"The fuse's own lead plugs onto spade B (Pa, from its fuse). Its other lead {other}.",
+                      g[:g.rindex('<rect x="')] + lead + g[g.rindex('<rect x="'):], bb)  # over the pump's body, under its tap target
+    for jid, (x, y) in at["J"].items():
+        if jid in hz["junctions"]:
+            fac_splice(m, jid, hz["junctions"][jid], x, y)
+    earthed = any(r["sys"] == "E" for r in hz["runs"])
+    for i, (pid, nm, note, g, bb) in enumerate(m.parts):
+        if note:
+            continue
+        k = {"boiler": "boiler" + str(v["volts"]), "cup": "cup" if earthed else "cup-noearth",
+             "pump": "pump" if fused else "pump-nofuse"}.get(pid, pid)
+        if k in FAC_NOTES:
+            m.parts[i] = (pid, nm, FAC_NOTES[k], g, bb)
+    if tm is not None:
+        # the stock-wiring map's own parts, kept clear but not drawn
+        for (pid, _, _, _, bb) in tm.parts:
+            if pid not in MACHINE_PARTS:
+                m.obs.append(tuple(bb) + ("ghost",))
+
+    def xy(t):
+        return at["J"][t] if t in hz["junctions"] else m.term[t][:2]
+
+    def end(t, other):
+        """a wire takes the side of a splice that faces its other end"""
+        if t in hz["junctions"]:
+            return t + (":a" if xy(other)[0] < at["J"][t][0] else ":b")
+        return t
+
+    runs = []
+    missing = []
+    for r in hz["runs"]:
+        a, b = end(r["a"], r["b"]), end(r["b"], r["a"])
+        for t in (a, b):
+            if t not in m.term:
+                missing.append(f"{key} factory {r['id']}: {t}")
+        runs.append((r, a, b))
+    if missing:
+        raise SystemExit("unplaced factory ends:\n  " + "\n  ".join(missing))
+    used = {t for _, a, b in runs for t in (a, b)}
+    rt = Router(m, used)
+    for rid, pts in troutes:
+        rt.occupy(rid, pts)
+    order = {"L": 0, "H": 1, "N": 2, "E": 3, "LMP": 4}
+
+    def dist(x):
+        (ax, ay), (bx2, by2) = m.term[x[1]][:2], m.term[x[2]][:2]
+        return abs(ax - bx2) + abs(ay - by2)
+    jobs = [(r["id"], a, b, r["sys"]) for r, a, b in sorted(runs, key=lambda x: (order.get(x[0]["sys"], 5), dist(x)))]
+    got = {}
+    for jid, a, b, grp in jobs:
+        got[jid] = rt.route(a, b, jid, grp)
+    for _ in range(2):
+        rt.fallback = []
+        for jid, a, b, grp in jobs:
+            rt.unroute(jid)
+            got[jid] = rt.route(a, b, jid, grp)
+    if rt.fallback:
+        print(f"  {key} factory: squeezed past another terminal: {', '.join(rt.fallback)}")
+    return m, runs, got
+
+
+def fac_term_name(m, t):
+    """a terminal in words, for the factory wire's card"""
+    names = {"sock:L": "Power socket, L", "sock:N": "Power socket, N", "sock:G": "Power socket, earth",
+             "b:fuseL": "184 °C thermal fuse", "b:fuseR": "184 °C thermal fuse", "b:gnd": "Boiler earth spade",
+             "b:TL": "Element pin TL", "b:TR": "Element pin TR", "b:BL": "Element pin BL", "b:BR": "Element pin BR",
+             "bt:a": "Brew thermostat", "bt:b": "Brew thermostat", "st:a": "Steam thermostat", "st:b": "Steam thermostat",
+             "pump:A": "Pump spade", "pump:B": "Pump spade", "pf:out": "Pump's 110 °C fuse lead", "pf:in": "Pump's 110 °C fuse",
+             "sol:L": "3-way valve spade", "sol:R": "3-way valve spade", "sol:gnd": "3-way valve earth spade",
+             "cup": "Cup warmer earth spade", "cup:a": "Cup warmer earth spade", "chassis": "Chassis earth spade",
+             "chassis:b": "Chassis earth spade"}
+    if t in names:
+        return names[t]
+    for pre, nm in (("steam", "Steam switch, spade "), ("brew", "Brew switch, spade "), ("pwr", "Power switch, spade ")):
+        if t.startswith(pre) and t[len(pre):].isdigit():
+            return nm + t[len(pre):]
+    if t.startswith("hs:"):
+        sec, sp = t[3:].rsplit(" ", 1)
+        if sp == "P":
+            sp = {"Brew": "P(1-2)", "Steam": "P(3-4)", "Spare": "P(5-6)"}.get(sec, "P")
+        return "Switch housing, " + {"Brew": "brew", "Steam": "steam", "Spare": "steam", "On/Off": "on/off"}[sec] + " " + sp
+    for lp, nm in (("lampS:", "Steam lamp lead"), ("lampB:", "Brew lamp lead"), ("lampP:", "Power lamp lead")):
+        if t.startswith(lp):
+            return nm
+    if t[:1] == "J" and t.split(":")[0][1:].isdigit():
+        return "Factory splice " + t.split(":")[0]
+    return t
+
+
+def svg_factory(key, v, hz, m, runs, paths):
+    fid = "fac-" + hz["id"] + "-" + v["path"]
+    o = [f'<svg viewBox="0 0 {W} {H}" class="dia fac" data-map="{fid}" role="img" aria-labelledby="t-{fid}" xmlns="http://www.w3.org/2000/svg">']
+    o.append(f'<title id="t-{fid}">Out of the box: {esc(hz["name"])}. Every factory wire, drawn from the official docs\' drawing of the stock machine; tap a wire or a part.</title>')
+    o.append('<g class="parts">')
+    o.extend(p[3] for p in m.parts)
+    o.append('</g><g class="wires">')
+    seq = sorted(runs, key=lambda x: {"LMP": 0, "E": 1, "N": 2, "H": 3, "L": 4}.get(x[0]["sys"], 0))
+    for r, a, b in seq:
+        col = FAC_COL.get(r["color"], "#8C939A")
+        o.append(f'<g class="run s-{r["sys"]} fw" data-run="{esc(r["id"])}" data-a="{esc(m.term[a][3])}" data-b="{esc(m.term[b][3])}" style="--wc:{col}">')
+        d = d_of(paths[r["id"]])
+        for k in ("case", "halo", "wire", "flow", "hit"):
+            o.append(f'<path d="{d}" class="{k}"/>')
+        o.append('</g>')
+    o.append('</g></svg>')
+    meta = {}
+    for r, a, b in runs:
+        meta[r["id"]] = {"color": r["color"], "sys": r["sys"], "what": r.get("what", ""), "lab": r.get("lab", ["", ""]),
+                         "frm": fac_term_name(m, a), "to": fac_term_name(m, b)}
+    parts = {p[0]: {"name": p[1], "note": p[2]} for p in m.parts}
+    ends = {r["id"]: [m.term[a][3], m.term[b][3]] for r, a, b in runs}
+    return "".join(o), meta, parts, ends
+
+
+def factory_for(key, v, fd, tm, tpaths):
+    """the Out of the box view for one schematic, and what the animation changes: go (factory wires that come out),
+    stay (the ones a stock-wiring install leaves alone), out (factory-only parts that leave), keep (ones that stay)"""
+    fv = fd["variants"].get(v.get("base", key))
+    if not fv:
+        return None
+    hz = dict(fd["harness"][fv["harness"]], id=fv["harness"])
+    si = v["path"] == "SI"
+    troutes = []
+    if si:
+        troutes = [(rid, pts) for rid, pts in tpaths.items()] + [("stock:" + fa, pts) for fa, fb, mv, pts in tm.routed_links]
+    m, runs, got = factory_map(key, v, hz, tm if si else None, troutes)
+    svg, meta, parts, ends = svg_factory(key, v, hz, m, runs, got)
+    # every machine part sits exactly where the map it turns into has it
+    tb = {p[0]: p[4] for p in tm.parts}
+    for p in m.parts:
+        if p[0] in MACHINE_PARTS and p[0] in tb and p[0] not in ("boiler", "pump", "lampB", "lampP", "lampS"):
+            assert tuple(tb[p[0]]) == tuple(p[4]), f"{key}: factory {p[0]} at {p[4]}, map has it at {tb[p[0]]}"
+    if si:
+        moves = set(fv.get("moves", []))
+        go = [r["id"] for r, a, b in runs if any(l in moves for l in r.get("lab", []) if l)]
+        stay = [r["id"] for r, a, b in runs if r["id"] not in go]
+        out = list(fv.get("out", ["bt"])) + ["st"]
+        keep = [p for p in hz["junctions"]]
+    else:
+        go = [r["id"] for r, a, b in runs]
+        stay = []
+        out = ["bt", "st"] + [p for p in hz["junctions"]]
+        keep = []
+    return {"svg": svg, "runs": meta, "parts": parts, "ends": ends, "name": hz["name"], "src": hz["src"],
+            "srcname": hz["srcname"], "noearth": hz.get("noearth", ""), "go": go, "stay": stay, "out": out, "keep": keep,
+            "moves": sorted(fv.get("moves", [])) if si else []}
+
+
 def main():
     import addons
     data = addons.expand(json.load(open(os.path.join(HERE, "wiring-data.json"))))
+    fd = json.load(open(os.path.join(HERE, "factory-data.json")))
     out = {}
     for key, v in data["variants"].items():
         svg, parts, ends, paths, m = svg_variant(key, v)
         out[key] = {"svg": svg, "parts": parts, "ends": ends,
                     "cables": {cid: CABLES[cid][0] for cid in CABLES} if v.get("cables") else {}}
-        print(key, len(v["runs"]), "runs drawn", len(svg) // 1024, "KB")
+        fac = factory_for(key, v, fd, m, paths)
+        if fac:
+            # a Shelly map's factory view is its base map's: keep one copy
+            same = next((k for k, o in out.items() if o.get("fac", {}).get("svg") == fac["svg"] and o["fac"].get("go") == fac["go"]), None)
+            out[key]["fac"] = {"same": same} if same else fac
+        elif fd.get("missing", {}).get(v.get("base", key)):
+            out[key]["facnote"] = fd["missing"][v.get("base", key)]
+        print(key, len(v["runs"]), "runs drawn", len(svg) // 1024, "KB", (f"+ factory {len(fac['runs'])} wires {len(fac['svg']) // 1024} KB" if fac else ""))
     json.dump(out, open(os.path.join(HERE, "wiring-maps.json"), "w"), ensure_ascii=False, separators=(",", ":"))
 
 

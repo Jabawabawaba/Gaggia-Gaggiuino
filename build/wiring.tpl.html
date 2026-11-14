@@ -76,6 +76,11 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
 
   <section class="mapsec" id="mapsec" aria-labelledby="h-map" hidden>
     <div class="sec-h"><h2 id="h-map">Where every wire goes</h2><span class="sum">tap a wire or a part</span></div>
+    <div class="mview" id="mview" hidden>
+      <div class="mseg2" role="group" aria-label="Which wiring the map shows"><button type="button" data-mview="mine" aria-pressed="true">Your wiring</button><button type="button" data-mview="box" aria-pressed="false">Out of the box</button></div>
+      <button type="button" class="mplay" id="m-play" hidden><span class="mplay-i" aria-hidden="true"></span>Show the change</button>
+      <p class="mview-note" id="mview-note"></p>
+    </div>
     <div class="mtool">
       <div class="chips" id="mchips" role="group" aria-label="Show circuit"></div>
       <div class="mtool-r">
@@ -85,10 +90,18 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
     </div>
     <p class="msel" id="msel" aria-live="polite"></p>
     <figure style="margin:0">
-      <div class="mscroll" id="mscroll"></div>
+      <p class="ma-cap" id="ma-cap" aria-live="polite" hidden></p><div class="mstage"><div class="mscroll" id="mscroll"></div></div>
+      <div class="mctl" id="mctl" hidden>
+        <button type="button" class="mbtn" id="ma-pause" aria-pressed="false">Pause</button>
+        <button type="button" class="mbtn" id="ma-replay">Replay</button>
+        <button type="button" class="mbtn" id="ma-skip">Skip to the end</button>
+        <button type="button" class="mbtn primary" id="ma-done" hidden>Back to the map</button>
+        <div class="mseg2" role="group" aria-label="Speed"><button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2" aria-pressed="false">2×</button></div>
+        <div class="mprog" aria-hidden="true"><span id="ma-bar"></span></div>
+      </div>
       <p class="mhint phone">The map is wide: scroll it sideways, or pinch to zoom.</p>
       <div class="mlegend" id="mlegend" aria-label="Legend"></div>
-      <figcaption class="fine" style="margin-top:8px">Redrawn from the official schematic, with each part where that drawing puts it, so you can hold the two side by side. Switches are seen from the back, as on the drawing. Each wire's tag is its ID; on the Plug-and-Play maps that's its two end labels. Thick lines carry mains, thin ones low voltage. Where two runs meet at one terminal, they share its connector. The map is a guide to follow; the official drawing is the reference.<span id="mcapsi" hidden> A stock-wiring map draws only the stock leads this install touches; every other stock wire stays as it is.</span></figcaption>
+      <figcaption class="fine" id="mfigcap" style="margin-top:8px">Redrawn from the official schematic, with each part where that drawing puts it, so you can hold the two side by side. Switches are seen from the back, as on the drawing. Each wire's tag is its ID; on the Plug-and-Play maps that's its two end labels. Thick lines carry mains, thin ones low voltage. Where two runs meet at one terminal, they share its connector. The map is a guide to follow; the official drawing is the reference.<span id="mcapsi" hidden> A stock-wiring map draws only the stock leads this install touches; every other stock wire stays as it is.</span></figcaption>
     </figure>
     <div class="mdetail empty" id="mdetail" aria-live="polite"></div>
   </section>
