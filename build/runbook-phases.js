@@ -107,7 +107,8 @@
       {id:'p6a',t:'Run [UT] PZ Cal',d:'Calibrates Pump Zero, the water moved per pump pulse at 0 bar, so flow and predicted weight match your pump.',src:'Official',off:['PZ Calibration',OFF.pz]},
       {id:'p6b',t:'Keep the boiler settings on default',d:'Steam temperature, Brew Delta and the advanced heating values all start from the defaults on a Gaggia.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
       {id:'p6c',t:'Temperature offset only against a real measurement',d:'Change it only if you can measure at the group head, for example with a Scace-type device.',src:'Official',off:['Settings: Boiler',OFF.boiler]},
-      {id:'p6d',t:'Set the time zone, add a microSD card',d:'Shot history needs a microSD card (1 to 8 GB, FAT32), and a network connection with the time zone offset set for the right date and time.',src:'Official',off:['User Manual Gen 3',OFF.manual]},
+      {id:'p6d',t:'Set the time zone',d:'Shot history shows the right date and time once Gaggiuino is on a network with internet access and the time zone offset is set.',src:'Official',off:['User Manual Gen 3',OFF.manual]},
+      {id:'p6m',t:'Add a microSD card for shot history',d:'Shot history needs a microSD card, 1 to 8 GB and FAT32, in the screen or headless board. In with the machine off and unplugged.',src:'Official',off:['User Manual Gen 3',OFF.manual]},
       {id:'p6e',t:'Calibrate hardware scales, if fitted',d:'From the web UI, with a known weight, one load cell at a time.',link:['Part guide: hardware scales','gscl'],src:'Official',off:['Hardware Scales',OFF.scales]},
       {id:'p6f',t:'Check the ToFnLED, if fitted',d:'Tank level on the home screen, and the LED settings.',link:['Part guide: ToFnLED','gtof'],src:'Official',off:['ToFnLED',OFF.tof]}
     ]},
