@@ -161,11 +161,12 @@
   try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv&&typeof sv==='object'){st.slack=typeof sv.slack==='number'?sv.slack:10;st.opt=!!sv.opt;st.cur=VARS[sv.cur]?sv.cur:null;st.mm=sv.mm&&typeof sv.mm==='object'?sv.mm:{};st.cut=sv.cut&&typeof sv.cut==='object'?sv.cut:{}}}catch(e){}
   function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
   /* the tally the runbook reads (progress-store.js): rows in the cut table and how many are ticked, all of them and the
-     Shelly's, per schematic; every row ticked for your schematic ticks the runbook's step for making the wires */
+     ones the Shelly adds or changes, per schematic; every row ticked for your schematic ticks the runbook's step for
+     making the wires */
   var TABLE=/^(L|H|N|E|LV|LVG)$/;
   function report(vk){
     var v=VARS[vk];if(!v)return;
-    var rows=activeRuns(v).filter(function(r){return TABLE.test(r.sys)}),done=bag(st.cut,vk),sh=rows.filter(function(r){return /^SH/.test(r.id)});
+    var rows=activeRuns(v).filter(function(r){return TABLE.test(r.sys)}),done=bag(st.cut,vk),sh=rows.filter(function(r){return !!r.sh});
     function t(list){return [list.length,list.filter(function(r){return !!done[r.id]}).length]}
     var c=PS.read().cut||{};c[vk]={all:t(rows),sh:t(sh)};PS.put('cut',c);
   }

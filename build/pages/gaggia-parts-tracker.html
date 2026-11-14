@@ -300,7 +300,9 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   function GM(){return window.GaggiaMachine||null}
   %%INCLUDE:progress-store.js%%
   /* the runbook steps a line ticks: [step, what ticks it, the condition it shows on] */
-  var RB={opv:['p0o','marking this Ordered, Received or Already have ticks the step to order it.','opv9'],ground:['p0g','marking this Ordered (or ticking off its three pieces) ticks the step to plan the grounding.','ground'],conn:['p0c','ticking off the silicone tape below ticks the step to get it for the switch connector block.','model:EVO,E24'],shelly:['p0s','marking this Ordered (or ticking off the Shelly itself) ticks the step to pick one.','shelly']};
+  var RB={opv:['p0o','marking this Ordered, Received or Already have ticks the step to order it.','opv9'],ground:['p0g','marking this Ordered, Received or Already have, or ticking off its three pieces, ticks the step to plan the grounding.','ground'],conn:['p0c','ticking off the silicone tape below, or marking this Received or Already have, ticks the step to get it for the switch connector block.','model:EVO,E24'],shelly:['p0s','marking this Ordered, Received or Already have, or ticking off the Shelly itself, ticks the step to pick one.','shelly']};
+  /* lines the build needs that are marked Not getting (shipping isn't a part): the runbook's Check your parts waits for them */
+  function reqSkipped(){return allParts().filter(function(p){return p.req&&p.id!=='ship'&&ps(p).status==='skip'}).map(function(p){return p.name})}
   function applies(when){var m=GM();return !when||!m||m.matches(when)}
   function T(x){var m=GM();if(m)return m.txt(x);return Array.isArray(x)?x.map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' '):(x==null?'':String(x))}
   function subsOf(p){return (p.subs||[]).filter(function(sb){return applies(sb[3])})}
@@ -462,7 +464,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     syncExpAll();
 
     var r=compute();
-    PS.put('tracker',{sig:PS.sig(GM()&&GM().get()),n:r.active,hand:r.inhand});
+    PS.put('tracker',{sig:PS.sig(GM()&&GM().get()),n:r.active,hand:r.inhand,skip:reqSkipped()});
     $('r-hand').textContent=r.inhand+' of '+r.active;
     $('r-hand-s').textContent=r.counts.ordered?(r.counts.ordered+' on order'):(r.active-r.inhand===0?'Everything is here':'Nothing on order yet');
     $('r-spent').textContent=fmt(r.spent);
