@@ -2053,6 +2053,40 @@ var RBF=(function(){
       dv:function(d){var v=getV&&getV();return !v||d===v.path},guides:'part-guides.html'};
   }
 
+    /* What a page tells the runbook (progress-store.js, on the parts tracker, wire labels, cut list, power-on checks and
+     runbook pages): one record in this browser, gaggia-progress-v1, where each page keeps a short summary under its own
+     name. The runbook reads it, with Your Gaggia and the tracker's own record, to tick the steps those pages cover.
+     put(name, value) replaces that page's summary and writes only when it changed. vkFor(profile) is the schematic a
+     profile opens on, picked as wiring-core.js picks it but without the wiring data; keep VK in step with ORDERV there.
+     sig(profile) is a short fingerprint, so a summary made for another machine isn't taken for this one. CV is a stamp of
+     the power-on check list (each check's id, kind and condition) that site.py puts in at build: the checks page saves it
+     with its tally, and the runbook counts a tally only if it matches, so checks added in a later update are never
+     taken as passed. */
+  var PS=(function(){
+    var KEY='gaggia-progress-v1',CV='031455f806';
+    var VK=['si-gcp-120','si-gc-120','si-gc-230','cw-gcp-120','cw-gcp-230','cw-gc-120','cw-gc-230','cw-gcp-120-sh','cw-gcp-230-sh'];
+    function read(){try{var s=JSON.parse(localStorage.getItem(KEY)||'null');return s&&typeof s==='object'?s:{}}catch(e){return {}}}
+    function put(name,value){
+      try{
+        var s=read(),was=JSON.stringify(s[name]===undefined?null:s[name]),now=JSON.stringify(value===undefined?null:value);
+        if(was===now)return;
+        if(value==null)delete s[name];else s[name]=value;
+        localStorage.setItem(KEY,JSON.stringify(s));
+      }catch(e){}
+    }
+    function vkFor(p){
+      if(!p||!p.model||!p.volts)return null;
+      var fam=p.model==='GC'?'gc':'gcp',path=p.path==='CW'?'cw':p.path==='SI'?'si':null;
+      if(!path)return null;
+      var k=path+'-'+fam+'-'+p.volts;
+      if(VK.indexOf(k)<0&&path==='si')k='cw-'+fam+'-'+p.volts;
+      if(p.shelly&&VK.indexOf(k+'-sh')>=0)k+='-sh';
+      return VK.indexOf(k)>=0?k:null;
+    }
+    function sig(p){p=p||{};return [p.model||'',p.volts||'',p.eco==null?'':(p.eco?'eco':'noeco'),p.path||'',p.shelly?'sh':''].join('|')}
+    return {KEY:KEY,CV:CV,read:read,put:put,vkFor:vkFor,sig:sig};
+  })();
+
   RBF.init(PF(function(){return VARS[pick()]||null}));
   var figFor=null;
   function $(id){return document.getElementById(id)}
@@ -2090,6 +2124,16 @@ var RBF=(function(){
   var st={slack:10,opt:false,cur:null,mm:{},cut:{}};
   try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv&&typeof sv==='object'){st.slack=typeof sv.slack==='number'?sv.slack:10;st.opt=!!sv.opt;st.cur=VARS[sv.cur]?sv.cur:null;st.mm=sv.mm&&typeof sv.mm==='object'?sv.mm:{};st.cut=sv.cut&&typeof sv.cut==='object'?sv.cut:{}}}catch(e){}
   function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+  /* the tally the runbook reads (progress-store.js): rows in the cut table and how many are ticked, all of them and the
+     ones the Shelly adds or changes, per schematic; every row ticked for your schematic ticks the runbook's step for
+     making the wires */
+  var TABLE=/^(L|H|N|E|LV|LVG)$/;
+  function report(vk){
+    var v=VARS[vk];if(!v)return;
+    var rows=activeRuns(v).filter(function(r){return TABLE.test(r.sys)}),done=bag(st.cut,vk),sh=rows.filter(function(r){return !!r.sh});
+    function t(list){return [list.length,list.filter(function(r){return !!done[r.id]}).length]}
+    var c=PS.read().cut||{};c[vk]={all:t(rows),sh:t(sh)};PS.put('cut',c);
+  }
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
   function pick(){var m=mineV();if(override&&VARS[override])return override;if(m)return m;var n=nearestFor(GM()&&GM().get(),st.cur);if(n)return n;return st.cur&&VARS[st.cur]?st.cur:ORDERV[0]}
@@ -2184,13 +2228,14 @@ var RBF=(function(){
     });
     $('cut').innerHTML=html;
     $('cut-sum').textContent=dn+' of '+n+' done';
-    $('cut-fine').textContent=(v.path==='SI'?'Lengths are the official guide\'s, which it calls generous: route each wire, then trim.':'Lengths are the official cut list\'s, with your extra percentage added (set it to 0% to cut to the list). Fit each run, then trim.')+' Runs with no printed length count once you enter one. The thermocouple, pressure sensor and screen come on their own leads and aren\'t in the totals.'+(v.shelly?' The Shelly runs have no printed length: measure them once its enclosure is in place. If the socket moves out into the enclosure, the runs that reach it (L1a-L1b, N1a-N1c, BN2-N1c and G1a-G1b) need that much more.':'')+(v.path==='CW'?' Each run\'s ID is its two end labels from the official cut list: label each end with its own (the wire labels page prints them).':'');
+    report(vk);
+    $('cut-fine').textContent=(v.path==='SI'?'Lengths are the official guide\'s, which it calls generous: route each wire, then trim.':'Lengths are the official cut list\'s, with your extra percentage added (set it to 0% to cut to the list). Fit each run, then trim.')+' Ticking every row for your schematic ticks the runbook\'s step for making the wires. Runs with no printed length count once you enter one. The thermocouple, pressure sensor and screen come on their own leads and aren\'t in the totals.'+(v.shelly?' The Shelly runs have no printed length: measure them once its enclosure is in place. If the socket moves out into the enclosure, the runs that reach it (L1a-L1b, N1a-N1c, BN2-N1c and G1a-G1b) need that much more.':'')+(v.path==='CW'?' Each run\'s ID is its two end labels from the official cut list: label each end with its own (the wire labels page prints them).':'');
   }
   $('slack').addEventListener('input',function(){st.slack=Number(this.value)||0;save();render()});
   $('opt').addEventListener('change',function(){st.opt=this.checked;save();render()});
   $('cut').addEventListener('change',function(e){
     var vk=pick(),id=e.target.getAttribute('data-cut');
-    if(id){var d=bag(st.cut,vk);if(e.target.checked)d[id]=true;else delete d[id];save();var tr=e.target.closest('tr');if(tr)tr.classList.toggle('done',e.target.checked);var n=document.querySelectorAll('[data-cut]').length,k=document.querySelectorAll('[data-cut]:checked').length;$('cut-sum').textContent=k+' of '+n+' done';return}
+    if(id){var d=bag(st.cut,vk);if(e.target.checked)d[id]=true;else delete d[id];save();report(vk);var tr=e.target.closest('tr');if(tr)tr.classList.toggle('done',e.target.checked);var n=document.querySelectorAll('[data-cut]').length,k=document.querySelectorAll('[data-cut]:checked').length;$('cut-sum').textContent=k+' of '+n+' done';return}
     var mid=e.target.getAttribute('data-mm');
     if(mid){var m=bag(st.mm,vk),x=e.target.value;if(x==='')delete m[mid];else{x=Number(x);if(isFinite(x)&&x>0)m[mid]=Math.round(x)}save();render();var el=$('mm-'+mid);if(el)el.focus()}
   });

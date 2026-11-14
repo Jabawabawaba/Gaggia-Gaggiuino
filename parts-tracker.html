@@ -497,6 +497,9 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
 .p-body[hidden]{display:none}
 .p-use{margin:0;font-size:15px;line-height:1.45}
 .p-spec{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+/* the runbook step a line ticks */
+.p-rb{margin:0;font-size:14px;line-height:1.45;padding:6px 10px;border-left:3px solid var(--good);background:var(--surface-2);border-radius:0 6px 6px 0}
+.p-rb a{font-weight:600}
 .src{font-size:13.5px;color:var(--muted)}
 
 .pillwrap{position:relative;display:flex;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted)}
@@ -553,7 +556,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   .p-body{padding:10px 0 6px 4px}
   .addform{grid-template-columns:minmax(0,1fr)}
 }
-@media print{.p-body[hidden]{display:grid}.p-head .chev,.expall{display:none}}
+@media print{.p-body[hidden]{display:grid}.p-head .chev,.expall,.p-rb{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -565,7 +568,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
       <span class="rivet" aria-hidden="true"></span>
     </div>
     <h1>Gaggia Parts Tracker</h1>
-    <p class="lede">Every part for the build, one line each. Set each one's status as you buy it and enter what you actually paid. Tap a part to see what it's for, where to get it and the pieces inside it, and tick those off as they arrive. Estimates match the <a href="budget.html">budget</a>.</p>
+    <p class="lede">Every part for the build, one line each. Set each one's status as you buy it and enter what you actually paid. Tap a part to see what it's for, where to get it and the pieces inside it, and tick those off as they arrive. Estimates match the <a href="budget.html">budget</a>. What you mark here also ticks the runbook's Before you start steps, like ordering the OPV spring or checking your parts.</p>
     <p class="mnote" id="mnote" hidden></p>
   </header>
 
@@ -685,6 +688,44 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
   /* the parts for the machine picked in Your Gaggia: a line, a part inside it or a link can carry a condition
      (see machine.js); text can be a list of segments that each carry one */
   function GM(){return window.GaggiaMachine||null}
+    /* What a page tells the runbook (progress-store.js, on the parts tracker, wire labels, cut list, power-on checks and
+     runbook pages): one record in this browser, gaggia-progress-v1, where each page keeps a short summary under its own
+     name. The runbook reads it, with Your Gaggia and the tracker's own record, to tick the steps those pages cover.
+     put(name, value) replaces that page's summary and writes only when it changed. vkFor(profile) is the schematic a
+     profile opens on, picked as wiring-core.js picks it but without the wiring data; keep VK in step with ORDERV there.
+     sig(profile) is a short fingerprint, so a summary made for another machine isn't taken for this one. CV is a stamp of
+     the power-on check list (each check's id, kind and condition) that site.py puts in at build: the checks page saves it
+     with its tally, and the runbook counts a tally only if it matches, so checks added in a later update are never
+     taken as passed. */
+  var PS=(function(){
+    var KEY='gaggia-progress-v1',CV='031455f806';
+    var VK=['si-gcp-120','si-gc-120','si-gc-230','cw-gcp-120','cw-gcp-230','cw-gc-120','cw-gc-230','cw-gcp-120-sh','cw-gcp-230-sh'];
+    function read(){try{var s=JSON.parse(localStorage.getItem(KEY)||'null');return s&&typeof s==='object'?s:{}}catch(e){return {}}}
+    function put(name,value){
+      try{
+        var s=read(),was=JSON.stringify(s[name]===undefined?null:s[name]),now=JSON.stringify(value===undefined?null:value);
+        if(was===now)return;
+        if(value==null)delete s[name];else s[name]=value;
+        localStorage.setItem(KEY,JSON.stringify(s));
+      }catch(e){}
+    }
+    function vkFor(p){
+      if(!p||!p.model||!p.volts)return null;
+      var fam=p.model==='GC'?'gc':'gcp',path=p.path==='CW'?'cw':p.path==='SI'?'si':null;
+      if(!path)return null;
+      var k=path+'-'+fam+'-'+p.volts;
+      if(VK.indexOf(k)<0&&path==='si')k='cw-'+fam+'-'+p.volts;
+      if(p.shelly&&VK.indexOf(k+'-sh')>=0)k+='-sh';
+      return VK.indexOf(k)>=0?k:null;
+    }
+    function sig(p){p=p||{};return [p.model||'',p.volts||'',p.eco==null?'':(p.eco?'eco':'noeco'),p.path||'',p.shelly?'sh':''].join('|')}
+    return {KEY:KEY,CV:CV,read:read,put:put,vkFor:vkFor,sig:sig};
+  })();
+
+  /* the runbook steps a line ticks: [step, what ticks it, the condition it shows on] */
+  var RB={opv:['p0o','marking this Ordered, Received or Already have ticks the step to order it.','opv9'],ground:['p0g','marking this Ordered, Received or Already have, or ticking off its three pieces, ticks the step to plan the grounding.','ground'],conn:['p0c','ticking off the silicone tape below, or marking this Received or Already have, ticks the step to get it for the switch connector block.','model:EVO,E24'],shelly:['p0s','marking this Ordered, Received or Already have, or ticking off the Shelly itself, ticks the step to pick one.','shelly']};
+  /* lines the build needs that are marked Not getting (shipping isn't a part): the runbook's Check your parts waits for them */
+  function reqSkipped(){return allParts().filter(function(p){return p.req&&p.id!=='ship'&&ps(p).status==='skip'}).map(function(p){return p.name})}
   function applies(when){var m=GM();return !when||!m||m.matches(when)}
   function T(x){var m=GM();if(m)return m.txt(x);return Array.isArray(x)?x.map(function(seg){return typeof seg==='string'?seg:seg[0]}).join(' '):(x==null?'':String(x))}
   function subsOf(p){return (p.subs||[]).filter(function(sb){return applies(sb[3])})}
@@ -768,6 +809,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     return '<span class="lks">'+x.map(function(l){return '<a class="lk" href="'+esc(l[1])+'" target="_blank" rel="noopener">'+esc(l[0])+'</a>'}).join('')+'</span>';
   }
   var OPEN={};
+  function rbHtml(p){var r=RB[p.id];if(!r||!applies(r[2]))return '';return '<p class="p-rb">In the runbook: '+esc(r[1])+' <a href="runbook.html#'+r[0]+'">Open the step</a></p>'}
   function partHtml(p){
     var s=ps(p);
     var m=GM(),mine=p.when&&m&&m.decided(p.when)&&m.matches(p.when);
@@ -790,7 +832,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
       '<span class="money p-paid"><label for="paid-'+p.id+'"><span class="pl">Paid </span><span>$</span></label><input id="paid-'+p.id+'" data-paid="'+p.id+'" aria-label="Price paid for '+esc(p.name)+'" type="number" inputmode="decimal" min="0" step="0.01" placeholder="—" value="'+(s.paid!=null?s.paid:'')+'"></span>'+
       '<div class="p-body" id="pb-'+p.id+'"'+(open?'':' hidden')+'>'+
         (p.use?'<div><div class="flabel" style="margin-bottom:2px">What it\'s for</div><p class="p-use">'+esc(T(p.use))+'</p></div>':'')+
-        (p.spec?'<p class="p-spec">'+esc(T(p.spec))+'</p>':'')+src+subs+
+        (p.spec?'<p class="p-spec">'+esc(T(p.spec))+'</p>':'')+rbHtml(p)+src+subs+
         '<div><label class="flabel" for="note-'+p.id+'">Notes</label><textarea class="textarea" id="note-'+p.id+'" data-note="'+p.id+'" rows="2" placeholder="Vendor, order number, tracking, what fits">'+esc(s.note)+'</textarea></div>'+
         (p.custom?'<div><button class="linkbtn danger" type="button" data-remove="'+p.id+'">Remove this part</button></div>':'')+
       '</div>'+
@@ -845,6 +887,7 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
     syncExpAll();
 
     var r=compute();
+    PS.put('tracker',{sig:PS.sig(GM()&&GM().get()),n:r.active,hand:r.inhand,skip:reqSkipped()});
     $('r-hand').textContent=r.inhand+' of '+r.active;
     $('r-hand-s').textContent=r.counts.ordered?(r.counts.ordered+' on order'):(r.active-r.inhand===0?'Everything is here':'Nothing on order yet');
     $('r-spent').textContent=fmt(r.spent);
@@ -1010,6 +1053,10 @@ h2{font:600 22px/1.1 var(--f-display);letter-spacing:.05em;text-transform:upperc
 
   state=loadLocal()||defaults();
   renderAll();setStatus('loading');
+  /* a link to one line (parts-tracker.html#opv) opens it and scrolls to it */
+  function fromHash(){var id=(location.hash||'').slice(1),row=id&&document.querySelector('[data-part="'+id.replace(/[^a-z0-9]/g,'')+'"]');if(!row||row.hidden)return;setOpen(id,true);row.scrollIntoView({block:'start'})}
+  fromHash();window.addEventListener('hashchange',fromHash);
+  window.addEventListener('storage',function(e){if(e.key===KEY){var n=loadLocal();if(n&&n.updatedAt>state.updatedAt){state=n;renderAll()}}});
   connect();
 })();
 </script>

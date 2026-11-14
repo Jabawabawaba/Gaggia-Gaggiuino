@@ -749,6 +749,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
       </div>
       <button class="btn" id="dl" type="button">Download PDF to print</button>
       <p class="msg" id="msg" aria-live="polite"></p>
+      <p class="fine dlnote">Making the PDF for your schematic ticks Print the labels in the <a href="runbook.html#p0l">runbook</a>.</p>
     </div>
   </section>
 
@@ -1343,6 +1344,40 @@ var RBF=(function(){
   return {init:init,badge:badge,legend:legend,name:function(k){return PW[k]?PW[k][0]:''},icon:icon,figs:figs,pics:pics,mount:mount,reset:reset,D:D};
 })();
 
+    /* What a page tells the runbook (progress-store.js, on the parts tracker, wire labels, cut list, power-on checks and
+     runbook pages): one record in this browser, gaggia-progress-v1, where each page keeps a short summary under its own
+     name. The runbook reads it, with Your Gaggia and the tracker's own record, to tick the steps those pages cover.
+     put(name, value) replaces that page's summary and writes only when it changed. vkFor(profile) is the schematic a
+     profile opens on, picked as wiring-core.js picks it but without the wiring data; keep VK in step with ORDERV there.
+     sig(profile) is a short fingerprint, so a summary made for another machine isn't taken for this one. CV is a stamp of
+     the power-on check list (each check's id, kind and condition) that site.py puts in at build: the checks page saves it
+     with its tally, and the runbook counts a tally only if it matches, so checks added in a later update are never
+     taken as passed. */
+  var PS=(function(){
+    var KEY='gaggia-progress-v1',CV='031455f806';
+    var VK=['si-gcp-120','si-gc-120','si-gc-230','cw-gcp-120','cw-gcp-230','cw-gc-120','cw-gc-230','cw-gcp-120-sh','cw-gcp-230-sh'];
+    function read(){try{var s=JSON.parse(localStorage.getItem(KEY)||'null');return s&&typeof s==='object'?s:{}}catch(e){return {}}}
+    function put(name,value){
+      try{
+        var s=read(),was=JSON.stringify(s[name]===undefined?null:s[name]),now=JSON.stringify(value===undefined?null:value);
+        if(was===now)return;
+        if(value==null)delete s[name];else s[name]=value;
+        localStorage.setItem(KEY,JSON.stringify(s));
+      }catch(e){}
+    }
+    function vkFor(p){
+      if(!p||!p.model||!p.volts)return null;
+      var fam=p.model==='GC'?'gc':'gcp',path=p.path==='CW'?'cw':p.path==='SI'?'si':null;
+      if(!path)return null;
+      var k=path+'-'+fam+'-'+p.volts;
+      if(VK.indexOf(k)<0&&path==='si')k='cw-'+fam+'-'+p.volts;
+      if(p.shelly&&VK.indexOf(k+'-sh')>=0)k+='-sh';
+      return VK.indexOf(k)>=0?k:null;
+    }
+    function sig(p){p=p||{};return [p.model||'',p.volts||'',p.eco==null?'':(p.eco?'eco':'noeco'),p.path||'',p.shelly?'sh':''].join('|')}
+    return {KEY:KEY,CV:CV,read:read,put:put,vkFor:vkFor,sig:sig};
+  })();
+
     /* The runbook's figures (runbook-figs.js) on another page: PF(getV) returns the settings for RBF.init. getV() gives
      the schematic the page shows ({path, fam, volts}), or null. Drawings and their text follow that schematic for the
      install path, family and voltage, and Your Gaggia for anything else; nothing unknown ever hides anything.
@@ -1388,6 +1423,8 @@ var RBF=(function(){
   var prefs={groups:{mains:true,earth:true,lv:true,opt:false,stock:true},paper:'letter',cur:null};
   try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.groups){prefs.groups=Object.assign(prefs.groups,s.groups);if(s.paper==='a4'||s.paper==='letter')prefs.paper=s.paper;prefs.cur=VARS[s.cur]?s.cur:null}}catch(e){}
   function save(){try{localStorage.setItem(KEY,JSON.stringify(prefs))}catch(e){}}
+  /* a PDF made for a schematic ticks the runbook's Print the labels step for that schematic (progress-store.js) */
+  function made(){var lb=PS.read().labels||{};lb[pick()]=Date.now();PS.put('labels',lb)}
   function $(id){return document.getElementById(id)}
   var override=null;
   function mineV(){return variantFor(GM()&&GM().get())}
@@ -1488,11 +1525,11 @@ var RBF=(function(){
     var blob,fname='gaggia-wire-labels-'+pick()+'-'+prefs.paper+'.pdf';
     try{blob=LabelCore.drawPdf(window.jspdf.jsPDF,selRows(),prefs.paper,title()).output('blob')}catch(e){busy=false;$('dl').disabled=false;msg('Couldn\'t make the PDF. Reload the page and try again.','bad');return}
     if(plain){
-      try{var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);msg('Saved. Print it at 100% scale.','ok')}catch(e){msg('Couldn\'t start the download in this browser.','bad')}
+      try{var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);made();msg('Saved. Print it at 100% scale.','ok')}catch(e){msg('Couldn\'t start the download in this browser.','bad')}
       busy=false;$('dl').disabled=!selRows().length;return;
     }
     downloads.save({filename:fname,data:blob}).then(function(){
-      msg('Saved. Print it at 100% scale.','ok');
+      made();msg('Saved. Print it at 100% scale.','ok');
     }).catch(function(e){
       var c=e&&e.code;
       if(c==='declined')msg('Download canceled.');
