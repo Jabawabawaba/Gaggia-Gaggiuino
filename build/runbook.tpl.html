@@ -309,7 +309,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     if(!items.length&&!need&&!warn&&!ok&&!pics&&!figs)return '';
     var nf=(figs.match(/<figure/g)||[]).length,np=(pics.match(/class="rph-t"/g)||[]).length,cnt=[];
     if(items.length)cnt.push(items.length+(items.length===1?' step':' steps'));if(nf)cnt.push(nf+(nf===1?' drawing':' drawings'));if(np)cnt.push(np+(np===1?' photo':' photos'));
-    var h='<details class="how"'+(open?' open':'')+'><summary>'+(items.length?'Step by step':nf?'Drawing':'Official photos')+(cnt.length?' <span class="n">· '+cnt.join(' · ')+'</span>':'')+'</summary><div class="hb">';
+    var h='<details class="how"'+(open?' open':'')+'><summary>'+(items.length?'Step by step'+(cnt.length?' <span class="n">· '+cnt.join(' · ')+'</span>':''):cnt.join(' · '))+'</summary><div class="hb">';
     if(need)h+='<p class="need"><span class="rlbl">You need</span>'+rich(s.need)+'</p>';
     if(warn)h+='<p class="warn" role="note"><span class="rlbl">Careful:</span> '+rich(s.warn)+'</p>';
     h+=figs;
@@ -338,7 +338,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   /* the figures follow Your Gaggia, and this page's screen and mount */
   RBF.init({G:PGD.G,ok:okw,m:function(w){var m=M();return !w||!m||m.matches(w)},
     T:function(x){if(x==null)return '';if(typeof x==='string')return x;var m=M();return m&&m.txt?m.txt(x):x.map(function(t){return typeof t==='string'?t:t[0]}).join(' ')},
-    famOf:PGD.famOf,prof:PGD.prof,dv:function(v){var m=M();return !m||m.matches('wpath:'+v)},screen:function(){return state.screen},guides:L.guides,
+    famOf:PGD.famOf,prof:PGD.prof,fill:fill,dv:function(v){var m=M();return !m||m.matches('wpath:'+v)},screen:function(){return state.screen},guides:L.guides,
     variant:function(k){var m=M();if(k==='path')return (m&&m.wpath&&m.wpath())||'SI';if(k==='fam')return PGD.famOf()||'GCP';if(k==='mnt')return state.mount||'front';return null}});
 
   /* ---------- state ---------- */
