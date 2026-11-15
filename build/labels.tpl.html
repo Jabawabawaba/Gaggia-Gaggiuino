@@ -80,6 +80,21 @@ ol.steps li::before{content:counter(s);font:600 13px/26px var(--f-mono);text-ali
 .hand b{font:600 14px var(--f-mono);min-width:4.5ch}
 .note{font-size:14px;color:var(--muted);margin:8px 0 0}
 
+.lkey{margin-top:34px}
+.lkey-in{margin:0 0 14px;font-size:15.5px;max-width:80ch}
+.lkey-g{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px 28px;align-items:start}
+@media (max-width:760px){.lkey-g{grid-template-columns:minmax(0,1fr)}}
+.lkey-ex{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 8px}
+.lkey-ex svg{display:block;width:100%;height:auto}
+.lkey-ex svg text{font-family:Helvetica,Arial,sans-serif}
+.lkey-parts{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.lkey-parts li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;font-size:15px}
+.lkey-parts .n{font:700 13px/24px var(--f-mono);text-align:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg)}
+.lkey-h{font:600 11.5px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.lkey-cols{list-style:none;margin:0;padding:0}
+.lkey-cols li{display:grid;grid-template-columns:10px minmax(0,1fr);gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.lkey-cols i{border-radius:3px;min-height:22px}
+.lkey-mains{color:var(--ink);font-weight:600}
 .sheets{margin-top:34px;display:grid;gap:22px}
 .sheet{display:grid;gap:6px}
 .sheet .cap{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -150,6 +165,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   </section>
   <div class="howfig" id="howfig"></div>
 
+  <section class="lkey" id="lkey" aria-label="How to read a label"></section>
   <section class="sheets" id="sheets" aria-label="Sheet preview"></section>
 
   <footer class="foot">
@@ -166,6 +182,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 %%INCLUDE:labels-core.js%%
+%%INCLUDE:label-key.js%%
 (function(){
   %%INCLUDE:wiring-core.js%%
   %%INCLUDE:runbook-figs.js%%
@@ -239,6 +256,27 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     return o.join('');
   }
   function title(){var V=v();return 'Gaggia wire labels: '+vlabel(V.key)}
+  /* How to read a label: one flag from this selection, its parts, and the circuit colors in it (label-key.js) */
+  var KEYN={L:['Line','Mains live: the inlet, the power switch, and the PCB, pump and valve leads.'],H:['Heater line','Mains on the heating circuit, switched by the SSR.'],
+    N:['Neutral','The mains return to the inlet. Still mains.'],E:['Earth','Protective earth to the machine\'s metal parts.'],
+    LV:['Low voltage','Switch signals and SSR control from the PCB.'],LVG:['Low-voltage ground','The ground side of the switch signals and SSR control.'],
+    STK:['Stock connector','One of the machine\'s own leads that the install moves or parks, flagged so it goes back on the right spade.']};
+  function keyHtml(rows){
+    var all=[].concat.apply([],rows),plain=all.filter(function(c){return !c.hot}),real=plain.filter(function(c){return c.sys!=='STK'}),cell=real.filter(function(c){return c.l2!=='to: '+c.id})[0]||real[0]||plain[0]||null;
+    var has={};all.forEach(function(c){has[c.sys]=1});
+    return LabelKey.html({cell:cell,L:LabelCore.L,color:function(s){return rgb(LabelCore.COLOR[s]||LabelCore.COLOR.LVG)},
+      sys:['L','H','N','E','LV','LVG','STK'].filter(function(s){return has[s]}),names:KEYN,mains:['L','H','N'],
+      intro:'Every new wire gets a label at each end. Each one names the wire, its circuit and where both of its ends go, so you can check or rewire it without tracing it through the machine, and a connector that comes off goes back on the right spade.',
+      parts:['<b>ID</b>: the wire\'s name, as on the wiring page and cut list. On Plug-and-Play wiring it\'s this end\'s own official label (L1a), and the other end\'s label is on line 5.',
+        '<b>Color bar</b>: the wire\'s circuit (see the colors).',
+        '<b>Tag</b>: the wire size (18 AWG or 22 AWG), or <i>stock</i> for one of the machine\'s own leads.',
+        '<b>This end</b>: the terminal or spade this end goes on.',
+        '<b>To</b>: where the other end goes.',
+        '<b>Middle strip</b>: wraps around the wire about 3 cm from the end. The two halves fold together, so the label reads the same from both sides.'],
+      extra:'A dashed box on the sheet is an end at the boiler: no paper label there. Write the ID on the jacket with an oil-based marker instead (see Mark by hand).',
+      mainsNote:'Line, heater line and neutral are all mains: only handle those wires with the cord out at both ends.',
+      colorNote:'The colors match the By circuit colors on the wiring map. They show the circuit, not the wire\'s jacket color: the cut list gives that.'});
+  }
   function render(){
     var vk=pick(),V=VARS[vk],mine=mineV(),p=GM()&&GM().get();
     prefs.cur=vk;
@@ -255,6 +293,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     $('s-sheets').textContent=S.pages.length;
     $('s-sheets-s').textContent=(S.pages.length===1?'sheet':'sheets')+' of '+S.paper.name;
     $('howfig').innerHTML=RBF.figs([['d','flag',howFig(V)]]);
+    $('lkey').innerHTML=keyHtml(rows);
     $('hand').innerHTML=hot.length?hot.map(function(h){return '<li><b>'+esc(h[0])+'</b><span>at '+esc(h[1])+'</span></li>'}).join(''):'<li><span>None in this selection.</span></li>';
     $('sheets').innerHTML=S.pages.length?S.pages.map(function(pg,i){return '<div class="sheet"><span class="cap">Sheet '+(i+1)+' of '+S.pages.length+', '+S.paper.name+', preview</span>'+sheetSvg(S,pg,i,S.pages.length,title())+'</div>'}).join(''):'<p class="note">Pick at least one group to see the sheets.</p>';
     Array.prototype.forEach.call(document.querySelectorAll('[data-paper]'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-paper')===prefs.paper))});
