@@ -19,6 +19,10 @@
 .mscroll .dia{display:block;width:100%;min-width:1060px;height:auto;user-select:none;-webkit-user-select:none}
 .mhint{font-size:14px;color:var(--muted);margin:6px 0 0}
 @media (min-width:1100px){.mhint.phone{display:none}}
+/* phones and small tablets: Whole map shrinks the drawing to the screen's width; Close up is full size and scrolls */
+.mzoom{display:none;margin:0 0 8px}
+@media (max-width:1099px){.mzoom{display:inline-flex}}
+.mscroll.whole .dia{min-width:0}
 
 .dia text{fill:var(--ink)}
 .dia .box{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
@@ -108,7 +112,7 @@
 .mdetail .ids button{font:600 13px var(--f-mono);padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
 .sysdot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:baseline}
 a.onmap,button.onmap{font:600 13px var(--f-body)}
-@media print{.mtool,.mhint{display:none!important}.mscroll{overflow:visible;border:0}.mscroll .dia{min-width:0}}
+@media print{.mtool,.mhint,.mzoom{display:none!important}.mscroll{overflow:visible;border:0}.mscroll .dia{min-width:0}}
 .linkbtn{appearance:none;border:0;background:none;padding:4px 0;font:600 14px var(--f-body);color:var(--accent-ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .msel{margin:0 0 8px;font-size:15px;min-height:1.5em;color:var(--muted)}
 .msel b{font:700 14px var(--f-mono);color:var(--ink);margin-right:6px}
@@ -136,7 +140,7 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .mplay-i{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.22);position:relative}
 .mplay-i::after{content:"";position:absolute;left:8px;top:6px;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
 .mstage{position:relative}
-.mapsec.animating .mtool,.mapsec.animating .msel,.mapsec.animating .mhint,.mapsec.animating .mdetail{display:none}
+.mapsec.animating .mtool,.mapsec.animating .msel,.mapsec.animating .mhint,.mapsec.animating .mdetail,.mapsec.animating .mzoom{display:none}
 .mscroll.fit .dia{min-width:0}
 .ma-cap{display:inline-block;margin:0 0 10px;max-width:100%;padding:7px 14px;border-radius:999px;background:var(--ink);color:var(--bg);
   font:600 14px/1.35 var(--f-body);box-shadow:0 4px 14px -8px rgba(0,0,0,.4)}

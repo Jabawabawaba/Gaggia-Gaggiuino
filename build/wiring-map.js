@@ -11,6 +11,10 @@
     var PK='gaggia-wiring-map-v1',key=null,v=null,mp=null,svg=null,layer='all',sel=null,wcol=false,order=[],showOpt=false;
     /* view: mine (the schematic's own wiring) or box (out of the box); drawn: what #mscroll holds now */
     var view='mine',drawn=null,realV=null,realMp=null;
+    /* phones: Whole map fits the drawing to the screen (class whole on the scroller, kept through the animation) */
+    var whole=false;
+    function zoomUI(){var sc=el('mscroll');sc.classList.toggle('whole',whole);if(whole)sc.scrollLeft=0;el('mhint').hidden=whole;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-mzoom]'),function(b){b.setAttribute('aria-pressed',String((b.getAttribute('data-mzoom')==='whole')===whole))})}
     try{var sv=JSON.parse(localStorage.getItem(PK)||'null');if(sv)wcol=!!sv.wcol}catch(e){}
     function persist(){try{localStorage.setItem(PK,JSON.stringify({wcol:wcol}))}catch(e){}}
     function el(id){return document.getElementById(id)}
@@ -51,8 +55,9 @@
       }
       order=listOrder();
       el('mapsec').hidden=!realMp;
-      el('mcapsi').hidden=!(v&&v.path==='SI');
       viewUI();
+      /* the stock-wiring line in the caption: viewUI swaps the caption for Out of the box and puts it back after */
+      var mc=el('mcapsi');if(mc)mc.hidden=!(v&&v.path==='SI');
       if(mp)paint();
     }
     /* the Your wiring / Out of the box switch, the play button and the line under them */
@@ -214,6 +219,7 @@
         if(e.target.closest('[data-mclear]')){sel=null;paint();return}
         var r=e.target.closest('[data-mrun]');if(r){pickRun(r.getAttribute('data-mrun'),false);return}
       });
+      el('mzoom').addEventListener('click',function(e){var b=e.target.closest('[data-mzoom]');if(!b)return;whole=b.getAttribute('data-mzoom')==='whole';zoomUI();if(!whole)center()});
       el('m-prev').addEventListener('click',function(){stepBy(-1)});
       el('m-next').addEventListener('click',function(){stepBy(1)});
       el('mview').addEventListener('click',function(e){
