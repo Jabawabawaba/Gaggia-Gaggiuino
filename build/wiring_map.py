@@ -320,6 +320,15 @@ def pcb(m, x0=1176, y0=296):
         m.t(f"J1:{lab}", x, y0, "u", "pcb")
     s += text(x0 + 168, y0 + 22, "J1", "jn", "start")
     s += f'<rect x="{x0 + 4}" y="{y0 + 362}" width="44" height="22" rx="3" class="hdr hdr-opt"/>' + text(x0 + 60, y0 + 377, "J8", "jn", "start") + text(x0 + 92, y0 + 377, "Scales, optional", "tiny", "start")
+    # tap targets: a socket and its label light every run on it (wiring-map.js pickJ)
+    hits = [("J1", x0 + 16, y0 - 10, 176, 36)]
+    for j, name, plist, on in heads:
+        if on:
+            ys = [p[1] for p in plist]
+            hits.append((j, x0 + 2, min(ys) - 12, 196, max(ys) - min(ys) + 24))
+    for lab, y, j in (("3", 704, "J13"), ("P", 728, "J12"), ("L", 752, "J11"), ("N", 776, "J10")):
+        hits.append((j, x0 + 2, y - 11, 196, 22))
+    s += "".join(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="4" class="jhit" data-j="{j}"><title>{j}: tap to light every wire on it</title></rect>' for j, x, y, w, h in hits)
     m.part("pcb", "Gaggiuino PCB", s, (x0, y0, x0 + 200, y0 + 536))
 
 

@@ -7,6 +7,7 @@
 %%INCLUDE:wiring-switch.css%%
 %%INCLUDE:part-guides.css%%
 %%INCLUDE:runbook-figs.css%%
+%%INCLUDE:lv-guide.css%%
 .cutfig .rfigs{margin:4px 0 16px}
 .offimg{margin-top:14px}
 .offimg .rph{margin:0}
@@ -81,6 +82,7 @@
     <p class="vnote" id="vnote"></p>
   </section>
   <div class="offimg" id="offimg"></div>
+  <div id="lvguide"></div>
 
   <div class="bar" role="group" aria-label="Settings">
     <span class="slack"><label for="slack">Extra length per wire</label><input id="slack" type="range" min="0" max="40" step="5" value="10"><output id="slack-o" for="slack">10%</output></span>
@@ -123,6 +125,7 @@
   %%INCLUDE:runbook-figs.js%%
   %%INCLUDE:page-figs.js%%
   %%INCLUDE:progress-store.js%%
+  %%INCLUDE:lv-guide.js%%
   RBF.init(PF(function(){return VARS[pick()]||null}));
   var figFor=null;
   function $(id){return document.getElementById(id)}
@@ -212,6 +215,7 @@
     var bv=v.shelly&&v.base&&VARS[v.base]?VARS[v.base]:v;
     $('offimg').innerHTML=v.path==='CW'?RBF.pics([['The official cut list, '+(v.volts===120?'100 to 120 V':'220 to 240 V'),raw(bv.cutlist)],['The official drawing: '+vlabel(bv.key),raw(bv.schematic)]]):'';
     RBF.mount($('offimg'));
+    $('lvguide').innerHTML=LVG.html(v.runs,{cap:'Drawn from this page\'s wire list, in the style of the official HV wire guide. The official docs give no lengths for these, so route each one first and cut it with some slack. Colors are the official low-voltage drawing\'s, and kits vary: go by the pin name printed beside each socket on the PCB, not the color. Switch terminals are numbered as on the official drawing, switches seen from the back. The screen, thermocouple and pressure sensor cables come made up and plug straight in. On the <a href=\"wiring.html#map\">wiring map</a>, tap a socket such as J7 to see these on the machine.'});
     /* redrawn only when the schematic changes, so ticking a wire doesn't restart it */
     if(figFor!==vk){figFor=vk;$('cutfig').innerHTML=RBF.figs([['g','wire',null,'all',null,'How each end is made: the part guide\'s drawing']]);RBF.mount($('cutfig'))}
     $('slack').value=st.slack;$('slack-o').textContent=st.slack+'%';
