@@ -141,15 +141,13 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .mplay-i::after{content:"";position:absolute;left:8px;top:6px;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
 .mstage{position:relative}
 .mapsec.animating .mtool,.mapsec.animating .msel,.mapsec.animating .mhint,.mapsec.animating .mdetail,.mapsec.animating .mzoom{display:none}
+.mapsec.comparing .mtool,.mapsec.comparing .mlegend{display:none}
 .mscroll.fit .dia{min-width:0}
 .ma-cap{display:inline-block;margin:0 0 10px;max-width:100%;padding:7px 14px;border-radius:999px;background:var(--ink);color:var(--bg);
   font:600 14px/1.35 var(--f-body);box-shadow:0 4px 14px -8px rgba(0,0,0,.4)}
 .ma-cap[hidden],.mview[hidden],.mview .mseg2[hidden],.mplay[hidden],.mctl[hidden]{display:none}
-.mctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:10px}
 .mbtn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;min-height:38px;font:600 13.5px var(--f-body);cursor:pointer}
 .mbtn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-.mprog{flex:1 1 140px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;min-width:100px}
-.mprog span{display:block;height:100%;width:0;background:var(--accent)}
 .dia .ma-comet .mc-core{fill:#fff}
 .dia .ma-ring{fill:none;stroke-width:2.5}
 .dia .ma-pring{fill:none;stroke:var(--accent);stroke-width:2.5}

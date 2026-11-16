@@ -144,7 +144,7 @@
     }
     function detail0(){
       var d=el('mdetail');
-      if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it. Step through with the arrows to go run by run.</p>';return}
+      if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">'+(v.path==='F'?'Tap a factory wire to see it on its own, what it does and what the install puts in its place, then Compare to switch between the two. Tap a part to see every factory wire that lands on it.':'Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it. Step through with the arrows to go run by run.')+'</p>';return}
       var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+'<button type="button" class="chip" data-mclear>Show everything</button></span>';
       if(sel.t==='set'){
         d.className='mdetail';d.style.borderLeftColor='var(--accent)';
@@ -168,11 +168,11 @@
       if(r&&r.factory){
         var fz=facOf(key),goes=fz.go.indexOf(r.id)>=0,lab=(r.lab||[]).filter(Boolean),mv=lab.filter(function(l){return (fz.moves||[]).indexOf(l)>=0});
         d.className='mdetail';d.style.borderLeftColor=SYSC[r.sys]||'var(--accent)';
-        d.innerHTML='<div class="d-head"><span class="d-id">'+esc(r.id)+'</span><span class="d-route">'+esc(r.frm)+' → '+esc(r.to)+'</span>'+acts.replace(/<a [^>]*>Show in the list<\/a>/,'')+'</div>'+
+        d.innerHTML='<div class="d-head"><span class="d-id">'+esc(r.id)+'</span><span class="d-route">'+esc(r.frm)+' → '+esc(r.to)+'</span>'+acts.replace(/<a [^>]*>Show in the list<\/a>/,'<button type="button" class="chip cmpb" data-mcmp="'+esc(r.id)+'">Compare with your wiring</button>')+'</div>'+
           '<div class="d-grid"><div><span class="k">Circuit</span><span><span class="sysdot" style="background:'+(SYSC[r.sys]||'var(--muted)')+'"></span>'+esc(r.sys==='H'?'Heater circuit':SYSN[r.sys]||r.sys)+'</span></div>'+
           '<div><span class="k">Factory color</span><span>'+swatch(r.color)+esc(cname(r.color))+'</span></div>'+
           '<div><span class="k">With this install</span><span>'+(realV.path==='SI'?(goes?'Its '+esc(mv.join(' and '))+(mv.length>1?' ends come':' end comes')+' off':'Stays as it is'):fz.becomes&&r.id in fz.becomes?(fz.becomes[r.id]?'Stays, with a new end: it becomes '+esc(fz.becomes[r.id]):'Stays on the unused brew lamp: nothing connects to it'):'Comes out: the new harness replaces it')+'</span></div></div>'+
-          (r.what?'<p>'+esc(r.what)+'.</p>':'')+(lab.length?'<p style="color:var(--muted)">In the stock wiring guide: '+[0,1].filter(function(i){return r.lab[i]}).map(function(i){return esc(r.lab[i])+' is its end at '+esc(lc1(i?r.to:r.frm))}).join('; ')+'.</p>':'');
+          (r.what?'<p>'+esc(r.what)+'.</p>':'')+(lab.length?'<p style="color:var(--muted)">In the stock wiring guide: '+[0,1].filter(function(i){return r.lab[i]}).map(function(i){return esc(r.lab[i])+' is its end at '+esc(lc1(i?r.to:r.frm))}).join('; ')+'.</p>':'')+afterHtml(r.id);
         return;
       }
       if(!r){
@@ -209,6 +209,7 @@
     }
     function init(){
       el('mscroll').addEventListener('click',function(e){
+        if(A){var fg=A==='cmp'&&e.target.closest('.st-fw [data-run]');if(fg&&fg.getAttribute('data-run')!==cmp)compare(fg.getAttribute('data-run'),'play');return}
         var g=e.target.closest('[data-run]');if(g){pickRun(g.getAttribute('data-run'),true);return}
         var p=e.target.closest('[data-part]');if(p){pickPart(p.getAttribute('data-part'));return}
         if(sel){sel=null;paint()}
@@ -218,6 +219,9 @@
         var w=e.target.closest('[data-wc]');if(w){wcol=w.getAttribute('data-wc')==='draw';persist();paint();return}
         if(e.target.closest('[data-mclear]')){sel=null;paint();return}
         var r=e.target.closest('[data-mrun]');if(r){pickRun(r.getAttribute('data-mrun'),false);return}
+        var c=e.target.closest('[data-mcmp]');if(c){compare(c.getAttribute('data-mcmp'),'play');el('mapsec').scrollIntoView({behavior:'smooth',block:'start'});return}
+        if(e.target.closest('[data-cmpx]')){closeCmp();return}
+        var gx=e.target.closest('[data-mgo]');if(gx){var rid=gx.getAttribute('data-mgo');stopAnim();view='mine';drawn=null;show(key,showOpt);pickRun(rid,false);return}
       });
       el('mzoom').addEventListener('click',function(e){var b=e.target.closest('[data-mzoom]');if(!b)return;whole=b.getAttribute('data-mzoom')==='whole';zoomUI();if(!whole)center()});
       el('m-prev').addEventListener('click',function(){stepBy(-1)});
@@ -226,15 +230,17 @@
         var b=e.target.closest('[data-mview]');if(b){var w=b.getAttribute('data-mview');if(w!==view||A){view=w;drawn=null;show(key,showOpt)}return}
         if(e.target.closest('#m-play'))play();
       });
-      el('mctl').addEventListener('click',function(e){
-        var b=e.target.closest('button');if(!b||!A)return;
-        if(b.id==='ma-pause'){A.paused=!A.paused;ctlUI()}
-        else if(b.id==='ma-replay')play();
-        else if(b.id==='ma-skip'){A.t=A.end;A.paused=false}
-        else if(b.id==='ma-done'){view='mine';drawn=null;show(key,showOpt)}
-        else if(b.hasAttribute('data-speed')){A.speed=Number(b.getAttribute('data-speed'))||1;ctlUI()}
+      ChangePlayer.wire();
+      el('mcmp').addEventListener('click',function(e){
+        var b=e.target.closest('button');if(!b||A!=='cmp')return;
+        if(b.hasAttribute('data-cmpv')){ChangePlayer.seek(b.getAttribute('data-cmpv')==='box'?0:ChangePlayer.end());cmpUI()}
+        else if(b.id==='cmp-play'){ChangePlayer.seek(0);ChangePlayer.play()}
+        else if(b.id==='cmp-prev')cmpStep(-1);
+        else if(b.id==='cmp-next')cmpStep(1);
+        else if(b.id==='cmp-close')closeCmp();
       });
     }
+    function closeCmp(){var id=cmp;stopAnim();view='box';drawn=null;show(key,showOpt);if(id){sel={t:'run',id:id};paint()}}
     /* from the list: show one run on the map */
     function focus(id){if(!mp)return;pickRun(id,false);el('mapsec').scrollIntoView({behavior:'smooth',block:'start'})}
     function hasRun(id){return !!(svg&&svg.querySelector('.run[data-run="'+id+'"]'))}
@@ -260,156 +266,257 @@
       if(asked&&!found)el('msel').innerHTML='<span class="rt">'+esc(q.label?q.label+': not':'Not')+' on this drawing, so the whole map is showing.</span>';
       return !asked||!!found;
     }
-    /* ---------- Show the change ----------
-       One stage holds both drawings on the same layout: the factory harness on top of the schematic's own parts and
-       runs. A small timeline (seconds at 1x) unplugs the factory wires that go, swaps the parts, draws the new runs in
-       circuit by circuit and ends on the finished map. On stock wiring only what the install changes comes off; the
-       factory wires that stay dim and remain. Reduced motion gets the same steps as fades. */
-    var A=null,NS='http://www.w3.org/2000/svg';
-    function reduced(){try{return window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}}
+    /* ---------- Show the change, and Compare ----------
+       One stage holds both drawings on the same layout: the factory harness over the schematic's own parts and runs.
+       Show the change takes the factory wires off one at a time, then puts the new runs in one at a time, both in the
+       runbook's order, with each step named (ChangePlayer runs it: pause, a quarter speed, back and forward a step,
+       or drag to any point). On stock wiring only what the install changes comes off; the rest dims and stays.
+       Compare does the same for one factory wire: that wire, then what the install puts at each of its ends
+       (WM[key].rel, from wiring_map.py), with everything else faint, and a switch between the two. */
+    var A=null,cmp=null,NS='http://www.w3.org/2000/svg',mk=ChangePlayer.mk;
     function stopAnim(){
       if(!A)return;
-      cancelAnimationFrame(A.raf);A=null;
-      var sc=el('mscroll');sc.classList.remove('fit');el('mctl').hidden=true;el('ma-cap').hidden=true;el('mapsec').classList.remove('animating');
+      ChangePlayer.stop();A=null;cmp=null;
+      el('mscroll').classList.remove('fit');el('mapsec').classList.remove('animating','comparing');el('mcmp').hidden=true;
     }
-    function ctlUI(){
-      if(!A)return;
-      var done=A.t>=A.end;
-      el('ma-pause').hidden=done;el('ma-pause').textContent=A.paused?'Play':'Pause';el('ma-pause').setAttribute('aria-pressed',String(A.paused));
-      el('ma-skip').hidden=done;el('ma-done').hidden=!done;
-      Array.prototype.forEach.call(el('mctl').querySelectorAll('[data-speed]'),function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-speed'))===A.speed))});
-    }
-    function ease(p){return p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2}
-    function clamp(p){return p<0?0:p>1?1:p}
-    function mk(tag,attrs,parent){var n=document.createElementNS(NS,tag);for(var k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n}
-    /* a part's box, from its tap target */
-    function boxOf(g){var h=g.querySelector('.phit');if(!h)return null;var x=+h.getAttribute('x'),y=+h.getAttribute('y'),w=+h.getAttribute('width'),hh=+h.getAttribute('height');return {x:x,y:y,w:w,h:hh,cx:x+w/2,cy:y+hh/2}}
-    function setScale(g,b,k){if(b)g.setAttribute('transform','translate('+b.cx+' '+b.cy+') scale('+k+') translate('+(-b.cx)+' '+(-b.cy)+')')}
-    function play(){
-      var f=facOf(key);if(!f)return;
-      stopAnim();
-      var sc=el('mscroll'),T=WM[key],SI=realV.path==='SI',RM=reduced();
+    function colOf(g){return wcol?(g.style.getPropertyValue('--wc')||'#888'):(SYSC[(/ s-([A-Z]+)/.exec(' '+g.getAttribute('class'))||[])[1]]||'var(--accent)')}
+    function stage(label){
+      var f=facOf(key),T=WM[key];
       var P=new DOMParser(),fs=P.parseFromString(f.svg,'image/svg+xml').documentElement,ts=P.parseFromString(T.svg,'image/svg+xml').documentElement;
-      var st=mk('svg',{viewBox:'0 0 1400 900','class':'dia stage'+(wcol?' wcol':''),role:'img','aria-label':'The factory wiring turning into '+(realV.name||'this schematic')});
+      var st=mk('svg',{viewBox:'0 0 1400 900','class':'dia stage'+(wcol?' wcol':''),role:'img','aria-label':label});
       var defs=mk('defs',{},st),fl=mk('filter',{id:'ma-glow',x:'-50%',y:'-50%',width:'200%',height:'200%'},defs);mk('feGaussianBlur',{stdDeviation:'3.2'},fl);
       var gTP=mk('g',{'class':'st-tp'},st),gFP=mk('g',{'class':'st-fp'},st),gST=mk('g',{'class':'st-stk'},st),gFW=mk('g',{'class':'st-fw'},st),gTW=mk('g',{'class':'st-tw'},st),gTG=mk('g',{'class':'st-tg'},st),gFX=mk('g',{'class':'st-fx'},st);
       function imp(n,parent){var c=document.importNode(n,true);parent.appendChild(c);return c}
-      var fparts={},tparts={};
-      Array.prototype.forEach.call(ts.querySelectorAll('.parts > .part'),function(g){tparts[g.getAttribute('data-part')]=imp(g,gTP)});
-      Array.prototype.forEach.call(fs.querySelectorAll('.parts > .part'),function(g){fparts[g.getAttribute('data-part')]=imp(g,gFP)});
-      var stk=[];Array.prototype.forEach.call(ts.querySelectorAll('.stocks > path'),function(pth){stk.push(imp(pth,gST))});
-      var fw={},tw=[],tags={};
-      Array.prototype.forEach.call(fs.querySelectorAll('.wires > .run'),function(g){fw[g.getAttribute('data-run')]=imp(g,gFW)});
-      Array.prototype.forEach.call(ts.querySelectorAll('.wires > .run'),function(g){tw.push(imp(g,gTW))});
-      Array.prototype.forEach.call(ts.querySelectorAll('.tags > .tag'),function(g){tags[g.getAttribute('data-run')]=imp(g,gTG)});
-      sc.innerHTML='';sc.appendChild(st);sc.classList.add('fit');sc.scrollLeft=0;svg=null;el('mapsec').classList.add('animating');
-      el('m-play').hidden=true;el('mctl').hidden=false;el('ma-cap').hidden=false;
+      var S={st:st,fx:gFX,f:f,fparts:{},tparts:{},stk:[],fw:{},tw:{},tags:{},twOrder:[]};
+      Array.prototype.forEach.call(ts.querySelectorAll('.parts > .part'),function(g){S.tparts[g.getAttribute('data-part')]=imp(g,gTP)});
+      Array.prototype.forEach.call(fs.querySelectorAll('.parts > .part'),function(g){S.fparts[g.getAttribute('data-part')]=imp(g,gFP)});
+      Array.prototype.forEach.call(ts.querySelectorAll('.stocks > path'),function(pth){var c=imp(pth,gST);S.stk.push({el:c,part:c.getAttribute('data-part'),to:c.getAttribute('data-to')})});
+      Array.prototype.forEach.call(fs.querySelectorAll('.wires > .run'),function(g){S.fw[g.getAttribute('data-run')]=imp(g,gFW)});
+      Array.prototype.forEach.call(ts.querySelectorAll('.wires > .run'),function(g){var id=g.getAttribute('data-run');S.tw[id]=imp(g,gTW);S.twOrder.push(id)});
+      Array.prototype.forEach.call(ts.querySelectorAll('.tags > .tag'),function(g){S.tags[g.getAttribute('data-run')]=imp(g,gTG)});
+      return S;
+    }
+    function mount(S,cls){
+      var sc=el('mscroll');sc.innerHTML='';sc.appendChild(S.st);if(cls==='animating')sc.classList.add('fit');sc.scrollLeft=0;svg=null;el('mapsec').classList.add(cls);
+      el('m-play').hidden=true;
       Array.prototype.forEach.call(document.querySelectorAll('[data-mview]'),function(b){b.setAttribute('aria-pressed','false')});
-      /* starting frame: only the factory drawing */
-      Object.keys(tparts).forEach(function(id){tparts[id].style.opacity=0});
-      stk.forEach(function(pth){pth.style.opacity=0});
-      Object.keys(tags).forEach(function(id){tags[id].style.opacity=0});
-      /* every stroke keeps its own length: a cable's legs differ */
-      function plen(pth){if(pth._L==null){try{pth._L=pth.getTotalLength()}catch(e){pth._L=400}}return pth._L}
-      function strokes(g){return Array.prototype.slice.call(g.querySelectorAll('.case,.wire,.halo'))}
-      function lenOf(g){var m=0;Array.prototype.forEach.call(g.querySelectorAll('.wire'),function(w){m=Math.max(m,plen(w))});return m||400}
-      function dash(pth,frac,sign){var L=plen(pth);pth.style.strokeDasharray=L+' '+L;pth.style.strokeDashoffset=sign*L*frac}
-      tw.forEach(function(g){g._L=lenOf(g);strokes(g).forEach(function(pth){dash(pth,1,1)});if(RM)g.style.opacity=0});
-      var tl=[],cap=[];
-      function at(s,d,fn){tl.push({s:s,d:Math.max(d,.001),fn:fn,p:-1})}
-      function say(s,txt){cap.push({s:s,txt:txt})}
-      var colOf=function(g){return wcol?(g.style.getPropertyValue('--wc')||'#888'):(SYSC[(/ s-([A-Z]+)/.exec(' '+g.getAttribute('class'))||[])[1]]||'var(--accent)')};
-      function comet(g,c){var k=mk('g',{'class':'ma-comet'},gFX);mk('circle',{r:'7','class':'mc-glow',filter:'url(#ma-glow)',style:'fill:'+c},k);mk('circle',{r:'2.6','class':'mc-core'},k);k.style.opacity=0;return k}
-      function ring(x,y,c,s,big){var n=null;at(s,.55,function(p){if(!n)n=mk('circle',{cx:x,cy:y,r:'4','class':'ma-ring',style:'stroke:'+c},gFX);n.setAttribute('r',4+(big?22:12)*ease(p));n.style.opacity=(1-p)*.9;if(p>=1&&n.parentNode)n.parentNode.removeChild(n)})}
-      /* a wire leaves: it lights, then unzips from the end that lets go */
-      function wireOut(g,s,fromB){
-        var L=lenOf(g),ps=strokes(g),halo=g.querySelector('.halo'),wire=g.querySelector('.wire'),c=colOf(g),k=null;
-        if(RM){at(s,.4,function(p){g.style.opacity=1-p});return}
-        at(s,.3,function(p){halo.style.stroke=c;halo.style.opacity=.45*p});
-        at(s+.3,.6,function(p){
-          var e=ease(p);ps.forEach(function(pth){dash(pth,e,fromB?1:-1)});
-          if(!k)k=comet(g,c);var pt=wire.getPointAtLength(fromB?L*(1-e):L*e);k.setAttribute('transform','translate('+pt.x+' '+pt.y+')');k.style.opacity=p<.95?1:0;
-          if(p>=1){g.style.opacity=0;if(k.parentNode)k.parentNode.removeChild(k)}
-        });
-        try{var q=wire.getPointAtLength(fromB?0:L);ring(q.x,q.y,c,s+.88,false)}catch(e){}
-      }
-      /* a run arrives: drawn from its first end with a bright head, then a pulse where it lands */
-      function wireIn(g,s){
-        var L=plen(g.querySelector('.wire')),ps=strokes(g),wire=g.querySelector('.wire'),c=colOf(g),k=null,dur=Math.min(1.1,.45+g._L/1400),id=g.getAttribute('data-run');
-        if(RM){at(s,.5,function(p){g.style.opacity=p;if(p>=1)ps.forEach(function(pth){pth.style.strokeDasharray='';pth.style.strokeDashoffset=''});if(tags[id])tags[id].style.opacity=p});return s+.5}
-        at(s,dur,function(p){
-          var e=ease(p);ps.forEach(function(pth){pth.style.strokeDashoffset=plen(pth)*(1-e)});
-          if(!k)k=comet(g,c);var pt=wire.getPointAtLength(L*e);k.setAttribute('transform','translate('+pt.x+' '+pt.y+')');k.style.opacity=p<.97?1:0;
-          if(p>=1){ps.forEach(function(pth){pth.style.strokeDasharray='';pth.style.strokeDashoffset=''});if(k.parentNode)k.parentNode.removeChild(k)}
-        });
-        try{var q=wire.getPointAtLength(L);ring(q.x,q.y,c,s+dur-.05,false)}catch(e){}
-        if(tags[id])at(s+dur*.6,.35,function(p){tags[id].style.opacity=p});
-        return s+dur;
-      }
-      function partOut(g,s,d){var b=boxOf(g);at(s,d,function(p){var e=ease(p);g.style.opacity=1-e;if(!RM)setScale(g,b,1-.12*e)})}
-      function partIn(g,s,d,ringIt){var b=boxOf(g);if(!RM)setScale(g,b,.9);at(s,d,function(p){var e=ease(p);g.style.opacity=e;if(!RM)setScale(g,b,.9+.1*e)});if(ringIt&&b&&!RM){var n=null;at(s+d*.4,.7,function(p){if(!n)n=mk('rect',{x:b.x,y:b.y,width:b.w,height:b.h,rx:'10','class':'ma-pring'},gFX);var gr=10*ease(p);n.setAttribute('x',b.x-gr);n.setAttribute('y',b.y-gr);n.setAttribute('width',b.w+2*gr);n.setAttribute('height',b.h+2*gr);n.style.opacity=(1-p)*.85;if(p>=1&&n.parentNode)n.parentNode.removeChild(n)})}}
-      function fade(g,s,d,a,b2){at(s,d,function(p){g.style.opacity=a+(b2-a)*ease(p)})}
-      /* ---- the script ---- */
-      var t=0,nGo=f.go.length,nT=tw.length;
-      say(0,'Out of the box: '+Object.keys(f.runs).length+' factory wires');
-      t=1.0;
-      var stayIds=f.stay||[],keep=f.keep||[];
-      if(SI){
-        say(t,'This install changes '+nGo+' of them; the rest stay');
-        stayIds.forEach(function(id){var g=fw[id];if(g)at(t,.6,function(p){g.classList.toggle('st-stay',p>0);g.style.opacity=1-.5*ease(p)})});
-        keep.forEach(function(id){if(fparts[id])fade(fparts[id],t,.6,1,.45)});
-        t+=.9;
-      }
-      say(t,SI?'Unplugging the stock connectors that move':'Unplugging the factory harness');
-      /* leave in a sweep, top left to bottom right; on stock wiring each lets go at its stock connector's end */
-      var goes=f.go.map(function(id){var g=fw[id],b=null;try{b=g.querySelector('.wire').getBBox()}catch(e){}return {id:id,g:g,k:b?(b.x+b.width/2)+(b.y+b.height/2)*1.2:0}}).filter(function(x){return x.g}).sort(function(a,b){return a.k-b.k});
-      var step=RM?0:Math.min(.09,2.6/Math.max(1,goes.length));
-      goes.forEach(function(x,i){var r=f.runs[x.id],lab=r.lab||['',''],fromB=SI?!!lab[1]&&!lab[0]:false;wireOut(x.g,t+i*step,fromB)});
-      t+=goes.length*step+(RM?.5:1.0);
-      /* parts: factory-only parts that leave go first, then the new ones arrive */
-      var outs=(f.out||[]).filter(function(id){return fparts[id]});
-      var common=Object.keys(fparts).filter(function(id){return tparts[id]});
-      var ins=Object.keys(tparts).filter(function(id){return !fparts[id]});
-      var rank=function(id){return ({pcb:0,screen:1,ssr:2,tc:3,psens:4,rf:5,shelly:6})[id]!==undefined?({pcb:0,screen:1,ssr:2,tc:3,psens:4,rf:5,shelly:6})[id]:7};
-      ins.sort(function(a,b){return rank(a)-rank(b)});
-      if(outs.length){say(t,SI?'The brew thermostat comes out':'Out: the thermostats'+(outs.some(function(id){return /^J/.test(id)})?' and the factory splices':''));outs.forEach(function(id,i){partOut(fparts[id],t+i*(RM?0:.08),.6)});t+=.6+outs.length*(RM?0:.08)+.2}
-      common.forEach(function(id){fade(tparts[id],t,.6,0,1);fade(fparts[id],t,.6,1,0)});
-      say(t,'In: '+(ins.indexOf('pcb')>=0?'the Gaggiuino PCB':'the new parts')+(ins.indexOf('ssr')>=0?', SSR':'')+(ins.indexOf('tc')>=0?', thermocouple':'')+(ins.indexOf('rf')>=0?', 185 °C fuse':'')+(SI?' and the moved stock connectors':''));
-      ins.forEach(function(id,i){partIn(tparts[id],t+i*(RM?0:.1),.55,['pcb','screen','ssr','tc','psens','rf','shelly'].indexOf(id)>=0)});
-      t+=.55+ins.length*(RM?0:.1)+.3;
-      /* runs, circuit by circuit */
-      var GROUPS=[['L','Line'],['H','Heater line'],['N','Neutral'],['E','Earth'],['LV','Low voltage'],['S','Sensor and screen cables']];
-      var bySys={};tw.forEach(function(g){var m=/ s-([A-Z]+)/.exec(' '+g.getAttribute('class'));var s2=m?m[1]:'S';if(s2==='LVG')s2='LV';(bySys[s2]=bySys[s2]||[]).push(g)});
-      var label=SI?'Wiring in the stock wiring integration':'Wiring in the Plug-and-Play harness';
-      GROUPS.forEach(function(gr){
-        var list=bySys[gr[0]];if(!list||!list.length)return;
-        say(t,label+': '+gr[1].toLowerCase());
-        var gap=RM?0:Math.min(.13,2/list.length),last=t;
-        list.forEach(function(g,i){var endT=wireIn(g,t+i*gap);last=Math.max(last,endT)});
-        t=(RM?last:t+list.length*gap+.45)+.1;
+    }
+    function capH(k,main){return '<span class="ma-k">'+esc(k)+'</span>'+esc(main)}
+    function stepName(s){return s?'Phase '+s.phase+': '+s.t:''}
+    function runText(id){var r=realV.runs.filter(function(x){return x.id===id})[0];if(r)return r.short||(r.frm+' → '+r.to);return (realMp.cables||{})[id]||''}
+    /* every run on the drawing in the wire list's order, then the cables, then optional runs */
+    function allOrder(S){
+      var lo=[];['L','H','N','E','LV','LMP'].forEach(function(sy){realV.runs.forEach(function(r){if(!r.opt&&(sy==='LV'?(r.sys==='LV'||r.sys==='LVG'):r.sys===sy)&&S.tw[r.id]&&lo.indexOf(r.id)<0)lo.push(r.id)})});
+      realV.runs.forEach(function(r){if(S.tw[r.id]&&lo.indexOf(r.id)<0&&!r.opt)lo.push(r.id)});
+      S.twOrder.forEach(function(id){if(!runOfReal(id)&&lo.indexOf(id)<0)lo.push(id)});
+      realV.runs.forEach(function(r){if(S.tw[r.id]&&lo.indexOf(r.id)<0)lo.push(r.id)});
+      return lo;
+    }
+    function runOfReal(id){for(var i=0;i<realV.runs.length;i++)if(realV.runs[i].id===id)return realV.runs[i];return null}
+    /* the runbook's order for this drawing: [{s: step or null, runs: [...], parts: [...]}] and each run's place in it */
+    var TAKES_OUT={p3a:1};
+    function installPlan(S){
+      var seq=typeof REFS!=='undefined'&&REFS.order?REFS.order({v:realV,hasRun:function(id){return !!S.tw[id]},hasPart:function(id){return !!S.tparts[id]}}):[];
+      /* a step that takes something out (the brew thermostat) points at what goes in its place, but doesn't fit it */
+      var claimed={};seq.forEach(function(st){if(TAKES_OUT[st.id])return;st.runs.forEach(function(id){if(!(id in claimed))claimed[id]=st})});
+      var lo=allOrder(S),fb=seq.filter(function(st){return st.id==='p4i'})[0]||null,done={},plan=[],rank={};
+      /* a run no step names goes with the last step that names a part it lands on (J9's wires with Plug everything into the PCB) */
+      if(!fb)lo.forEach(function(id){if(id in claimed)return;var e=realMp.ends[id]||[];for(var i=seq.length-1;i>=0;i--)if(seq[i].parts.some(function(p){return e.indexOf(p)>=0})){claimed[id]=seq[i];break}});
+      function isNew(p){return S.tparts[p]&&!S.fparts[p]}
+      seq.forEach(function(st,si){
+        var ids=st.runs.filter(function(id){return claimed[id]===st&&!done[id]});
+        lo.forEach(function(id){if(claimed[id]===st&&!done[id]&&ids.indexOf(id)<0)ids.push(id)});
+        if(st===fb)ids=ids.concat(lo.filter(function(id){return !(id in claimed)&&!done[id]&&ids.indexOf(id)<0}));
+        var parts=st.parts.filter(isNew);
+        if(!ids.length&&!parts.length)return;
+        ids.forEach(function(id,k){done[id]=1;rank[id]={k:si*1000+k,step:st}});
+        plan.push({s:st,runs:ids,parts:parts});
       });
-      if(stk.length){say(t,'Dashed: where each moved stock connector came off');stk.forEach(function(pth){fade(pth,t,.6,0,1)});t+=.8}
-      /* the whole thing lights once, then rests */
-      if(!RM)at(t,1.8,function(p){st.classList.toggle('flowing',p>0&&p<1)});
-      var nRun=tw.filter(function(g){return !/\bcab\b/.test(g.getAttribute('class'))}).length;
-      say(t,'Your wiring: '+nRun+' runs'+(nRun<nT?' and the sensor and screen cables':'')+(SI?'. Grey: the factory wires that stay':''));
-      t+=RM?.5:1.9;
-      tl.sort(function(a,b){return a.s-b.s});cap.sort(function(a,b){return a.s-b.s});
-      A={t:0,end:t,tl:tl,cap:cap,paused:false,speed:A&&A.speed||1,last:null,raf:0,ci:-1,stage:st};
-      ctlUI();
-      function frame(now){
-        if(!A)return;
-        var dt=A.last==null?0:Math.min(.1,(now-A.last)/1000);A.last=now;
-        if(!A.paused)A.t=Math.min(A.end,A.t+dt*A.speed);
-        for(var i=0;i<A.tl.length;i++){var it=A.tl[i];if(it.s>A.t)break;var p=clamp((A.t-it.s)/it.d);if(p!==it.p){it.p=p;it.fn(p)}}
-        var ci=-1;for(var j=0;j<A.cap.length;j++)if(A.cap[j].s<=A.t)ci=j;
-        if(ci!==A.ci){A.ci=ci;el('ma-cap').textContent=ci>=0?A.cap[ci].txt:''}
-        el('ma-bar').style.width=(100*A.t/A.end).toFixed(1)+'%';
-        if(A.t>=A.end){ctlUI();return}
-        A.raf=requestAnimationFrame(frame);
+      var rest=lo.filter(function(id){return !done[id]});
+      if(rest.length){rest.forEach(function(id,k){rank[id]={k:1e8+k,step:null}});plan.push({s:null,runs:rest,parts:[]})}
+      return {plan:plan,rank:rank,seq:seq,fb:fb};
+    }
+    /* which runbook step takes each factory wire off: the brew thermostat (and on Plug-and-Play the steam one) at its
+       own step, otherwise the step of the first new run that takes its place */
+    function removalPlan(S,ip){
+      var f=S.f,rel=WM[key].rel||{},SI=realV.path==='SI',p3a=ip.seq.filter(function(st){return st.id==='p3a'})[0];
+      var list=f.go.filter(function(id){return S.fw[id]}).map(function(id,ix){
+        var R=rel[id]||{ends:[]},best=1e9,step=null;
+        R.ends.forEach(function(e){if(p3a&&(e.k==='bt'||(e.k==='st'&&!SI))){best=ip.seq.indexOf(p3a)*1000;step=p3a}});
+        var cand=[];(R.mv||[]).forEach(function(m){cand=cand.concat(m.to)});
+        if(R.nb)cand.push(R.nb);
+        if(!cand.length&&(R.mv||[]).length){
+          /* a stock connector that's parked or moves to another spade: the step for the switch it sits on */
+          var fe=f.ends[id]||[];ip.seq.some(function(st,si){if(st.parts.some(function(p){return fe.indexOf(p)>=0})){if(si*1000<best){best=si*1000;step=st}return true}return false});
+        }
+        if(!cand.length&&best===1e9)R.ends.forEach(function(e){cand=cand.concat(e.now)});
+        cand.forEach(function(rid){var x=ip.rank[rid];if(x&&x.k<best){best=x.k;step=x.step}});
+        if(best===1e9)step=ip.fb;
+        return {id:id,k:best,ix:ix,step:step};
+      });
+      list.sort(function(a,b){return a.k-b.k||a.ix-b.ix});
+      return list;
+    }
+    function play(){
+      var f=facOf(key);if(!f)return;
+      stopAnim();
+      var S=stage('The factory wiring turning into '+(realV.name||'this schematic')),SI=realV.path==='SI';
+      mount(S,'animating');A='play';
+      var b=new ChangePlayer.Builder(S.fx,colOf),RM=b.RM,t=0,ip=installPlan(S),rem=removalPlan(S,ip),nAll=Object.keys(f.runs).length;
+      var G=RM?.15:.22;
+      /* starting frame: only the factory drawing */
+      Object.keys(S.tparts).forEach(function(id){b.fade(S.tparts[id],0,.001,0,0)});
+      S.stk.forEach(function(x){b.fade(x.el,0,.001,0,0)});
+      b.say(0,capH('Out of the box',nAll+' factory wires, as the machine leaves the factory'));
+      b.step(0,1.2,'Out of the box');t=1.2;
+      if(SI){
+        var stayIds=f.stay||[],keep=f.keep||[];
+        b.say(t,capH('Out of the box','This install changes '+rem.length+' of them, one at a time. The rest stay'));
+        stayIds.forEach(function(id){var g=S.fw[id];if(g){b.clsFrom(g,t,'st-stay');b.fade(g,t,.6,null,.5)}});
+        keep.forEach(function(id){if(S.fparts[id])b.fade(S.fparts[id],t,.6,null,.45)});
+        b.step(t,t+1.1,'The wires that stay');t+=1.1;
       }
-      A.raf=requestAnimationFrame(frame);
+      /* off, one at a time */
+      var outs={},left={};(f.out||[]).forEach(function(p){if(S.fparts[p]){outs[p]=1;left[p]=0}});
+      rem.forEach(function(x){(f.ends[x.id]||[]).forEach(function(p){if(outs[p])left[p]++})});
+      var rel=WM[key].rel||{};
+      rem.forEach(function(x,i){
+        var r=f.runs[x.id],lab=r.lab||['',''],R=rel[x.id]||{},mv=R.mv||[],fromB=SI?(mv.length?mv[0].end===1:!!lab[1]&&!lab[0]):false,s0=t;
+        var tail=SI&&mv.length?' · '+mv.map(function(m){return 'its '+m.lab+' end comes off'}).join(', '):'';
+        b.say(t,capH('Off '+(i+1)+' of '+rem.length+(x.step?' · '+stepName(x.step):''),x.id+' · '+lc1(r.frm)+' → '+lc1(r.to)+tail));
+        t=b.wireOut(S.fw[x.id],t,{fromB:fromB});
+        (f.ends[x.id]||[]).forEach(function(p){if(outs[p]&&--left[p]===0){b.partOut(S.fparts[p],t-.1,.55);t+=.45;delete outs[p]}});
+        t+=G;b.step(s0,t,x.id);
+      });
+      var still=Object.keys(outs);
+      if(still.length){var s1=t;b.say(t,capH('Off','The '+still.map(function(p){return lc1((f.parts[p]||{name:p}).name)}).join(', ')+(still.length>1?' come':' comes')+' out'));still.forEach(function(p,i){b.partOut(S.fparts[p],t+i*.08,.6)});t+=.8+still.length*.08;b.step(s1,t,'Parts out')}
+      /* the machine's own parts stay; the drawing switches to the install's version of them */
+      var common=Object.keys(S.fparts).filter(function(id){return S.tparts[id]}),s2=t;
+      b.say(t,capH('In','The machine\'s own parts stay where they are. Now the new wiring, in the runbook\'s order'));
+      common.forEach(function(id){b.fade(S.tparts[id],t,.7,0,null);b.fade(S.fparts[id],t,.7,null,0)});
+      t+=.9;b.step(s2,t,'Parts');
+      /* in, one at a time */
+      var arrived={},RING={pcb:1,screen:1,ssr:1,tc:1,psens:1,rf:1,shelly:1};common.forEach(function(id){arrived[id]=1});
+      function bring(p,s){if(arrived[p]||!S.tparts[p]||S.fparts[p])return s;arrived[p]=1;b.partIn(S.tparts[p],s,.55,!!RING[p]);return s+(RING[p]?.6:.3)}
+      var nIn=0,total=0;ip.plan.forEach(function(pl){total+=pl.runs.length});
+      var stkShown={};
+      ip.plan.forEach(function(pl){
+        if(pl.parts.length){
+          var need=pl.parts.filter(function(p){return !arrived[p]});
+          if(need.length&&!pl.runs.length){var s3=t;b.say(t,capH(stepName(pl.s),need.map(function(p){return (realMp.parts[p]||{name:p}).name}).join(', ')));need.forEach(function(p){t=bring(p,t)});t+=G;b.step(s3,t,pl.s?pl.s.id:'')}
+          else need.forEach(function(p){if(!pl.runs.length)t=bring(p,t)});
+        }
+        pl.runs.forEach(function(id){
+          var g=S.tw[id];if(!g)return;nIn++;
+          var s0=t;
+          b.say(t,capH('In '+nIn+' of '+total+(pl.s?' · '+stepName(pl.s):' · Also on the map'),id+' · '+runText(id)));
+          (pl.parts||[]).forEach(function(p){t=bring(p,t)});
+          (realMp.ends[id]||[]).forEach(function(p){t=bring(p,t)});
+          var tEnd=b.wireIn(g,t,{tag:S.tags[id]});
+          S.stk.forEach(function(x,k){if(!stkShown[k]&&(realMp.ends[id]||[]).indexOf(x.part)>=0){stkShown[k]=1;b.fade(x.el,tEnd-.3,.5,0,null)}});
+          t=tEnd+G;b.step(s0,t,id);
+        });
+      });
+      var lateParts=Object.keys(S.tparts).filter(function(p){return !arrived[p]&&!S.fparts[p]});
+      if(lateParts.length){var s4=t;b.say(t,capH('In','The rest of the new parts'));lateParts.forEach(function(p,i){bring(p,t+i*.08)});t+=.8+lateParts.length*.08;b.step(s4,t,'Parts in')}
+      var lateStk=S.stk.filter(function(x,k){return !stkShown[k]});
+      if(lateStk.length){var s5=t;b.say(t,capH('Stock wiring','Dashed: where each moved or parked stock connector came off'));lateStk.forEach(function(x){b.fade(x.el,t,.6,0,null)});t+=.9;b.step(s5,t,'Stock leads')}
+      /* the whole thing lights once, then rests */
+      var nRun=S.twOrder.filter(function(id){return !/\bcab\b/.test(S.tw[id].getAttribute('class'))}).length,s6=t;
+      if(!RM)b.cls(S.st,t,t+1.8,'flowing');
+      b.say(t,capH('Your wiring',nRun+' runs'+(nRun<S.twOrder.length?' and the sensor and screen cables':'')+(SI?'. Grey: the factory wires that stay':'')));
+      t+=RM?.6:1.9;b.step(s6,t,'Your wiring');
+      ChangePlayer.start(b,t,{replay:play,done:function(){view='mine';drawn=null;show(key,showOpt)}});
       viewUI();
     }
+    /* the factory wire's card: what the install puts at each of its ends */
+    function afterHtml(fid){
+      var R=(WM[key].rel||{})[fid],f=facOf(key),SI=realV.path==='SI';if(!R)return '';
+      var rel=related(fid),items=[];
+      function chips(ids){return ids.length?ids.map(function(id){return '<button type="button" class="rchip" data-mgo="'+esc(id)+'" title="See it in your wiring">'+esc(id)+'</button>'}).join(' '):''}
+      var mvEnd={};(R.mv||[]).forEach(function(m){mvEnd[m.end]=1});
+      R.ends.forEach(function(e,i){
+        var h;
+        if(e.k==='splice')h=SI?'stays, with its other wires':'comes out with the factory harness';
+        else if(e.k==='bt'||e.k==='st')h=esc(lc1(((f.parts[e.k]||{}).note)||'comes out'));
+        else if(e.k==='fuse')h='the stock fuse comes out; the 185 °C resettable fuse in the steam thermostat\'s hole takes its place: '+chips(e.now);
+        else if(e.k==='pfuse')h='the pump fuse stays; its leads are now '+chips(e.now);
+        else if(e.now.length)h='now '+chips(e.now);
+        else if(mvEnd[i])return;
+        else h=SI&&(f.stay||[]).indexOf(fid)>=0?'unchanged':'nothing new lands here';
+        items.push('<li><b>'+esc(e.t)+':</b> '+h+'</li>');
+      });
+      (R.mv||[]).forEach(function(m){
+        var mm=/^stock: (.*); now: (.*)$/.exec(m.note||''),txt=mm?'comes '+mm[1]+'; now '+mm[2]:(m.note||'moves');
+        items.push('<li><b>Its '+esc(m.lab)+' end:</b> '+esc(txt).replace(/now on (wire )?([A-Za-z0-9-]+)$/,function(all,w,id){return m.to.indexOf(id)>=0?'now on '+chips([id]):all})+'</li>');
+      });
+      if(R.nb)items.push('<li><b>The lead itself:</b> stays, as '+chips([R.nb])+'</li>');
+      return '<div class="d-after"><span class="k">After the install</span><ul>'+items.join('')+'</ul>'+(rel.length||A!=='cmp'?'<p class="d-rel">'+(rel.length?'Tap a run to see it in your wiring. ':'')+(A==='cmp'?'':'Compare plays this wire\'s change on its own.')+'</p>':'')+'</div>';
+    }
+    function related(fid){
+      var R=(WM[key].rel||{})[fid],out=[];if(!R)return out;
+      function add(id){if(id&&out.indexOf(id)<0&&realMp.ends[id])out.push(id)}
+      (R.mv||[]).forEach(function(m){m.to.forEach(add)});add(R.nb);R.ends.forEach(function(e){e.now.forEach(add)});
+      return out;
+    }
+    function compare(fid,at){
+      var f=facOf(key);if(!f||!f.runs[fid])return;
+      var keepAt=at;stopAnim();
+      var S=stage('Factory wire '+fid+' and what the install puts in its place'),SI=realV.path==='SI',goes=f.go.indexOf(fid)>=0;
+      mount(S,'comparing');A='cmp';cmp=fid;
+      var b=new ChangePlayer.Builder(S.fx,colOf),t=0,R=(WM[key].rel||{})[fid]||{ends:[]},rel=related(fid),r=f.runs[fid];
+      var FAINT=.14,mv=R.mv||[],labs=mv.map(function(m){return 'f:'+m.lab});
+      Object.keys(S.fw).forEach(function(id){if(id!==fid)b.fade(S.fw[id],0,.001,FAINT,FAINT)});
+      Object.keys(S.tparts).forEach(function(id){b.fade(S.tparts[id],0,.001,0,0)});
+      S.stk.forEach(function(x){b.fade(x.el,0,.001,0,0)});
+      Object.keys(S.tags).forEach(function(id){b.fade(S.tags[id],0,.001,0,0)});
+      S.twOrder.forEach(function(id){if(rel.indexOf(id)<0)b.fade(S.tw[id],0,.001,0,0)});
+      b.say(0,capH('Out of the box',fid+' · '+lc1(r.frm)+' → '+lc1(r.to)));
+      b.step(0,.9,'Out of the box');t=.9;
+      var s1=t;
+      if(goes){
+        var fromB=SI?(mv.length?mv[0].end===1:false):false;
+        b.say(t,capH('The change',SI?(mv.length?mv.map(function(m){return 'Its '+m.lab+' end comes off'}).join(', '):'It comes off'):(R.nb!=null?(R.nb?'It stays, with a new end':'It stays on the unused brew lamp'):'It comes out with the factory harness')));
+        t=b.wireOut(S.fw[fid],t,{fromB:fromB})+.15;
+      }else{b.say(t,capH('The change','It stays as it is'));b.clsFrom(S.fw[fid],t,'st-stay');t+=.8}
+      b.step(s1,t,fid);
+      /* everything else changes at once, faintly */
+      var s2=t,stayIds=f.stay||[];
+      Object.keys(S.fw).forEach(function(id){if(id===fid)return;if(stayIds.indexOf(id)>=0){b.clsFrom(S.fw[id],t,'st-stay')}else b.fade(S.fw[id],t,.7,FAINT,0)});
+      (f.out||[]).forEach(function(p){if(S.fparts[p]&&!S.tparts[p])b.partOut(S.fparts[p],t,.6)});
+      Object.keys(S.fparts).forEach(function(id){if(S.tparts[id]){b.fade(S.tparts[id],t,.7,0,null);b.fade(S.fparts[id],t,.7,null,0)}});
+      var relParts={};rel.forEach(function(id){(realMp.ends[id]||[]).forEach(function(p){relParts[p]=1})});labs.forEach(function(p){relParts[p]=1});
+      Object.keys(S.tparts).forEach(function(id){if(!S.fparts[id])b.fade(S.tparts[id],t,.7,0,relParts[id]?null:.35)});
+      S.twOrder.forEach(function(id){if(rel.indexOf(id)<0)b.fade(S.tw[id],t+.2,.7,0,FAINT)});
+      b.say(t,capH('The change',rel.length?'The rest of the machine changes too (faint). What lands where '+fid+' was:':'The rest of the machine changes too (faint)'));
+      t+=1;b.step(s2,t,'The rest');
+      rel.forEach(function(id){
+        var s0=t;b.say(t,capH('After the install',id+' · '+runText(id)));
+        var e=b.wireIn(S.tw[id],t,{tag:S.tags[id]});
+        S.stk.forEach(function(x){if(labs.indexOf(x.part)>=0&&(realMp.ends[id]||[]).indexOf(x.part)>=0)b.fade(x.el,e-.3,.5,0,null)});
+        t=e+.2;b.step(s0,t,id);
+      });
+      var lateStk=S.stk.filter(function(x){return labs.indexOf(x.part)>=0&&!rel.some(function(id){return (realMp.ends[id]||[]).indexOf(x.part)>=0})});
+      if(lateStk.length){var s3=t;lateStk.forEach(function(x){b.fade(x.el,t,.6,0,null)});b.say(t,capH('After the install','Dashed: where the stock connector went'));t+=.9;b.step(s3,t,'Stock lead')}
+      var s4=t;b.say(t,capH('After the install',rel.length?rel.length+(rel.length===1?' run':' runs')+' where '+fid+' was':(goes?'Nothing new lands where it was':'Unchanged')));t+=.8;b.step(s4,t,'After');
+      ChangePlayer.start(b,t,{paused:keepAt!=='play',at:keepAt==='after'?t:0,noDone:true,replay:function(){ChangePlayer.seek(0,true);ChangePlayer.play()},onState:cmpUI});
+      if(keepAt==='play')ChangePlayer.play();
+      cmpUI();
+      /* Close up on a phone: scroll to the wire */
+      var sc=el('mscroll');if(sc.scrollWidth>sc.clientWidth+2)try{var bb=S.fw[fid].getBBox(),ratio=S.st.clientWidth/1400;sc.scrollLeft=Math.max(0,(bb.x+bb.width/2)*ratio-sc.clientWidth/2)}catch(e){}
+      /* the card */
+      var d=el('mdetail');d.className='mdetail';d.style.borderLeftColor=SYSC[r.sys]||'var(--accent)';
+      d.innerHTML='<div class="d-head"><span class="d-id">'+esc(fid)+'</span><span class="d-route">'+esc(r.frm)+' → '+esc(r.to)+'</span></div>'+
+        '<div class="d-grid"><div><span class="k">Out of the box</span><span>'+swatch(r.color)+esc(cname(r.color))+', '+esc(r.sys==='H'?'heater circuit':lc1(SYSN[r.sys]||r.sys))+(r.what?'. '+esc(r.what):'')+'</span></div></div>'+afterHtml(fid);
+      el('msel').innerHTML='<b>'+esc(fid)+'</b><span class="rt">Compare: out of the box and after the install</span>';
+    }
+    function cmpUI(){
+      if(A!=='cmp')return;
+      var t=ChangePlayer.time(),end=ChangePlayer.end();
+      Array.prototype.forEach.call(document.querySelectorAll('[data-cmpv]'),function(b){var w=b.getAttribute('data-cmpv');b.setAttribute('aria-pressed',String(w==='box'?t<=.9:t>=end-1e-3))});
+      var f=facOf(key),ids=Object.keys(f.runs),i=ids.indexOf(cmp);
+      el('cmp-id').textContent=cmp+' · '+(i+1)+' of '+ids.length;el('mcmp').hidden=false;
+    }
+    function cmpStep(n){var ids=Object.keys(facOf(key).runs),i=ids.indexOf(cmp);compare(ids[(i+n+ids.length)%ids.length],ChangePlayer.time()>=ChangePlayer.end()-1e-3?'after':'box')}
     return {show:show,init:init,focus:focus,deep:deep};
   })();

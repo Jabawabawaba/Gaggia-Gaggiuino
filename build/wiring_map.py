@@ -1000,6 +1000,7 @@ def svg_variant(key, v):
     o.append('</g></svg>')
     parts = {p[0]: {"name": p[1], "note": p[2]} for p in m.parts}
     ends = {run["id"]: [m.term[a][3], m.term[b][3]] for run, a, b in runs}
+    m.run_terms = [(run["id"], a, b) for run, a, b in runs]
     for cid, legs in cab.items():
         ends[cid] = [m.term[CABLES[cid][1][0][0]][3], "pcb"]
     return "".join(o), parts, ends, paths, m
@@ -1286,9 +1287,59 @@ def factory_for(key, v, fd, tm, tpaths):
         stay = []
         out = ["bt", "st"] + [p for p in hz["junctions"]]
         keep = []
-    return {"svg": svg, "runs": meta, "parts": parts, "ends": ends, "name": hz["name"], "src": hz["src"],
+    rel = fac_relations(v, hz, m, runs, tm, fv, si)
+    return {"svg": svg, "runs": meta, "parts": parts, "ends": ends, "name": hz["name"], "src": hz["src"], "rel": rel,
             "srcname": hz["srcname"], "noearth": hz.get("noearth", ""), "go": go, "stay": stay, "out": out, "keep": keep,
             "moves": sorted(fv.get("moves", [])) if si else [], "becomes": {} if si else fv.get("becomes", {})}
+
+
+def fac_relations(v, hz, fm, fruns, tm, fv, si):
+    """for each factory wire, what the install puts at each of its ends: for the Out of the box view's Compare.
+    Ends are matched by terminal name, since the factory view is drawn with the same parts on the same layout. Each
+    end: t (the terminal in words), k (term, splice, bt, st, fuse or pfuse), now (the new runs that land there after
+    the install). On stock wiring, mv lists each stock connector on the wire that moves and the runs it ends up on;
+    on Plug-and-Play wiring, nb is the harness run a factory lead stays on as (its becomes)."""
+    at = {}
+    for rid, a, b in getattr(tm, "run_terms", []):
+        for t in (a, b):
+            at.setdefault(t, []).append(rid)
+    for cid, (nm, legs) in (CABLES.items() if v.get("cables") else []):
+        for leg in legs:
+            at.setdefault(leg[0], []).append(cid) if cid not in at.get(leg[0], []) else None
+    fuse_runs = sorted({rid for t in ("rf:L", "rf:R") for rid in at.get(t, [])})
+    moves = set(fv.get("moves", [])) if si else set()
+    becomes = {} if si else fv.get("becomes", {})
+    rel = {}
+    for r, a, b in fruns:
+        ends = []
+        for t in (a, b):
+            part = fm.term[t][3]
+            if part in hz["junctions"]:
+                e = {"t": "Factory splice " + part, "k": "splice", "now": []}
+            elif part in ("bt", "st"):
+                e = {"t": fac_term_name(fm, t), "k": part, "now": []}
+            elif t in ("b:fuseL", "b:fuseR") and not si:
+                e = {"t": fac_term_name(fm, t), "k": "fuse", "now": fuse_runs}
+            elif t in ("pf:out", "pf:in") and not si:
+                e = {"t": fac_term_name(fm, t), "k": "pfuse", "now": sorted({x for tt in ("pf:1", "pf:2", "pf:tab") for x in at.get(tt, [])})}
+            else:
+                # the factory's second earth spade on the chassis and the cup warmer is the same point as the map's one
+                tt = {"chassis:b": "chassis", "cup:a": "cup"}.get(t, t)
+                e = {"t": fac_term_name(fm, t), "k": "term", "now": list(dict.fromkeys(at.get(t, []) + at.get(tt, [])))}
+            ends.append(e)
+        o = {"ends": ends}
+        if si:
+            mv = []
+            for i, lab in enumerate(r.get("lab", ["", ""])):
+                if lab and lab in moves:
+                    note = next((pp[2] for pp in tm.parts if pp[0] == "f:" + lab), "")
+                    mv.append({"lab": lab, "end": i, "to": list(at.get("f:" + lab, []) + at.get("f:" + lab + "~", [])), "note": note})
+            if mv:
+                o["mv"] = mv
+        elif r["id"] in becomes:
+            o["nb"] = becomes[r["id"]]
+        rel[r["id"]] = o
+    return rel
 
 
 def main():
@@ -1303,8 +1354,10 @@ def main():
         fac = factory_for(key, v, fd, m, paths)
         if fac:
             # a Shelly map's factory view is its base map's: keep one copy
+            rel = fac.pop("rel")
             same = next((k for k, o in out.items() if o.get("fac", {}).get("svg") == fac["svg"] and o["fac"].get("go") == fac["go"]), None)
             out[key]["fac"] = {"same": same} if same else fac
+            out[key]["rel"] = rel
         elif fd.get("missing", {}).get(v.get("base", key)):
             out[key]["facnote"] = fd["missing"][v.get("base", key)]
         print(key, len(v["runs"]), "runs drawn", len(svg) // 1024, "KB", (f"+ factory {len(fac['runs'])} wires {len(fac['svg']) // 1024} KB" if fac else ""))
