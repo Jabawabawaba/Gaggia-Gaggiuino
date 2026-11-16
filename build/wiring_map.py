@@ -1212,7 +1212,7 @@ def fac_term_name(m, t):
              "b:TL": "Element pin TL", "b:TR": "Element pin TR", "b:BL": "Element pin BL", "b:BR": "Element pin BR",
              "bt:a": "Brew thermostat", "bt:b": "Brew thermostat", "st:a": "Steam thermostat", "st:b": "Steam thermostat",
              "pump:A": "Pump spade", "pump:B": "Pump spade", "pf:out": "Pump's 110 °C fuse lead", "pf:in": "Pump's 110 °C fuse",
-             "sol:L": "3-way valve spade", "sol:R": "3-way valve spade", "sol:gnd": "3-way valve earth spade",
+             "sol:L": "3-way valve, left spade", "sol:R": "3-way valve, right spade", "sol:gnd": "3-way valve earth spade",
              "cup": "Cup warmer earth spade", "cup:a": "Cup warmer earth spade", "chassis": "Chassis earth spade",
              "chassis:b": "Chassis earth spade"}
     if t in names:
@@ -1325,8 +1325,16 @@ def fac_relations(v, hz, fm, fruns, tm, fv, si):
             else:
                 # the factory's second earth spade on the chassis and the cup warmer is the same point as the map's one
                 tt = {"chassis:b": "chassis", "cup:a": "cup"}.get(t, t)
-                e = {"t": fac_term_name(fm, t), "k": "term", "now": list(dict.fromkeys(at.get(t, []) + at.get(tt, [])))}
+                now = at.get(t, []) + at.get(tt, [])
+                if not si and t == "pump:B":
+                    now += at.get("pf:tab", [])  # the harness's pump fuse tab sits on spade B
+                e = {"t": fac_term_name(fm, t), "k": "term", "now": list(dict.fromkeys(now))}
             ends.append(e)
+        if si:
+            # a stock connector that stays on its spade can take a new wire piggybacked on it (N on F, on the 230 V Classic)
+            for i, lab in enumerate(r.get("lab", ["", ""])):
+                if lab and lab not in moves and ends[i]["k"] == "term":
+                    ends[i]["now"] = list(dict.fromkeys(ends[i]["now"] + at.get("f:" + lab, []) + at.get("f:" + lab + "~", [])))
         o = {"ends": ends}
         if si:
             mv = []

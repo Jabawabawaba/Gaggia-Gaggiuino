@@ -382,7 +382,7 @@
       var rel=WM[key].rel||{};
       rem.forEach(function(x,i){
         var r=f.runs[x.id],lab=r.lab||['',''],R=rel[x.id]||{},mv=R.mv||[],fromB=SI?(mv.length?mv[0].end===1:!!lab[1]&&!lab[0]):false,s0=t;
-        var tail=SI&&mv.length?' · '+mv.map(function(m){return 'its '+m.lab+' end comes off'}).join(', '):'';
+        var tail=SI&&mv.length?' · '+mv.map(function(m){return 'its '+m.lab+' end comes off'}).join(', '):(!SI&&R.nb!=null?(R.nb?' · the lead stays, as '+R.nb+', with new ends':' · the lead stays, on the unused brew lamp'):'');
         b.say(t,capH('Off '+(i+1)+' of '+rem.length+(x.step?' · '+stepName(x.step):''),x.id+' · '+lc1(r.frm)+' → '+lc1(r.to)+tail));
         t=b.wireOut(S.fw[x.id],t,{fromB:fromB});
         (f.ends[x.id]||[]).forEach(function(p){if(outs[p]&&--left[p]===0){b.partOut(S.fparts[p],t-.1,.55);t+=.45;delete outs[p]}});
@@ -438,13 +438,13 @@
       R.ends.forEach(function(e,i){
         var h;
         if(e.k==='splice')h=SI?'stays, with its other wires':'comes out with the factory harness';
-        else if(e.k==='bt')h='comes out: the thermocouple goes in its hole, and the PCB takes over brew temperature';
-        else if(e.k==='st')h=SI?'its Sa and Sb connectors move to the SSR, so it can stay, unplugged, or come out':'comes out: the 185 °C resettable fuse goes in its hole';
-        else if(e.k==='fuse')h='the stock fuse comes out; the 185 °C resettable fuse in the steam thermostat\'s hole takes its place: '+chips(e.now);
+        else if(e.k==='bt')h='comes out, and the thermocouple goes in its hole; the PCB takes over brew temperature';
+        else if(e.k==='st')h=SI?'its Sa and Sb connectors move to the SSR, so it can stay, unplugged, or come out':'comes out, and the 185 °C resettable fuse goes in its hole';
+        else if(e.k==='fuse')h='the stock fuse comes out only when the 185 °C resettable fuse goes in the steam thermostat\'s hole to take its place, never without one. Wired to it now: '+chips(e.now);
         else if(e.k==='pfuse')h='the pump fuse stays; its leads are now '+chips(e.now);
         else if(e.now.length)h='now '+chips(e.now);
         else if(mvEnd[i])return;
-        else h=SI&&(f.stay||[]).indexOf(fid)>=0?'unchanged':'nothing new lands here';
+        else h=SI?'stays where it is':'nothing new lands here';
         items.push('<li><b>'+esc(e.t)+':</b> '+h+'</li>');
       });
       (R.mv||[]).forEach(function(m){
