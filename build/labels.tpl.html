@@ -106,6 +106,8 @@ ol.steps li::before{content:counter(s);font:600 13px/26px var(--f-mono);text-ali
 a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
 %%INCLUDE:wiring-switch.css%%
 %%INCLUDE:runbook-figs.css%%
+%%INCLUDE:lv-guide.css%%
+.offimg{margin-top:14px}.offimg .rph{margin:0}
 .howfig .rfigs{margin-top:22px}
 </style>
 
@@ -164,6 +166,8 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     </div>
   </section>
   <div class="howfig" id="howfig"></div>
+  <div class="offimg" id="offimg"></div>
+  <div id="lvguide"></div>
 
   <section class="lkey" id="lkey" aria-label="How to read a label"></section>
   <section class="sheets" id="sheets" aria-label="Sheet preview"></section>
@@ -188,6 +192,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   %%INCLUDE:runbook-figs.js%%
   %%INCLUDE:progress-store.js%%
   %%INCLUDE:page-figs.js%%
+  %%INCLUDE:lv-guide.js%%
   RBF.init(PF(function(){return v()}));
   /* how a label goes on, with IDs from the schematic shown: a paper flag at one end, marker on silicone at the boiler */
   function howFig(V){return V.path==='CW'?{t1:'L1a',c1:'k',t2:'L3b',c2:'r'}:{t1:'L',c1:'k',t2:'J',c2:'r'}}
@@ -293,6 +298,10 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     $('s-sheets').textContent=S.pages.length;
     $('s-sheets-s').textContent=(S.pages.length===1?'sheet':'sheets')+' of '+S.paper.name;
     $('howfig').innerHTML=RBF.figs([['d','flag',howFig(V)]]);
+    var raw=function(u){return String(u||'').replace('https://github.com/gaggiuino/gaggiuino.github.io/blob/main/docs/','https://gaggiuino.github.io/')},bv=V.shelly&&V.base&&VARS[V.base]?VARS[V.base]:V;
+    $('offimg').innerHTML=V.path==='CW'&&bv.cutlist?RBF.pics([['The official cut list (HV wire guide), '+(V.volts===120?'100 to 120 V':'220 to 240 V'),raw(bv.cutlist)],['The official drawing: '+vlabel(bv.key),raw(bv.schematic)]]):'';
+    RBF.mount($('offimg'));
+    $('lvguide').innerHTML=LVG.html(V.runs,{cap:'Drawn from this page\'s wire list, in the style of the official HV wire guide. The official docs give no lengths for these, so route each one first and cut it with some slack. Colors are the official low-voltage drawing\'s, and kits vary: go by the pin name printed beside each socket on the PCB, not the color. Switch terminals are numbered as on the official drawing, switches seen from the back. The screen, thermocouple and pressure sensor cables come made up and plug straight in. On the <a href=\"wiring.html#map\">wiring map</a>, tap a socket such as J7 to see these on the machine.'});
     $('lkey').innerHTML=keyHtml(rows);
     $('hand').innerHTML=hot.length?hot.map(function(h){return '<li><b>'+esc(h[0])+'</b><span>at '+esc(h[1])+'</span></li>'}).join(''):'<li><span>None in this selection.</span></li>';
     $('sheets').innerHTML=S.pages.length?S.pages.map(function(pg,i){return '<div class="sheet"><span class="cap">Sheet '+(i+1)+' of '+S.pages.length+', '+S.paper.name+', preview</span>'+sheetSvg(S,pg,i,S.pages.length,title())+'</div>'}).join(''):'<p class="note">Pick at least one group to see the sheets.</p>';

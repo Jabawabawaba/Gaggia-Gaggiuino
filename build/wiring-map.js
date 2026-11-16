@@ -111,6 +111,10 @@
       Array.prototype.forEach.call(document.querySelectorAll('[data-wc]'),function(b){b.setAttribute('aria-pressed',String((b.getAttribute('data-wc')==='draw')===wcol))});
       var i=sel&&sel.t==='run'?order.indexOf(sel.id):-1;
       el('m-step').textContent=i>=0?(i+1)+' of '+order.length:order.length+(v.path==='F'?' wires':' runs');
+      Array.prototype.forEach.call(svg.querySelectorAll('.jhit'),function(r){r.classList.toggle('on',!!(sel&&sel.j===r.getAttribute('data-j')))});
+      var js=jList(),jc=el('mjchips');
+      jc.hidden=!js.length||view!=='mine';
+      jc.innerHTML=js.length?'<span class="mj-k">On the PCB</span>'+js.map(function(J){return '<button type="button" class="chip" data-mj="'+J+'" aria-pressed="'+!!(sel&&sel.j===J)+'" title="'+esc(JN[J]||'')+'">'+J+'</button>'}).join(''):'';
       legend();detail();summary();
     }
     /* one line above the map, so on a phone the pick shows without scrolling down to the card */
@@ -144,8 +148,20 @@
     }
     function detail0(){
       var d=el('mdetail');
-      if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">'+(v.path==='F'?'Tap a factory wire to see it on its own, what it does and what the install puts in its place, then Compare to switch between the two. Tap a part to see every factory wire that lands on it.':'Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it. Step through with the arrows to go run by run.')+'</p>';return}
+      if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">'+(v.path==='F'?'Tap a factory wire to see it on its own, what it does and what the install puts in its place, then Compare to switch between the two. Tap a part to see every factory wire that lands on it.':'Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it, or a socket on the PCB (J7, say) to see every wire it connects to. Step through with the arrows to go run by run.')+'</p>';return}
       var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+'<button type="button" class="chip" data-mclear>Show everything</button></span>';
+      if(sel.t==='set'&&sel.j){
+        var J=sel.j,row=function(id,joined){
+          var r=runOf(id);if(!r)return '<div><span class="k">'+esc(id)+'</span><span>'+esc((mp.cables||{})[id]||'')+'. It comes with its part: plug it in by pin.</span></div>';
+          var a=(r.term||[]).map(jOf).indexOf(J),far=a===1?r.frm:r.to,pin=a<0?'':String(a===1?r.to:r.frm).replace(/^.*\bJ\d+\s*/,'');
+          return '<div><span class="k">'+(joined?'Joined: ':'')+'<button type="button" class="lnk" data-mrun="'+esc(id)+'">'+esc(id)+'</button>'+(pin?' · '+esc(J+' '+pin):'')+'</span><span>'+swatch(r.color)+esc(joined?r.frm+' → '+r.to:'to '+far)+'</span></div>';
+        };
+        d.className='mdetail';d.style.borderLeftColor='var(--accent)';
+        d.innerHTML='<div class="d-head"><span class="d-id">'+esc(J)+'</span><span class="d-route">'+esc(JN[J]||'')+'</span>'+acts+'</div>'+
+          '<div class="d-grid">'+sel.ids.filter(function(id){return sel.joined.indexOf(id)<0}).map(function(id){return row(id,false)}).join('')+sel.joined.map(function(id){return row(id,true)}).join('')+'</div>'+
+          '<p style="color:var(--muted)">'+(sel.joined.length?'Joined runs share an end with one of '+esc(J)+'\'s runs, so they\'re on the same connection. ':'')+'Tap an ID to see that run on its own.</p>';
+        return;
+      }
       if(sel.t==='set'){
         d.className='mdetail';d.style.borderLeftColor='var(--accent)';
         d.innerHTML='<div class="d-head"><span class="d-route">'+esc(sel.label||'The runs that page pointed to')+'</span>'+acts+'</div><div><span class="k">'+sel.ids.length+' runs, in order</span><div class="ids" style="margin-top:4px">'+sel.ids.map(function(id){return '<button type="button" data-mrun="'+esc(id)+'">'+esc(id)+'</button>'}).join('')+'</div></div><p style="color:var(--muted)">Tap one to see it on its own.</p>';
@@ -199,6 +215,28 @@
       var gs=sel.t==='set'?sel.ids.map(function(id){return svg.querySelector('.run[data-run="'+id+'"]')}):[sel.t==='run'?svg.querySelector('.run[data-run="'+sel.id+'"]'):svg.querySelector('.part[data-part="'+sel.id+'"]')];
       try{var x0=1e9,x1=-1e9;gs.forEach(function(g){if(!g)return;var bb=g.getBBox();x0=Math.min(x0,bb.x);x1=Math.max(x1,bb.x+bb.width)});var ratio=svg.clientWidth/1400;sc.scrollTo({left:Math.max(0,(x0+x1)/2*ratio-sc.clientWidth/2),behavior:'smooth'})}catch(e){}
     }
+    /* a PCB socket (J1 to J13): every run that lands on it, and every run joined to those at a shared end (a jumper
+       that shares a spade, the rest of a neutral or line node), so the socket shows all it connects to */
+    var JN={J1:'Screen',J4:'Thermocouple',J5:'Extra IO',J6:'Pressure sensor',J7:'Switches',J9:'SSR control',J10:'AC neutral',J11:'AC line',J12:'Pump',J13:'3-way valve'},JC={J1:'SCR',J4:'TC',J6:'PS'};
+    function jOf(t){var m=/^(?:pcb )?(j\d+)\b/.exec(String(t||''));return m?m[1].toUpperCase():null}
+    function jNet(J){
+      if(!v||v.path==='F')return {direct:[],joined:[]};
+      var runs=v.runs.filter(function(r){return hasRun(r.id)}),direct=runs.filter(function(r){return (r.term||[]).some(function(t){return jOf(t)===J})}).map(function(r){return r.id});
+      if(JC[J]&&hasRun(JC[J]))direct.push(JC[J]);
+      var S=direct.slice(),grow=true;
+      while(grow){
+        grow=false;
+        var ts={};runs.forEach(function(r){if(S.indexOf(r.id)>=0)(r.term||[]).forEach(function(t){if(t&&!jOf(t))ts[t]=1})});
+        runs.forEach(function(r){if(S.indexOf(r.id)<0&&(r.term||[]).some(function(t){return ts[t]})){S.push(r.id);grow=true}});
+      }
+      return {direct:direct,joined:S.filter(function(id){return direct.indexOf(id)<0})};
+    }
+    function jList(){if(!v||v.path==='F'||!svg)return [];return Array.prototype.map.call(svg.querySelectorAll('.jhit'),function(r){return r.getAttribute('data-j')}).filter(function(J){return jNet(J).direct.length}).sort(function(a,b){return +a.slice(1)-+b.slice(1)})}
+    function pickJ(J){
+      if(sel&&sel.j===J){sel=null;paint();return}
+      var n=jNet(J);if(!n.direct.length)return;
+      sel={t:'set',ids:n.direct.concat(n.joined),label:J+', '+(JN[J]||'socket'),j:J,joined:n.joined};layer='all';paint();center();
+    }
     function pickRun(id,toggle){sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
     function pickPart(id){sel=(sel&&sel.t==='part'&&sel.id===id)?null:{t:'part',id:id};paint();center()}
     function stepBy(n){
@@ -211,10 +249,12 @@
       el('mscroll').addEventListener('click',function(e){
         if(A){var fg=A==='cmp'&&e.target.closest('.st-fw [data-run]');if(fg&&fg.getAttribute('data-run')!==cmp)compare(fg.getAttribute('data-run'),'play');return}
         var g=e.target.closest('[data-run]');if(g){pickRun(g.getAttribute('data-run'),true);return}
+        var jh=e.target.closest('[data-j]');if(jh&&view==='mine'){pickJ(jh.getAttribute('data-j'));return}
         var p=e.target.closest('[data-part]');if(p){pickPart(p.getAttribute('data-part'));return}
         if(sel){sel=null;paint()}
       });
       el('mchips').addEventListener('click',function(e){var b=e.target.closest('[data-mlayer]');if(!b)return;layer=b.getAttribute('data-mlayer');sel=null;paint()});
+      el('mjchips').addEventListener('click',function(e){var b=e.target.closest('[data-mj]');if(b)pickJ(b.getAttribute('data-mj'))});
       el('mapsec').addEventListener('click',function(e){
         var w=e.target.closest('[data-wc]');if(w){wcol=w.getAttribute('data-wc')==='draw';persist();paint();return}
         if(e.target.closest('[data-mclear]')){sel=null;paint();return}
