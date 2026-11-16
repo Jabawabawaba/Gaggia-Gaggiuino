@@ -12,11 +12,11 @@
     /* view: mine (the schematic's own wiring) or box (out of the box); drawn: what #mscroll holds now */
     var view='mine',drawn=null,realV=null,realMp=null;
     /* New hardware: every wire and tag hidden, the parts the install adds lit, the stock parts left in place */
-    var nhw=false,NEWHW=['pcb','screen','ssr','tc','psens','rf','sn','shelly','encl','s6'];
+    var nhw=false,NEWHW=['pcb','screen','ssr','tc','psens','rf','shelly','encl'];
     function nhwIds(){return mp&&view==='mine'?NEWHW.filter(function(p){return mp.parts[p]&&hasPart(p)}):[]}
     /* What stays: on the Out of the box drawing, the factory wires and parts the install keeps, everything that comes
        out hidden; with no factory drawing (230 V Pro), the stock leads and machine parts on your wiring's map */
-    var stw=false,NOTSTAY=['x1a','x1b','n1a','l4b'];
+    var stw=false,NOTSTAY=['x1a','x1b','n1a','l4b','sn','s6'];
     function stwOn(){return stw&&!A&&(view==='box'||!facOf(key))}
     function stwSets(){
       var f=view==='box'&&facOf(key),W={},P=[];
@@ -250,7 +250,7 @@
             (ids.length?'<div><span class="k">'+ids.length+(ids.length===1?' factory wire lands':' factory wires land')+' here</span><div class="ids" style="margin-top:4px">'+ids.map(function(id){return '<button type="button" data-mrun="'+esc(id)+'">'+esc(id)+'</button>'}).join('')+'</div></div>':'<p style="color:var(--muted)">No factory wire lands here.</p>');
           return;
         }
-        d.innerHTML='<div class="d-head"><span class="d-route">'+esc(p.name)+'</span>'+acts+'</div>'+(pi?'<p class="d-what">'+esc(pi.w)+'</p>'+(pi.p?'<p class="d-pcb"><span class="k">With Gaggiuino</span> '+esc(pi.p)+'</p>':''):'')+(p.note?'<p>'+esc(p.note.charAt(0).toUpperCase()+p.note.slice(1))+'.</p>':'')+
+        d.innerHTML='<div class="d-head"><span class="d-route">'+esc(p.name)+'</span>'+acts+'</div>'+(pi?'<p class="d-what">'+esc(pi.w)+'</p>'+(pi.p?'<p class="d-pcb"><span class="k">With Gaggiuino</span> '+esc(pi.p)+'</p>':'')+(pi.img?'<p class="d-pcb">'+esc(pi.img.n)+' <a href="'+esc(pi.img.u)+'" target="_blank" rel="noopener">'+esc(pi.img.t)+'</a>.</p>':''):'')+(p.note?'<p>'+esc(p.note.charAt(0).toUpperCase()+p.note.slice(1))+'.</p>':'')+
           (ids.length?'<div><span class="k">'+ids.length+(ids.length===1?' run lands':' runs land')+' here</span><div class="ids" style="margin-top:4px">'+ids.map(function(id){return '<button type="button" data-mrun="'+esc(id)+'"'+(isOpt(id)?' class="o" title="Optional run"':'')+'>'+id+(isOpt(id)?' · optional':'')+'</button>'}).join('')+'</div></div>':'<p style="color:var(--muted)">Nothing new connects here; it\'s drawn so you can find your way around.</p>');
         return;
       }
