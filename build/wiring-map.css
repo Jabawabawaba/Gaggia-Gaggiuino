@@ -168,3 +168,25 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .mjchips .mj-k{font:600 11.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:4px}
 .mdetail button.lnk{all:unset;cursor:pointer;font:inherit;color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .mdetail button.lnk:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* New hardware: wires, tags and socket targets hidden; the parts the install adds lit, stock parts kept but quieter */
+.mnhw{appearance:none;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:600 13.5px/1 var(--f-body);cursor:pointer;min-height:38px}
+.mnhw-i{width:12px;height:12px;border-radius:3px;border:2px solid var(--accent);background:var(--accent-soft)}
+.mnhw[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.mnhw[aria-pressed="true"] .mnhw-i{border-color:var(--on-accent);background:transparent}
+.mapsec.nhw #mchips,.mapsec.nhw .mtool .mseg2,.mapsec.nhw .stepper,.mapsec.nhw .mjchips{display:none!important}
+.dia.nhw .run,.dia.nhw .tag,.dia.nhw .stk,.dia.nhw .jhit{display:none}
+.dia .nhb{display:none;pointer-events:none}
+.dia.nhw .nhb{display:inline}
+.dia .nhb rect{fill:var(--accent)}
+.dia .nhb text{fill:var(--on-accent);font:700 10.5px/1 var(--f-mono);letter-spacing:.06em}
+.dia.nhw .part{opacity:.5}
+.dia.nhw .part.nh{opacity:1}
+.dia.nhw .part.nh .phit{fill:var(--accent-soft);fill-opacity:.5;stroke:var(--accent);stroke-width:2.5;rx:6}
+.dia.nhw .part.sel{opacity:1}
+.dia.nhw .part.nh.sel .phit{fill-opacity:.85;stroke-width:3.5}
+.lg-nh{width:16px!important;height:12px!important;border:2px solid var(--accent)!important;background:var(--accent-soft);border-radius:3px}
+.lg-nh0{width:16px!important;height:12px!important;border:1px solid var(--muted)!important;opacity:.5;border-radius:3px}
+@media print{.mnhw{display:none!important}}
+.nhlist{list-style:none;margin:6px 0 10px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px 22px}
+.nhlist li{display:flex;flex-direction:column;gap:3px;line-height:1.45}
+.nhlist .lnk{align-self:flex-start;text-align:left;font-weight:600;color:var(--accent-ink)!important}

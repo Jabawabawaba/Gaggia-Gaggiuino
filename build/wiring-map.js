@@ -11,6 +11,21 @@
     var PK='gaggia-wiring-map-v1',key=null,v=null,mp=null,svg=null,layer='all',sel=null,wcol=false,order=[],showOpt=false;
     /* view: mine (the schematic's own wiring) or box (out of the box); drawn: what #mscroll holds now */
     var view='mine',drawn=null,realV=null,realMp=null;
+    /* New hardware: every wire and tag hidden, the parts the install adds lit, the stock parts left in place */
+    var nhw=false,NEWHW=['pcb','screen','ssr','tc','psens','rf','sn','shelly','encl','s6'];
+    function nhwIds(){return mp&&view==='mine'?NEWHW.filter(function(p){return mp.parts[p]&&hasPart(p)}):[]}
+    function nhwBadges(){
+      if(!svg||svg.querySelector('.nhb'))return;
+      var ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g');g.setAttribute('class','nhb');g.setAttribute('aria-hidden','true');
+      nhwIds().forEach(function(id){
+        var r=svg.querySelector('.part[data-part="'+id+'"] > .phit');if(!r)return;
+        var x=+r.getAttribute('x'),y=+r.getAttribute('y'),sm=+r.getAttribute('width')<60||+r.getAttribute('height')<40,t=document.createElementNS(ns,'g');
+        t.setAttribute('transform','translate('+(sm?x-2:x+4)+','+(sm?y-21:y+4)+')');
+        t.innerHTML='<rect width="38" height="17" rx="8.5"/><text x="19" y="12.5" text-anchor="middle">NEW</text>';
+        g.appendChild(t);
+      });
+      svg.appendChild(g);
+    }
     /* phones: Whole map fits the drawing to the screen (class whole on the scroller, kept through the animation) */
     var whole=false;
     function zoomUI(){var sc=el('mscroll');sc.classList.toggle('whole',whole);if(whole)sc.scrollLeft=0;el('mhint').hidden=whole;
@@ -93,7 +108,10 @@
         var f=g.getAttribute('data-part'),t=g.getAttribute('data-to'),on=!!sel&&(partsLit[f]||(sel.t==='part'&&(sel.id===f||sel.id===t)));
         g.classList.toggle('on',!!on);if(on){partsLit[t]=1;partsLit[f]=1}
       });
-      svg.classList.toggle('dim',any);svg.classList.toggle('wcol',wcol);
+      var nh=nhw&&view==='mine'&&!A;if(nh)nhwBadges();
+      svg.classList.toggle('nhw',nh);el('mapsec').classList.toggle('nhw',nh);
+      var nb=el('m-nhw');if(nb){nb.hidden=view!=='mine'||!nhwIds().length;nb.setAttribute('aria-pressed',String(nh))}
+      svg.classList.toggle('dim',any&&!nh);svg.classList.toggle('wcol',wcol);
       Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag'),function(g){
         var id=g.getAttribute('data-run');
         g.classList.toggle('off',!lit[id]);
@@ -103,6 +121,7 @@
         var id=g.getAttribute('data-part');
         g.classList.toggle('off',!!sel&&!partsLit[id]&&!(sel.t==='part'&&sel.id===id));
         g.classList.toggle('sel',!!(sel&&sel.t==='part'&&sel.id===id));
+        g.classList.toggle('nh',NEWHW.indexOf(id)>=0);
       });
       var has={};Array.prototype.forEach.call(svg.querySelectorAll('.run'),function(g){var id=g.getAttribute('data-run');LAYERS.forEach(function(l){if(l[0]!=='all'&&inLayer(id,l[0]))has[l[0]]=1})});
       el('mchips').innerHTML=LAYERS.filter(function(l){return l[0]==='all'||has[l[0]]}).map(function(l){
@@ -120,6 +139,7 @@
     /* one line above the map, so on a phone the pick shows without scrolling down to the card */
     function summary(){
       var e=el('msel'),r=sel&&sel.t==='run'?runOf(sel.id):null;
+      if(nhw&&view==='mine'&&!sel){e.innerHTML='<span class="rt">New hardware</span>: '+nhwIds().length+' parts the install adds, wires hidden';return}
       if(!sel){e.textContent='';return}
       if(sel.t==='set'){e.innerHTML=(sel.label?'<span class="rt">'+esc(sel.label)+'</span>: ':'')+sel.ids.map(function(id){return '<b>'+esc(id)+'</b>'}).join(' ');return}
       if(sel.t==='part'){var p=mp.parts[sel.id]||{name:sel.id},n=Object.keys(mp.ends).filter(function(id){return ends(id).indexOf(sel.id)>=0}).length;e.innerHTML='<span class="rt">'+esc(p.name)+'</span>: '+(n?n+(n===1?' run lands here':' runs land here'):'nothing new connects here');return}
@@ -129,6 +149,7 @@
     }
     function legend(){
       var h;
+      if(nhw&&view==='mine'){el('mlegend').innerHTML='<span><i class="lg-nh"></i>New with the install</span><span><i class="lg-nh0"></i>Stock part, stays in the machine</span>';return}
       if(v.path==='F'){
         h=wcol?'<span><i class="c" style="background:#7A4A2A"></i>The factory drawing\'s wire colors</span>':[['L','Line'],['H','Heater circuit, through the thermostats'],['N','Neutral'],['E','Earth'],['LMP','Lamp lead']].filter(function(x){return v.runs.some(function(r){return r.sys===x[0]})}).map(function(x){return '<span><i class="lg-'+x[0]+'"></i>'+x[1]+'</span>'}).join('');
         el('mlegend').innerHTML=h+(Object.keys(mp.parts).some(function(p){return /^J\d+$/.test(p)})?'<span><i class="lg-fsp"></i>Factory crimp splice</span>':'');return;
@@ -148,8 +169,15 @@
     }
     function detail0(){
       var d=el('mdetail');
+      if(!sel&&nhw&&view==='mine'){
+        var ni=nhwIds();d.className='mdetail';d.style.borderLeftColor='var(--accent)';
+        d.innerHTML='<div class="d-head"><span class="d-route">New hardware</span><span class="d-acts"><button type="button" class="chip" data-mnhw>Show the wiring</button></span></div>'+
+          '<ul class="nhlist">'+ni.map(function(id){var pi=typeof partInfo==='function'?partInfo(id,realV):null,w=pi&&pi.w?pi.w:(mp.parts[id].note||''),m=/^(.+?[.:])\s/.exec(w+' ');w=m?m[1].replace(/:$/,'.'):w;return '<li><button type="button" class="lnk" data-mpart="'+esc(id)+'">'+esc(mp.parts[id].name)+'</button><span>'+esc(w)+'</span></li>'}).join('')+'</ul>'+
+          '<p style="color:var(--muted)">Everything else on the drawing is stock and stays where it is. Tap a part for what it does and what lands on it.</p>';
+        return;
+      }
       if(!sel){d.className='mdetail empty';d.style.borderLeftColor='';d.innerHTML='<p style="color:var(--muted)">'+(v.path==='F'?'Tap a factory wire to see it on its own, what it does and what the install puts in its place, then Compare to switch between the two. Tap a part to see every factory wire that lands on it.':'Tap a wire or its tag to see that run on its own, with where it starts and ends, the wire and what goes on each end. Tap a part to see every run that lands on it, or a socket on the PCB (J7, say) to see every wire it connects to. Step through with the arrows to go run by run.')+'</p>';return}
-      var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+'<button type="button" class="chip" data-mclear>Show everything</button></span>';
+      var acts='<span class="d-acts">'+(sel.t==='run'&&runOf(sel.id)?'<a href="#r-'+esc(sel.id)+'" data-jump="'+esc(sel.id)+'">Show in the list</a>':'')+(nhw&&view==='mine'?'<button type="button" class="chip" data-mclear>All new hardware</button>':'<button type="button" class="chip" data-mclear>Show everything</button>')+'</span>';
       if(sel.t==='set'&&sel.j){
         var J=sel.j,row=function(id,joined){
           var r=runOf(id);if(!r)return '<div><span class="k">'+esc(id)+'</span><span>'+esc((mp.cables||{})[id]||'')+'. It comes with its part: plug it in by pin.</span></div>';
@@ -233,11 +261,12 @@
     }
     function jList(){if(!v||v.path==='F'||!svg)return [];return Array.prototype.map.call(svg.querySelectorAll('.jhit'),function(r){return r.getAttribute('data-j')}).filter(function(J){return jNet(J).direct.length}).sort(function(a,b){return +a.slice(1)-+b.slice(1)})}
     function pickJ(J){
+      nhw=false;
       if(sel&&sel.j===J){sel=null;paint();return}
       var n=jNet(J);if(!n.direct.length)return;
       sel={t:'set',ids:n.direct.concat(n.joined),label:J+', '+(JN[J]||'socket'),j:J,joined:n.joined};layer='all';paint();center();
     }
-    function pickRun(id,toggle){sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
+    function pickRun(id,toggle){nhw=false;sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
     function pickPart(id){sel=(sel&&sel.t==='part'&&sel.id===id)?null:{t:'part',id:id};paint();center()}
     function stepBy(n){
       if(!order.length)return;
@@ -258,6 +287,8 @@
       el('mapsec').addEventListener('click',function(e){
         var w=e.target.closest('[data-wc]');if(w){wcol=w.getAttribute('data-wc')==='draw';persist();paint();return}
         if(e.target.closest('[data-mclear]')){sel=null;paint();return}
+        var nb=e.target.closest('#m-nhw,[data-mnhw]');if(nb){nhw=!nhw;sel=null;layer='all';paint();if(nhw&&el('mscroll').scrollWidth>el('mscroll').clientWidth+2&&!whole){whole=true;zoomUI()}return}
+        var mpn=e.target.closest('[data-mpart]');if(mpn){pickPart(mpn.getAttribute('data-mpart'));return}
         var r=e.target.closest('[data-mrun]');if(r){pickRun(r.getAttribute('data-mrun'),false);return}
         var c=e.target.closest('[data-mcmp]');if(c){compare(c.getAttribute('data-mcmp'),'play');el('mapsec').scrollIntoView({behavior:'smooth',block:'start'});return}
         if(e.target.closest('[data-cmpx]')){closeCmp();return}
