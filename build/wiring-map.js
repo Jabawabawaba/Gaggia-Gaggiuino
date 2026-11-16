@@ -438,7 +438,8 @@
       R.ends.forEach(function(e,i){
         var h;
         if(e.k==='splice')h=SI?'stays, with its other wires':'comes out with the factory harness';
-        else if(e.k==='bt'||e.k==='st')h=esc(lc1(((f.parts[e.k]||{}).note)||'comes out'));
+        else if(e.k==='bt')h='comes out: the thermocouple goes in its hole, and the PCB takes over brew temperature';
+        else if(e.k==='st')h=SI?'its Sa and Sb connectors move to the SSR, so it can stay, unplugged, or come out':'comes out: the 185 °C resettable fuse goes in its hole';
         else if(e.k==='fuse')h='the stock fuse comes out; the 185 °C resettable fuse in the steam thermostat\'s hole takes its place: '+chips(e.now);
         else if(e.k==='pfuse')h='the pump fuse stays; its leads are now '+chips(e.now);
         else if(e.now.length)h='now '+chips(e.now);
