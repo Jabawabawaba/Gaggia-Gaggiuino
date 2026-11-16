@@ -190,3 +190,23 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .nhlist{list-style:none;margin:6px 0 10px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px 22px}
 .nhlist li{display:flex;flex-direction:column;gap:3px;line-height:1.45}
 .nhlist .lnk{align-self:flex-start;text-align:left;font-weight:600;color:var(--accent-ink)!important}
+/* What stays: what comes out hidden; parts that stay outlined; a factory wire with a new or moved end gets an accent halo */
+.mstw .mnhw-i{border-color:var(--ink);background:transparent}
+.mstw[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.mstw[aria-pressed="true"] .mnhw-i{border-color:var(--bg)}
+.dia.stw .run:not(.sy),.dia.stw .tag:not(.sy),.dia.stw .stk,.dia.stw .jhit{display:none}
+.dia.stw .part{opacity:.15}
+.dia.stw .part.sp{opacity:1}
+.dia.stw .part.sp .phit{fill:transparent;stroke:var(--ink);stroke-width:2;stroke-dasharray:none;rx:6;opacity:.55}
+.dia.stw .run.sye .halo{stroke:var(--accent);stroke-opacity:.45;stroke-width:11}
+.dia.stw .run.syi{opacity:.5}
+.dia.stw .part.sel .phit{fill:var(--accent-soft);fill-opacity:.55;stroke:var(--accent);opacity:1}
+.lg-sp{width:16px!important;height:12px!important;border:2px solid var(--ink)!important;opacity:.6;border-radius:3px}
+.lg-sy{border-top-color:var(--ink)!important}
+.lg-sye{border-top:4px solid var(--ink)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 45%,transparent)}
+.lg-syi{border-top-color:var(--ink)!important;opacity:.5}
+.stw-grid{grid-template-columns:1fr!important}
+.stw-grid > div{display:flex;flex-direction:column;gap:4px}
+.dia.stw.stwcw .fuse,.dia.stw.stwcw .fuse + text{opacity:.15}
+.stw-grid .ids{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:6px}
+.stw-grid .lnk{color:var(--accent-ink)!important}
