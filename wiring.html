@@ -699,6 +699,7 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .stw-grid > div{display:flex;flex-direction:column;gap:4px}
 .dia.stw.stwcw .fuse,.dia.stw.stwcw .fuse + text{opacity:.15}
 .stw-grid .ids{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:6px}
+.stw-grid .lnk{color:var(--accent-ink)!important}
 
 /* the change player's controls and the per-wire compare (shared by both sites: keep the two copies identical) */
 .mctl{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:10px}
@@ -2103,7 +2104,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var si=v.path==='SI',gc=v.fam==='GC',w,p;
     if(/^f:/.test(id))return {w:'A connector from the machine\'s own harness. Mark it before you unplug it, so the install can be traced or undone.'};
     if(id==='s6')return {w:'A BN2 butt splice by the power switch, added with the Shelly: the Shelly\'s output (SH3) on one side, the two wires of L4a on the other (their flag cut off), where they used to share the power switch\'s spade 4.',p:'Everything after it, the PCB on J11 included, is off while the Shelly is off.'};
-    if(id==='sn')return {w:'The harness\'s BN2 butt splice under silicone heat shrink, by the boiler: the element neutral'+(v.volts===120?'s N1d and N1e':' N1d')+' on one side, the neutral runs to the socket (N1c) and the 3-way valve (N1f) on the other.',p:'Neutral for the elements and the valve. It never connects to the PCB\'s 5 V side.'};
+    if(id==='sn')return {img:{u:'https://gaggiuino.github.io/schematics/custom-3pln/GC_P_HV_wire_guide_'+(v.volts===120?'120v':'220v')+'.png',t:'See it on the official Plug-and-Play cut list',n:'Part of the harness wiring, not a separate part: the official cut list draws it as a joint in the neutral wires.'},w:'The harness\'s BN2 butt splice under silicone heat shrink, by the boiler: the element neutral'+(v.volts===120?'s N1d and N1e':' N1d')+' on one side, the neutral runs to the socket (N1c) and the 3-way valve (N1f) on the other.',p:'Neutral for the elements and the valve. It never connects to the PCB\'s 5 V side.'};
     if(id==='x1a')return {w:'Two plug-in connectors: X1a, the male end on the boiler lamp\'s lead, pushed into L2b, the harness\'s female from the SSR\'s heater side.',p:'With L4b on the lamp\'s other lead, the lamp sits across the SSR, so it lights while the boiler isn\'t heating.'};
     if(id==='x1b')return {w:'Two plug-in connectors: X1b, the male end on the power lamp\'s and boiler lamp\'s leads, pushed into L4b, the harness\'s switched line from the power switch.'+(v.shelly?' With the Shelly, L4b now comes from splice S6.':''),p:'Both lamps get switched line here.'};
     if(id==='n1a')return {w:'Two plug-in connectors at the pump: P2b, the male end on the pump fuse\'s lead, pushed into N1a, the harness\'s female that carries neutral on to the socket (N1c) and the PCB (N1b).',p:'The PCB\'s neutral comes this way: if the pump fuse opens, J10 still has neutral from N1a, but the pump stops.'};
@@ -2345,11 +2346,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     /* view: mine (the schematic's own wiring) or box (out of the box); drawn: what #mscroll holds now */
     var view='mine',drawn=null,realV=null,realMp=null;
     /* New hardware: every wire and tag hidden, the parts the install adds lit, the stock parts left in place */
-    var nhw=false,NEWHW=['pcb','screen','ssr','tc','psens','rf','sn','shelly','encl','s6'];
+    var nhw=false,NEWHW=['pcb','screen','ssr','tc','psens','rf','shelly','encl'];
     function nhwIds(){return mp&&view==='mine'?NEWHW.filter(function(p){return mp.parts[p]&&hasPart(p)}):[]}
     /* What stays: on the Out of the box drawing, the factory wires and parts the install keeps, everything that comes
        out hidden; with no factory drawing (230 V Pro), the stock leads and machine parts on your wiring's map */
-    var stw=false,NOTSTAY=['x1a','x1b','n1a','l4b'];
+    var stw=false,NOTSTAY=['x1a','x1b','n1a','l4b','sn','s6'];
     function stwOn(){return stw&&!A&&(view==='box'||!facOf(key))}
     function stwSets(){
       var f=view==='box'&&facOf(key),W={},P=[];
@@ -2583,7 +2584,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
             (ids.length?'<div><span class="k">'+ids.length+(ids.length===1?' factory wire lands':' factory wires land')+' here</span><div class="ids" style="margin-top:4px">'+ids.map(function(id){return '<button type="button" data-mrun="'+esc(id)+'">'+esc(id)+'</button>'}).join('')+'</div></div>':'<p style="color:var(--muted)">No factory wire lands here.</p>');
           return;
         }
-        d.innerHTML='<div class="d-head"><span class="d-route">'+esc(p.name)+'</span>'+acts+'</div>'+(pi?'<p class="d-what">'+esc(pi.w)+'</p>'+(pi.p?'<p class="d-pcb"><span class="k">With Gaggiuino</span> '+esc(pi.p)+'</p>':''):'')+(p.note?'<p>'+esc(p.note.charAt(0).toUpperCase()+p.note.slice(1))+'.</p>':'')+
+        d.innerHTML='<div class="d-head"><span class="d-route">'+esc(p.name)+'</span>'+acts+'</div>'+(pi?'<p class="d-what">'+esc(pi.w)+'</p>'+(pi.p?'<p class="d-pcb"><span class="k">With Gaggiuino</span> '+esc(pi.p)+'</p>':'')+(pi.img?'<p class="d-pcb">'+esc(pi.img.n)+' <a href="'+esc(pi.img.u)+'" target="_blank" rel="noopener">'+esc(pi.img.t)+'</a>.</p>':''):'')+(p.note?'<p>'+esc(p.note.charAt(0).toUpperCase()+p.note.slice(1))+'.</p>':'')+
           (ids.length?'<div><span class="k">'+ids.length+(ids.length===1?' run lands':' runs land')+' here</span><div class="ids" style="margin-top:4px">'+ids.map(function(id){return '<button type="button" data-mrun="'+esc(id)+'"'+(isOpt(id)?' class="o" title="Optional run"':'')+'>'+id+(isOpt(id)?' · optional':'')+'</button>'}).join('')+'</div></div>':'<p style="color:var(--muted)">Nothing new connects here; it\'s drawn so you can find your way around.</p>');
         return;
       }
