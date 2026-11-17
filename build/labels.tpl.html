@@ -219,7 +219,9 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     });
   }
   function flagsFor(V){return prefs.groups.stock&&V.flags?V.flags:[]}
-  function selRows(){var V=v();return LabelCore.rows(runsFor(V),flagsFor(V))}
+  function keptDivider(V){return V.path==='SI'||(V.flags&&V.flags.length)?['Stock wires that stay in the machine','These flag the machine\'s own connectors that the install moves or parks. Put each one on before its connector comes off its spade.']:
+    ['Leads that stay in the machine','The machine\'s own lamp and pump fuse leads. They get new ends, not new wire. Label each one as you cut it free of its factory splice.']}
+  function selRows(){var V=v();return LabelCore.rows(runsFor(V),flagsFor(V),keptDivider(V))}
   function rgb(c){return 'rgb('+c.join(',')+')'}
   function chips(){
     var V=v();
@@ -238,6 +240,11 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     o.push('<path d="M'+bx+',8 h50 M'+bx+',6.8 v2.4 M'+(bx+50)+',6.8 v2.4" stroke="var(--paper-ink)" stroke-width=".4" fill="none"/>');
     o.push('<text x="'+bx+'" y="11.5" font-size="2.3" fill="var(--paper-ink)">This bar should measure 50 mm</text>');
     pg.rows.forEach(function(row){
+      if(row.divider){var dy=row.y+3.2;
+        o.push('<path d="M'+S.left+','+dy+' H'+(P.w-S.left)+'" stroke="var(--paper-ink)" stroke-width=".6"/>');
+        o.push('<text x="'+S.left+'" y="'+(dy+4.6)+'" font-size="3.2" font-weight="700" fill="var(--paper-ink)">'+esc(row.divider[0])+'</text>');
+        o.push('<text x="'+S.left+'" y="'+(dy+8.2)+'" font-size="2.4" fill="var(--paper-muted)">'+esc(row.divider[1])+'</text>');
+        return;}
       row.cells.forEach(function(c){
         var col=rgb(LabelCore.COLOR[c.sys]||LabelCore.COLOR.LVG);
         if(c.hot){
@@ -267,7 +274,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     LV:['Low voltage','Switch signals and SSR control from the PCB.'],LVG:['Low-voltage ground','The ground side of the switch signals and SSR control.'],
     STK:['Stock connector','One of the machine\'s own leads that the install moves or parks, flagged so it goes back on the right spade.']};
   function keyHtml(rows){
-    var all=[].concat.apply([],rows),plain=all.filter(function(c){return !c.hot}),real=plain.filter(function(c){return c.sys!=='STK'}),cell=real.filter(function(c){return c.l2!=='to: '+c.id})[0]||real[0]||plain[0]||null;
+    var all=[].concat.apply([],rows.filter(Array.isArray)),plain=all.filter(function(c){return !c.hot}),real=plain.filter(function(c){return c.sys!=='STK'}),cell=real.filter(function(c){return c.l2!=='to: '+c.id})[0]||real[0]||plain[0]||null;
     var has={};all.forEach(function(c){has[c.sys]=1});
     return LabelKey.html({cell:cell,L:LabelCore.L,color:function(s){return rgb(LabelCore.COLOR[s]||LabelCore.COLOR.LVG)},
       sys:['L','H','N','E','LV','LVG','STK'].filter(function(s){return has[s]}),names:KEYN,mains:['L','H','N'],
@@ -292,7 +299,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     chips();
     var rows=selRows(),S=LabelCore.sheets(rows,prefs.paper);
     var hot=[],labels=0,nruns=runsFor(V).length;
-    rows.forEach(function(cells){cells.forEach(function(c){if(c.hot)hot.push([c.id,c.here]);else labels++})});
+    rows.forEach(function(cells){if(cells.divider)return;cells.forEach(function(c){if(c.hot)hot.push([c.id,c.here]);else labels++})});
     $('s-runs').textContent=nruns;
     $('s-labels').textContent=labels;
     $('s-sheets').textContent=S.pages.length;
