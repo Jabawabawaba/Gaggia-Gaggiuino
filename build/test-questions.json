@@ -1406,7 +1406,7 @@
    "The pressure sensor and its signal lead",
    "The low-voltage cables for the switches"
   ],
-  "why": "Kits bring the PCB, screen, sensors, SSR and low-voltage cables. 18 AWG mains wire, insulation and printed housings usually come on top, plus a meter and an open-barrel crimper if you don't have them. Some kits add mains cables (Peak Coffee's are 22 AWG), so check yours.",
+  "why": "Kits bring the PCB, screen, sensors, SSR and low-voltage cables. 18 AWG mains wire, insulation and printed housings usually come on top, plus a meter and an open-barrel crimper if you don't have them. Some kits add mains cables, so check their size: the official parts list calls for 18 AWG.",
   "r": [
    [
     "url",
@@ -1424,7 +1424,7 @@
  {
   "id": "plan-15",
   "k": "plan",
-  "q": "Peak Coffee's kit includes the seven stock-wiring cables. Why make at least J, Sa and Sb from your own wire?",
+  "q": "Your kit came with the seven stock-wiring cables in 22 AWG. Why make at least J, Sa and Sb from your own wire?",
   "a": [
    "They're 22 AWG; those three carry heater current",
    "They're the wrong colors for the official schematic",
@@ -1445,7 +1445,7 @@
    ]
   ],
   "w": "wpath:SI",
-  "src": "gaggia-parts-tracker.html wire spec (wpath:SI): 'Peak Coffee's kit includes the seven stock-wiring cables, but in 22 AWG. The official parts list calls for 18, which matters most on the three that carry the heater's current (J, Sa and Sb, all red), so make at least those from this wire.'"
+  "src": "gaggia-parts-tracker.html wire spec (wpath:SI): 'If a kit came with stock-wiring cables, check their size: some unofficial kits use 22 AWG. The official parts list calls for 18, which matters most on the three that carry the heater's current (J, Sa and Sb, all red), so make at least those from this wire.'"
  },
  {
   "id": "plan-16",
