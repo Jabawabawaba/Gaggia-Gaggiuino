@@ -210,3 +210,8 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .dia.stw.stwcw .fuse,.dia.stw.stwcw .fuse + text{opacity:.15}
 .stw-grid .ids{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:6px}
 .stw-grid .lnk{color:var(--accent-ink)!important}
+/* end labels on lit runs */
+.dia .elab{pointer-events:none}
+.dia .elab rect{fill:var(--surface);stroke:var(--ink);stroke-width:1}
+.dia .elab text{fill:var(--ink);font:700 10.5px/1 var(--f-mono)}
+@media print{.dia .elab rect{fill:#fff}}
