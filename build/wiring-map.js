@@ -32,6 +32,40 @@
       }
       return {w:W,p:P,f:f};
     }
+    /* End labels: with a wire, part, socket or layer picked, each lit run's own label sits on the wire just short of each
+       end (Plug-and-Play: the official end label, e.g. G1d; elsewhere the run's ID at both ends) */
+    function endLab(r,i){return (r&&r.lab&&r.lab[i])||(r&&r.id)||''}
+    function endLabels(lit){
+      var old=svg.querySelector('.elab');if(old)old.remove();
+      if(!lit)return;
+      var ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g'),h='',C=[],box=[];g.setAttribute('class','elab');g.setAttribute('aria-hidden','true');
+      Object.keys(lit).forEach(function(id){
+        if(!lit[id])return;
+        var tg=svg.querySelector('.tag[data-run="'+id+'"]');if(tg){try{var tb=tg.getBBox();box.push([tb.x,tb.y,tb.x+tb.width,tb.y+tb.height])}catch(e){}}
+        var w=svg.querySelector('.run[data-run="'+id+'"] .wire');if(!w||!w.getTotalLength)return;
+        var r=runOf(id),L=w.getTotalLength();if(!L)return;
+        [0,1].forEach(function(i){
+          var t=endLab(r,i);if(!t)return;
+          var d=Math.min(26,L*0.3),pt=w.getPointAtLength(i?L-d:d),wd=t.length*6+8;
+          C.push({x:pt.x,y:pt.y,w:wd,t:t,pri:/^[A-Z0-9][A-Za-z0-9-]{0,7}$/.test(t)?0:1});
+        });
+      });
+      /* official-style labels first; a label that would overlap one already placed, or a wire's own tag, is left out */
+      /* two plugs on one spot (a piggyback) share a label: "N1f + X1c" */
+      C.sort(function(a,b){return a.pri-b.pri});
+      var P=[];
+      C.forEach(function(c){
+        var b=[c.x-c.w/2-1.5,c.y-6.5,c.x+c.w/2+1.5,c.y+6.5];
+        var near=P.filter(function(q){return Math.abs(q.x-c.x)<5&&Math.abs(q.y-c.y)<5})[0];
+        if(near){if(near.t.split(' + ').indexOf(c.t)<0&&c.pri===0&&near.pri===0){near.t+=' + '+c.t;near.w=near.t.length*6+8}return}
+        if(box.some(function(o){return b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]}))return;
+        box.push(b);P.push(c);
+      });
+      P.forEach(function(c){
+        h+='<g transform="translate('+c.x.toFixed(1)+','+c.y.toFixed(1)+')"><rect x="'+(-c.w/2)+'" y="-6" width="'+c.w+'" height="12" rx="3"/><text y="3.6" text-anchor="middle">'+esc(c.t)+'</text></g>';
+      });
+      g.innerHTML=h;svg.appendChild(g);
+    }
     function nhwBadges(){
       if(!svg||svg.querySelector('.nhb'))return;
       var ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g');g.setAttribute('class','nhb');g.setAttribute('aria-hidden','true');
@@ -145,6 +179,7 @@
         g.classList.toggle('sel',!!(sel&&sel.t==='part'&&sel.id===id));
         g.classList.toggle('nh',NEWHW.indexOf(id)>=0);
       });
+      endLabels(any&&!nh&&!st?lit:null);
       var has={};Array.prototype.forEach.call(svg.querySelectorAll('.run'),function(g){var id=g.getAttribute('data-run');LAYERS.forEach(function(l){if(l[0]!=='all'&&inLayer(id,l[0]))has[l[0]]=1})});
       el('mchips').innerHTML=LAYERS.filter(function(l){return l[0]==='all'||has[l[0]]}).map(function(l){
         return '<button type="button" class="chip" data-mlayer="'+l[0]+'" aria-pressed="'+(layer===l[0]&&!sel)+'">'+(l[2]?'<span class="sw" style="background:'+l[2]+'"></span>':'')+l[1]+'</button>';
