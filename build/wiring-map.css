@@ -257,3 +257,8 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .dia.elec .frun.ecur.erev .flow{animation-direction:reverse}
 .dia.elec .frun.elive .halo{stroke:#d92b2b;stroke-opacity:.38;stroke-width:11}
 @media (prefers-reduced-motion:reduce){.dia.elec .frun.ecur .flow{animation:none;stroke:var(--surface)}}
+
+.dia .epulse{fill:none;stroke:#ffd23f;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;filter:drop-shadow(0 0 5px #ffb300)}
+.dia .ebig .epulse{stroke-width:9}
+.lg-epulse{border-top:5px solid #ffd23f!important;border-radius:3px;box-shadow:0 0 5px #ffb300}
+@media (prefers-reduced-motion:reduce){.lg-epulse{display:none!important}}

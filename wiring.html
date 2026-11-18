@@ -748,6 +748,11 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .dia.elec .frun.elive .halo{stroke:#d92b2b;stroke-opacity:.38;stroke-width:11}
 @media (prefers-reduced-motion:reduce){.dia.elec .frun.ecur .flow{animation:none;stroke:var(--surface)}}
 
+.dia .epulse{fill:none;stroke:#ffd23f;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;filter:drop-shadow(0 0 5px #ffb300)}
+.dia .ebig .epulse{stroke-width:9}
+.lg-epulse{border-top:5px solid #ffd23f!important;border-radius:3px;box-shadow:0 0 5px #ffb300}
+@media (prefers-reduced-motion:reduce){.lg-epulse{display:none!important}}
+
 /* the change player's controls and the per-wire compare (shared by both sites: keep the two copies identical) */
 .mctl{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:10px}
 .mctl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
@@ -2443,7 +2448,49 @@ var FLOW=(function(){
       }else if(e.k==='run'&&S.mains&&V[e.a]>0.02)out.live[e.id]=1;
     });
   }
-  return {solve:solve};
+  /* Pulses: a bright packet leaves each source, runs down every wire that carries current in the direction it flows,
+     splits where the path splits, and as it reaches the far end the next one sets off. Each wire's pulse is timed by
+     its distance from the source along the current's path. FLOW.pulses(svg, model, result) draws them (and clears the
+     last ones); FLOW.pulses(svg) only clears. */
+  function pulses(svg,M,R){
+    Array.prototype.forEach.call(svg.querySelectorAll('.epulse'),function(p){p.remove()});
+    if(!M||!R||!svg.animate)return;
+    try{if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches)return}catch(e){}
+    var len={},grp={};
+    M.runs.forEach(function(r){
+      if(!R.cur[r.id])return;
+      var g=svg.querySelector('.run[data-run="'+r.id+'"],.frun[data-run="'+r.id+'"]'),w=g&&g.querySelector('.wire');
+      if(!w||!w.getTotalLength)return;grp[r.id]=[g,w];len[r.id]=w.getTotalLength();
+    });
+    /* distance of every terminal from a source, along wires in the current's direction; inside a part (a join, a
+       closed contact, a load that's on) the pulse crosses at once */
+    var D={},links=[];
+    (M.src||[]).forEach(function(x){D[x.from]=0});
+    (M.joins||[]).forEach(function(j){links.push([j[0],j[1]])});
+    (M.closed||[]).forEach(function(c){if(R.sw[c.id])links.push([c.a,c.b])});
+    (M.loads||[]).forEach(function(l){if(R.loads[l.id])links.push([l.a,l.b])});
+    var ch=true,guard=0;
+    function relax(a,b,d){if(a in D&&(!(b in D)||D[b]>D[a]+d+1e-6)){D[b]=D[a]+d;ch=true}}
+    while(ch&&guard++<500){
+      ch=false;
+      M.runs.forEach(function(r){var c=R.cur[r.id];if(!c||!(r.id in len))return;if(c>0)relax(r.a,r.b,len[r.id]);else relax(r.b,r.a,len[r.id])});
+      links.forEach(function(k){relax(k[0],k[1],0);relax(k[1],k[0],0)});
+    }
+    var maxD=0,T0={};
+    M.runs.forEach(function(r){var c=R.cur[r.id];if(!c||!(r.id in len))return;var u=c>0?r.a:r.b;if(!(u in D))return;T0[r.id]=D[u];maxD=Math.max(maxD,D[u]+len[r.id])});
+    if(!maxD)return;
+    var SPEED=560,PL=36,T=(maxD+PL*2)/SPEED*1000;
+    Object.keys(T0).forEach(function(id){
+      var g=grp[id][0],w=grp[id][1],L=len[id],c=R.cur[id];
+      var p=w.cloneNode(false);p.setAttribute('class','epulse');p.removeAttribute('style');
+      p.setAttribute('stroke-dasharray',PL+' '+(L+PL*2));
+      g.appendChild(p);
+      var hid0=c>0?PL:-(L+PL),hid1=c>0?-(L+PL):PL,a=T0[id]/SPEED*1000/T,b=Math.min(1,(T0[id]+L+PL)/SPEED*1000/T);
+      p.style.strokeDashoffset=hid0;
+      try{p.animate([{strokeDashoffset:hid0,offset:0},{strokeDashoffset:hid0,offset:a},{strokeDashoffset:hid1,offset:b},{strokeDashoffset:hid1,offset:1}],{duration:T,iterations:Infinity})}catch(e){p.remove()}
+    });
+  }
+  return {solve:solve,pulses:pulses};
 })();
 
 /* What's inside the Gaggia's parts, for the electricity flow view.
@@ -2829,6 +2876,7 @@ var FLOWM=(function(){
         Array.prototype.forEach.call(svg.querySelectorAll('.part'),function(g){var id=g.getAttribute('data-part');g.classList.toggle('off',!FR.parts[id]);g.classList.remove('sel');g.classList.toggle('eon',!!FR.parts[id])});
         Array.prototype.forEach.call(svg.querySelectorAll('.stk'),function(g){g.classList.remove('on')});
       }else Array.prototype.forEach.call(svg.querySelectorAll('.part.eon'),function(g){g.classList.remove('eon')});
+      if(FLOW.pulses){if(fo)FLOW.pulses(svg,FR.M,FR.R);else FLOW.pulses(svg)}
       return FR;
     }
     function flowCard(FR){
@@ -2982,7 +3030,7 @@ var FLOWM=(function(){
       if(FR){endLabels(null);flowCard(FR);
         var nc=Object.keys(FR.R.cur).length,nl=Object.keys(FR.R.live).filter(function(id){return !FR.R.cur[id]}).length;
         el('msel').innerHTML='<span class="rt">Electricity flow</span>: '+nc+(nc===1?' wire carries':' wires carry')+' current'+(nl?', '+nl+' more '+(nl===1?'is':'are')+' live':'');
-        el('mlegend').innerHTML='<span><i class="lg-ecur"></i>Carrying current: the dots move from line to neutral, thick for a heavy current (heater, pump, valve), thin for a small one</span><span><i class="lg-elive"></i>Live at mains voltage, no current</span><span><i class="lg-eoff"></i>Not powered in this state</span>';
+        el('mlegend').innerHTML='<span><i class="lg-ecur"></i>Carrying current: the dots move from line to neutral, thick for a heavy current (heater, pump, valve), thin for a small one</span><span><i class="lg-epulse"></i>A bright pulse follows the current\'s path from line to neutral; as it arrives the next one sets off</span><span><i class="lg-elive"></i>Live at mains voltage, no current</span><span><i class="lg-eoff"></i>Not powered in this state</span>';
       }
     }
     /* one line above the map, so on a phone the pick shows without scrolling down to the card */

@@ -151,6 +151,7 @@
         Array.prototype.forEach.call(svg.querySelectorAll('.part'),function(g){var id=g.getAttribute('data-part');g.classList.toggle('off',!FR.parts[id]);g.classList.remove('sel');g.classList.toggle('eon',!!FR.parts[id])});
         Array.prototype.forEach.call(svg.querySelectorAll('.stk'),function(g){g.classList.remove('on')});
       }else Array.prototype.forEach.call(svg.querySelectorAll('.part.eon'),function(g){g.classList.remove('eon')});
+      if(FLOW.pulses){if(fo)FLOW.pulses(svg,FR.M,FR.R);else FLOW.pulses(svg)}
       return FR;
     }
     function flowCard(FR){
@@ -304,7 +305,7 @@
       if(FR){endLabels(null);flowCard(FR);
         var nc=Object.keys(FR.R.cur).length,nl=Object.keys(FR.R.live).filter(function(id){return !FR.R.cur[id]}).length;
         el('msel').innerHTML='<span class="rt">Electricity flow</span>: '+nc+(nc===1?' wire carries':' wires carry')+' current'+(nl?', '+nl+' more '+(nl===1?'is':'are')+' live':'');
-        el('mlegend').innerHTML='<span><i class="lg-ecur"></i>Carrying current: the dots move from line to neutral, thick for a heavy current (heater, pump, valve), thin for a small one</span><span><i class="lg-elive"></i>Live at mains voltage, no current</span><span><i class="lg-eoff"></i>Not powered in this state</span>';
+        el('mlegend').innerHTML='<span><i class="lg-ecur"></i>Carrying current: the dots move from line to neutral, thick for a heavy current (heater, pump, valve), thin for a small one</span><span><i class="lg-epulse"></i>A bright pulse follows the current\'s path from line to neutral; as it arrives the next one sets off</span><span><i class="lg-elive"></i>Live at mains voltage, no current</span><span><i class="lg-eoff"></i>Not powered in this state</span>';
       }
     }
     /* one line above the map, so on a phone the pick shows without scrolling down to the card */
