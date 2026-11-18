@@ -66,6 +66,90 @@
       });
       g.innerHTML=h;svg.appendChild(g);
     }
+    /* The wire picker: every run on the drawing in the runbook's install order, grouped by step, as a dropdown that
+       doubles as a walkthrough (the arrows follow the same order). Out of the box lists the factory wires. */
+    var pick=null;
+    function pickPlan(){
+      var tw={},ids=Object.keys(realMp.ends);ids.forEach(function(id){tw[id]=1});
+      var f=facOf(key),S={tw:tw,twOrder:ids,tparts:realMp.parts,fparts:f?f.parts:{}};
+      var P=installPlan(S),ord=[];P.plan.forEach(function(g){g.runs.forEach(function(id){ord.push(id)})});
+      return {plan:P.plan,rank:P.rank,order:ord};
+    }
+    function pickUI(){
+      var w=el('m-wire');if(!w)return;
+      var h='<option value="">Pick a wire…</option>',txt=function(id){var r=runOf(id);return id+' · '+(r?(r.short||(r.frm+' → '+r.to)):((mp.cables||{})[id]||''))};
+      if(view==='mine'&&pick){
+        pick.plan.forEach(function(g){if(!g.runs.length)return;h+='<optgroup label="'+esc(g.s?stepName(g.s):'Other runs')+'">'+g.runs.map(function(id){return '<option value="'+esc(id)+'">'+esc(txt(id))+'</option>'}).join('')+'</optgroup>'});
+      }else order.forEach(function(id){h+='<option value="'+esc(id)+'">'+esc(txt(id))+'</option>'});
+      w.innerHTML=h;
+      var lb=el('m-wire-l');if(lb)lb.textContent=view==='box'?'Factory wire':'Wire, in install order';
+    }
+    /* what was on a new run's ends out of the box: the factory wires whose ends this run takes over */
+    function beforeOf(id){
+      var rel=(WM[key]&&WM[key].rel)||{},f=facOf(key),out=[];if(!f)return null;
+      Object.keys(rel).forEach(function(fid){(rel[fid].ends||[]).forEach(function(e){if((e.now||[]).indexOf(id)>=0)out.push({f:fid,t:e.t})})});
+      return out;
+    }
+    function lcs(t){t=String(t);return /^[A-Z][a-z]/.test(t)?t.charAt(0).toLowerCase()+t.slice(1):t}
+    function walkHtml(r){
+      var h='',st=pick&&pick.rank[r.id]&&pick.rank[r.id].step,i=order.indexOf(r.id);
+      if(view!=='mine')return '';
+      if(st)h+='<p class="d-step"><span class="k">When</span> <a href="runbook.html#'+esc(st.id)+'">'+esc(stepName(st))+'</a>'+(i>=0?' <span style="color:var(--muted)">· wire '+(i+1)+' of '+order.length+' in install order</span>':'')+'</p>';
+      var b=r.cable?null:beforeOf(r.id),f=facOf(key);
+      if(b){
+        var by={};b.forEach(function(x){(by[x.t]=by[x.t]||[]).push(x.f)});
+        var ks=Object.keys(by),fg=(realV.flags||[]).filter(function(x){return (r.term||[]).indexOf(String(x.id).toLowerCase())>=0});
+        h+='<div class="d-ba"><div><span class="k">Before, out of the box</span>'+(ks.length?'<ul>'+ks.map(function(t){return '<li>At '+esc(lcs(t))+': '+by[t].map(function(fid){var fr=f.runs[fid]||{};return '<button type="button" class="rchip" data-mbox="'+esc(fid)+'" title="See it out of the box">'+esc(fid)+'</button> <span style="color:var(--muted)">'+esc((fr.frm||'')+' → '+(fr.to||''))+'</span>'}).join('; ')+'</li>'}).join('')+'</ul>':fg.length?'<ul>'+fg.map(function(x){return '<li>Stock connector '+esc(x.id)+': '+esc(String(x.l1||'').replace(/^stock:\s*/,''))+(x.hot?' (at the boiler)':'')+'</li>'}).join('')+'</ul>':'<p>Nothing sat on these ends at the factory. '+(r.stock?'This is the machine\'s own lead with a new end.':'It\'s a new connection, to a part the install adds or a spade that was empty.')+'</p>')+'</div>'+
+          '<div><span class="k">After</span><ul><li>'+esc((r.lab&&r.lab[0]?r.lab[0]+' on ':'On ')+r.frm)+': '+esc(lcs((r.ends||[])[0]||'plugged in'))+'</li><li>'+esc((r.lab&&r.lab[1]?r.lab[1]+' on ':'On ')+r.to)+': '+esc(lcs((r.ends||[])[1]||'plugged in'))+'</li></ul></div></div>';
+      }
+      if(i>=0&&order.length>1)h+='<p class="d-walk"><button type="button" class="chip" data-mstep="-1">‹ Previous wire</button><button type="button" class="chip" data-mstep="1">Next wire ›</button></p>';
+      return h;
+    }
+    /* Electricity flow: pick what the machine is doing and the map shows which wires carry current (moving dots, in
+       the direction from line to neutral), which are live but carry none, and which parts are on. Plug-and-Play only. */
+    var flow=false,fmode='on';
+    function flowOK(){return typeof FLOWM!=='undefined'&&typeof FLOW!=='undefined'&&!!realV&&!!FLOWM.model(realV,'on')}
+    function flowOn(){return flow&&view==='mine'&&!A&&flowOK()}
+    function flowRes(){
+      var M=FLOWM.model(realV,fmode),Rz=FLOW.solve(M),parts={};
+      /* on: a load with most of the supply across it, or a contact passing current (a fuse counts only for a real load current) */
+      Object.keys(Rz.loads).forEach(function(k){if(M.parts[k]&&Rz.loads[k]>0.3)parts[M.parts[k]]=1});
+      Object.keys(Rz.sw).forEach(function(k){if(M.parts[k]&&(!(M.passive||{})[k]||Rz.sw[k]>0.02))parts[M.parts[k]]=1});
+      if(realMp.parts.sock)parts.sock=1;
+      return {M:M,R:Rz,parts:parts};
+    }
+    function flowPaint(){
+      var fo=flowOn(),FR=fo?flowRes():null,fb=el('m-flow'),bar=el('mflow');
+      svg.classList.toggle('elec',fo);el('mapsec').classList.toggle('flowing',fo);
+      if(fb){fb.hidden=!realMp||view!=='mine'||!flowOK();fb.setAttribute('aria-pressed',String(fo))}
+      if(bar){bar.hidden=!fo;if(fo)bar.innerHTML='<span class="mj-k">The machine is</span>'+FLOWM.modes.map(function(m){return '<button type="button" class="chip" data-mfm="'+m[0]+'" aria-pressed="'+(fmode===m[0])+'">'+esc(m[1])+'</button>'}).join('')}
+      Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag'),function(g){
+        var id=g.getAttribute('data-run'),c=FR&&FR.R.cur[id],lv=FR&&FR.R.live[id],sig=FR&&FR.M.state.pw&&!runOf(id);
+        g.classList.toggle('ecur',!!c);g.classList.toggle('erev',c===-1);g.classList.toggle('elive',!!lv&&!c);g.classList.toggle('ebig',!!c&&(FR.R.amp[id]||0)>0.02);
+        if(fo){g.classList.toggle('off',!(c||lv||sig));g.classList.remove('sel')}
+      });
+      if(fo){
+        svg.classList.add('dim');
+        Array.prototype.forEach.call(svg.querySelectorAll('.part'),function(g){var id=g.getAttribute('data-part');g.classList.toggle('off',!FR.parts[id]);g.classList.remove('sel');g.classList.toggle('eon',!!FR.parts[id])});
+        Array.prototype.forEach.call(svg.querySelectorAll('.stk'),function(g){g.classList.remove('on')});
+      }else Array.prototype.forEach.call(svg.querySelectorAll('.part.eon'),function(g){g.classList.remove('eon')});
+      return FR;
+    }
+    function flowCard(FR){
+      var d=el('mdetail'),tx=FLOWM.text(FR.M,fmode),lab=FLOWM.modes.filter(function(m){return m[0]===fmode})[0][1];
+      var cur=order.filter(function(id){return FR.R.cur[id]}),live=order.filter(function(id){return FR.R.live[id]&&!FR.R.cur[id]});
+      var mains=cur.filter(function(id){var r=runOf(id);return r&&r.sys!=='LV'&&r.sys!=='LVG'}),lv=cur.filter(function(id){return mains.indexOf(id)<0});
+      var pn=Object.keys(FR.parts).filter(function(p){return mp.parts[p]}).map(function(p){return mp.parts[p].name});
+      function ids(a){return a.length?'<div class="ids eids">'+a.map(function(id){return '<span>'+esc(id)+'</span>'}).join('')+'</div>':'<span style="color:var(--muted)">None</span>'}
+      d.className='mdetail';d.style.borderLeftColor='var(--accent)';
+      d.innerHTML='<div class="d-head"><span class="d-route">Electricity flow: '+esc(lab)+'</span><span class="d-acts"><button type="button" class="chip" data-mflow>Back to the wiring</button></span></div>'+
+        '<p class="d-what">'+esc(tx[0])+'</p><p>'+esc(tx[1])+'</p><p>'+esc(tx[2])+'</p>'+
+        '<div class="d-grid stw-grid"><div><span class="k">Mains wires carrying current ('+mains.length+')</span>'+ids(mains)+'</div>'+
+        '<div><span class="k">Low-voltage signals flowing ('+lv.length+')</span>'+ids(lv)+'</div>'+
+        '<div><span class="k">Live at mains voltage, no current ('+live.length+')</span>'+ids(live)+'</div>'+
+        '<div><span class="k">Parts on or passing current</span><span>'+(pn.length?esc(pn.join(', ')):'None')+'</span></div></div>'+
+        '<p style="color:var(--muted)">This is a picture of the circuit as the official drawing wires it, not a meter. Mains is alternating current: the dots run from line to neutral only to show the path. The earth wires carry nothing unless there\'s a fault. The sensor and screen cables are read by the PCB all the time it\'s on. A dimmed wire isn\'t proof of a dead one: the SSR and the PCB\'s outputs switch off electronically, and a reversed outlet puts line on the neutral side. Always unplug before you touch a wire.</p>';
+    }
     function nhwBadges(){
       if(!svg||svg.querySelector('.nhb'))return;
       var ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g');g.setAttribute('class','nhb');g.setAttribute('aria-hidden','true');
@@ -120,7 +204,9 @@
         if(view==='box'){v=boxV(k);mp={svg:f.svg,parts:f.parts,ends:f.ends,cables:{}}}else{v=realV;mp=realMp}
         el('mscroll').innerHTML=mp?mp.svg:'';svg=el('mscroll').querySelector('svg');
       }
-      order=listOrder();
+      order=listOrder();pick=null;
+      if(realMp&&view==='mine'){try{pick=pickPlan();if(pick.order.length)order=pick.order}catch(e){pick=null}}
+      pickUI();
       el('mapsec').hidden=!realMp;
       viewUI();
       /* the stock-wiring line in the caption: viewUI swaps the caption for Out of the box and puts it back after */
@@ -180,6 +266,7 @@
         g.classList.toggle('nh',NEWHW.indexOf(id)>=0);
       });
       endLabels(any&&!nh&&!st?lit:null);
+      var mw=el('m-wire');if(mw){var wv=sel&&sel.t==='run'?sel.id:'';if(mw.value!==wv)mw.value=wv;if(mw.value!==wv)mw.value=''}
       var has={};Array.prototype.forEach.call(svg.querySelectorAll('.run'),function(g){var id=g.getAttribute('data-run');LAYERS.forEach(function(l){if(l[0]!=='all'&&inLayer(id,l[0]))has[l[0]]=1})});
       el('mchips').innerHTML=LAYERS.filter(function(l){return l[0]==='all'||has[l[0]]}).map(function(l){
         return '<button type="button" class="chip" data-mlayer="'+l[0]+'" aria-pressed="'+(layer===l[0]&&!sel)+'">'+(l[2]?'<span class="sw" style="background:'+l[2]+'"></span>':'')+l[1]+'</button>';
@@ -191,7 +278,13 @@
       var js=jList(),jc=el('mjchips');
       jc.hidden=!js.length||view!=='mine';
       jc.innerHTML=js.length?'<span class="mj-k">On the PCB</span>'+js.map(function(J){return '<button type="button" class="chip" data-mj="'+J+'" aria-pressed="'+!!(sel&&sel.j===J)+'" title="'+esc(JN[J]||'')+'">'+J+'</button>'}).join(''):'';
+      var FR=flowPaint();
       legend();detail();summary();
+      if(FR){endLabels(null);flowCard(FR);
+        var nc=Object.keys(FR.R.cur).length,nl=Object.keys(FR.R.live).filter(function(id){return !FR.R.cur[id]}).length;
+        el('msel').innerHTML='<span class="rt">Electricity flow</span>: '+nc+(nc===1?' wire carries':' wires carry')+' current'+(nl?', '+nl+' more '+(nl===1?'is':'are')+' live':'');
+        el('mlegend').innerHTML='<span><i class="lg-ecur"></i>Carrying current: the dots move from line to neutral, thick for a heavy current (heater, pump, valve), thin for a small one</span><span><i class="lg-elive"></i>Live at mains voltage, no current</span><span><i class="lg-eoff"></i>Not powered in this state</span>';
+      }
     }
     /* one line above the map, so on a phone the pick shows without scrolling down to the card */
     function summary(){
@@ -304,7 +397,7 @@
         var nm=(mp.cables||{})[sel.id]||sel.id,pins=(v.cables||[]).filter(function(c){return (sel.id==='TC'&&/Thermocouple/.test(c.frm))||(sel.id==='PS'&&/Pressure/.test(c.frm))||(sel.id==='SCR'&&/J1/.test(c.frm+c.to))});
         d.className='mdetail';d.style.borderLeftColor=SYSC.S;
         d.innerHTML='<div class="d-head"><span class="d-id">'+esc(sel.id)+'</span><span class="d-route">'+esc(nm)+'</span>'+acts+'</div><p>This cable comes with its part. Plug it in by pin, not by color:</p>'+
-          '<div class="d-grid">'+pins.map(function(c){return '<div><span class="k">'+esc(c.frm)+'</span><span>'+swatch(c.color)+esc(c.to)+'</span></div>'}).join('')+'</div>';
+          '<div class="d-grid">'+pins.map(function(c){return '<div><span class="k">'+esc(c.frm)+'</span><span>'+swatch(c.color)+esc(c.to)+'</span></div>'}).join('')+'</div>'+walkHtml({id:sel.id,cable:true});
         return;
       }
       var bare=!!(r.k&&(['b','mb'].indexOf(r.k[0])>=0||['b','mb'].indexOf(r.k[1])>=0));
@@ -316,7 +409,7 @@
         '<div><span class="k">'+(r.lab&&r.lab[0]?esc(r.lab[0])+' at ':'End at ')+esc(r.frm)+'</span><span>'+esc((r.ends||[])[0]||'—')+'</span></div>'+
         '<div><span class="k">'+(r.lab&&r.lab[1]?esc(r.lab[1])+' at ':'End at ')+esc(r.to)+'</span><span>'+esc((r.ends||[])[1]||'—')+'</span></div>'+
         '<div><span class="k">Notes</span><span>'+(r.stock?'Stock lead. ':'')+(r.opt?'Optional run. ':'')+(bare?'An end at the boiler or valve: bare spade under silicone. ':'')+(!r.stock&&!r.opt&&!bare?'—':'')+'</span></div></div>'+
-        (r.what?'<p>'+esc(r.what)+'.</p>':'')+(r.note?'<p>'+esc(r.note)+'</p>':'');
+        (r.what?'<p>'+esc(r.what)+'.</p>':'')+(r.note?'<p>'+esc(r.note)+'</p>':'')+walkHtml(r);
     }
     function center(){
       if(!svg||!sel)return;
@@ -347,7 +440,7 @@
       var n=jNet(J);if(!n.direct.length)return;
       sel={t:'set',ids:n.direct.concat(n.joined),label:J+', '+(JN[J]||'socket'),j:J,joined:n.joined};layer='all';paint();center();
     }
-    function pickRun(id,toggle){nhw=false;sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
+    function pickRun(id,toggle){nhw=false;flow=false;sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
     function fitWhole(){if(el('mscroll').scrollWidth>el('mscroll').clientWidth+2&&!whole){whole=true;zoomUI()}}
     function pickPart(id){sel=(sel&&sel.t==='part'&&sel.id===id)?null:{t:'part',id:id};paint();center()}
     function stepBy(n){
@@ -359,6 +452,7 @@
     function init(){
       el('mscroll').addEventListener('click',function(e){
         if(A){var fg=A==='cmp'&&e.target.closest('.st-fw [data-run]');if(fg&&fg.getAttribute('data-run')!==cmp)compare(fg.getAttribute('data-run'),'play');return}
+        if(flowOn())return;
         var g=e.target.closest('[data-run]');if(g){pickRun(g.getAttribute('data-run'),true);return}
         var jh=e.target.closest('[data-j]');if(jh&&view==='mine'){pickJ(jh.getAttribute('data-j'));return}
         var p=e.target.closest('[data-part]');if(p){pickPart(p.getAttribute('data-part'));return}
@@ -369,15 +463,20 @@
       el('mapsec').addEventListener('click',function(e){
         var w=e.target.closest('[data-wc]');if(w){wcol=w.getAttribute('data-wc')==='draw';persist();paint();return}
         if(e.target.closest('[data-mclear]')){sel=null;paint();return}
-        var nb=e.target.closest('#m-nhw,[data-mnhw]');if(nb){nhw=!nhw;stw=false;sel=null;layer='all';if(nhw&&view!=='mine'){stopAnim();view='mine';drawn=null;show(key,showOpt)}else paint();if(nhw)fitWhole();return}
-        var sw=e.target.closest('#m-stw,[data-mstw]');if(sw){stw=!stw;nhw=false;sel=null;layer='all';if(stw&&view!=='box'&&facOf(key)){stopAnim();view='box';drawn=null;show(key,showOpt)}else paint();if(stw)fitWhole();return}
+        var fbn=e.target.closest('#m-flow,[data-mflow]');if(fbn){flow=!flowOn();nhw=false;stw=false;sel=null;layer='all';paint();if(flow)fitWhole();return}
+        var fmb=e.target.closest('[data-mfm]');if(fmb){fmode=fmb.getAttribute('data-mfm');paint();return}
+        var nb=e.target.closest('#m-nhw,[data-mnhw]');if(nb){nhw=!nhw;stw=false;flow=false;sel=null;layer='all';if(nhw&&view!=='mine'){stopAnim();view='mine';drawn=null;show(key,showOpt)}else paint();if(nhw)fitWhole();return}
+        var sw=e.target.closest('#m-stw,[data-mstw]');if(sw){stw=!stw;nhw=false;flow=false;sel=null;layer='all';if(stw&&view!=='box'&&facOf(key)){stopAnim();view='box';drawn=null;show(key,showOpt)}else paint();if(stw)fitWhole();return}
         var mpn=e.target.closest('[data-mpart]');if(mpn){pickPart(mpn.getAttribute('data-mpart'));return}
+        var ms=e.target.closest('[data-mstep]');if(ms){stepBy(+ms.getAttribute('data-mstep'));return}
+        var mb=e.target.closest('[data-mbox]');if(mb){var fid=mb.getAttribute('data-mbox');stw=false;nhw=false;stopAnim();view='box';drawn=null;show(key,showOpt);pickRun(fid,false);return}
         var r=e.target.closest('[data-mrun]');if(r){pickRun(r.getAttribute('data-mrun'),false);return}
         var c=e.target.closest('[data-mcmp]');if(c){compare(c.getAttribute('data-mcmp'),'play');el('mapsec').scrollIntoView({behavior:'smooth',block:'start'});return}
         if(e.target.closest('[data-cmpx]')){closeCmp();return}
         var gx=e.target.closest('[data-mgo]');if(gx){var rid=gx.getAttribute('data-mgo');stopAnim();view='mine';drawn=null;show(key,showOpt);pickRun(rid,false);return}
       });
       el('mzoom').addEventListener('click',function(e){var b=e.target.closest('[data-mzoom]');if(!b)return;whole=b.getAttribute('data-mzoom')==='whole';zoomUI();if(!whole)center()});
+      el('m-wire').addEventListener('change',function(){var id=this.value;if(id)pickRun(id,false);else{sel=null;paint()}});
       el('m-prev').addEventListener('click',function(){stepBy(-1)});
       el('m-next').addEventListener('click',function(){stepBy(1)});
       el('mview').addEventListener('click',function(e){

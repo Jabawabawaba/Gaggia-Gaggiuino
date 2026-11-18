@@ -87,11 +87,14 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
       <div class="mtool-r">
         <button type="button" class="mnhw" id="m-nhw" aria-pressed="false" hidden><span class="mnhw-i" aria-hidden="true"></span>New hardware</button>
         <button type="button" class="mnhw mstw" id="m-stw" aria-pressed="false" hidden><span class="mnhw-i" aria-hidden="true"></span>What stays</button>
+        <button type="button" class="mnhw mflowb" id="m-flow" aria-pressed="false" hidden><span class="mflow-i" aria-hidden="true"></span>Electricity flow</button>
         <div class="mseg2" role="group" aria-label="Wire colors"><button type="button" data-wc="sys" aria-pressed="true">By circuit</button><button type="button" data-wc="draw" aria-pressed="false">Drawing's colors</button></div>
         <div class="stepper" role="group" aria-label="Step through the runs"><button type="button" id="m-prev" aria-label="Previous run">‹</button><span id="m-step" aria-live="polite"></span><button type="button" id="m-next" aria-label="Next run">›</button></div>
       </div>
     </div>
     <div class="mjchips" id="mjchips" role="group" aria-label="PCB sockets: light every wire on one" hidden></div>
+    <div class="mjchips mflow" id="mflow" role="group" aria-label="What the machine is doing" hidden></div>
+    <div class="mpick" id="mpick"><label for="m-wire" id="m-wire-l">Wire, in install order</label><select id="m-wire"></select></div>
     <p class="msel" id="msel" aria-live="polite"></p>
     <figure style="margin:0">
       <div class="mcmp" id="mcmp" hidden>
@@ -128,6 +131,8 @@ ul.moves{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15.5px}
 %%INCLUDE:wiring-refs.js%%
 %%INCLUDE:wiring-parts.js%%
 %%INCLUDE:change-player.js%%
+%%INCLUDE:flow-sim.js%%
+%%INCLUDE:flow-model.js%%
 %%INCLUDE:wiring-map.js%%
 %%INCLUDE:runbook-figs.js%%
   function $(id){return document.getElementById(id)}
