@@ -47,18 +47,27 @@
         [0,1].forEach(function(i){
           var t=endLab(r,i);if(!t)return;
           var d=Math.min(26,L*0.3),pt=w.getPointAtLength(i?L-d:d),wd=t.length*6+8;
-          C.push({x:pt.x,y:pt.y,w:wd,t:t,pri:/^[A-Z0-9][A-Za-z0-9-]{0,7}$/.test(t)?0:1});
+          C.push({x:pt.x,y:pt.y,w:wd,t:t,pri:/^[A-Z0-9][A-Za-z0-9-]{0,7}$/.test(t)?0:1,wr:w,L:L,i:i});
         });
       });
-      /* official-style labels first; a label that would overlap one already placed, or a wire's own tag, is left out */
-      /* two plugs on one spot (a piggyback) share a label: "N1f + X1c" */
+      /* official-style labels first. Two plugs on one spot (a piggyback) share a label: "N1f + X1c". A label that would
+         overlap one already placed, or a wire's own tag, slides along its wire, then steps to one side of it; it's
+         only left out when nothing fits */
       C.sort(function(a,b){return a.pri-b.pri});
-      var P=[];
+      var P=[],hit=function(c){var b=[c.x-c.w/2-1.5,c.y-6.5,c.x+c.w/2+1.5,c.y+6.5];return box.some(function(o){return b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]})?null:b};
       C.forEach(function(c){
-        var b=[c.x-c.w/2-1.5,c.y-6.5,c.x+c.w/2+1.5,c.y+6.5];
-        var near=P.filter(function(q){return Math.abs(q.x-c.x)<5&&Math.abs(q.y-c.y)<5})[0];
+        var near=P.filter(function(q){return Math.abs(q.x0-c.x)<5&&Math.abs(q.y0-c.y)<5})[0];
         if(near){if(near.t.split(' + ').indexOf(c.t)<0&&c.pri===0&&near.pri===0){near.t+=' + '+c.t;near.w=near.t.length*6+8}return}
-        if(box.some(function(o){return b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]}))return;
+        /* the same end twice, a little apart (three legs at one splice, two leads off one lamp): one label does */
+        if(P.some(function(q){return q.t===c.t&&Math.abs(q.x0-c.x)<60&&Math.abs(q.y0-c.y)<60}))return;
+        c.x0=c.x;c.y0=c.y;
+        var b=hit(c),k,ds=[40,54,68,82],off=[[0,-15],[0,15],[-c.w/2-10,0],[c.w/2+10,0],[0,-29],[0,29]];
+        for(k=0;!b&&k<ds.length;k++){
+          if(ds[k]>c.L*0.46)break;
+          var p=c.wr.getPointAtLength(c.i?c.L-ds[k]:ds[k]);b=hit({x:p.x,y:p.y,w:c.w});if(b){c.x=p.x;c.y=p.y}
+        }
+        for(k=0;!b&&k<off.length;k++){b=hit({x:c.x0+off[k][0],y:c.y0+off[k][1],w:c.w});if(b){c.x=c.x0+off[k][0];c.y=c.y0+off[k][1]}}
+        if(!b)return;
         box.push(b);P.push(c);
       });
       P.forEach(function(c){
@@ -69,6 +78,19 @@
     /* The wire picker: every run on the drawing in the runbook's install order, grouped by step, as a dropdown that
        doubles as a walkthrough (the arrows follow the same order). Out of the box lists the factory wires. */
     var pick=null;
+    /* Whole wires: the official harness is made as assemblies (L4 is one piece with three legs), drawn here leg by leg.
+       asmOf groups the legs back up: L4a-L4b, L4a-L4c and L4d-L4c are all "L4"; the J7 and J9 leads group by socket. */
+    var ASMN={J7:'J7 switch cable',J9:'J9 SSR control leads'},ASMW={X1:'the lamp leads',P2:'the pump fuse leads'};
+    function asmKey(id){
+      var r=runOf(id),m,k=null;if(!r)return null;
+      String(id).split('-').some(function(t){m=/^([A-Z]{1,2}\d)[a-z]$/.exec(t);if(m)k=m[1];return !!m});
+      if(!k&&/^LV\d/.test(id)){(r.term||[]).map(jOf).some(function(j){if(j&&ASMN[j])k=j;return !!k});if(!k)v.runs.some(function(o){if(o.id===id||!/^LV\d/.test(o.id)||!(o.term||[]).some(function(t){return (r.term||[]).indexOf(t)>=0}))return false;(o.term||[]).map(jOf).some(function(j){if(j&&ASMN[j])k=j;return !!k});return !!k})}
+      return k;
+    }
+    function lcs2(t){return t.charAt(0).toUpperCase()+t.slice(1)}
+    function asmIds(k){return order.filter(function(id){return asmKey(id)===k})}
+    function asmName(k){return ASMN[k]||(k+', '+(ASMW[k]||'the whole wire'))}
+    function pickAsm(k){var ids=asmIds(k);if(ids.length<2)return;nhw=false;flow=false;stw=false;sel={t:'set',ids:ids,label:asmName(k),asm:k};layer='all';paint();center()}
     function pickPlan(){
       var tw={},ids=Object.keys(realMp.ends);ids.forEach(function(id){tw[id]=1});
       var f=facOf(key),S={tw:tw,twOrder:ids,tparts:realMp.parts,fparts:f?f.parts:{}};
@@ -78,8 +100,9 @@
     function pickUI(){
       var w=el('m-wire');if(!w)return;
       var h='<option value="">Pick a wire…</option>',txt=function(id){var r=runOf(id);return id+' · '+(r?(r.short||(r.frm+' → '+r.to)):((mp.cables||{})[id]||''))};
+      var seen={};
       if(view==='mine'&&pick){
-        pick.plan.forEach(function(g){if(!g.runs.length)return;h+='<optgroup label="'+esc(g.s?stepName(g.s):'Other runs')+'">'+g.runs.map(function(id){return '<option value="'+esc(id)+'">'+esc(txt(id))+'</option>'}).join('')+'</optgroup>'});
+        pick.plan.forEach(function(g){if(!g.runs.length)return;h+='<optgroup label="'+esc(g.s?stepName(g.s):'Other runs')+'">'+g.runs.map(function(id){var k=asmKey(id),n=k&&!seen[k]?asmIds(k).length:0;if(k)seen[k]=1;return (n>1?'<option value="asm:'+esc(k)+'">'+esc(ASMN[k]?ASMN[k]+' · all '+n+' wires':k+' · '+(ASMW[k]||'the whole wire')+', all '+n+' legs')+'</option>':'')+'<option value="'+esc(id)+'">'+esc(txt(id))+'</option>'}).join('')+'</optgroup>'});
       }else order.forEach(function(id){h+='<option value="'+esc(id)+'">'+esc(txt(id))+'</option>'});
       w.innerHTML=h;
       var lb=el('m-wire-l');if(lb)lb.textContent=view==='box'?'Factory wire':'Wire, in install order';
@@ -102,7 +125,8 @@
         h+='<div class="d-ba"><div><span class="k">Before, out of the box</span>'+(ks.length?'<ul>'+ks.map(function(t){return '<li>At '+esc(lcs(t))+': '+by[t].map(function(fid){var fr=f.runs[fid]||{};return '<button type="button" class="rchip" data-mbox="'+esc(fid)+'" title="See it out of the box">'+esc(fid)+'</button> <span style="color:var(--muted)">'+esc((fr.frm||'')+' → '+(fr.to||''))+'</span>'}).join('; ')+'</li>'}).join('')+'</ul>':fg.length?'<ul>'+fg.map(function(x){return '<li>Stock connector '+esc(x.id)+': '+esc(String(x.l1||'').replace(/^stock:\s*/,''))+(x.hot?' (at the boiler)':'')+'</li>'}).join('')+'</ul>':'<p>Nothing sat on these ends at the factory. '+(r.stock?'This is the machine\'s own lead with a new end.':'It\'s a new connection, to a part the install adds or a spade that was empty.')+'</p>')+'</div>'+
           '<div><span class="k">After</span><ul><li>'+esc((r.lab&&r.lab[0]?r.lab[0]+' on ':'On ')+r.frm)+': '+esc(lcs((r.ends||[])[0]||'plugged in'))+'</li><li>'+esc((r.lab&&r.lab[1]?r.lab[1]+' on ':'On ')+r.to)+': '+esc(lcs((r.ends||[])[1]||'plugged in'))+'</li></ul></div></div>';
       }
-      if(i>=0&&order.length>1)h+='<p class="d-walk"><button type="button" class="chip" data-mstep="-1">‹ Previous wire</button><button type="button" class="chip" data-mstep="1">Next wire ›</button></p>';
+      var ak=asmKey(r.id),an=ak?asmIds(ak).length:0;
+      if(i>=0&&order.length>1)h+='<p class="d-walk">'+(an>1?'<button type="button" class="chip" data-masm="'+esc(ak)+'">'+esc(ASMN[ak]?'All of the '+ASMN[ak]:ASMW[ak]?'All of '+ASMW[ak]:'The whole '+ak+' wire')+'</button>':'')+'<button type="button" class="chip" data-mstep="-1">‹ Previous wire</button><button type="button" class="chip" data-mstep="1">Next wire ›</button></p>';
       return h;
     }
     /* Electricity flow: pick what the machine is doing and the map shows which wires carry current (moving dots, in
@@ -288,7 +312,7 @@
         g.classList.toggle('nh',NEWHW.indexOf(id)>=0);
       });
       endLabels(any&&!nh&&!st?lit:null);
-      var mw=el('m-wire');if(mw){var wv=sel&&sel.t==='run'?sel.id:'';if(mw.value!==wv)mw.value=wv;if(mw.value!==wv)mw.value=''}
+      var mw=el('m-wire');if(mw){var wv=sel&&sel.t==='run'?sel.id:sel&&sel.asm?'asm:'+sel.asm:'';if(mw.value!==wv)mw.value=wv;if(mw.value!==wv)mw.value=''}
       var has={};Array.prototype.forEach.call(svg.querySelectorAll('.run'),function(g){var id=g.getAttribute('data-run');LAYERS.forEach(function(l){if(l[0]!=='all'&&inLayer(id,l[0]))has[l[0]]=1})});
       el('mchips').innerHTML=LAYERS.filter(function(l){return l[0]==='all'||has[l[0]]}).map(function(l){
         return '<button type="button" class="chip" data-mlayer="'+l[0]+'" aria-pressed="'+(layer===l[0]&&!sel)+'">'+(l[2]?'<span class="sw" style="background:'+l[2]+'"></span>':'')+l[1]+'</button>';
@@ -384,6 +408,17 @@
         d.innerHTML='<div class="d-head"><span class="d-id">'+esc(J)+'</span><span class="d-route">'+esc(JN[J]||'')+'</span>'+acts+'</div>'+
           '<div class="d-grid">'+sel.ids.filter(function(id){return sel.joined.indexOf(id)<0}).map(function(id){return row(id,false)}).join('')+sel.joined.map(function(id){return row(id,true)}).join('')+'</div>'+
           '<p style="color:var(--muted)">'+(sel.joined.length?'Joined runs share an end with one of '+esc(J)+'\'s runs, so they\'re on the same connection. ':'')+'Tap an ID to see that run on its own.</p>';
+        return;
+      }
+      if(sel.t==='set'&&sel.asm){
+        var ar=sel.ids.map(runOf),a0=ar[0]||{},cnt={},lb=[];
+        ar.forEach(function(r){[0,1].forEach(function(i){var t=r.lab&&r.lab[i];if(t){if(!cnt[t]){cnt[t]=0;lb.push(t)}cnt[t]++}})});
+        var sh=lb.filter(function(t){return cnt[t]>1});
+        d.className='mdetail';d.style.borderLeftColor=SYSC[a0.sys]||'var(--accent)';
+        d.innerHTML='<div class="d-head"><span class="d-id">'+esc(sel.asm)+'</span><span class="d-route">'+esc(ASMN[sel.asm]||lcs2(ASMW[sel.asm]||'the whole wire'))+', '+sel.ids.length+(ASMN[sel.asm]?' wires':' legs')+'</span>'+acts+'</div>'+
+          '<p>'+(ASMN[sel.asm]?'These leads go on together at the one socket.':'One piece of the harness. The drawing and the install order take it a leg at a time, and this shows all of it at once.')+(sh.length?' '+esc(sh.join(' and '))+(sh.length>1?' are shared ends: each is':' is a shared end:')+' one connector with two wires crimped into it.':'')+'</p>'+
+          '<div class="d-grid">'+ar.map(function(r){return '<div><span class="k"><button type="button" class="lnk" data-mrun="'+esc(r.id)+'">'+esc(r.id)+'</button> · '+lenTxt(r)+'</span><span>'+swatch(r.color)+esc(r.frm+' → '+r.to)+'</span></div>'}).join('')+'</div>'+
+          '<p style="color:var(--muted)">Tap a leg to see it on its own, with what goes on each end and when it goes in.</p>';
         return;
       }
       if(sel.t==='set'){
@@ -485,6 +520,7 @@
       el('mapsec').addEventListener('click',function(e){
         var w=e.target.closest('[data-wc]');if(w){wcol=w.getAttribute('data-wc')==='draw';persist();paint();return}
         if(e.target.closest('[data-mclear]')){sel=null;paint();return}
+        var am=e.target.closest('[data-masm]');if(am){pickAsm(am.getAttribute('data-masm'));return}
         var fbn=e.target.closest('#m-flow,[data-mflow]');if(fbn){flow=!flowOn();nhw=false;stw=false;sel=null;layer='all';paint();if(flow)fitWhole();return}
         var fmb=e.target.closest('[data-mfm]');if(fmb){fmode=fmb.getAttribute('data-mfm');paint();return}
         var nb=e.target.closest('#m-nhw,[data-mnhw]');if(nb){nhw=!nhw;stw=false;flow=false;sel=null;layer='all';if(nhw&&view!=='mine'){stopAnim();view='mine';drawn=null;show(key,showOpt)}else paint();if(nhw)fitWhole();return}
@@ -498,7 +534,7 @@
         var gx=e.target.closest('[data-mgo]');if(gx){var rid=gx.getAttribute('data-mgo');stopAnim();view='mine';drawn=null;show(key,showOpt);pickRun(rid,false);return}
       });
       el('mzoom').addEventListener('click',function(e){var b=e.target.closest('[data-mzoom]');if(!b)return;whole=b.getAttribute('data-mzoom')==='whole';zoomUI();if(!whole)center()});
-      el('m-wire').addEventListener('change',function(){var id=this.value;if(id)pickRun(id,false);else{sel=null;paint()}});
+      el('m-wire').addEventListener('change',function(){var id=this.value;if(/^asm:/.test(id))pickAsm(id.slice(4));else if(id)pickRun(id,false);else{sel=null;paint()}});
       el('m-prev').addEventListener('click',function(){stepBy(-1)});
       el('m-next').addEventListener('click',function(){stepBy(1)});
       el('mview').addEventListener('click',function(e){

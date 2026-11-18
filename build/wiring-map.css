@@ -225,7 +225,7 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .mdetail .d-ba ul{margin:4px 0 0;padding-left:18px}
 .mdetail .d-ba li{margin:3px 0;line-height:1.45}
 .mdetail .d-ba p{margin:4px 0 0}
-.mdetail .d-walk{display:flex;gap:8px;margin:12px 0 0}
+.mdetail .d-walk{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
 @media print{.mpick,.mdetail .d-walk{display:none}}
 /* electricity flow */
 .mflowb .mflow-i{width:14px;height:0;border-top:3px dotted var(--accent)}
