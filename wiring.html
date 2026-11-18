@@ -705,6 +705,40 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .dia .elab rect{fill:var(--surface);stroke:var(--ink);stroke-width:1}
 .dia .elab text{fill:var(--ink);font:700 10.5px/1 var(--f-mono)}
 @media print{.dia .elab rect{fill:#fff}}
+/* wire picker */
+.mpick{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 10px}
+.mpick label{font:600 13px/1.2 var(--f-body);color:var(--muted)}
+.mpick select{appearance:auto;flex:1 1 280px;max-width:560px;min-height:40px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:500 15px/1.3 var(--f-body)}
+.mapsec.nhw .mpick,.mapsec.animating .mpick,.mapsec.comparing .mpick,.mapsec.flowing .mpick{display:none}
+.mdetail .d-step{margin:10px 0 0}
+.mdetail .d-ba{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 24px;margin:10px 0 0}
+.mdetail .d-ba ul{margin:4px 0 0;padding-left:18px}
+.mdetail .d-ba li{margin:3px 0;line-height:1.45}
+.mdetail .d-ba p{margin:4px 0 0}
+.mdetail .d-walk{display:flex;gap:8px;margin:12px 0 0}
+@media print{.mpick,.mdetail .d-walk{display:none}}
+/* electricity flow */
+.mflowb .mflow-i{width:14px;height:0;border-top:3px dotted var(--accent)}
+.mflowb[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.mflowb[aria-pressed="true"] .mflow-i{border-top-color:var(--on-accent)}
+.mapsec.flowing #mchips,.mapsec.flowing .mtool .mseg2,.mapsec.flowing .stepper,.mapsec.flowing #mjchips{display:none!important}
+.mflow{display:flex}
+.mflow[hidden]{display:none}
+.dia.elec .run,.dia.elec .part,.dia.elec .tag,.dia.elec .jhit{cursor:default}
+.dia.elec .jhit{display:none}
+.dia.elec .run.ecur .flow{stroke:var(--surface);stroke-width:1.6;stroke-dasharray:2 15;animation:wflow 1.6s linear infinite}
+.dia.elec .run.ecur.ebig .wire{stroke-width:5}
+.dia.elec .run.ecur.ebig .flow{stroke-width:2.8;stroke-dasharray:4 13;animation-duration:.7s}
+.dia.elec .run.ecur.erev .flow{animation-direction:reverse}
+.dia.elec .run.elive .halo{stroke:#d92b2b;stroke-opacity:.38;stroke-width:11}
+.dia.elec .tag.ecur rect{stroke-width:2}
+.dia.elec .part.eon .phit{fill:var(--accent-soft);fill-opacity:.4;stroke:var(--accent);stroke-width:2.5;rx:6}
+.mdetail .eids span{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:3px 8px;font:500 12.5px/1.3 var(--f-mono);background:var(--surface)}
+.lg-ecur{border-top:4px dotted var(--ink)!important}
+.lg-elive{border-top:4px solid var(--ink)!important;box-shadow:0 0 0 4px rgba(217,43,43,.38)}
+.lg-eoff{border-top:4px solid var(--muted)!important;opacity:.3}
+@media (prefers-reduced-motion:reduce){.dia.elec .run.ecur .flow{animation:none;stroke:var(--surface)}}
+@media print{.mflowb,.mflow{display:none!important}}
 
 /* the change player's controls and the per-wire compare (shared by both sites: keep the two copies identical) */
 .mctl{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:10px}
@@ -1114,11 +1148,14 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       <div class="mtool-r">
         <button type="button" class="mnhw" id="m-nhw" aria-pressed="false" hidden><span class="mnhw-i" aria-hidden="true"></span>New hardware</button>
         <button type="button" class="mnhw mstw" id="m-stw" aria-pressed="false" hidden><span class="mnhw-i" aria-hidden="true"></span>What stays</button>
+        <button type="button" class="mnhw mflowb" id="m-flow" aria-pressed="false" hidden><span class="mflow-i" aria-hidden="true"></span>Electricity flow</button>
         <div class="mseg2" role="group" aria-label="Wire colors"><button type="button" data-wc="sys" aria-pressed="true">By circuit</button><button type="button" data-wc="draw" aria-pressed="false">Drawing's colors</button></div>
         <div class="stepper" role="group" aria-label="Step through the runs"><button type="button" id="m-prev" aria-label="Previous run">‹</button><span id="m-step" aria-live="polite"></span><button type="button" id="m-next" aria-label="Next run">›</button></div>
       </div>
     </div>
     <div class="mjchips" id="mjchips" role="group" aria-label="PCB sockets: light every wire on one" hidden></div>
+    <div class="mjchips mflow" id="mflow" role="group" aria-label="What the machine is doing" hidden></div>
+    <div class="mpick" id="mpick"><label for="m-wire" id="m-wire-l">Wire, in install order</label><select id="m-wire"></select></div>
     <p class="msel" id="msel" aria-live="polite"></p>
     <figure style="margin:0">
       <div class="mcmp" id="mcmp" hidden>
@@ -2337,6 +2374,182 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       play:function(){if(A){A.paused=false;A.stopAt=null;ctlUI();go()}},pause:function(){if(A){A.paused=true;ctlUI()}}};
   })();
 
+/* Electricity flow: a small circuit solver for the wiring maps. Identical on both sites.
+   A drawing's runs are wires between named terminals; a model adds what's inside the parts for one machine state:
+   joins (always connected), closed contacts, and loads (elements, lamps, coils, the PCB's supply).
+   FLOW.solve(model) -> {cur:{runId: +1 (frm to to) | -1}, amp:{runId: size of the current, mains only},
+     live:{runId:1}, loads:{loadId: share of the supply voltage across it}, sw:{contactId: size of the current}}
+   model = {runs:[{id,a,b}], joins:[[a,b]], closed:[{id,a,b}], loads:[{id,a,b,r}], src:[{from,to,mains}]}
+   Each source is solved on its own: wires and closed contacts form nets at one potential, loads join nets, and a
+   unit voltage from `from` to `to` gives each load's current (a load shorted by a closed contact carries none).
+   Wire currents come from each net's spanning tree. "live" marks mains wires that sit above neutral potential
+   but carry no current.
+   Limits: current is shared out on a spanning tree, so a second wire that closes a loop inside one net would show
+   none (no harness here has one); "live" assumes the supply's `to` side really is neutral; and an open contact is
+   treated as a perfect break, which a solid-state one (an SSR, a triac output) is not. */
+var FLOW=(function(){
+  function solve(M){
+    var out={cur:{},amp:{},live:{},loads:{},sw:{}};
+    (M.src||[]).forEach(function(S){one(M,S,out)});
+    return out;
+  }
+  function one(M,S,out){
+    var par={};
+    function find(x){if(!(x in par))par[x]=x;while(par[x]!==x){par[x]=par[par[x]];x=par[x]}return x}
+    function uni(a,b){a=find(a);b=find(b);if(a!==b)par[a]=b}
+    var Z=[];
+    M.runs.forEach(function(r){Z.push({k:'run',id:r.id,a:r.a,b:r.b})});
+    (M.joins||[]).forEach(function(j){Z.push({k:'join',a:j[0],b:j[1]})});
+    (M.closed||[]).forEach(function(c){Z.push({k:'sw',id:c.id,a:c.a,b:c.b})});
+    Z.forEach(function(e){uni(e.a,e.b)});
+    var s=find(S.from),t=find(S.to);
+    if(s===t)return;
+    var L=(M.loads||[]).filter(function(l){return find(l.a)!==find(l.b)});
+    /* the nets reachable from the source through loads */
+    var seen={},q=[s];seen[s]=1;
+    while(q.length){var n=q.pop();L.forEach(function(l){var a=find(l.a),b=find(l.b),o=a===n?b:b===n?a:null;if(o&&!seen[o]){seen[o]=1;q.push(o)}})}
+    var nets=Object.keys(seen),V={};
+    if(!seen[t]){nets.forEach(function(n){V[n]=1})}
+    else{
+      var unk=nets.filter(function(n){return n!==s&&n!==t}),ix={};unk.forEach(function(n,i){ix[n]=i});
+      var N=unk.length,A=[],B=[],i,j,k;
+      for(i=0;i<N;i++){A.push([]);for(j=0;j<N;j++)A[i].push(0);B.push(0)}
+      L.forEach(function(l){
+        var a=find(l.a),b=find(l.b);if(!seen[a]||!seen[b])return;var g=1/(l.r||1);
+        [[a,b],[b,a]].forEach(function(p){var u=p[0],w=p[1];if(!(u in ix))return;A[ix[u]][ix[u]]+=g;if(w in ix)A[ix[u]][ix[w]]-=g;else if(w===s)B[ix[u]]+=g});
+      });
+      for(i=0;i<N;i++){
+        var piv=i;for(k=i+1;k<N;k++)if(Math.abs(A[k][i])>Math.abs(A[piv][i]))piv=k;
+        if(Math.abs(A[piv][i])<1e-12)continue;
+        var tA=A[i];A[i]=A[piv];A[piv]=tA;var tB=B[i];B[i]=B[piv];B[piv]=tB;
+        for(k=0;k<N;k++){if(k===i)continue;var f=A[k][i]/A[i][i];if(!f)continue;for(j=i;j<N;j++)A[k][j]-=f*A[i][j];B[k]-=f*B[i]}
+      }
+      V[s]=1;V[t]=0;unk.forEach(function(n,i){V[n]=Math.abs(A[i][i])<1e-12?1:B[i]/A[i][i]});
+    }
+    /* load currents, and what each terminal takes out of (+) or puts into (-) its net */
+    var inj={},tot=0,EPS=1e-7;
+    function add(x,c){inj[x]=(inj[x]||0)+c}
+    L.forEach(function(l){
+      var a=find(l.a),b=find(l.b);if(!(a in V)||!(b in V))return;
+      var I=(V[a]-V[b])/(l.r||1);if(Math.abs(I)<EPS)return;
+      out.loads[l.id]=Math.abs(V[a]-V[b]);add(l.a,I);add(l.b,-I);
+      if(a===s)tot+=I;if(b===s)tot-=I;
+    });
+    add(S.from,-tot);add(S.to,tot);
+    /* wire currents: in each net, a spanning tree of its wires; an edge carries what its far side takes */
+    var adj={};Z.forEach(function(e,i){(adj[e.a]=adj[e.a]||[]).push([e.b,i]);(adj[e.b]=adj[e.b]||[]).push([e.a,i])});
+    var done={};
+    Object.keys(adj).forEach(function(root){
+      if(done[root])return;var net=find(root);
+      var ord=[root],pe={},pn={};done[root]=1;
+      for(var h=0;h<ord.length;h++){(adj[ord[h]]||[]).forEach(function(x){if(!done[x[0]]){done[x[0]]=1;pe[x[0]]=x[1];pn[x[0]]=ord[h];ord.push(x[0])}})}
+      if(!(net in V))return;
+      var sub={};
+      for(var m=ord.length-1;m>0;m--){
+        var n=ord[m],c=(inj[n]||0)+(sub[n]||0),e=Z[pe[n]];
+        sub[pn[n]]=(sub[pn[n]]||0)+c;
+        if(Math.abs(c)<EPS)continue;
+        /* c > 0: current runs from the parent side to n */
+        var dir=(e.b===n)===(c>0)?1:-1;
+        if(e.k==='run'){out.cur[e.id]=dir;if(S.mains)out.amp[e.id]=Math.abs(c)}else if(e.k==='sw')out.sw[e.id]=Math.abs(c);
+      }
+      if(S.mains&&V[net]>0.02)ord.forEach(function(n,m){if(m){var e=Z[pe[n]];if(e.k==='run'&&!out.cur[e.id])out.live[e.id]=1}});
+    });
+    if(S.mains)M.runs.forEach(function(r){var n=find(r.a);if(n in V&&V[n]>0.02&&!out.cur[r.id])out.live[r.id]=1});
+  }
+  return {solve:solve};
+})();
+
+/* What's inside the Gaggia's parts, for the electricity flow view (Plug-and-Play wiring only: the stock-wiring
+   maps draw only the wires the install touches, so they can't show a whole circuit).
+   FLOWM.modes -> [[id, label]]; FLOWM.model(v, mode) -> a FLOW.solve model plus {parts:{loadOrContactId: partId}}, or null. */
+var FLOWM=(function(){
+  function nt(t){return String(t||'').toLowerCase().replace(/\s*\([^)]*\)\s*$/,'')}
+  var MODES=[['off','Plugged in, switch off'],['on','On, at temperature'],['heat','Heating'],['brew','Brewing'],['steam','Steaming'],['water','Hot water']];
+  var STATE={off:{},on:{pw:1},heat:{pw:1,heat:1},brew:{pw:1,heat:1,brew:1,pump:1,valve:1},steam:{pw:1,heat:1,steam:1},water:{pw:1,heat:1,brew:1,steam:1,pump:1}};
+  function model(v,mode){
+    if(!v||v.path!=='CW')return null;
+    var st=STATE[mode]||{},T={},runs=[];
+    v.runs.forEach(function(r){if(!r.term||r.opt)return;var a=nt(r.term[0]),b=nt(r.term[1]);T[a]=1;T[b]=1;runs.push({id:r.id,a:a,b:b})});
+    if(!T['power socket l']||!T['power socket n'])return null;
+    var joins=[],closed=[],loads=[],parts={};
+    function has(a,b){return T[a]&&T[b]}
+    function join(a,b){if(has(a,b))joins.push([a,b])}
+    function sw(id,a,b,on,part){if(has(a,b)){parts[id]=part;if(on)closed.push({id:id,a:a,b:b})}}
+    function load(id,a,b,r,part){if(has(a,b)){parts[id]=part;loads.push({id:id,a:a,b:b,r:r})}}
+    var sh=!!T['shelly l terminal'];
+    /* connections that plug together, and the fuses (closed unless tripped) */
+    join('x1a',"l2b, to the boiler lamp's x1a");join('x1b',"l4b, to the lamps' x1b");join('x1c','solenoid left spade');join('p2b',"n1a, on the pump fuse's p2b");
+    sw('fuse','re-settable fuse right spade','re-settable fuse left spade',true,'rf');
+    sw('pfuse','pump fuse lead 1','pump fuse lead 2',true,'pump');
+    /* the power switch (the original Classic's is in its housing: 7 in, P out) */
+    sw('power','power switch terminal 5','power switch terminal 4',st.pw,'swP');
+    sw('power','switch housing on/off 7','switch housing on/off p',st.pw,'housing');
+    if(sh){
+      /* the Shelly: always powered from the socket; its relay follows the power switch on its SW input */
+      sw('relay','shelly l terminal','shelly o terminal',st.pw,'shelly');
+      load('shelly','shelly l terminal','shelly n terminal',2000,'shelly');
+      load('shellysw','shelly sw terminal','shelly n terminal',5000,'shelly');
+    }
+    /* the SSR's load side closes while the PCB drives its control side */
+    sw('ssr','ssr load right terminal','ssr load left terminal',st.heat,'ssr');
+    /* inside the PCB: its own supply, and its two mains outputs */
+    load('pcb','pcb j11 ac line l','pcb j10 ac neutral n',300,'pcb');
+    sw('pumpdrv','pcb j11 ac line l','pcb j12 pump p',st.pump,'pcb');
+    sw('valvedrv','pcb j11 ac line l','pcb j13 solenoid 3',st.valve,'pcb');
+    /* loads */
+    load('elemT','boiler element terminal tl','boiler element terminal tr',1,'boiler');
+    load('elemB','boiler element terminal bl','boiler element terminal br',1,'boiler');
+    load('lampBoiler','steam lamp lead a','steam lamp lead b',800,'lampS');
+    load('lampPower','power lamp lead a','power lamp lead b',800,'lampP');
+    load('lampHousing','switch housing on/off p','switch housing on/off 8',800,'lampP');
+    load('pump','pump left spade','pump right spade',6,'pump');
+    load('pump','pump left spade',"n1a, on the pump fuse's lead",6,'pump');
+    load('valve','solenoid right spade','solenoid left spade',25,'sol');
+    /* low voltage: the PCB pulls J7 B and S up and reads them; a closed switch takes one to ground. J9 R1 drives the SSR. */
+    var lv=[];
+    if(st.pw){
+      T['pcb 3v3']=1;T['pcb gnd']=1;
+      joins.push(['pcb gnd','pcb j7 gnd']);joins.push(['pcb gnd','pcb j9 gnd']);
+      load('pullB','pcb 3v3','pcb j7 b',10,'pcb');load('pullS','pcb 3v3','pcb j7 s',10,'pcb');
+      load('ssrled','ssr plus','ssr minus',5,'ssr');
+      sw('r1','pcb 3v3','pcb j9 r1',st.heat,'pcb');
+      sw('brew','brew switch terminal 1','brew switch terminal 2',st.brew,'swB');
+      sw('brew','switch housing brew 1','switch housing brew p',st.brew,'housing');
+      sw('steam','steam switch terminal 1','steam switch terminal 2',st.steam,'swS');
+      sw('steam','switch housing steam 3','switch housing steam p',st.steam,'housing');
+      lv.push({from:'pcb 3v3',to:'pcb gnd'});
+    }
+    return {runs:runs,joins:joins,closed:closed,loads:loads,src:[{from:'power socket l',to:'power socket n',mains:true}].concat(lv),parts:parts,passive:{fuse:1,pfuse:1},state:st,shelly:sh,gc:v.fam==='GC'};
+  }
+  /* what to say about each state */
+  function text(m,mode){
+    var gc=m.gc,sh=m.shelly,lamp=gc?'the lamp in the switch housing':'the boiler lamp';
+    var T={
+      off:['The cord is in and the power switch is off.',
+        sh?'Line still reaches the power socket, the Shelly and the power switch\'s input. The Shelly is powered all the time (that\'s how it hears the app and the switch), with its relay open.':'Line still reaches the power socket and the power switch\'s input (L1a-L1b), and stops at the open switch.',
+        'Nothing past the '+(sh?'Shelly\'s relay':'switch')+' is powered'+(sh?', until the app or a schedule closes the relay, which can happen at any moment whatever the power switch says':'')+'. This assumes the outlet\'s line is on the socket\'s L pin: the '+(sh?'relay':'switch')+' breaks line only, so with a reversible plug or a miswired outlet the whole machine stays at line voltage with the switch off. Unplug before you touch anything.'],
+      on:['The machine is on and the boiler is at temperature, so the PCB isn\'t asking for heat.',
+        (sh?'The power switch tells the Shelly to close its relay, and line runs on':'Line passes the power switch')+' to the SSR\'s input, the PCB (J11) and '+(gc?'the lamp in the switch housing. The loose L4b spade is live whenever the machine is on':'the lamps')+'. The PCB runs on J11 and J10 and reads the thermocouple, the pressure sensor and the switches all the time.',
+        (gc?'':'The power lamp is lit. ')+'The SSR is open, so '+lamp+' is lit: it sits across the SSR, and a trickle runs through it and the elements to neutral (the thin dots on the heater wires). Treat the heater wires as live even when the boiler isn\'t heating. The pump and valve wires are dimmed, but only the PCB\'s electronics hold them off.'],
+      heat:['The boiler is below its target, so the PCB drives the SSR.',
+        'J9 R1 sends a low-voltage signal through the SSR\'s control side and back on J9 GND. The SSR closes, and line runs through the 185 °C fuse into the elements and back to the socket on neutral. This is by far the biggest current in the machine.',
+        'With the SSR closed, both leads of '+lamp+' are at line, so it goes dark. In use the PCB switches the SSR on and off in short pulses to hold the temperature, so the lamp can flicker as the boiler nears its target.'],
+      brew:['The brew switch is on.',
+        'The switch only joins J7 B to J7 GND: a low-voltage signal the PCB reads. The PCB then powers the 3-way valve from J13 and the pump from J12, changing the pump\'s power to follow the pressure or flow profile. Both return on neutral, the pump through its 110 °C thermal fuse.',
+        'The PCB keeps pulsing the SSR to hold the temperature while water runs through. No mains passes through the brew switch any more.'],
+      steam:['The steam switch is on.',
+        'The switch joins J7 S to J7 GND'+(gc?'':' (through the jumper to the brew switch\'s ground spade)')+'. The PCB reads that and heats to the Steam Temperature setting instead of the brew temperature.',
+        'The valve stays off. The pump stays off too unless DreamSteam is on in the settings: then the PCB runs it from J12 to feed fresh water into the boiler, which this picture doesn\'t show.'],
+      water:['Brew and steam switches on together: hot water mode.',
+        'The official manual says only that both switches together trigger Hot Water Mode, the same as a stock machine. As on a stock machine, the PCB runs the pump from J12 with the 3-way valve left closed (this site\'s reading), so the water leaves through the steam wand when you open the knob.',
+        'The heater keeps pulsing to hold the temperature.']
+    };
+    return T[mode]||['','',''];
+  }
+  return {modes:MODES,model:model,text:text,nt:nt};
+})();
+
   /* ---------- the wiring map ----------
      WM holds one drawing per schematic (built by wiring_map.py): the SVG, its parts and which parts each run joins.
      Tap a wire or its tag for that run, a part for everything that lands on it; the layer chips, the stepper and the
@@ -2405,6 +2618,90 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       });
       g.innerHTML=h;svg.appendChild(g);
     }
+    /* The wire picker: every run on the drawing in the runbook's install order, grouped by step, as a dropdown that
+       doubles as a walkthrough (the arrows follow the same order). Out of the box lists the factory wires. */
+    var pick=null;
+    function pickPlan(){
+      var tw={},ids=Object.keys(realMp.ends);ids.forEach(function(id){tw[id]=1});
+      var f=facOf(key),S={tw:tw,twOrder:ids,tparts:realMp.parts,fparts:f?f.parts:{}};
+      var P=installPlan(S),ord=[];P.plan.forEach(function(g){g.runs.forEach(function(id){ord.push(id)})});
+      return {plan:P.plan,rank:P.rank,order:ord};
+    }
+    function pickUI(){
+      var w=el('m-wire');if(!w)return;
+      var h='<option value="">Pick a wire…</option>',txt=function(id){var r=runOf(id);return id+' · '+(r?(r.short||(r.frm+' → '+r.to)):((mp.cables||{})[id]||''))};
+      if(view==='mine'&&pick){
+        pick.plan.forEach(function(g){if(!g.runs.length)return;h+='<optgroup label="'+esc(g.s?stepName(g.s):'Other runs')+'">'+g.runs.map(function(id){return '<option value="'+esc(id)+'">'+esc(txt(id))+'</option>'}).join('')+'</optgroup>'});
+      }else order.forEach(function(id){h+='<option value="'+esc(id)+'">'+esc(txt(id))+'</option>'});
+      w.innerHTML=h;
+      var lb=el('m-wire-l');if(lb)lb.textContent=view==='box'?'Factory wire':'Wire, in install order';
+    }
+    /* what was on a new run's ends out of the box: the factory wires whose ends this run takes over */
+    function beforeOf(id){
+      var rel=(WM[key]&&WM[key].rel)||{},f=facOf(key),out=[];if(!f)return null;
+      Object.keys(rel).forEach(function(fid){(rel[fid].ends||[]).forEach(function(e){if((e.now||[]).indexOf(id)>=0)out.push({f:fid,t:e.t})})});
+      return out;
+    }
+    function lcs(t){t=String(t);return /^[A-Z][a-z]/.test(t)?t.charAt(0).toLowerCase()+t.slice(1):t}
+    function walkHtml(r){
+      var h='',st=pick&&pick.rank[r.id]&&pick.rank[r.id].step,i=order.indexOf(r.id);
+      if(view!=='mine')return '';
+      if(st)h+='<p class="d-step"><span class="k">When</span> <a href="runbook.html#'+esc(st.id)+'">'+esc(stepName(st))+'</a>'+(i>=0?' <span style="color:var(--muted)">· wire '+(i+1)+' of '+order.length+' in install order</span>':'')+'</p>';
+      var b=r.cable?null:beforeOf(r.id),f=facOf(key);
+      if(b){
+        var by={};b.forEach(function(x){(by[x.t]=by[x.t]||[]).push(x.f)});
+        var ks=Object.keys(by),fg=(realV.flags||[]).filter(function(x){return (r.term||[]).indexOf(String(x.id).toLowerCase())>=0});
+        h+='<div class="d-ba"><div><span class="k">Before, out of the box</span>'+(ks.length?'<ul>'+ks.map(function(t){return '<li>At '+esc(lcs(t))+': '+by[t].map(function(fid){var fr=f.runs[fid]||{};return '<button type="button" class="rchip" data-mbox="'+esc(fid)+'" title="See it out of the box">'+esc(fid)+'</button> <span style="color:var(--muted)">'+esc((fr.frm||'')+' → '+(fr.to||''))+'</span>'}).join('; ')+'</li>'}).join('')+'</ul>':fg.length?'<ul>'+fg.map(function(x){return '<li>Stock connector '+esc(x.id)+': '+esc(String(x.l1||'').replace(/^stock:\s*/,''))+(x.hot?' (at the boiler)':'')+'</li>'}).join('')+'</ul>':'<p>Nothing sat on these ends at the factory. '+(r.stock?'This is the machine\'s own lead with a new end.':'It\'s a new connection, to a part the install adds or a spade that was empty.')+'</p>')+'</div>'+
+          '<div><span class="k">After</span><ul><li>'+esc((r.lab&&r.lab[0]?r.lab[0]+' on ':'On ')+r.frm)+': '+esc(lcs((r.ends||[])[0]||'plugged in'))+'</li><li>'+esc((r.lab&&r.lab[1]?r.lab[1]+' on ':'On ')+r.to)+': '+esc(lcs((r.ends||[])[1]||'plugged in'))+'</li></ul></div></div>';
+      }
+      if(i>=0&&order.length>1)h+='<p class="d-walk"><button type="button" class="chip" data-mstep="-1">‹ Previous wire</button><button type="button" class="chip" data-mstep="1">Next wire ›</button></p>';
+      return h;
+    }
+    /* Electricity flow: pick what the machine is doing and the map shows which wires carry current (moving dots, in
+       the direction from line to neutral), which are live but carry none, and which parts are on. Plug-and-Play only. */
+    var flow=false,fmode='on';
+    function flowOK(){return typeof FLOWM!=='undefined'&&typeof FLOW!=='undefined'&&!!realV&&!!FLOWM.model(realV,'on')}
+    function flowOn(){return flow&&view==='mine'&&!A&&flowOK()}
+    function flowRes(){
+      var M=FLOWM.model(realV,fmode),Rz=FLOW.solve(M),parts={};
+      /* on: a load with most of the supply across it, or a contact passing current (a fuse counts only for a real load current) */
+      Object.keys(Rz.loads).forEach(function(k){if(M.parts[k]&&Rz.loads[k]>0.3)parts[M.parts[k]]=1});
+      Object.keys(Rz.sw).forEach(function(k){if(M.parts[k]&&(!(M.passive||{})[k]||Rz.sw[k]>0.02))parts[M.parts[k]]=1});
+      if(realMp.parts.sock)parts.sock=1;
+      return {M:M,R:Rz,parts:parts};
+    }
+    function flowPaint(){
+      var fo=flowOn(),FR=fo?flowRes():null,fb=el('m-flow'),bar=el('mflow');
+      svg.classList.toggle('elec',fo);el('mapsec').classList.toggle('flowing',fo);
+      if(fb){fb.hidden=!realMp||view!=='mine'||!flowOK();fb.setAttribute('aria-pressed',String(fo))}
+      if(bar){bar.hidden=!fo;if(fo)bar.innerHTML='<span class="mj-k">The machine is</span>'+FLOWM.modes.map(function(m){return '<button type="button" class="chip" data-mfm="'+m[0]+'" aria-pressed="'+(fmode===m[0])+'">'+esc(m[1])+'</button>'}).join('')}
+      Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag'),function(g){
+        var id=g.getAttribute('data-run'),c=FR&&FR.R.cur[id],lv=FR&&FR.R.live[id],sig=FR&&FR.M.state.pw&&!runOf(id);
+        g.classList.toggle('ecur',!!c);g.classList.toggle('erev',c===-1);g.classList.toggle('elive',!!lv&&!c);g.classList.toggle('ebig',!!c&&(FR.R.amp[id]||0)>0.02);
+        if(fo){g.classList.toggle('off',!(c||lv||sig));g.classList.remove('sel')}
+      });
+      if(fo){
+        svg.classList.add('dim');
+        Array.prototype.forEach.call(svg.querySelectorAll('.part'),function(g){var id=g.getAttribute('data-part');g.classList.toggle('off',!FR.parts[id]);g.classList.remove('sel');g.classList.toggle('eon',!!FR.parts[id])});
+        Array.prototype.forEach.call(svg.querySelectorAll('.stk'),function(g){g.classList.remove('on')});
+      }else Array.prototype.forEach.call(svg.querySelectorAll('.part.eon'),function(g){g.classList.remove('eon')});
+      return FR;
+    }
+    function flowCard(FR){
+      var d=el('mdetail'),tx=FLOWM.text(FR.M,fmode),lab=FLOWM.modes.filter(function(m){return m[0]===fmode})[0][1];
+      var cur=order.filter(function(id){return FR.R.cur[id]}),live=order.filter(function(id){return FR.R.live[id]&&!FR.R.cur[id]});
+      var mains=cur.filter(function(id){var r=runOf(id);return r&&r.sys!=='LV'&&r.sys!=='LVG'}),lv=cur.filter(function(id){return mains.indexOf(id)<0});
+      var pn=Object.keys(FR.parts).filter(function(p){return mp.parts[p]}).map(function(p){return mp.parts[p].name});
+      function ids(a){return a.length?'<div class="ids eids">'+a.map(function(id){return '<span>'+esc(id)+'</span>'}).join('')+'</div>':'<span style="color:var(--muted)">None</span>'}
+      d.className='mdetail';d.style.borderLeftColor='var(--accent)';
+      d.innerHTML='<div class="d-head"><span class="d-route">Electricity flow: '+esc(lab)+'</span><span class="d-acts"><button type="button" class="chip" data-mflow>Back to the wiring</button></span></div>'+
+        '<p class="d-what">'+esc(tx[0])+'</p><p>'+esc(tx[1])+'</p><p>'+esc(tx[2])+'</p>'+
+        '<div class="d-grid stw-grid"><div><span class="k">Mains wires carrying current ('+mains.length+')</span>'+ids(mains)+'</div>'+
+        '<div><span class="k">Low-voltage signals flowing ('+lv.length+')</span>'+ids(lv)+'</div>'+
+        '<div><span class="k">Live at mains voltage, no current ('+live.length+')</span>'+ids(live)+'</div>'+
+        '<div><span class="k">Parts on or passing current</span><span>'+(pn.length?esc(pn.join(', ')):'None')+'</span></div></div>'+
+        '<p style="color:var(--muted)">This is a picture of the circuit as the official drawing wires it, not a meter. Mains is alternating current: the dots run from line to neutral only to show the path. The earth wires carry nothing unless there\'s a fault. The sensor and screen cables are read by the PCB all the time it\'s on. A dimmed wire isn\'t proof of a dead one: the SSR and the PCB\'s outputs switch off electronically, and a reversed outlet puts line on the neutral side. Always unplug before you touch a wire.</p>';
+    }
     function nhwBadges(){
       if(!svg||svg.querySelector('.nhb'))return;
       var ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g');g.setAttribute('class','nhb');g.setAttribute('aria-hidden','true');
@@ -2459,7 +2756,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         if(view==='box'){v=boxV(k);mp={svg:f.svg,parts:f.parts,ends:f.ends,cables:{}}}else{v=realV;mp=realMp}
         el('mscroll').innerHTML=mp?mp.svg:'';svg=el('mscroll').querySelector('svg');
       }
-      order=listOrder();
+      order=listOrder();pick=null;
+      if(realMp&&view==='mine'){try{pick=pickPlan();if(pick.order.length)order=pick.order}catch(e){pick=null}}
+      pickUI();
       el('mapsec').hidden=!realMp;
       viewUI();
       /* the stock-wiring line in the caption: viewUI swaps the caption for Out of the box and puts it back after */
@@ -2519,6 +2818,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         g.classList.toggle('nh',NEWHW.indexOf(id)>=0);
       });
       endLabels(any&&!nh&&!st?lit:null);
+      var mw=el('m-wire');if(mw){var wv=sel&&sel.t==='run'?sel.id:'';if(mw.value!==wv)mw.value=wv;if(mw.value!==wv)mw.value=''}
       var has={};Array.prototype.forEach.call(svg.querySelectorAll('.run'),function(g){var id=g.getAttribute('data-run');LAYERS.forEach(function(l){if(l[0]!=='all'&&inLayer(id,l[0]))has[l[0]]=1})});
       el('mchips').innerHTML=LAYERS.filter(function(l){return l[0]==='all'||has[l[0]]}).map(function(l){
         return '<button type="button" class="chip" data-mlayer="'+l[0]+'" aria-pressed="'+(layer===l[0]&&!sel)+'">'+(l[2]?'<span class="sw" style="background:'+l[2]+'"></span>':'')+l[1]+'</button>';
@@ -2530,7 +2830,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       var js=jList(),jc=el('mjchips');
       jc.hidden=!js.length||view!=='mine';
       jc.innerHTML=js.length?'<span class="mj-k">On the PCB</span>'+js.map(function(J){return '<button type="button" class="chip" data-mj="'+J+'" aria-pressed="'+!!(sel&&sel.j===J)+'" title="'+esc(JN[J]||'')+'">'+J+'</button>'}).join(''):'';
+      var FR=flowPaint();
       legend();detail();summary();
+      if(FR){endLabels(null);flowCard(FR);
+        var nc=Object.keys(FR.R.cur).length,nl=Object.keys(FR.R.live).filter(function(id){return !FR.R.cur[id]}).length;
+        el('msel').innerHTML='<span class="rt">Electricity flow</span>: '+nc+(nc===1?' wire carries':' wires carry')+' current'+(nl?', '+nl+' more '+(nl===1?'is':'are')+' live':'');
+        el('mlegend').innerHTML='<span><i class="lg-ecur"></i>Carrying current: the dots move from line to neutral, thick for a heavy current (heater, pump, valve), thin for a small one</span><span><i class="lg-elive"></i>Live at mains voltage, no current</span><span><i class="lg-eoff"></i>Not powered in this state</span>';
+      }
     }
     /* one line above the map, so on a phone the pick shows without scrolling down to the card */
     function summary(){
@@ -2643,7 +2949,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         var nm=(mp.cables||{})[sel.id]||sel.id,pins=(v.cables||[]).filter(function(c){return (sel.id==='TC'&&/Thermocouple/.test(c.frm))||(sel.id==='PS'&&/Pressure/.test(c.frm))||(sel.id==='SCR'&&/J1/.test(c.frm+c.to))});
         d.className='mdetail';d.style.borderLeftColor=SYSC.S;
         d.innerHTML='<div class="d-head"><span class="d-id">'+esc(sel.id)+'</span><span class="d-route">'+esc(nm)+'</span>'+acts+'</div><p>This cable comes with its part. Plug it in by pin, not by color:</p>'+
-          '<div class="d-grid">'+pins.map(function(c){return '<div><span class="k">'+esc(c.frm)+'</span><span>'+swatch(c.color)+esc(c.to)+'</span></div>'}).join('')+'</div>';
+          '<div class="d-grid">'+pins.map(function(c){return '<div><span class="k">'+esc(c.frm)+'</span><span>'+swatch(c.color)+esc(c.to)+'</span></div>'}).join('')+'</div>'+walkHtml({id:sel.id,cable:true});
         return;
       }
       var bare=!!(r.k&&(['b','mb'].indexOf(r.k[0])>=0||['b','mb'].indexOf(r.k[1])>=0));
@@ -2655,7 +2961,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         '<div><span class="k">'+(r.lab&&r.lab[0]?esc(r.lab[0])+' at ':'End at ')+esc(r.frm)+'</span><span>'+esc((r.ends||[])[0]||'—')+'</span></div>'+
         '<div><span class="k">'+(r.lab&&r.lab[1]?esc(r.lab[1])+' at ':'End at ')+esc(r.to)+'</span><span>'+esc((r.ends||[])[1]||'—')+'</span></div>'+
         '<div><span class="k">Notes</span><span>'+(r.stock?'Stock lead. ':'')+(r.opt?'Optional run. ':'')+(bare?'An end at the boiler or valve: bare spade under silicone. ':'')+(!r.stock&&!r.opt&&!bare?'—':'')+'</span></div></div>'+
-        (r.what?'<p>'+esc(r.what)+'.</p>':'')+(r.note?'<p>'+esc(r.note)+'</p>':'');
+        (r.what?'<p>'+esc(r.what)+'.</p>':'')+(r.note?'<p>'+esc(r.note)+'</p>':'')+walkHtml(r);
     }
     function center(){
       if(!svg||!sel)return;
@@ -2686,7 +2992,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       var n=jNet(J);if(!n.direct.length)return;
       sel={t:'set',ids:n.direct.concat(n.joined),label:J+', '+(JN[J]||'socket'),j:J,joined:n.joined};layer='all';paint();center();
     }
-    function pickRun(id,toggle){nhw=false;sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
+    function pickRun(id,toggle){nhw=false;flow=false;sel=(toggle&&sel&&sel.t==='run'&&sel.id===id)?null:{t:'run',id:id};paint();center()}
     function fitWhole(){if(el('mscroll').scrollWidth>el('mscroll').clientWidth+2&&!whole){whole=true;zoomUI()}}
     function pickPart(id){sel=(sel&&sel.t==='part'&&sel.id===id)?null:{t:'part',id:id};paint();center()}
     function stepBy(n){
@@ -2698,6 +3004,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     function init(){
       el('mscroll').addEventListener('click',function(e){
         if(A){var fg=A==='cmp'&&e.target.closest('.st-fw [data-run]');if(fg&&fg.getAttribute('data-run')!==cmp)compare(fg.getAttribute('data-run'),'play');return}
+        if(flowOn())return;
         var g=e.target.closest('[data-run]');if(g){pickRun(g.getAttribute('data-run'),true);return}
         var jh=e.target.closest('[data-j]');if(jh&&view==='mine'){pickJ(jh.getAttribute('data-j'));return}
         var p=e.target.closest('[data-part]');if(p){pickPart(p.getAttribute('data-part'));return}
@@ -2708,15 +3015,20 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       el('mapsec').addEventListener('click',function(e){
         var w=e.target.closest('[data-wc]');if(w){wcol=w.getAttribute('data-wc')==='draw';persist();paint();return}
         if(e.target.closest('[data-mclear]')){sel=null;paint();return}
-        var nb=e.target.closest('#m-nhw,[data-mnhw]');if(nb){nhw=!nhw;stw=false;sel=null;layer='all';if(nhw&&view!=='mine'){stopAnim();view='mine';drawn=null;show(key,showOpt)}else paint();if(nhw)fitWhole();return}
-        var sw=e.target.closest('#m-stw,[data-mstw]');if(sw){stw=!stw;nhw=false;sel=null;layer='all';if(stw&&view!=='box'&&facOf(key)){stopAnim();view='box';drawn=null;show(key,showOpt)}else paint();if(stw)fitWhole();return}
+        var fbn=e.target.closest('#m-flow,[data-mflow]');if(fbn){flow=!flowOn();nhw=false;stw=false;sel=null;layer='all';paint();if(flow)fitWhole();return}
+        var fmb=e.target.closest('[data-mfm]');if(fmb){fmode=fmb.getAttribute('data-mfm');paint();return}
+        var nb=e.target.closest('#m-nhw,[data-mnhw]');if(nb){nhw=!nhw;stw=false;flow=false;sel=null;layer='all';if(nhw&&view!=='mine'){stopAnim();view='mine';drawn=null;show(key,showOpt)}else paint();if(nhw)fitWhole();return}
+        var sw=e.target.closest('#m-stw,[data-mstw]');if(sw){stw=!stw;nhw=false;flow=false;sel=null;layer='all';if(stw&&view!=='box'&&facOf(key)){stopAnim();view='box';drawn=null;show(key,showOpt)}else paint();if(stw)fitWhole();return}
         var mpn=e.target.closest('[data-mpart]');if(mpn){pickPart(mpn.getAttribute('data-mpart'));return}
+        var ms=e.target.closest('[data-mstep]');if(ms){stepBy(+ms.getAttribute('data-mstep'));return}
+        var mb=e.target.closest('[data-mbox]');if(mb){var fid=mb.getAttribute('data-mbox');stw=false;nhw=false;stopAnim();view='box';drawn=null;show(key,showOpt);pickRun(fid,false);return}
         var r=e.target.closest('[data-mrun]');if(r){pickRun(r.getAttribute('data-mrun'),false);return}
         var c=e.target.closest('[data-mcmp]');if(c){compare(c.getAttribute('data-mcmp'),'play');el('mapsec').scrollIntoView({behavior:'smooth',block:'start'});return}
         if(e.target.closest('[data-cmpx]')){closeCmp();return}
         var gx=e.target.closest('[data-mgo]');if(gx){var rid=gx.getAttribute('data-mgo');stopAnim();view='mine';drawn=null;show(key,showOpt);pickRun(rid,false);return}
       });
       el('mzoom').addEventListener('click',function(e){var b=e.target.closest('[data-mzoom]');if(!b)return;whole=b.getAttribute('data-mzoom')==='whole';zoomUI();if(!whole)center()});
+      el('m-wire').addEventListener('change',function(){var id=this.value;if(id)pickRun(id,false);else{sel=null;paint()}});
       el('m-prev').addEventListener('click',function(){stepBy(-1)});
       el('m-next').addEventListener('click',function(){stepBy(1)});
       el('mview').addEventListener('click',function(e){
