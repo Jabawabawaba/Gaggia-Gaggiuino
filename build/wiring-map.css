@@ -249,3 +249,11 @@ a.onmap,button.onmap{font:600 13px var(--f-body)}
 .lg-eoff{border-top:4px solid var(--muted)!important;opacity:.3}
 @media (prefers-reduced-motion:reduce){.dia.elec .run.ecur .flow{animation:none;stroke:var(--surface)}}
 @media print{.mflowb,.mflow{display:none!important}}
+.dia .fxw{pointer-events:none}
+.dia.dim .frun.off{opacity:.1}
+.dia.elec .frun.ecur .flow{stroke:var(--surface);stroke-width:1.6;stroke-dasharray:2 15;animation:wflow 1.6s linear infinite}
+.dia.elec .frun.ecur.ebig .wire{stroke-width:5}
+.dia.elec .frun.ecur.ebig .flow{stroke-width:2.8;stroke-dasharray:4 13;animation-duration:.7s}
+.dia.elec .frun.ecur.erev .flow{animation-direction:reverse}
+.dia.elec .frun.elive .halo{stroke:#d92b2b;stroke-opacity:.38;stroke-width:11}
+@media (prefers-reduced-motion:reduce){.dia.elec .frun.ecur .flow{animation:none;stroke:var(--surface)}}

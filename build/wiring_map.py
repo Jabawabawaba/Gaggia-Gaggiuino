@@ -1261,7 +1261,7 @@ def svg_factory(key, v, hz, m, runs, paths):
     meta = {}
     for r, a, b in runs:
         meta[r["id"]] = {"color": r["color"], "sys": r["sys"], "what": r.get("what", ""), "lab": r.get("lab", ["", ""]),
-                         "frm": fac_term_name(m, a), "to": fac_term_name(m, b)}
+                         "frm": fac_term_name(m, a), "to": fac_term_name(m, b), "n": [r["a"], r["b"]]}
     parts = {p[0]: {"name": p[1], "note": p[2]} for p in m.parts}
     ends = {r["id"]: [m.term[a][3], m.term[b][3]] for r, a, b in runs}
     return "".join(o), meta, parts, ends

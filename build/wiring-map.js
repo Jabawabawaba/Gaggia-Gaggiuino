@@ -108,23 +108,41 @@
     /* Electricity flow: pick what the machine is doing and the map shows which wires carry current (moving dots, in
        the direction from line to neutral), which are live but carry none, and which parts are on. Plug-and-Play only. */
     var flow=false,fmode='on';
-    function flowOK(){return typeof FLOWM!=='undefined'&&typeof FLOW!=='undefined'&&!!realV&&!!FLOWM.model(realV,'on')}
-    function flowOn(){return flow&&view==='mine'&&!A&&flowOK()}
+    function flowPick(){return typeof FLOWM!=='undefined'&&typeof FLOW!=='undefined'&&realV?FLOWM.pick(realV,facOf(key),view==='box'):null}
+    function flowOK(){return !!flowPick()}
+    function flowOn(){return flow&&!A&&flowOK()}
     function flowRes(){
-      var M=FLOWM.model(realV,fmode),Rz=FLOW.solve(M),parts={};
-      /* on: a load with most of the supply across it, or a contact passing current (a fuse counts only for a real load current) */
+      var P=flowPick();if(!P.modes.some(function(m){return m[0]===fmode}))fmode=P.modes[1][0];
+      var M=P.model(fmode),Rz=FLOW.solve(M),parts={};
+      /* on: a load with most of the supply across it, or a contact passing current (a fuse or thermostat counts only for a real load current) */
       Object.keys(Rz.loads).forEach(function(k){if(M.parts[k]&&Rz.loads[k]>0.3)parts[M.parts[k]]=1});
       Object.keys(Rz.sw).forEach(function(k){if(M.parts[k]&&(!(M.passive||{})[k]||Rz.sw[k]>0.02))parts[M.parts[k]]=1});
-      if(realMp.parts.sock)parts.sock=1;
-      return {M:M,R:Rz,parts:parts};
+      M.closed.forEach(function(c){if(/^power/.test(c.id)&&M.parts[c.id])parts[M.parts[c.id]]=1});
+      if(mp.parts.sock)parts.sock=1;
+      return {P:P,M:M,R:Rz,parts:parts};
+    }
+    /* stock wiring: the map draws only what the install touches, so the factory wires go under it while the flow shows.
+       They sit where they did out of the box; a moved connector's last stretch isn't redrawn. */
+    function flowUnder(on){
+      var old=svg.querySelector('.fxw');
+      if(!on){if(old)old.remove();return}
+      if(old)return;
+      var f=facOf(key);if(!f||!f.svg)return;
+      var tmp=document.createElement('div');tmp.innerHTML=f.svg;
+      var g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','fxw');
+      Array.prototype.forEach.call(tmp.querySelectorAll('.wires > .run'),function(r){var c=document.importNode(r,true);c.setAttribute('class',c.getAttribute('class').replace(/\brun\b/,'frun'));c.removeAttribute('tabindex');g.appendChild(c)});
+      /* the factory crimp splices those wires meet at aren't on this map either */
+      Array.prototype.forEach.call(tmp.querySelectorAll('.parts > .part'),function(r){if(!/^J\d+$/.test(r.getAttribute('data-part')||''))return;var c=document.importNode(r,true);c.setAttribute('class','fpart');g.appendChild(c)});
+      var w=svg.querySelector('.wires');if(w)w.parentNode.insertBefore(g,w);else svg.appendChild(g);
     }
     function flowPaint(){
       var fo=flowOn(),FR=fo?flowRes():null,fb=el('m-flow'),bar=el('mflow');
       svg.classList.toggle('elec',fo);el('mapsec').classList.toggle('flowing',fo);
-      if(fb){fb.hidden=!realMp||view!=='mine'||!flowOK();fb.setAttribute('aria-pressed',String(fo))}
-      if(bar){bar.hidden=!fo;if(fo)bar.innerHTML='<span class="mj-k">The machine is</span>'+FLOWM.modes.map(function(m){return '<button type="button" class="chip" data-mfm="'+m[0]+'" aria-pressed="'+(fmode===m[0])+'">'+esc(m[1])+'</button>'}).join('')}
-      Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag'),function(g){
-        var id=g.getAttribute('data-run'),c=FR&&FR.R.cur[id],lv=FR&&FR.R.live[id],sig=FR&&FR.M.state.pw&&!runOf(id);
+      if(fb){fb.hidden=!realMp||!flowOK();fb.setAttribute('aria-pressed',String(fo))}
+      if(bar){bar.hidden=!fo;if(fo)bar.innerHTML='<span class="mj-k">The machine is</span>'+FR.P.modes.map(function(m){return '<button type="button" class="chip" data-mfm="'+m[0]+'" aria-pressed="'+(fmode===m[0])+'">'+esc(m[1])+'</button>'}).join('')}
+      flowUnder(fo&&FR.M.kind==='stock');
+      Array.prototype.forEach.call(svg.querySelectorAll('.run,.tag,.frun'),function(g){
+        var id=g.getAttribute('data-run'),c=FR&&FR.R.cur[id],lv=FR&&FR.R.live[id],sig=FR&&FR.M.state.pw&&FR.M.kind!=='factory'&&!!(mp.cables||{})[id];
         g.classList.toggle('ecur',!!c);g.classList.toggle('erev',c===-1);g.classList.toggle('elive',!!lv&&!c);g.classList.toggle('ebig',!!c&&(FR.R.amp[id]||0)>0.02);
         if(fo){g.classList.toggle('off',!(c||lv||sig));g.classList.remove('sel')}
       });
@@ -136,19 +154,22 @@
       return FR;
     }
     function flowCard(FR){
-      var d=el('mdetail'),tx=FLOWM.text(FR.M,fmode),lab=FLOWM.modes.filter(function(m){return m[0]===fmode})[0][1];
-      var cur=order.filter(function(id){return FR.R.cur[id]}),live=order.filter(function(id){return FR.R.live[id]&&!FR.R.cur[id]});
-      var mains=cur.filter(function(id){var r=runOf(id);return r&&r.sys!=='LV'&&r.sys!=='LVG'}),lv=cur.filter(function(id){return mains.indexOf(id)<0});
+      var d=el('mdetail'),tx=FLOWM.text(FR.M,fmode),lab=FR.P.modes.filter(function(m){return m[0]===fmode})[0][1];
+      var all=FR.M.runs.map(function(r){return r.id}),fz=facOf(key);
+      function sysOf(id){var r=runOf(id)||(fz&&fz.runs&&fz.runs[id]);return r?r.sys:''}
+      var cur=all.filter(function(id){return FR.R.cur[id]}),live=all.filter(function(id){return FR.R.live[id]&&!FR.R.cur[id]});
+      var mains=cur.filter(function(id){var y=sysOf(id);return y!=='LV'&&y!=='LVG'}),lv=cur.filter(function(id){return mains.indexOf(id)<0});
       var pn=Object.keys(FR.parts).filter(function(p){return mp.parts[p]}).map(function(p){return mp.parts[p].name});
       function ids(a){return a.length?'<div class="ids eids">'+a.map(function(id){return '<span>'+esc(id)+'</span>'}).join('')+'</div>':'<span style="color:var(--muted)">None</span>'}
       d.className='mdetail';d.style.borderLeftColor='var(--accent)';
       d.innerHTML='<div class="d-head"><span class="d-route">Electricity flow: '+esc(lab)+'</span><span class="d-acts"><button type="button" class="chip" data-mflow>Back to the wiring</button></span></div>'+
         '<p class="d-what">'+esc(tx[0])+'</p><p>'+esc(tx[1])+'</p><p>'+esc(tx[2])+'</p>'+
         '<div class="d-grid stw-grid"><div><span class="k">Mains wires carrying current ('+mains.length+')</span>'+ids(mains)+'</div>'+
-        '<div><span class="k">Low-voltage signals flowing ('+lv.length+')</span>'+ids(lv)+'</div>'+
+        (FR.M.kind==='factory'?'':'<div><span class="k">Low-voltage signals flowing ('+lv.length+')</span>'+ids(lv)+'</div>')+
         '<div><span class="k">Live at mains voltage, no current ('+live.length+')</span>'+ids(live)+'</div>'+
         '<div><span class="k">Parts on or passing current</span><span>'+(pn.length?esc(pn.join(', ')):'None')+'</span></div></div>'+
-        '<p style="color:var(--muted)">This is a picture of the circuit as the official drawing wires it, not a meter. Mains is alternating current: the dots run from line to neutral only to show the path. The earth wires carry nothing unless there\'s a fault. The sensor and screen cables are read by the PCB all the time it\'s on. A dimmed wire isn\'t proof of a dead one: the SSR and the PCB\'s outputs switch off electronically, and a reversed outlet puts line on the neutral side. Always unplug before you touch a wire.</p>';
+        (FR.M.kind==='stock'?'<p style="color:var(--muted)">F numbers are the machine\'s own factory wires, drawn where they sat out of the box (see Out of the box for each one). Where the install moved a stock connector, the last stretch of its wire isn\'t redrawn: the stock connector marks on the map show where it went.</p>':'')+
+        '<p style="color:var(--muted)">This is a picture of the circuit as the official drawing wires it, not a meter. Mains is alternating current: the dots run from line to neutral only to show the path. The earth wires carry nothing unless there\'s a fault. '+(FR.M.kind==='factory'?'':'The sensor and screen cables are read by the PCB all the time it\'s on. ')+'A dimmed wire isn\'t proof of a dead one: '+(FR.M.kind==='factory'?'':'the SSR and the PCB\'s outputs switch off electronically, and ')+'a reversed outlet puts line on the neutral side. Always unplug before you touch a wire.</p>';
     }
     function nhwBadges(){
       if(!svg||svg.querySelector('.nhb'))return;
