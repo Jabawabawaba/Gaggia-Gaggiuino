@@ -354,8 +354,32 @@
       how:[
         "Before you unplug anything, photograph every connection, each from two angles: the backs of the switches, the pump and its connectors, the boiler top and both thermostats, the inlet, the valve, and anything else with a wire on it.",
         "Get close enough that each switch's spade numbers and each wire's color can be read.",
-        "Keep them in one album. They're how you put anything back."
-      ]
+        "Keep them in one album. They're how you put anything back.",
+        "Tick each one off below as you take it."
+      ],
+      list:{label:"Photos to take",done:"All taken.",items:[
+        ["all","The whole inside from above, before anything moves"],
+        ["psw","Power switch, from the back: every spade and its wire color",null,"fam:GCP"],
+        ["bsw","Brew switch, from the back",null,"fam:GCP"],
+        ["ssw","Steam switch, from the back",null,"fam:GCP"],
+        ["blk","The connector block behind the switches, if yours has one",null,"model:EVO,E24"],
+        ["lmp","The three lamps and where each lead goes",null,"fam:GCP"],
+        ["hsg","The switch housing, from the back: every numbered connector and its wire color",null,"fam:GC"],
+        ["hlm","The housing's lamp leads",null,"fam:GC"],
+        ["elm","Boiler top: all four element terminals"],
+        ["bth","Brew thermostat and its two connectors"],
+        ["sth","Steam thermostat and its two connectors"],
+        ["fus","The thermal fuse on the boiler and both its leads"],
+        ["bgn","The boiler's earth tab and its wire, if it has one"],
+        ["val","3-way valve: both coil spades and its earth tab"],
+        ["pmp","Pump: both connectors and the lead from its thermal fuse"],
+        ["inl","Power inlet, from inside: line, neutral and earth"],
+        ["ert","Earth wires on the chassis, the cup warmer plate and the funnel"],
+        ["spl","Every crimp splice in the harness, where two or three wires join",null,"fam:GCP"],
+        ["eco","The Eco board and its plug, if your machine has one",null,"fam:GCP;volts:230"],
+        ["rtl","How the wires are routed and tied, from the left side"],
+        ["rtr","The same from the right side"]
+      ]}
     },
     p2b:{
       need:"An oil-based permanent marker, or the printed labels.",

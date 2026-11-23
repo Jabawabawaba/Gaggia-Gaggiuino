@@ -119,6 +119,17 @@ h2{font:700 clamp(28px,4.4vw,38px)/1 var(--f-display);letter-spacing:.02em;text-
 .how .hb{padding:0 14px 14px;display:grid;gap:11px}
 .how ol{margin:0;padding-left:26px;display:grid;gap:8px;font-size:16px;line-height:1.5}
 .how ol>li{padding-left:3px}
+.how .sub{margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.how .sub-h{margin:0 0 6px;font-weight:600}
+.how .sub-h .n{font-weight:400;color:var(--muted)}
+.how .sub-ok{margin-left:6px;color:var(--accent-ink);font-weight:600}
+.how .sub ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.how .sub label{display:flex;gap:10px;align-items:flex-start;padding:7px 4px;min-height:44px;box-sizing:border-box;cursor:pointer;font-size:16px;line-height:1.4;border-radius:6px}
+.how .sub label:hover{background:var(--surface)}
+.how .sub input{flex:none;width:22px;height:22px;margin:2px 0 0;accent-color:var(--accent)}
+.how .sub input:checked+span{color:var(--muted);text-decoration:line-through}
+.how .sub small{display:block;color:var(--muted);font-size:13.5px;text-decoration:none}
+.how .sub-a{display:flex;gap:8px;margin:8px 0 0}
 .how ol>li::marker{font:600 14px var(--f-mono);color:var(--accent-ink)}
 .how p{margin:0;font-size:15.5px;line-height:1.5}
 .rlbl{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding:4px 6px;border-radius:4px;margin-right:7px;vertical-align:1px;white-space:nowrap}
@@ -186,6 +197,9 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   .pp-tag{font:600 7.5pt var(--f-mono);border:.6pt solid #000;padding:0 1mm;border-radius:1mm}
   .pp-how{margin:1mm 0 0;padding-left:5mm;font-size:9.5pt;color:#111}
   .pp-how li{margin:.4mm 0}
+  .pp-sub{list-style:none;margin:1mm 0 0;padding:0;font-size:9.5pt;columns:2}
+  .pp-sub li{margin:.6mm 0;break-inside:avoid}
+  .pp-sub .pbox{display:inline-block;width:3mm;height:3mm;border:.3mm solid #111;vertical-align:-0.5mm;text-align:center;font-size:7pt;line-height:3mm}
   .pp-x{font-size:9pt;color:#222;margin-top:.6mm}
   .pp-x b{font:600 7.5pt var(--f-mono);letter-spacing:.05em;text-transform:uppercase}
   .pstep{break-inside:auto}
@@ -324,14 +338,24 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     if(warn)h+='<p class="warn" role="note"><span class="rlbl">Careful:</span> '+rich(s.warn)+'</p>';
     h+=figs;
     if(items.length)h+='<ol>'+items.map(function(x){return '<li>'+itag(x.w)+rich(x.t)+'</li>'}).join('')+'</ol>';
+    h+=subHtml(s);
     if(ok)h+='<p class="ok"><span class="rlbl">Check</span>'+rich(s.ok)+'</p>';
     return h+pics+'</div></details>';
+  }
+  /* a step's own checklist (list: in runbook-how.js): things to tick off one by one inside the step, saved with the ticks */
+  function subItems(s){return s.list?s.list.items.filter(function(x){return okw(x[3])}):[]}
+  function subCount(s){var it=subItems(s),d=state.sub[s.id]||{};return [it.filter(function(x){return d[x[0]]}).length,it.length]}
+  function subHead(s){var c=subCount(s);return esc(s.list.label)+' <span class="n">· '+c[0]+' of '+c[1]+'</span>'+(c[0]===c[1]&&c[1]?' <span class="sub-ok">'+esc(s.list.done||'All done.')+'</span>':'')}
+  function subHtml(s){
+    var it=subItems(s),d=state.sub[s.id]||{};if(!it.length)return '';
+    return '<div class="sub" data-sub="'+esc(s.id)+'"><p class="sub-h">'+subHead(s)+'</p><ul>'+it.map(function(x){return '<li><label><input type="checkbox" data-subk="'+esc(x[0])+'"'+(d[x[0]]?' checked':'')+'><span>'+itag(x[3])+esc(fill(x[1]))+(x[2]?' <small>'+esc(fill(x[2]))+'</small>':'')+'</span></label></li>'}).join('')+'</ul><p class="sub-a"><button type="button" class="chip" data-suball="1">Tick all</button><button type="button" class="chip" data-suball="0">Clear</button></p></div>';
   }
   function howPrint(s){
     var items=howItems(s),h='';
     if(fill(s.need))h+='<div class="pp-x"><b>You need</b> '+esc(plain(s.need))+'</div>';
     if(fill(s.warn))h+='<div class="pp-x"><b>Careful</b> '+esc(plain(s.warn))+'</div>';
     if(items.length)h+='<ol class="pp-how">'+items.map(function(x){return '<li>'+(x.w&&!decidedW(x.w)&&wl(x.w)?'['+esc(wl(x.w))+'] ':'')+esc(plain(x.t))+'</li>'}).join('')+'</ol>';
+    var si=subItems(s),sd=state.sub[s.id]||{};if(si.length)h+='<div class="pp-x"><b>'+esc(s.list.label)+'</b></div><ul class="pp-sub">'+si.map(function(x){return '<li><span class="pbox">'+(sd[x[0]]?'✓':'')+'</span> '+esc(fill(x[1]))+'</li>'}).join('')+'</ul>';
     if(fill(s.ok))h+='<div class="pp-x"><b>Check</b> '+esc(plain(s.ok))+'</div>';
     return h;
   }
@@ -354,11 +378,12 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
     variantHead:function(k){var m=M();if(k==='mnt'&&!state.mount)return 'Front mount shown: pick your mount at the top of the page';if(k==='path'&&!(m&&m.decided&&m.decided('wpath:SI')))return 'Stock wiring shown: set Install path in Your Gaggia';if(k==='fam'&&!PGD.famOf())return 'Classic Pro family shown: set your model in Your Gaggia';return ''}});
 
   /* ---------- state ---------- */
-  function defaults(){return {done:{},notes:{},phase:0,screen:null,mount:null,updatedAt:0}}
+  function defaults(){return {done:{},sub:{},notes:{},phase:0,screen:null,mount:null,updatedAt:0}}
   function normalize(s){
     var o=defaults();if(!s||typeof s!=='object')return o;
     var ids={};ALL.forEach(function(x){ids[x.id]=1});
     if(s.done&&typeof s.done==='object')Object.keys(s.done).forEach(function(k){if(ids[k]&&typeof s.done[k]==='number')o.done[k]=s.done[k]});
+    if(s.sub&&typeof s.sub==='object')Object.keys(s.sub).forEach(function(k){if(ids[k]&&s.sub[k]&&typeof s.sub[k]==='object'){o.sub[k]={};Object.keys(s.sub[k]).slice(0,80).forEach(function(q){if(s.sub[k][q]&&/^[a-z0-9]{1,12}$/.test(q))o.sub[k][q]=1})}});
     if(s.notes&&typeof s.notes==='object')Object.keys(s.notes).forEach(function(k){if(/^p[0-7]$/.test(k)&&typeof s.notes[k]==='string')o.notes[k]=s.notes[k].slice(0,4000)});
     if(typeof s.phase==='number'&&s.phase>=0&&s.phase<PHASES.length)o.phase=Math.floor(s.phase);
     if(s.screen==='p4'||s.screen==='s3'||s.screen==='hl')o.screen=s.screen;
@@ -485,12 +510,21 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   /* ---------- events ---------- */
   function go(i){state.phase=Math.max(0,Math.min(PHASES.length-1,i));touch();renderNav();renderPhase();var t=$('ph-title');if(t){t.focus({preventScroll:true});$('phases').scrollIntoView({behavior:'smooth',block:'start'})}}
   $('phases').addEventListener('click',function(e){var b=e.target.closest('[data-ph]');if(b)go(+b.getAttribute('data-ph'))});
+  function subSync(box){var id=box.getAttribute('data-sub'),s=ALL.filter(function(x){return x.id===id})[0];if(s)box.querySelector('.sub-h').innerHTML=subHead(s)}
   $('phase').addEventListener('change',function(e){
+    var sk=e.target.getAttribute('data-subk');
+    if(sk){var bx=e.target.closest('[data-sub]'),sid=bx.getAttribute('data-sub');state.sub[sid]=state.sub[sid]||{};if(e.target.checked)state.sub[sid][sk]=1;else delete state.sub[sid][sk];touch();subSync(bx);return}
     var id=e.target.getAttribute('data-tick');if(!id)return;
     if(e.target.checked)state.done[id]=Date.now();else delete state.done[id];
     var li=e.target.closest('.step');if(li){li.classList.toggle('done',e.target.checked);var det=li.querySelector('details.how');if(det)det.open=!e.target.checked}
     var w=document.querySelector('[data-done="'+id+'"]');if(w)w.textContent=e.target.checked?'Done '+fmtDate(state.done[id]):'';
     touch();renderNav();renderProgress();markNext();
+  });
+  $('phase').addEventListener('click',function(e){
+    var b=e.target.closest('[data-suball]');if(!b)return;
+    var bx=b.closest('[data-sub]'),sid=bx.getAttribute('data-sub'),on=b.getAttribute('data-suball')==='1';state.sub[sid]={};
+    Array.prototype.forEach.call(bx.querySelectorAll('[data-subk]'),function(c){c.checked=on;if(on)state.sub[sid][c.getAttribute('data-subk')]=1});
+    touch();subSync(bx);
   });
   $('phase').addEventListener('click',function(e){if(!e.target.closest('[data-open-machine]'))return;var m=M();if(m&&m.openPanel)m.openPanel()});
   $('phase').addEventListener('input',function(e){if(e.target.id!=='notes')return;var p=PHASES[state.phase];if(e.target.value)state.notes[p.id]=e.target.value.slice(0,4000);else delete state.notes[p.id];touch()});
@@ -514,7 +548,7 @@ a[href="#"]{pointer-events:none;color:var(--muted);text-decoration:none}
   resetBtn.addEventListener('click',function(){
     if(!resetTimer){resetBtn.textContent='Tap again to clear every tick';resetTimer=setTimeout(function(){resetTimer=null;resetBtn.textContent='Clear all ticks'},4000);return}
     clearTimeout(resetTimer);resetTimer=null;resetBtn.textContent='Clear all ticks';
-    state.done={};touch();renderAll();
+    state.done={};state.sub={};touch();renderAll();
   });
 
   /* links from other pages (the wiring map's back-links): #p3d opens its phase and points at the step */
